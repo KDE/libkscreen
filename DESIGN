@@ -1,0 +1,29 @@
+KDE Screen Management is designed to be cross-platform from the begining, we are not aiming to
+support Windows or Mac (they already have their screen management) but instead we must be sure
+that we will be able to support the different Linux technologies that are present nowdays or the
+ones that will appear in the future (X, Wayland, NVidia...).
+
+The low level bits are un-abstractable, each technology export different kind of information for
+example while XRandR give us stuff like "CRTC" Nvidia will only give us some high level info via
+a binary executable called nvidia-sttings.
+
+But everything is not lost, we can still create an abstraction the only thing we have to do is to
+find something in common between all possible technologies out there, and we call such thing the
+Screen Configuration.
+
+No matter which underneath technology your setup is using, it will always support things like:
+
+· Resolutions
+· Rotations
+· Cloned screens
+· Extended Desktop (screens side by side)
+· Custom modes...
+
+So, instead of abstracting how graphics work we are going to have object(s) representing how your
+screens are setup or are going to be setup.
+
+This objects will travel through our architecture until they reach the code where they will be
+translated into per-platform instructions, for example in case of XRandR the sytem will use
+libxrandr while with NVidia we will use nvidia-settings.
+
+The architecture should look as follow:
