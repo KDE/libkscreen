@@ -18,8 +18,9 @@
 
 #include "screen.h"
 #include "crtc.h"
+#include "output.h"
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 namespace QRandR {
 
@@ -84,6 +85,23 @@ QList< Crtc* > Screen::crtc()
     }
 
     return m_crtc;
+}
+
+QList< Output* > Screen::outputs()
+{
+    if (!m_outputs.isEmpty()) {
+        return m_outputs;
+    }
+
+    XRRScreenResources *screenResources = resources();
+
+    for (int i = 0; i < screenResources->noutput; ++i)
+    {
+        m_outputs.append(new QRandR::Output(this, screenResources->outputs[i]));
+        return m_outputs;
+    }
+
+    return m_outputs;
 }
 
 void Screen::getMinAndMaxSize()

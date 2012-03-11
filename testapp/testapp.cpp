@@ -22,6 +22,8 @@
 #include "../src/lib/xrandr.h"
 #include "../src/lib/screen.h"
 #include "../src/lib/crtc.h"
+#include "../src/lib/output.h"
+#include "../src/lib/mode.h"
 
 int main(int argc, char *argv[])
 {
@@ -54,6 +56,24 @@ int main(int argc, char *argv[])
         Q_FOREACH(QRandR::Crtc *crtc, crtcList) {
             qDebug() << "\tChecking CRTC: " << crtc->id();
             qDebug() << "\t\tRect: " << crtc->rect();
+        }
+
+        QList <QRandR::Output* > outputList = screen->outputs();
+
+        qDebug() << "Num of Output: " << outputList.count();
+        Q_FOREACH(QRandR::Output *output, outputList) {
+            qDebug() << "\tChecking Output: " << output->id();
+            qDebug() << "\t\tName: " << output->name();
+            qDebug() << "\t\tEnabled: " << output->isEnabled();
+            qDebug() << "\t\tConnected: " << output->isConnected();
+            qDebug();
+
+            QList <QRandR::Mode* > modesList = output->modes();
+
+            qDebug() << "\t\tNum of Modes: " << modesList.count();
+            Q_FOREACH(QRandR::Mode *mode, modesList) {
+                qDebug() << "\t\t\t" << mode->name();
+            }
         }
     }
 

@@ -16,55 +16,46 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA   *
  *************************************************************************************/
 
-#ifndef QSCREEN_H
-#define QSCREEN_H
+#ifndef QOUTPUT_H
+#define QOUTPUT_H
 
 #include "xlibandxrandr.h"
 
 #include <QtCore/QObject>
-#include <QtCore/QSize>
+#include <QtCore/QRect>
 
 namespace QRandR {
 
-class Crtc;
-class Output;
+class Mode;
+class Screen;
 
-class Screen : public QObject
+class Output : public QObject
 {
-    friend class Crtc;
-    friend class Output;
-
     Q_OBJECT
 
     public:
-        Screen (int screenId, Display* display);
-        virtual ~Screen();
+        Output (Screen *parent, RROutput id);
+        virtual ~Output();
 
-        const QSize minSize();
-        const QSize maxSize();
-        const QSize currentSize();
-
-        QList<Crtc *> crtc();
-        QList<Output *> outputs();
-
-    private:
-        void getMinAndMaxSize();
-        Window rootWindow();
-        XRRScreenResources* resources();
+        const QString& name();
+        QList<Mode*> modes();
+        bool isConnected();
+        bool isEnabled();
+        RROutput id() const;
 
     private:
-        int m_id;
-        Display *m_display;
-        Window m_rootWindow;
-        QSize m_minSize;
-        QSize m_maxSize;
-        QSize m_currentSize;
+        XRROutputInfo* info();
 
-        XRRScreenResources *m_resources;
-        QList<Crtc *> m_crtc;
-        QList<Output *> m_outputs;
+    private:
+        QString m_name;
+        QRect m_rect;
+        RROutput m_id;
+        XRROutputInfo *m_info;
+        Screen *m_parent;
+
+        QList<Mode *> m_modes;
 };
 
-#endif //QSCREEN_H
-
 }
+
+#endif //QOUTPUT_H

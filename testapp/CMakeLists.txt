@@ -4,6 +4,8 @@ set(testApp_SRCS
     ../src/lib/xrandr.cpp
     ../src/lib/screen.cpp
     ../src/lib/crtc.cpp
+    ../src/lib/output.cpp
+    ../src/lib/mode.cpp
     testapp.cpp
 )
 

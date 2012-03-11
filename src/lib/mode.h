@@ -16,55 +16,38 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA   *
  *************************************************************************************/
 
-#ifndef QSCREEN_H
-#define QSCREEN_H
+#ifndef QMODE_H
+#define QMODE_H
 
 #include "xlibandxrandr.h"
 
-#include <QtCore/QObject>
 #include <QtCore/QSize>
+#include <QtCore/QObject>
 
 namespace QRandR {
 
-class Crtc;
 class Output;
 
-class Screen : public QObject
+class Mode : public QObject
 {
-    friend class Crtc;
-    friend class Output;
-
     Q_OBJECT
 
     public:
-        Screen (int screenId, Display* display);
-        virtual ~Screen();
+        Mode (Output *parent, XRRModeInfo *info);
+        virtual ~Mode();
 
-        const QSize minSize();
-        const QSize maxSize();
-        const QSize currentSize();
-
-        QList<Crtc *> crtc();
-        QList<Output *> outputs();
+        const QString& name();
+        const QSize& size();
+        float rate();
 
     private:
-        void getMinAndMaxSize();
-        Window rootWindow();
-        XRRScreenResources* resources();
-
-    private:
-        int m_id;
-        Display *m_display;
-        Window m_rootWindow;
-        QSize m_minSize;
-        QSize m_maxSize;
-        QSize m_currentSize;
-
-        XRRScreenResources *m_resources;
-        QList<Crtc *> m_crtc;
-        QList<Output *> m_outputs;
+        float m_rate;
+        QSize m_size;
+        QString m_name;
+        Output *m_parent;
+        XRRModeInfo *m_info;
 };
 
-#endif //QSCREEN_H
+#endif //QMODE_H
 
 }

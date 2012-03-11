@@ -16,55 +16,74 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA   *
  *************************************************************************************/
 
-#ifndef QSCREEN_H
-#define QSCREEN_H
+#include "output.h"
+#include "screen.h"
+#include "output.h"
+#include "mode.h"
 
-#include "xlibandxrandr.h"
-
-#include <QtCore/QObject>
-#include <QtCore/QSize>
+#include <QtGui/QX11Info>
 
 namespace QRandR {
 
-class Crtc;
-class Output;
-
-class Screen : public QObject
+Output::Output(Screen* parent, RROutput id)
+: m_id(id)
+, m_info(0)
+, m_parent(parent)
 {
-    friend class Crtc;
-    friend class Output;
+}
 
-    Q_OBJECT
+Output::~Output()
+{
+}
 
-    public:
-        Screen (int screenId, Display* display);
-        virtual ~Screen();
+RROutput Output::id() const
+{
+    return m_id;
+}
 
-        const QSize minSize();
-        const QSize maxSize();
-        const QSize currentSize();
+const QString& Output::name()
+{
+    if (m_name.isEmpty()) {
+        m_name = info()->name;
+    }
 
-        QList<Crtc *> crtc();
-        QList<Output *> outputs();
+    return m_name;
+}
 
-    private:
-        void getMinAndMaxSize();
-        Window rootWindow();
-        XRRScreenResources* resources();
+bool Output::isConnected()
+{
+    return info()->connection == RR_Connected;
+}
 
-    private:
-        int m_id;
-        Display *m_display;
-        Window m_rootWindow;
-        QSize m_minSize;
-        QSize m_maxSize;
-        QSize m_currentSize;
+bool Output::isEnabled()
+{
+    return info()->crtc != None;
+}
 
-        XRRScreenResources *m_resources;
-        QList<Crtc *> m_crtc;
-        QList<Output *> m_outputs;
-};
+QList< Mode* > Output::modes()
+{
+    if (!m_modes.isEmpty()) {
+        return m_modes;
+    }
 
-#endif //QSCREEN_H
+    XRROutputInfo *outputInfo = info();
+
+    XRRScreenResources* resources = m_parent->resources();
+    for (int i = 0; i < outputInfo->nmode; ++i)
+    {
+        m_modes.append(new QRandR::Mode(this,  &resources->modes[i]));
+    }
+
+    return m_modes;
+}
+
+XRROutputInfo* Output::info()
+{
+    if (!m_info) {
+        m_info = XRRGetOutputInfo(QX11Info::display(), m_parent->resources(), m_id);
+    }
+
+    return m_info;
+}
 
 }

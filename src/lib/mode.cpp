@@ -16,55 +16,57 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA   *
  *************************************************************************************/
 
-#ifndef QSCREEN_H
-#define QSCREEN_H
+#include "mode.h"
+#include "output.h"
 
-#include "xlibandxrandr.h"
-
-#include <QtCore/QObject>
-#include <QtCore/QSize>
-
+#include <QtCore/QDebug>
 namespace QRandR {
 
-class Crtc;
-class Output;
-
-class Screen : public QObject
+Mode::Mode(Output* parent, XRRModeInfo* info)
+: m_parent(parent)
+, m_info(info)
+, m_rate(-1)
 {
-    friend class Crtc;
-    friend class Output;
+}
 
-    Q_OBJECT
+Mode::~Mode()
+{
 
-    public:
-        Screen (int screenId, Display* display);
-        virtual ~Screen();
+}
 
-        const QSize minSize();
-        const QSize maxSize();
-        const QSize currentSize();
+const QString& Mode::name()
+{
+    if (!m_name.isEmpty()) {
+        return m_name;
+    }
 
-        QList<Crtc *> crtc();
-        QList<Output *> outputs();
+    m_name = QString::fromUtf8(m_info->name);
 
-    private:
-        void getMinAndMaxSize();
-        Window rootWindow();
-        XRRScreenResources* resources();
+    return m_name;
+}
 
-    private:
-        int m_id;
-        Display *m_display;
-        Window m_rootWindow;
-        QSize m_minSize;
-        QSize m_maxSize;
-        QSize m_currentSize;
+const QSize& Mode::size()
+{
+    if (!m_size.isEmpty()) {
+        return m_size;
+    }
 
-        XRRScreenResources *m_resources;
-        QList<Crtc *> m_crtc;
-        QList<Output *> m_outputs;
-};
+    m_size.setWidth(m_info->width);
+    m_size.setHeight(m_info->height);
 
-#endif //QSCREEN_H
+    return m_size;
+}
+
+float Mode::rate()
+{
+    if (m_rate != -1) {
+        return m_rate;
+    }
+
+    m_rate = ((float) m_info->dotClock / ((float) m_info->hTotal * (float) m_info->vTotal));
+
+    return m_rate;
+}
+
 
 }
