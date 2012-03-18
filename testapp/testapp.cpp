@@ -75,6 +75,13 @@ int main(int argc, char *argv[])
                 qDebug() << "\t\t\t" << mode->name() << "\t" << mode->rate();
             }
         }
+
+        qDebug();
+        QHash<RRMode, QRandR::Mode*> modeList = screen->modes();
+        qDebug() << "Num of Modes: " << modeList.count();
+        Q_FOREACH(QRandR::Mode *mode, modeList) {
+            qDebug() << "\t" << mode->name() << "\t" << mode->rate();
+        }
     }
 
 //     return app.exec();
