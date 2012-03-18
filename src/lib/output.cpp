@@ -21,6 +21,7 @@
 #include "output.h"
 #include "mode.h"
 
+#include <QtCore/QDebug>
 #include <QtGui/QX11Info>
 
 namespace QRandR {
@@ -66,13 +67,13 @@ QHash<RRMode,  Mode* > Output::modes()
         return m_modes;
     }
 
-    XRROutputInfo *outputInfo = info();
-
     RRMode id;
-    XRRScreenResources* resources = m_parent->resources();
+    XRROutputInfo* outputInfo = info();
+    XRRScreenResources *resources = m_parent->resources();
+    qDebug() << "Total: " << name() << " " << outputInfo->nmode;
     for (int i = 0; i < outputInfo->nmode; ++i)
     {
-        id = resources->modes[i].id;
+        id = outputInfo->modes[i];
         m_modes[id] = new QRandR::Mode(this,  &resources->modes[i]);
     }
 
