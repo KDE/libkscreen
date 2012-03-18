@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
 
             qDebug() << "\t\tNum of Modes: " << modesList.count();
             Q_FOREACH(QRandR::Mode *mode, modesList) {
-                qDebug() << "\t\t\t" << mode->name();
+                qDebug() << "\t\t\t" << mode->name() << "\t" << mode->rate();
             }
         }
     }
