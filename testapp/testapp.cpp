@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
             qDebug() << "\t\tConnected: " << output->isConnected();
             qDebug();
 
-            QList <QRandR::Mode* > modesList = output->modes();
+            QHash <RRMode, QRandR::Mode* > modesList = output->modes();
 
             qDebug() << "\t\tNum of Modes: " << modesList.count();
             Q_FOREACH(QRandR::Mode *mode, modesList) {

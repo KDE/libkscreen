@@ -60,7 +60,7 @@ bool Output::isEnabled()
     return info()->crtc != None;
 }
 
-QList< Mode* > Output::modes()
+QHash<RRMode,  Mode* > Output::modes()
 {
     if (!m_modes.isEmpty()) {
         return m_modes;
@@ -68,10 +68,12 @@ QList< Mode* > Output::modes()
 
     XRROutputInfo *outputInfo = info();
 
+    RRMode id;
     XRRScreenResources* resources = m_parent->resources();
     for (int i = 0; i < outputInfo->nmode; ++i)
     {
-        m_modes.append(new QRandR::Mode(this,  &resources->modes[i]));
+        id = resources->modes[i].id;
+        m_modes[id] = new QRandR::Mode(this,  &resources->modes[i]);
     }
 
     return m_modes;

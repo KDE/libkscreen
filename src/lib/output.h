@@ -23,6 +23,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QRect>
+#include <QtCore/QHash>
 
 namespace QRandR {
 
@@ -38,7 +39,7 @@ class Output : public QObject
         virtual ~Output();
 
         const QString& name();
-        QList<Mode*> modes();
+        QHash<RRMode, Mode*> modes();
         bool isConnected();
         bool isEnabled();
         RROutput id() const;
@@ -53,7 +54,7 @@ class Output : public QObject
         XRROutputInfo *m_info;
         Screen *m_parent;
 
-        QList<Mode *> m_modes;
+        QHash<RRMode, Mode *> m_modes;
 };
 
 }
