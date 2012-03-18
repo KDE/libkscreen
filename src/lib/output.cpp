@@ -69,12 +69,10 @@ QHash<RRMode,  Mode* > Output::modes()
 
     RRMode id;
     XRROutputInfo* outputInfo = info();
-    XRRScreenResources *resources = m_parent->resources();
-    qDebug() << "Total: " << name() << " " << outputInfo->nmode;
     for (int i = 0; i < outputInfo->nmode; ++i)
     {
         id = outputInfo->modes[i];
-        m_modes[id] = new QRandR::Mode(this,  &resources->modes[i]);
+        m_modes[id] = m_parent->mode(id);
     }
 
     return m_modes;
