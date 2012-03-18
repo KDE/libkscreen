@@ -17,17 +17,18 @@
  *************************************************************************************/
 
 #include "mode.h"
-#include "output.h"
+#include "screen.h"
 
 #include <QtCore/QDebug>
 namespace QRandR {
 
-Mode::Mode(Output* parent, XRRModeInfo* info)
-: m_parent(parent)
+Mode::Mode(Screen* parent, XRRModeInfo* info) : QObject(parent)
+, m_parent(parent)
 , m_info(info)
 , m_rate(-1)
 {
 }
+
 
 Mode::~Mode()
 {

@@ -27,6 +27,7 @@
 
 namespace QRandR {
 
+class Mode;
 class Crtc;
 class Output;
 
@@ -47,6 +48,9 @@ class Screen : public QObject
 
         QHash<RROutput, Crtc *> crtc();
         QHash<RROutput, Output *> outputs();
+        QHash<RRMode, Mode *> modes();
+
+        Mode* mode(RRMode id);
 
     private:
         void getMinAndMaxSize();
@@ -64,6 +68,7 @@ class Screen : public QObject
         XRRScreenResources *m_resources;
         QHash<RROutput, Crtc *> m_crtc;
         QHash<RROutput, Output *> m_outputs;
+        QHash<RRMode, Mode *> m_modes;
 };
 
 #endif //QSCREEN_H

@@ -19,6 +19,7 @@
 #include "screen.h"
 #include "crtc.h"
 #include "output.h"
+#include "mode.h"
 
 #include <QtCore/QDebug>
 
@@ -105,6 +106,32 @@ QHash<RROutput, Output *> Screen::outputs()
     }
 
     return m_outputs;
+}
+
+QHash<RRMode,  Mode* > Screen::modes()
+{
+    if (!m_modes.isEmpty()) {
+        return m_modes;
+    }
+
+    RRMode id;
+    XRRScreenResources *screenResources = resources();
+    for (int i = 0; i < screenResources->nmode; ++i)
+    {
+        id = screenResources->modes[i].id;
+        m_modes[id] = new QRandR::Mode(this,  &screenResources->modes[i]);
+    }
+
+    return m_modes;
+}
+
+Mode* Screen::mode(RRMode id)
+{
+     if (m_modes.isEmpty()) {
+         modes();
+     }
+
+     return m_modes.value(id);
 }
 
 void Screen::getMinAndMaxSize()

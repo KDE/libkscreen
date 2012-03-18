@@ -26,6 +26,7 @@
 
 namespace QRandR {
 
+class Screen;
 class Output;
 
 class Mode : public QObject
@@ -33,7 +34,7 @@ class Mode : public QObject
     Q_OBJECT
 
     public:
-        Mode (Output *parent, XRRModeInfo *info);
+        Mode (Screen *parent, XRRModeInfo *info);
         virtual ~Mode();
 
         const QString& name();
@@ -44,7 +45,7 @@ class Mode : public QObject
         float m_rate;
         QSize m_size;
         QString m_name;
-        Output *m_parent;
+        Screen *m_parent;
         XRRModeInfo *m_info;
 };
 
