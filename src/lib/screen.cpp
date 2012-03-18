@@ -71,7 +71,7 @@ const QSize Screen::currentSize()
     return m_currentSize;
 }
 
-QList< Crtc* > Screen::crtc()
+QHash<RRCrtc, Crtc *> Screen::crtc()
 {
     if (!m_crtc.isEmpty()) {
         return m_crtc;
@@ -79,15 +79,17 @@ QList< Crtc* > Screen::crtc()
 
     XRRScreenResources *screenResources = resources();
 
+    RRCrtc id;
     for (int i = 0; i < screenResources->ncrtc; ++i)
     {
-        m_crtc.append(new QRandR::Crtc(this, screenResources->crtcs[i]));
+        id = screenResources->crtcs[i];
+        m_crtc[id] =new QRandR::Crtc(this, id);
     }
 
     return m_crtc;
 }
 
-QList< Output* > Screen::outputs()
+QHash<RROutput, Output *> Screen::outputs()
 {
     if (!m_outputs.isEmpty()) {
         return m_outputs;
@@ -95,10 +97,11 @@ QList< Output* > Screen::outputs()
 
     XRRScreenResources *screenResources = resources();
 
+    RROutput id;
     for (int i = 0; i < screenResources->noutput; ++i)
     {
-        m_outputs.append(new QRandR::Output(this, screenResources->outputs[i]));
-        return m_outputs;
+        id = screenResources->outputs[i];
+        m_outputs[id] = new QRandR::Output(this, id);
     }
 
     return m_outputs;

@@ -23,6 +23,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QSize>
+#include <QtCore/QHash>
 
 namespace QRandR {
 
@@ -44,8 +45,8 @@ class Screen : public QObject
         const QSize maxSize();
         const QSize currentSize();
 
-        QList<Crtc *> crtc();
-        QList<Output *> outputs();
+        QHash<RROutput, Crtc *> crtc();
+        QHash<RROutput, Output *> outputs();
 
     private:
         void getMinAndMaxSize();
@@ -61,8 +62,8 @@ class Screen : public QObject
         QSize m_currentSize;
 
         XRRScreenResources *m_resources;
-        QList<Crtc *> m_crtc;
-        QList<Output *> m_outputs;
+        QHash<RROutput, Crtc *> m_crtc;
+        QHash<RROutput, Output *> m_outputs;
 };
 
 #endif //QSCREEN_H

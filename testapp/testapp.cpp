@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
                  << "MaxSize: " << maxSize.width() << "x" << maxSize.height()
                  << "CurrentSize: " << currentSize.width() << "x" << currentSize.height();
 
-        QList <QRandR::Crtc* > crtcList = screen->crtc();
+        QHash <RROutput, QRandR::Crtc* > crtcList = screen->crtc();
 
         qDebug() << "Num of CRTC: " << crtcList.count();
         Q_FOREACH(QRandR::Crtc *crtc, crtcList) {
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
             qDebug() << "\t\tRect: " << crtc->rect();
         }
 
-        QList <QRandR::Output* > outputList = screen->outputs();
+        QHash <RROutput, QRandR::Output* > outputList = screen->outputs();
 
         qDebug() << "Num of Output: " << outputList.count();
         Q_FOREACH(QRandR::Output *output, outputList) {
