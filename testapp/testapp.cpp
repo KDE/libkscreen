@@ -64,6 +64,7 @@ int main(int argc, char *argv[])
         Q_FOREACH(QRandR::Output *output, outputList) {
             qDebug() << "\tChecking Output: " << output->id();
             qDebug() << "\t\tName: " << output->name();
+            qDebug() << "\t\tPrimary: " << output->isPrimary();
             qDebug() << "\t\tEnabled: " << output->isEnabled();
             qDebug() << "\t\tConnected: " << output->isConnected();
             qDebug();
