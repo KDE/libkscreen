@@ -61,6 +61,7 @@ class Screen : public QObject
         int m_id;
         Display *m_display;
         Window m_rootWindow;
+        RROutput m_primary;
         QSize m_minSize;
         QSize m_maxSize;
         QSize m_currentSize;

@@ -30,6 +30,7 @@ Output::Output(Screen* parent, RROutput id)
 : m_id(id)
 , m_info(0)
 , m_parent(parent)
+, m_primary(false)
 {
 }
 
@@ -76,6 +77,16 @@ QHash<RRMode,  Mode* > Output::modes()
     }
 
     return m_modes;
+}
+
+bool Output::isPrimary()
+{
+    return m_primary;
+}
+
+void Output::setPrimary(bool primary)
+{
+    m_primary = primary;
 }
 
 XRROutputInfo* Output::info()

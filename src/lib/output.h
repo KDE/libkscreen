@@ -32,6 +32,8 @@ class Screen;
 
 class Output : public QObject
 {
+    friend class Screen;
+
     Q_OBJECT
 
     public:
@@ -42,9 +44,11 @@ class Output : public QObject
         QHash<RRMode, Mode*> modes();
         bool isConnected();
         bool isEnabled();
+        bool isPrimary();
         RROutput id() const;
 
     private:
+        void setPrimary(bool primary);
         XRROutputInfo* info();
 
     private:
@@ -53,6 +57,7 @@ class Output : public QObject
         RROutput m_id;
         XRROutputInfo *m_info;
         Screen *m_parent;
+        bool m_primary;
 
         QHash<RRMode, Mode *> m_modes;
 };

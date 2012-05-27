@@ -99,10 +99,15 @@ QHash<RROutput, Output *> Screen::outputs()
     XRRScreenResources *screenResources = resources();
 
     RROutput id;
+    RROutput m_primary = XRRGetOutputPrimary(m_display, rootWindow());
+
     for (int i = 0; i < screenResources->noutput; ++i)
     {
         id = screenResources->outputs[i];
         m_outputs[id] = new QRandR::Output(this, id);
+        if (m_primary == id) {
+            m_outputs[id]->setPrimary(true);
+        }
     }
 
     return m_outputs;
