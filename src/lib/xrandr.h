@@ -51,6 +51,8 @@ class XRandR : public QObject
         void setDisplay(Display *display);
         void handleEvent(XEvent *event);
 
+        void passEventToScreens(XRRScreenChangeNotifyEvent *event);
+
     private:
         static XRandR *s_instance;
         static QCoreApplication::EventFilter s_oldEventFilter;

@@ -99,7 +99,7 @@ QHash<RROutput, Output *> Screen::outputs()
     XRRScreenResources *screenResources = resources();
 
     RROutput id;
-    RROutput m_primary = XRRGetOutputPrimary(m_display, rootWindow());
+    m_primary = XRRGetOutputPrimary(m_display, rootWindow());
 
     for (int i = 0; i < screenResources->noutput; ++i)
     {
@@ -171,5 +171,23 @@ XRRScreenResources* Screen::resources()
     return m_resources;
 }
 
+void Screen::handleEvent(XRRScreenChangeNotifyEvent* event)
+{
+    qDebug() << "Handle Event";
+    m_currentSize.setWidth(event->width);
+    m_currentSize.setHeight(event->height);
 
+    RROutput primary = XRRGetOutputPrimary(m_display, rootWindow());
+
+    qDebug() << primary << " " << m_primary;
+
+    if (primary != m_primary) {
+        outputs()[m_primary]->setPrimary(false);
+        outputs()[primary]->setPrimary(true);
+
+        m_primary = primary;
+
+        qDebug() << "Priary changed";
+    }
+}
 }

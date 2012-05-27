@@ -111,6 +111,7 @@ void XRandR::handleEvent(XEvent* event)
     if (event->type == XRandR::s_RRScreen) {
         XRRScreenChangeNotifyEvent *screenEvent = (XRRScreenChangeNotifyEvent*) event;
         qDebug() << "RRScreenChangeNotify";
+        passEventToScreens(screenEvent);
     } else if (event->type == XRandR::s_RRNotify) {
         XRRNotifyEvent *notifyEvent = (XRRNotifyEvent*) event;
         qDebug() << "RRNotify";
@@ -122,6 +123,13 @@ void XRandR::handleEvent(XEvent* event)
         } else {
             qDebug() << "RRNotify_OutputProperty";
         }
+    }
+}
+
+void XRandR::passEventToScreens(XRRScreenChangeNotifyEvent* event)
+{
+    Q_FOREACH(QRandR::Screen *screen, m_screens) {
+        screen->handleEvent(event);
     }
 }
 

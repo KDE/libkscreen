@@ -52,6 +52,8 @@ class Screen : public QObject
 
         Mode* mode(RRMode id);
 
+        void handleEvent(XRRScreenChangeNotifyEvent *event);
+
     private:
         void getMinAndMaxSize();
         Window rootWindow();
