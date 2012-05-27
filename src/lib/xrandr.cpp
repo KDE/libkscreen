@@ -25,8 +25,11 @@
 #include "xrandr.h"
 #include "screen.h"
 
+int XRandR::s_RRNotify = 0;
+int XRandR::s_RRScreen = 0;
 bool XRandR::has_1_3 = false;
 XRandR *XRandR::s_instance = 0;
+QCoreApplication::EventFilter XRandR::s_oldEventFilter = 0;
 
 XRandR* XRandR::self()
 {
@@ -41,6 +44,9 @@ XRandR* XRandR::self()
         kDebug() << "The XRandR extension doesn't seems to be installed";
         return 0;
     }
+
+    s_RRNotify = eventBase + RRNotify;
+    s_RRScreen = eventBase + RRScreenChangeNotify;
 
     int majorVersion, minorVersion;
     XRRQueryVersion(display, &majorVersion, &minorVersion);
@@ -59,10 +65,29 @@ XRandR* XRandR::self()
     s_instance->setVersion(minorVersion, majorVersion);
     s_instance->setDisplay(display);
 
+    s_oldEventFilter = QCoreApplication::instance()->setEventFilter(XRandR::x11EventFilter);
+
     return s_instance;
 }
 
+bool XRandR::x11EventFilter(void* message, long int* result)
+{
+    XEvent *event = reinterpret_cast<XEvent*>(message);
+    if (event->type == s_RRNotify || event->type == s_RRScreen) {
+        s_instance->handleEvent(event);
+    }
+
+    if (s_oldEventFilter) {
+        return s_oldEventFilter(message, result);
+    }
+
+    //If we don't have any previous eventFilter we assume that we don't have any GUI ergo
+    //we can stop any propagation
+    return true;
+}
+
 XRandR::XRandR() : QObject()
+, m_display(0)
 {
 }
 
@@ -80,6 +105,31 @@ void XRandR::setDisplay(Display* display)
 {
     m_display = display;
 }
+
+void XRandR::handleEvent(XEvent* event)
+{
+    if (event->type == XRandR::s_RRScreen) {
+        XRRScreenChangeNotifyEvent *screenEvent = (XRRScreenChangeNotifyEvent*) event;
+        qDebug() << "RRScreenChangeNotify";
+    } else if (event->type == XRandR::s_RRNotify) {
+        XRRNotifyEvent *notifyEvent = (XRRNotifyEvent*) event;
+        qDebug() << "RRNotify";
+        if (notifyEvent->subtype == RRNotify_CrtcChange) {
+            qDebug() << "RRNotify_CrtcChange";
+        } else if (notifyEvent->subtype == RRNotify_OutputChange) {
+            XRROutputChangeNotifyEvent *rolf = (XRROutputChangeNotifyEvent*) notifyEvent;
+            qDebug() << "RRNotify_OutputChange: " << rolf->output;
+        } else {
+            qDebug() << "RRNotify_OutputProperty";
+        }
+    }
+}
+
+Display* XRandR::display()
+{
+    return m_display;
+}
+
 
 QList< QRandR::Screen* > XRandR::screens()
 {

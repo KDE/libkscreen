@@ -22,6 +22,7 @@
 
 #include "xlibandxrandr.h"
 
+#include <QtCore/QCoreApplication>
 #include <QObject>
 #include <QPair>
 
@@ -31,11 +32,15 @@ namespace QRandR {
 
 class XRandR : public QObject
 {
+    Q_OBJECT
+
     public:
         static XRandR *self();
+        static bool x11EventFilter(void *message, long int *result);
 
         QPair<int, int> version();
         QList<QRandR::Screen *> screens();
+        Display *display();
 
     public:
         static bool has_1_3;
@@ -44,9 +49,12 @@ class XRandR : public QObject
         XRandR();
         void setVersion(int major, int minor);
         void setDisplay(Display *display);
+        void handleEvent(XEvent *event);
 
     private:
         static XRandR *s_instance;
+        static QCoreApplication::EventFilter s_oldEventFilter;
+        static int s_RRScreen, s_RRNotify;
 
         Display *m_display;
         QPair<int,int> m_version;
