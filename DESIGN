@@ -27,3 +27,37 @@ translated into per-platform instructions, for example in case of XRandR the syt
 libxrandr while with NVidia we will use nvidia-settings.
 
 The architecture should look as follow:
+
+QRandR:
+    -QRandR is a wrapper above xrandr adding only Qish api but NOT abstracting XRandR specifics,
+    so if for enabling an Outut you have to "assign" a CRTC to it you will stil have to, the
+    difference is that instead of doing something like
+
+    XRRSetCrtcConfig(display, resources, crtcID, tiomestamp , x, y, modeID, RR_Rotate_0, outputs2, outupts2.count);
+
+    you will be able to do something like:
+    CrtcConfig config;
+    config.setX(x)
+    config.setY(y)
+    config.setMode(output->mode())
+    config.setOutput(output)
+    Crtc->setConfig(config);
+
+    API not final.
+
+    Due to how XRandR works, it makes no sense to try to be smart and only fetch data when
+    requested. Instead we will fill the object once instanced.
+
+    We will try to do it in a constant way of possible and without copies.
+
+Config system:
+    The config system will work more or less as follow:
+
+    As explained before the only place where we can abstract the api is Configuration, so we will
+    have an object with properties as:
+
+    SetConi
+    -Outputs
+    -Output po
+    -primary
+    -
