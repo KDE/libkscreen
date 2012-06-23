@@ -20,6 +20,7 @@
 #include "screen.h"
 #include "output.h"
 #include "mode.h"
+#include "crtc.h"
 
 #include <QtCore/QDebug>
 #include <QtGui/QX11Info>
@@ -31,6 +32,7 @@ Output::Output(Screen* parent, RROutput id)
 , m_info(0)
 , m_parent(parent)
 , m_primary(false)
+, m_crtc(0)
 {
 }
 
@@ -87,6 +89,15 @@ bool Output::isPrimary()
 void Output::setPrimary(bool primary)
 {
     m_primary = primary;
+}
+
+Crtc* Output::crtc()
+{
+    if (!m_crtc) {
+        m_crtc = m_parent->crtc(info()->crtc);
+    }
+
+    return m_crtc;
 }
 
 XRROutputInfo* Output::info()

@@ -28,6 +28,7 @@
 namespace QRandR {
 
 class Mode;
+class Crtc;
 class Screen;
 
 class Output : public QObject
@@ -46,6 +47,7 @@ class Output : public QObject
         bool isEnabled();
         bool isPrimary();
         RROutput id() const;
+        Crtc* crtc();
 
     private:
         void setPrimary(bool primary);
@@ -58,6 +60,7 @@ class Output : public QObject
         XRROutputInfo *m_info;
         Screen *m_parent;
         bool m_primary;
+        Crtc *m_crtc;
 
         QHash<RRMode, Mode *> m_modes;
 };

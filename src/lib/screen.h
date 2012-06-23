@@ -51,6 +51,7 @@ class Screen : public QObject
         QHash<RRMode, Mode *> modes();
 
         Mode* mode(RRMode id);
+        Crtc* crtc(RRCrtc id);
 
         void handleEvent(XRRScreenChangeNotifyEvent *event);
 

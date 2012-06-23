@@ -67,6 +67,11 @@ int main(int argc, char *argv[])
             qDebug() << "\t\tPrimary: " << output->isPrimary();
             qDebug() << "\t\tEnabled: " << output->isEnabled();
             qDebug() << "\t\tConnected: " << output->isConnected();
+            if (output->crtc()) {
+                qDebug() << "\t\tCrtc: " << output->crtc()->id();
+            } else {
+                qDebug() << "\t\tCrtc: " << "None";
+            }
             qDebug();
 
             QHash <RRMode, QRandR::Mode* > modesList = output->modes();

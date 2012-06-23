@@ -19,6 +19,7 @@
 #include "crtc.h"
 #include "screen.h"
 
+#include <QDebug>
 #include <QX11Info>
 
 namespace QRandR {

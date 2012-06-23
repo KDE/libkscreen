@@ -139,6 +139,15 @@ Mode* Screen::mode(RRMode id)
      return m_modes.value(id);
 }
 
+Crtc* Screen::crtc(RRCrtc id)
+{
+    if (m_crtc.isEmpty()) {
+        crtc();
+    }
+
+    return m_crtc.value(id);
+}
+
 void Screen::getMinAndMaxSize()
 {
     int minWidth, minHeight, maxWidth, maxHeight;
