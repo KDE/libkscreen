@@ -81,6 +81,11 @@ QHash<RRMode,  Mode* > Output::modes()
     return m_modes;
 }
 
+Mode* Output::mode()
+{
+    return crtc()->mode();
+}
+
 bool Output::isPrimary()
 {
     return m_primary;

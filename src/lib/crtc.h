@@ -26,6 +26,7 @@
 
 namespace QRandR {
 
+class Mode;
 class Screen;
 
 class Crtc : public QObject
@@ -39,6 +40,8 @@ class Crtc : public QObject
         QRect rect();
         RRCrtc id() const;
 
+        Mode *mode();
+
     private:
         XRRCrtcInfo* info();
 
@@ -47,6 +50,7 @@ class Crtc : public QObject
         RRCrtc m_id;
         XRRCrtcInfo *m_info;
         Screen *m_parent;
+        Mode *m_mode;
 };
 
 #endif //QCRTC_H

@@ -43,6 +43,7 @@ class Output : public QObject
 
         const QString& name();
         QHash<RRMode, Mode*> modes();
+        Mode *mode();
         bool isConnected();
         bool isEnabled();
         bool isPrimary();
@@ -61,6 +62,7 @@ class Output : public QObject
         Screen *m_parent;
         bool m_primary;
         Crtc *m_crtc;
+        Mode *m_mode;
 
         QHash<RRMode, Mode *> m_modes;
 };

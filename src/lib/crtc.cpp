@@ -18,6 +18,7 @@
 
 #include "crtc.h"
 #include "screen.h"
+#include "mode.h"
 
 #include <QDebug>
 #include <QX11Info>
@@ -28,6 +29,7 @@ Crtc::Crtc(Screen* parent, RRCrtc id)
 : m_id(id)
 , m_info(0)
 , m_parent(parent)
+, m_mode(0)
 {
 }
 
@@ -48,6 +50,15 @@ QRect Crtc::rect()
     }
 
     return m_rect;
+}
+
+Mode* Crtc::mode()
+{
+    if (!m_mode) {
+        m_mode = m_parent->mode(info()->mode);
+    }
+
+    return m_mode;
 }
 
 XRRCrtcInfo* Crtc::info()

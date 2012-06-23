@@ -68,8 +68,10 @@ int main(int argc, char *argv[])
             qDebug() << "\t\tEnabled: " << output->isEnabled();
             qDebug() << "\t\tConnected: " << output->isConnected();
             if (output->crtc()) {
+                qDebug() << "\t\tMode: " << output->mode()->name() << "\t" << output->mode()->rate();
                 qDebug() << "\t\tCrtc: " << output->crtc()->id();
             } else {
+                qDebug() << "\t\tMode: " << "None";
                 qDebug() << "\t\tCrtc: " << "None";
             }
             qDebug();
