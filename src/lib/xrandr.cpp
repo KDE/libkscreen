@@ -138,6 +138,14 @@ Display* XRandR::display()
     return m_display;
 }
 
+QRandR::Screen* XRandR::screen()
+{
+    if (m_screens.isEmpty()) {
+        screens();
+    }
+
+    return m_screens.at(DefaultScreen(m_display));
+}
 
 QList< QRandR::Screen* > XRandR::screens()
 {

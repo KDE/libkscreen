@@ -39,6 +39,7 @@ class XRandR : public QObject
         static bool x11EventFilter(void *message, long int *result);
 
         QPair<int, int> version();
+        QRandR::Screen * screen();
         QList<QRandR::Screen *> screens();
         Display *display();
 
