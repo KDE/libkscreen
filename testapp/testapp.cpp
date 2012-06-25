@@ -92,5 +92,21 @@ int main(int argc, char *argv[])
         }
     }
 
+    QRandR::Output *primary, *oldPrimary;
+    QHash <RROutput, QRandR::Output* > outputList = randr->screen()->outputs();
+    Q_FOREACH (QRandR::Output *output, outputList) {
+        if (!output->isEnabled()) {
+            continue;
+        }
+        if (output->isPrimary()) {
+            oldPrimary = output;
+            continue;
+        }
+
+        primary = output;
+    }
+
+    randr->screen()->setPrimaryOutput(primary);
+
     return app.exec();
 }

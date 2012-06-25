@@ -180,6 +180,12 @@ XRRScreenResources* Screen::resources()
     return m_resources;
 }
 
+void Screen::setPrimaryOutput(Output* output)
+{
+    qDebug() << "Setting primary: " << output->name();
+    XRRSetOutputPrimary(m_display, rootWindow(), output->id());
+}
+
 void Screen::handleEvent(XRRScreenChangeNotifyEvent* event)
 {
     qDebug() << "Handle Event";

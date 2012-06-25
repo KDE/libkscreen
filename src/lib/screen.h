@@ -53,6 +53,8 @@ class Screen : public QObject
         Mode* mode(RRMode id);
         Crtc* crtc(RRCrtc id);
 
+        void setPrimaryOutput(Output *output);
+
         void handleEvent(XRRScreenChangeNotifyEvent *event);
 
     private:
