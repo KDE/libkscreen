@@ -27,6 +27,7 @@
 
 int XRandR::s_RRNotify = 0;
 int XRandR::s_RRScreen = 0;
+int XRandR::s_Timestamp = 0;
 bool XRandR::has_1_3 = false;
 XRandR *XRandR::s_instance = 0;
 QCoreApplication::EventFilter XRandR::s_oldEventFilter = 0;

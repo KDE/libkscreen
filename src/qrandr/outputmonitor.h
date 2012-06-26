@@ -1,5 +1,5 @@
 /*************************************************************************************
- *  Copyright (C) 2011 by Alex Fiestas <afiestas@kde.org>                            *
+ *  Copyright (C) 2012 by Alex Fiestas <afiestas@kde.org>                            *
  *                                                                                   *
  *  This program is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU General Public License                      *
@@ -16,39 +16,20 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA   *
  *************************************************************************************/
 
-#ifndef QMODE_H
-#define QMODE_H
-
-#include "xlibandxrandr.h"
-
-#include <QtCore/QSize>
+#ifndef QOUTPUT_MONITOR_H
+#define QOUTPUT_MONITOR_H
 #include <QtCore/QObject>
 
 namespace QRandR {
 
-class Screen;
-class Output;
-
-class Mode : public QObject
+class OutputMonitor : public QObject
 {
     Q_OBJECT
-
     public:
-        Mode (Screen *parent, XRRModeInfo *info);
-        virtual ~Mode();
-
-        const QString& name();
-        const QSize& size();
-        float rate();
-
-    private:
-        float m_rate;
-        QSize m_size;
-        QString m_name;
-        Screen *m_parent;
-        XRRModeInfo *m_info;
+        OutputMonitor(QObject* parent = 0);
+        virtual ~OutputMonitor();
 };
 
-#endif //QMODE_H
-
 }
+
+#endif //QOUTPUT_MONITOR_H

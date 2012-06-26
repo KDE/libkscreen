@@ -16,43 +16,68 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA   *
  *************************************************************************************/
 
-#ifndef QCRTC_H
-#define QCRTC_H
+#ifndef QSCREEN_H
+#define QSCREEN_H
 
 #include "xlibandxrandr.h"
 
 #include <QtCore/QObject>
-#include <QRect>
+#include <QtCore/QSize>
+#include <QtCore/QHash>
 
 namespace QRandR {
 
 class Mode;
-class Screen;
+class Crtc;
+class Output;
 
-class Crtc : public QObject
+class Screen : public QObject
 {
+    friend class Crtc;
+    friend class Output;
+
     Q_OBJECT
 
     public:
-        Crtc (Screen *parent, RRCrtc id);
-        virtual ~Crtc();
+        Screen (int screenId, Display* display);
+        virtual ~Screen();
 
-        QRect rect();
-        RRCrtc id() const;
+        int id();
+        const QSize minSize();
+        const QSize maxSize();
+        const QSize currentSize();
 
-        Mode *mode();
+        QHash<RROutput, Crtc *> crtc();
+        QHash<RROutput, Output *> outputs();
+        QHash<RRMode, Mode *> modes();
+
+        Mode* mode(RRMode id);
+        Crtc* crtc(RRCrtc id);
+
+        void setPrimaryOutput(Output *output);
+
+        void handleEvent(XRRScreenChangeNotifyEvent *event);
+Window rootWindow();
+    private:
+        void getMinAndMaxSize();
+
+        XRRScreenResources* resources();
 
     private:
-        XRRCrtcInfo* info();
+        int m_id;
+        Display *m_display;
+        Window m_rootWindow;
+        RROutput m_primary;
+        QSize m_minSize;
+        QSize m_maxSize;
+        QSize m_currentSize;
 
-    private:
-        QRect m_rect;
-        RRCrtc m_id;
-        XRRCrtcInfo *m_info;
-        Screen *m_parent;
-        Mode *m_mode;
+        XRRScreenResources *m_resources;
+        QHash<RROutput, Crtc *> m_crtc;
+        QHash<RROutput, Output *> m_outputs;
+        QHash<RRMode, Mode *> m_modes;
 };
 
-#endif //QCRTC_H
+#endif //QSCREEN_H
 
 }

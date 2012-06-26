@@ -16,67 +16,53 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA   *
  *************************************************************************************/
 
-#ifndef QSCREEN_H
-#define QSCREEN_H
+
+#ifndef XRANDR_H
+#define XRANDR_H
 
 #include "xlibandxrandr.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QSize>
-#include <QtCore/QHash>
+#include <QtCore/QCoreApplication>
+#include <QObject>
+#include <QPair>
 
 namespace QRandR {
+    class Screen;
+}
 
-class Mode;
-class Crtc;
-class Output;
-
-class Screen : public QObject
+class XRandR : public QObject
 {
-    friend class Crtc;
-    friend class Output;
-
     Q_OBJECT
 
     public:
-        Screen (int screenId, Display* display);
-        virtual ~Screen();
+        static XRandR *self();
+        static bool x11EventFilter(void *message, long int *result);
 
-        const QSize minSize();
-        const QSize maxSize();
-        const QSize currentSize();
+        QPair<int, int> version();
+        QRandR::Screen * screen();
+        QList<QRandR::Screen *> screens();
+        Display *display();
 
-        QHash<RROutput, Crtc *> crtc();
-        QHash<RROutput, Output *> outputs();
-        QHash<RRMode, Mode *> modes();
-
-        Mode* mode(RRMode id);
-        Crtc* crtc(RRCrtc id);
-
-        void setPrimaryOutput(Output *output);
-
-        void handleEvent(XRRScreenChangeNotifyEvent *event);
+    public:
+        static bool has_1_3;
+        static int s_Timestamp;
 
     private:
-        void getMinAndMaxSize();
-        Window rootWindow();
-        XRRScreenResources* resources();
+        XRandR();
+        void setVersion(int major, int minor);
+        void setDisplay(Display *display);
+        void handleEvent(XEvent *event);
+
+        void passEventToScreens(XRRScreenChangeNotifyEvent *event);
 
     private:
-        int m_id;
+        static XRandR *s_instance;
+        static QCoreApplication::EventFilter s_oldEventFilter;
+        static int s_RRScreen, s_RRNotify;
+
         Display *m_display;
-        Window m_rootWindow;
-        RROutput m_primary;
-        QSize m_minSize;
-        QSize m_maxSize;
-        QSize m_currentSize;
-
-        XRRScreenResources *m_resources;
-        QHash<RROutput, Crtc *> m_crtc;
-        QHash<RROutput, Output *> m_outputs;
-        QHash<RRMode, Mode *> m_modes;
+        QPair<int,int> m_version;
+        QList<QRandR::Screen *> m_screens;
 };
 
-#endif //QSCREEN_H
-
-}
+#endif // XRANDR_H

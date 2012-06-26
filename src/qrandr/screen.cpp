@@ -20,6 +20,7 @@
 #include "crtc.h"
 #include "output.h"
 #include "mode.h"
+#include "xrandr.h"
 
 #include <QtCore/QDebug>
 
@@ -36,6 +37,11 @@ Screen::Screen(int screenId, Display *display) : QObject()
 Screen::~Screen()
 {
 
+}
+
+int Screen::id()
+{
+    return m_id;
 }
 
 const QSize Screen::minSize()
@@ -175,6 +181,7 @@ XRRScreenResources* Screen::resources()
 {
     if (!m_resources) {
         m_resources = XRRGetScreenResources(m_display, rootWindow());
+        XRandR::s_Timestamp = m_resources->timestamp;
     }
 
     return m_resources;
@@ -189,6 +196,8 @@ void Screen::setPrimaryOutput(Output* output)
 void Screen::handleEvent(XRRScreenChangeNotifyEvent* event)
 {
     qDebug() << "Handle Event";
+
+    XRandR::s_Timestamp = event->timestamp;
     m_currentSize.setWidth(event->width);
     m_currentSize.setHeight(event->height);
 

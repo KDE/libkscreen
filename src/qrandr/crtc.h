@@ -16,52 +16,44 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA   *
  *************************************************************************************/
 
-
-#ifndef XRANDR_H
-#define XRANDR_H
+#ifndef QCRTC_H
+#define QCRTC_H
 
 #include "xlibandxrandr.h"
 
-#include <QtCore/QCoreApplication>
-#include <QObject>
-#include <QPair>
+#include <QtCore/QObject>
+#include <QRect>
 
 namespace QRandR {
-    class Screen;
-}
 
-class XRandR : public QObject
+class Mode;
+class Screen;
+
+class Crtc : public QObject
 {
     Q_OBJECT
 
     public:
-        static XRandR *self();
-        static bool x11EventFilter(void *message, long int *result);
+        Crtc (Screen *parent, RRCrtc id);
+        virtual ~Crtc();
 
-        QPair<int, int> version();
-        QRandR::Screen * screen();
-        QList<QRandR::Screen *> screens();
-        Display *display();
+        QRect rect();
+        RRCrtc id() const;
 
-    public:
-        static bool has_1_3;
+        Mode *mode();
+        void setMode(Mode *mode);
 
     private:
-        XRandR();
-        void setVersion(int major, int minor);
-        void setDisplay(Display *display);
-        void handleEvent(XEvent *event);
-
-        void passEventToScreens(XRRScreenChangeNotifyEvent *event);
+        XRRCrtcInfo* info();
 
     private:
-        static XRandR *s_instance;
-        static QCoreApplication::EventFilter s_oldEventFilter;
-        static int s_RRScreen, s_RRNotify;
-
-        Display *m_display;
-        QPair<int,int> m_version;
-        QList<QRandR::Screen *> m_screens;
+        QRect m_rect;
+        RRCrtc m_id;
+        XRRCrtcInfo *m_info;
+        Screen *m_parent;
+        Mode *m_mode;
 };
 
-#endif // XRANDR_H
+#endif //QCRTC_H
+
+}

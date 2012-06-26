@@ -19,11 +19,11 @@
 #include <QtGui/QApplication>
 #include <QtCore/QtDebug>
 
-#include "../src/lib/xrandr.h"
-#include "../src/lib/screen.h"
-#include "../src/lib/crtc.h"
-#include "../src/lib/output.h"
-#include "../src/lib/mode.h"
+#include "../xrandr.h"
+#include "../screen.h"
+#include "../crtc.h"
+#include "../output.h"
+#include "../mode.h"
 
 int main(int argc, char *argv[])
 {
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 
             qDebug() << "\t\tNum of Modes: " << modesList.count();
             Q_FOREACH(QRandR::Mode *mode, modesList) {
-                qDebug() << "\t\t\t" << mode->name() << "\t" << mode->rate();
+                qDebug() << "\t\t\t" << mode->id() << "\t" << mode->name() << "\t" << mode->rate();
             }
         }
 
@@ -107,6 +107,8 @@ int main(int argc, char *argv[])
     }
 
     randr->screen()->setPrimaryOutput(primary);
+
+    randr->screen()->outputs().value(65)->crtc()->setMode(randr->screen()->mode(71));
 
     return app.exec();
 }

@@ -35,6 +35,11 @@ Mode::~Mode()
 
 }
 
+RRMode Mode::id()
+{
+    return m_info->id;
+}
+
 const QString& Mode::name()
 {
     if (!m_name.isEmpty()) {
