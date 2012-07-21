@@ -1,0 +1,10 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+libdir=@LIB_INSTALL_DIR@
+includedir=@CMAKE_INSTALL_PREFIX@/include
+
+Name: kscreen
+Description: Qt Based library to manage screens with backends (xrandr, whatevercomesnext)
+Version: @VERSION@
+
+Libs: -L${libdir} -lkscreen
+Cflags: -I${includedir}
