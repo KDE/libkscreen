@@ -16,63 +16,15 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA   *
  *************************************************************************************/
 
-#include "kscreen.h"
-#include "config.h"
+#ifndef MODE_H
+#define MODE_H
 
-KScreen *KScreen::s_instance = 0;
-KScreen::Error KScreen::s_error = KScreen::None;
+#include "kscreen_export.h"
 
-KScreen::KScreen()
- : m_valid(true)
+class KSCREEN_EXPORT Mode
 {
+    public:
+        Mode();
+};
 
-}
-
-KScreen* KScreen::self()
-{
-    if (s_instance) {
-        return s_instance;
-    }
-
-    s_instance = new KScreen();
-
-    if (!s_instance->isValid()) {
-        return 0;
-    }
-
-    return s_instance;
-}
-
-KScreen::Error KScreen::error()
-{
-    return s_error;
-}
-
-const QString KScreen::errorString()
-{
-    switch(s_error) {
-        case None:
-            return QString();
-            break;
-        case NoCompatibleBackend:
-            return QString("No compatible backend has been found");
-            break;
-        default:
-            return QString("Unknown error");
-    }
-}
-
-bool KScreen::isValid()
-{
-    return m_valid;
-}
-
-const QString& KScreen::backend()
-{
-    return QString("Fake");
-}
-
-Config* KScreen::config()
-{
-    return new Config();
-}
+#endif //MODE_H

@@ -21,15 +21,27 @@
 
 #include "kscreen_export.h"
 
+#include <QtCore/QString>
+
+class Config;
+
 class KSCREEN_EXPORT KScreen
 {
     public:
+        enum Error {
+            None = 0x0,
+            NoCompatibleBackend = 0x1
+        };
+
         /**
          * Returns an instance of KScreen as a pointer. The library is in charge of the memory
          * you should not delete this pointer.
          * @return KScreen* instance or 0 if in error
          */
         static KScreen* self();
+
+        static Error error();
+        static const QString errorString();
 
         /**
          * Under some circumstances the object won't be valid or will be invalidated. A possible
@@ -38,10 +50,14 @@ class KSCREEN_EXPORT KScreen
          */
         bool isValid();
 
+        const QString& backend();
+
+        Config* config();
     private:
         KScreen();
 
     private:
+        static Error s_error;
         static KScreen* s_instance;
 
         bool m_valid;

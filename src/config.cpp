@@ -16,63 +16,17 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA   *
  *************************************************************************************/
 
-#include "kscreen.h"
 #include "config.h"
+#include "output.h"
 
-KScreen *KScreen::s_instance = 0;
-KScreen::Error KScreen::s_error = KScreen::None;
-
-KScreen::KScreen()
- : m_valid(true)
+Config::Config()
 {
 
 }
 
-KScreen* KScreen::self()
+QHash< int, Output* > Config::outputs()
 {
-    if (s_instance) {
-        return s_instance;
-    }
-
-    s_instance = new KScreen();
-
-    if (!s_instance->isValid()) {
-        return 0;
-    }
-
-    return s_instance;
-}
-
-KScreen::Error KScreen::error()
-{
-    return s_error;
-}
-
-const QString KScreen::errorString()
-{
-    switch(s_error) {
-        case None:
-            return QString();
-            break;
-        case NoCompatibleBackend:
-            return QString("No compatible backend has been found");
-            break;
-        default:
-            return QString("Unknown error");
-    }
-}
-
-bool KScreen::isValid()
-{
-    return m_valid;
-}
-
-const QString& KScreen::backend()
-{
-    return QString("Fake");
-}
-
-Config* KScreen::config()
-{
-    return new Config();
+    QHash< int, Output* > outputs;
+    outputs[1] = new Output();
+    return outputs;
 }

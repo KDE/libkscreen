@@ -2,6 +2,9 @@ include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_BINA
 
 set(libkscreen_SRCS
     kscreen.cpp
+    config.cpp
+    output.cpp
+    mode.cpp
 )
 
 QT4_AUTOMOC(${libkscreen_SRCS})
@@ -18,7 +21,9 @@ set_target_properties(kscreen PROPERTIES
 install(TARGETS kscreen ${INSTALL_TARGETS_DEFAULT_ARGS})
 
 install(FILES kscreen_export.h
-            kscreen.h DESTINATION include/kscreen)
+            kscreen.h
+            mode.h
+            output.h DESTINATION include/kscreen)
 
 if(NOT WIN32)
    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/kscreen.pc.in ${CMAKE_CURRENT_BINARY_DIR}/kscreen.pc @ONLY)

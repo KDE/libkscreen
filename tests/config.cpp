@@ -19,6 +19,11 @@
 #include <QtTest>
 #include <QtCore/QObject>
 
+#include "../src/kscreen.h"
+#include "../src/config.h"
+#include "../src/output.h"
+#include "../src/mode.h"
+
 class testScreenConfig : public QObject
 {
     Q_OBJECT
@@ -29,29 +34,27 @@ private Q_SLOTS:
 
 void testScreenConfig::singleOutput()
 {
-//     KScreen *kscreen = KScreen::self();
-//
-//     QVERIFY2(kscreen, ScreenManagement::error() + ScreenManagement::errorString());
-//
-//     ScreenConfig *config = kscreen->config();
-//
-//     QVERIFY2(config->backend().isEmpty());
-//
-//     QCOMPARE(config->outputs().count(), 1);
-//
-//     ScreenOutput *output = config->outputs().first();
-//
-//     QCOMPARE(output->name(), "FAKE1");
-//     QCOMPARE(output->modes(), 10);
-//     QCOMPARE(output->currentMode(), 9);
-//     QCOMPARE(output->currentMode(), 9);
-//     QCOMPARE(output->pos(), QPoint(0, 0));
-//     QCOMPARE(output->size(), QPoint(1280, 800));
-//     QCOMPARE(output->rotation(), ScreenManagement::Normal);
-//     QCOMPARE(output->isConnected(), true);
-//     QCOMPARE(output->isEnabled(), true);
-//     QCOMPARE(output->isPrimary(), true);
-//     QCOMPARE(output->clones(), 0);
+    KScreen *kscreen = KScreen::self();
+
+    QVERIFY2(kscreen, KScreen::errorString().toLatin1());
+
+    QVERIFY2(!kscreen->backend().isEmpty(), "No backend loaded");
+
+    Config *config = kscreen->config();
+
+    QCOMPARE(config->outputs().count(), 1);
+
+    Output *output = config->outputs().take(1);
+
+    QCOMPARE(output->name(), QString("FakeOutput_1"));
+    QCOMPARE(output->modes().count(), 1);
+    QCOMPARE(output->pos(), QPoint(0, 0));
+    QCOMPARE(output->size(), QSize(1280, 800));
+    QCOMPARE(output->rotation(), Output::None);
+    QCOMPARE(output->isConnected(), true);
+    QCOMPARE(output->isEnabled(), true);
+    QCOMPARE(output->isPrimary(), true);
+    QVERIFY2(output->clones().isEmpty(), "In singleOutput is impossible to have clones");
 
 }
 

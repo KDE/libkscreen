@@ -16,63 +16,64 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA   *
  *************************************************************************************/
 
-#include "kscreen.h"
-#include "config.h"
+#include "output.h"
+#include "mode.h"
 
-KScreen *KScreen::s_instance = 0;
-KScreen::Error KScreen::s_error = KScreen::None;
-
-KScreen::KScreen()
- : m_valid(true)
+Output::Output()
 {
 
 }
 
-KScreen* KScreen::self()
+const QString Output::name() const
 {
-    if (s_instance) {
-        return s_instance;
-    }
-
-    s_instance = new KScreen();
-
-    if (!s_instance->isValid()) {
-        return 0;
-    }
-
-    return s_instance;
+    return QString("FakeOutput_1");
 }
 
-KScreen::Error KScreen::error()
+QHash< int, Mode* > Output::modes() const
 {
-    return s_error;
+    QHash<int, Mode*> modes;
+    modes[1] = new Mode();
+
+    return modes;
 }
 
-const QString KScreen::errorString()
+Mode* Output::currentMode() const
 {
-    switch(s_error) {
-        case None:
-            return QString();
-            break;
-        case NoCompatibleBackend:
-            return QString("No compatible backend has been found");
-            break;
-        default:
-            return QString("Unknown error");
-    }
+    return new Mode();
 }
 
-bool KScreen::isValid()
+QPoint Output::pos() const
 {
-    return m_valid;
+    return QPoint(0,0);
 }
 
-const QString& KScreen::backend()
+QSize Output::size() const
 {
-    return QString("Fake");
+    return QSize(1280, 800);
 }
 
-Config* KScreen::config()
+Output::Rotation Output::rotation() const
 {
-    return new Config();
+    return Output::None;
+}
+
+bool Output::isConnected() const
+{
+    return true;
+}
+
+bool Output::isEnabled() const
+{
+    return true;
+}
+
+bool Output::isPrimary() const
+{
+    return true;
+}
+
+QHash< int, Output* > Output::clones()
+{
+    QHash< int, Output* > clones;
+    return clones;
 }
