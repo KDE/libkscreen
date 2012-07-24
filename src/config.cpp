@@ -17,16 +17,20 @@
  *************************************************************************************/
 
 #include "config.h"
-#include "output.h"
 
-Config::Config()
+Config::Config(QObject* parent): QObject(parent)
+{
+
+}
+
+Config::~Config()
 {
 
 }
 
 QHash< int, Output* > Config::outputs()
 {
-    QHash< int, Output* > outputs;
-    outputs[1] = new Output();
-    return outputs;
+    return m_outputs;
 }
+
+#include "config.moc"

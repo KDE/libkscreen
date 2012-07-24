@@ -20,16 +20,26 @@
 #define SCREEN_CONFIG_H
 
 #include "kscreen_export.h"
+#include "output.h"
 
 #include <QtCore/QHash>
+#include <QtCore/QObject>
+#include <QtCore/QMetaType>
 
 class Output;
-class KSCREEN_EXPORT Config
+class KSCREEN_EXPORT Config : public QObject
 {
+    Q_OBJECT
+    Q_PROPERTY(OutputList outputs READ outputs)
+
     public:
-        Config();
+        explicit Config(QObject *parent = 0);
+        virtual ~Config();
 
         QHash<int, Output*> outputs();
+
+    private:
+        OutputList m_outputs;
 };
 
 #endif //SCREEN_CONFIG_H

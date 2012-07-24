@@ -18,7 +18,24 @@
 
 #include "mode.h"
 
-Mode::Mode()
+Mode::Mode(QObject* parent): QObject(parent)
 {
 
 }
+
+Mode::~Mode()
+{
+
+}
+
+QSize Mode::size() const
+{
+    return m_size;
+}
+
+float Mode::refreshRate() const
+{
+    return m_rate;
+}
+
+#include "mode.moc"

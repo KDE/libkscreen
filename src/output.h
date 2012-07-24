@@ -20,31 +20,78 @@
 #define OUTPUT_H
 
 #include "kscreen_export.h"
+#include "mode.h"
 
+#include <QtCore/QObject>
 #include <QtCore/QSize>
 #include <QtCore/QPoint>
 #include <QtCore/QHash>
+#include <QtCore/QMetaType>
 
 class Mode;
-class KSCREEN_EXPORT Output
+class KSCREEN_EXPORT Output : public QObject
 {
+    Q_OBJECT
+
     public:
+        Q_PROPERTY(QString name READ name WRITE setName)
+        Q_PROPERTY(ModeList modes READ modes)
+        Q_PROPERTY(QPoint pos READ pos WRITE setPos)
+        Q_PROPERTY(QSize size READ size WRITE setSize)
+        Q_PROPERTY(Rotation rotation READ rotation WRITE setRotation)
+        Q_PROPERTY(bool connected READ isConnected WRITE setConnected)
+        Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
+        Q_PROPERTY(bool primary READ isPrimary WRITE setPrimary)
+
+        Q_ENUMS(Rotation)
+
         enum Rotation {
-            None = 0x0
+            None = 0x0,
+            Inverted = 0x1,
+            Left = 0x2,
+            Right = 0x3
         };
 
-        Output();
+        explicit Output(QObject* parent = 0);
+        virtual ~Output();
 
-        const QString name() const;
+        QString name() const;
+        void setName(const QString& name);
+
         QHash<int, Mode*> modes() const;
         Mode* currentMode() const;
+
         QPoint pos() const;
+        void setPos(const QPoint& pos);
+
         QSize size() const;
+        void setSize(const QSize& size);
+
         Rotation rotation() const;
+        void setRotation(Rotation rotation);
+
         bool isConnected() const;
+        void setConnected(bool connected);
+
         bool isEnabled() const;
+        void setEnabled(bool enabled);
+
         bool isPrimary() const;
+        void setPrimary(bool primary);
+
         QHash<int, Output*> clones();
+
+    private:
+        QString m_name;
+        QSize m_size;
+        QPoint m_pos;
+        Rotation m_rotation;
+        bool m_connected;
+        bool m_enabled;
+        bool m_primary;
 };
+
+typedef QHash<int, Output*> OutputList;
+Q_DECLARE_METATYPE(OutputList);
 
 #endif //OUTPUT_H

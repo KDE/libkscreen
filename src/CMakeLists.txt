@@ -5,11 +5,10 @@ set(libkscreen_SRCS
     config.cpp
     output.cpp
     mode.cpp
-
     backends/fake/fake.cpp
 )
 
-QT4_AUTOMOC(${libkscreen_SRCS})
+qt4_automoc(${libkscreen_SRCS})
 
 add_library(kscreen SHARED ${libkscreen_SRCS})
 

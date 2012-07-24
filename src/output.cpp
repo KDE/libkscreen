@@ -19,14 +19,23 @@
 #include "output.h"
 #include "mode.h"
 
-Output::Output()
+Output::Output(QObject* parent) : QObject(parent)
+{
+}
+
+Output::~Output()
 {
 
 }
 
-const QString Output::name() const
+QString Output::name() const
 {
-    return QString("FakeOutput_1");
+    return m_name;
+}
+
+void Output::setName(const QString& name)
+{
+    m_name = name;
 }
 
 QHash< int, Mode* > Output::modes() const
@@ -44,12 +53,22 @@ Mode* Output::currentMode() const
 
 QPoint Output::pos() const
 {
-    return QPoint(0,0);
+    return m_pos;
+}
+
+void Output::setPos(const QPoint& pos)
+{
+    m_pos = pos;
 }
 
 QSize Output::size() const
 {
-    return QSize(1280, 800);
+    return m_size;
+}
+
+void Output::setSize(const QSize& size)
+{
+    m_size = size;
 }
 
 Output::Rotation Output::rotation() const
@@ -57,19 +76,39 @@ Output::Rotation Output::rotation() const
     return Output::None;
 }
 
+void Output::setRotation(Output::Rotation rotation)
+{
+    m_rotation = rotation;
+}
+
 bool Output::isConnected() const
 {
-    return true;
+    return m_connected;
+}
+
+void Output::setConnected(bool connected)
+{
+    m_connected = connected;
 }
 
 bool Output::isEnabled() const
 {
-    return true;
+    return m_enabled;
+}
+
+void Output::setEnabled(bool enabled)
+{
+    m_enabled = enabled;
 }
 
 bool Output::isPrimary() const
 {
-    return true;
+    return m_primary;
+}
+
+void Output::setPrimary(bool primary)
+{
+    m_primary = primary;
 }
 
 QHash< int, Output* > Output::clones()
@@ -77,3 +116,5 @@ QHash< int, Output* > Output::clones()
     QHash< int, Output* > clones;
     return clones;
 }
+
+#include "output.moc"

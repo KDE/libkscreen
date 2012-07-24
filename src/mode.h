@@ -21,10 +21,29 @@
 
 #include "kscreen_export.h"
 
-class KSCREEN_EXPORT Mode
+#include <QtCore/QSize>
+#include <QtCore/QHash>
+#include <QtCore/QObject>
+#include <QtCore/QMetaType>
+
+class KSCREEN_EXPORT Mode : public QObject
 {
+    Q_OBJECT
+    Q_PROPERTY(QSize size READ size)
+    Q_PROPERTY(float refreshrate READ refreshRate)
+
     public:
-        Mode();
+        explicit Mode(QObject *parent = 0);
+        virtual ~Mode();
+        QSize size() const;
+        float refreshRate() const;
+
+    private:
+        QSize m_size;
+        float m_rate;
 };
+
+typedef QHash<int, Mode*> ModeList;
+Q_DECLARE_METATYPE(ModeList);
 
 #endif //MODE_H
