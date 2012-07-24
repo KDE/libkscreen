@@ -16,71 +16,19 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA   *
  *************************************************************************************/
 
-#include "kscreen.h"
-#include "config.h"
+#ifndef ABSTRACT_BACKEND_H
+#define ABSTRACT_BACKEND_H
 
-#include "backends/fake/fake.h"
+#include <QtCore/QString>
 
-KScreen *KScreen::s_instance = 0;
-KScreen::Error KScreen::s_error = KScreen::None;
-
-KScreen::KScreen()
- : m_valid(true)
- , m_backend(0)
+class Config;
+class AbstractBackend
 {
-    Fake *fake = new Fake();
-    if (fake->isValid()) {
-        m_valid = true;
-        m_backend = fake;
-        return;
-    }
-}
+    public:
+        virtual ~AbstractBackend() {};
+        virtual QString name() const = 0;
+        virtual Config* config() const = 0;
+        virtual bool isValid() const = 0;
+};
 
-KScreen* KScreen::self()
-{
-    if (s_instance) {
-        return s_instance;
-    }
-
-    s_instance = new KScreen();
-
-    if (!s_instance->isValid()) {
-        return 0;
-    }
-
-    return s_instance;
-}
-
-KScreen::Error KScreen::error()
-{
-    return s_error;
-}
-
-const QString KScreen::errorString()
-{
-    switch(s_error) {
-        case None:
-            return QString();
-            break;
-        case NoCompatibleBackend:
-            return QString("No compatible backend has been found");
-            break;
-        default:
-            return QString("Unknown error");
-    }
-}
-
-bool KScreen::isValid()
-{
-    return m_valid;
-}
-
-const QString KScreen::backend()
-{
-    return m_backend->name();
-}
-
-Config* KScreen::config()
-{
-    return m_backend->config();
-}
+#endif //ABSTRACT_BACKEND_H

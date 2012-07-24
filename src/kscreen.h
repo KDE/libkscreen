@@ -24,7 +24,7 @@
 #include <QtCore/QString>
 
 class Config;
-
+class AbstractBackend;
 class KSCREEN_EXPORT KScreen
 {
     public:
@@ -50,7 +50,7 @@ class KSCREEN_EXPORT KScreen
          */
         bool isValid();
 
-        const QString& backend();
+        const QString backend();
 
         Config* config();
     private:
@@ -61,6 +61,7 @@ class KSCREEN_EXPORT KScreen
         static KScreen* s_instance;
 
         bool m_valid;
+        AbstractBackend *m_backend;
 };
 
 #endif //KSCREEN_H

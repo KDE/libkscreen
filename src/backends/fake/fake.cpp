@@ -16,71 +16,30 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA   *
  *************************************************************************************/
 
-#include "kscreen.h"
+#include "fake.h"
 #include "config.h"
 
-#include "backends/fake/fake.h"
-
-KScreen *KScreen::s_instance = 0;
-KScreen::Error KScreen::s_error = KScreen::None;
-
-KScreen::KScreen()
- : m_valid(true)
- , m_backend(0)
+Fake::Fake()
 {
-    Fake *fake = new Fake();
-    if (fake->isValid()) {
-        m_valid = true;
-        m_backend = fake;
-        return;
-    }
+
 }
 
-KScreen* KScreen::self()
+Fake::~Fake()
 {
-    if (s_instance) {
-        return s_instance;
-    }
 
-    s_instance = new KScreen();
-
-    if (!s_instance->isValid()) {
-        return 0;
-    }
-
-    return s_instance;
 }
 
-KScreen::Error KScreen::error()
+QString Fake::name() const
 {
-    return s_error;
+    return QString("Fake");
 }
 
-const QString KScreen::errorString()
+Config* Fake::config() const
 {
-    switch(s_error) {
-        case None:
-            return QString();
-            break;
-        case NoCompatibleBackend:
-            return QString("No compatible backend has been found");
-            break;
-        default:
-            return QString("Unknown error");
-    }
+    return new Config();
 }
 
-bool KScreen::isValid()
+bool Fake::isValid() const
 {
-    return m_valid;
-}
-
-const QString KScreen::backend()
-{
-    return m_backend->name();
-}
-
-Config* KScreen::config()
-{
-    return m_backend->config();
+    return true;
 }

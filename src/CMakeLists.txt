@@ -5,6 +5,8 @@ set(libkscreen_SRCS
     config.cpp
     output.cpp
     mode.cpp
+
+    backends/fake/fake.cpp
 )
 
 QT4_AUTOMOC(${libkscreen_SRCS})
