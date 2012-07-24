@@ -8,4 +8,4 @@ macro(KSCREEN_TESTS)
     endforeach(_testname)
 endmacro(KSCREEN_TESTS)
 
-KSCREEN_TESTS(config )
+KSCREEN_TESTS(testscreenconfig )
