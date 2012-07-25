@@ -19,7 +19,10 @@
 #include "output.h"
 #include "mode.h"
 
-Output::Output(QObject* parent) : QObject(parent)
+Output::Output(int id, QObject* parent)
+ : QObject(parent)
+ , m_id(id)
+ , m_currentMode(0)
 {
 }
 
@@ -40,15 +43,22 @@ void Output::setName(const QString& name)
 
 QHash< int, Mode* > Output::modes() const
 {
-    QHash<int, Mode*> modes;
-    modes[1] = new Mode();
+    return m_modeList;
+}
 
-    return modes;
+void Output::setModes(ModeList modes)
+{
+    m_modeList = modes;
 }
 
 Mode* Output::currentMode() const
 {
     return new Mode();
+}
+
+void Output::setCurrentMode(Mode* mode)
+{
+    m_currentMode = mode;
 }
 
 QPoint Output::pos() const
@@ -113,8 +123,12 @@ void Output::setPrimary(bool primary)
 
 QHash< int, Output* > Output::clones()
 {
-    QHash< int, Output* > clones;
-    return clones;
+    return m_clones;
+}
+
+void Output::setClones(OutputList outputlist)
+{
+    m_clones = outputlist;
 }
 
 #include "output.moc"

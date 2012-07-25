@@ -21,7 +21,8 @@
 
 Fake::Fake()
 {
-
+    Output *output = new Output(1);
+    output->setModes(ModeList());
 }
 
 Fake::~Fake()

@@ -52,14 +52,17 @@ class KSCREEN_EXPORT Output : public QObject
             Right = 0x3
         };
 
-        explicit Output(QObject* parent = 0);
+        explicit Output(int id, QObject* parent = 0);
         virtual ~Output();
 
         QString name() const;
         void setName(const QString& name);
 
         QHash<int, Mode*> modes() const;
+        void setModes(ModeList modes);
+
         Mode* currentMode() const;
+        void setCurrentMode(Mode* mode);
 
         QPoint pos() const;
         void setPos(const QPoint& pos);
@@ -80,9 +83,14 @@ class KSCREEN_EXPORT Output : public QObject
         void setPrimary(bool primary);
 
         QHash<int, Output*> clones();
+        void setClones(QHash<int, Output*> outputlist);
 
     private:
+        int m_id;
         QString m_name;
+        ModeList m_modeList;
+        QHash<int, Output*> m_clones;
+        Mode* m_currentMode;
         QSize m_size;
         QPoint m_pos;
         Rotation m_rotation;
