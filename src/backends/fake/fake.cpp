@@ -37,7 +37,26 @@ QString Fake::name() const
 
 Config* Fake::config() const
 {
-    return new Config();
+    ModeList modes;
+    modes.insert(1, new Mode());
+
+    Output *output = new Output(1);
+    output->setName("FakeOutput_1");
+    output->setModes(modes);
+    output->setPos(QPoint(0,0));
+    output->setSize(QSize(1280,800));
+    output->setRotation(Output::None);
+    output->setConnected(true);
+    output->setEnabled(true);
+    output->setPrimary(true);
+
+    OutputList outputs;
+    outputs.insert(1, output);
+
+    Config *config = new Config();
+    config->setOutputs(outputs);
+
+    return config;
 }
 
 bool Fake::isValid() const

@@ -33,4 +33,9 @@ QHash< int, Output* > Config::outputs()
     return m_outputs;
 }
 
+void Config::setOutputs(OutputList outputs)
+{
+    m_outputs = outputs;
+}
+
 #include "config.moc"

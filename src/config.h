@@ -37,6 +37,7 @@ class KSCREEN_EXPORT Config : public QObject
         virtual ~Config();
 
         QHash<int, Output*> outputs();
+        void setOutputs(OutputList outputs);
 
     private:
         OutputList m_outputs;
