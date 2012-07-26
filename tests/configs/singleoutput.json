@@ -1,0 +1,16 @@
+{
+    "outputs" :
+    {
+        "1" :
+        {
+            "name" : "FakeOutput_1",
+            "modes" : [{"a" : true}],
+            "pos" : [0, 0],
+            "size" : [1280, 800],
+            "rotation" : 1,
+            "connected" : true,
+            "enabled" : true,
+            "primary" : true
+        }
+    }
+}

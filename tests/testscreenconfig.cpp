@@ -34,6 +34,11 @@ private Q_SLOTS:
 
 void testScreenConfig::singleOutput()
 {
+    //json file for the fake backend
+    QByteArray path(TEST_DATA);
+    path.append("/singleoutput.json");
+    setenv("TEST_DATA", path, 1);
+
     KScreen *kscreen = KScreen::self();
 
     QVERIFY2(kscreen, KScreen::errorString().toLatin1());

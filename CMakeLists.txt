@@ -5,6 +5,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules ${CMAKE_MODULE_PATH})
 enable_testing()
 find_package(Qt4 REQUIRED)
 find_package(KDE4 REQUIRED)
+find_package(QJSON REQUIRED)
 include(KDE4Defaults)
 
 include(CheckCXXCompilerFlag)

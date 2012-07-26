@@ -1,3 +1,5 @@
+add_definitions(-DTEST_DATA="${CMAKE_CURRENT_SOURCE_DIR}/configs/")
+
 macro(KSCREEN_TESTS)
     foreach(_testname ${ARGN})
         qt4_generate_moc(${_testname}.cpp ${CMAKE_CURRENT_BINARY_DIR}/${_testname}.moc)

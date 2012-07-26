@@ -25,11 +25,15 @@ class Fake : public AbstractBackend
 {
     public:
         Fake();
+        Fake(const QString &path);
         virtual ~Fake();
 
         virtual QString name() const;
         virtual Config* config() const;
         virtual bool isValid() const;
+
+    private:
+        QString m_path;
 };
 
 #endif //FAKE_BACKEND_H

@@ -19,8 +19,16 @@
 #include "fake.h"
 #include "config.h"
 
+#include <QtCore/QDebug>
+
 Fake::Fake()
 {
+    m_path = getenv("TEST_DATA");
+}
+
+Fake::Fake(const QString& path)
+{
+    m_path = path;
 }
 
 Fake::~Fake()
