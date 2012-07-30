@@ -16,41 +16,33 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA   *
  *************************************************************************************/
 
-#include "fake.h"
-#include "parser.h"
-#include "config.h"
+#ifndef PARSER_H
+#define PARSER_H
 
-#include <QtCore/QDebug>
-#include <QtCore/QFile>
-#include <qjson/parser.h>
-#include <qjson/qobjecthelper.h>
+#include <QtCore/QByteArray>
+#include <QtCore/QString>
+#include <QtCore/QVariant>
+#include <QtCore/QSize>
+#include <QtCore/QRect>
+#include <QtCore/QPoint>
 
-Fake::Fake()
+class Config;
+class Output;
+class Mode;
+class Parser
 {
-    m_path = getenv("TEST_DATA");
-}
+    public:
+        static Config* fromJson(const QByteArray &data);
+        static Config* fromJson(const QString &path);
+        static bool validate(const QByteArray &data);
+        static bool validate(const QString &data);
 
-Fake::Fake(const QString& path)
-{
-    m_path = path;
-}
+    private:
+        static Output* outputFromJson(const QVariant& data);
+        static Mode* modeFromJson(const QVariant& data);
+        static QSize sizeFromJson(const QVariant& data);
+        static QRect rectFromJson(const QVariant& data);
+        static QPoint pointFromJson(const QVariant& data);
+};
 
-Fake::~Fake()
-{
-
-}
-
-QString Fake::name() const
-{
-    return QString("Fake");
-}
-
-Config* Fake::config() const
-{
-    return Parser::fromJson(m_path);
-}
-
-bool Fake::isValid() const
-{
-    return true;
-}
+#endif //PARSER_H
