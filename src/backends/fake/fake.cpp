@@ -27,12 +27,6 @@
 
 Fake::Fake()
 {
-    m_path = getenv("TEST_DATA");
-}
-
-Fake::Fake(const QString& path)
-{
-    m_path = path;
 }
 
 Fake::~Fake()
@@ -47,7 +41,7 @@ QString Fake::name() const
 
 Config* Fake::config() const
 {
-    return Parser::fromJson(m_path);
+    return Parser::fromJson(QString::fromLatin1(getenv("TEST_DATA")));
 }
 
 bool Fake::isValid() const
