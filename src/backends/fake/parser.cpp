@@ -41,8 +41,6 @@ Config* Parser::fromJson(const QByteArray& data)
     Q_FOREACH(const QVariant &value, outputs) {
         output = Parser::outputFromJson(value);
         outputList.insert(output->id(), output);
-
-        outputList.insert(output->id(), output);
     }
 
     config->setOutputs(outputList);
