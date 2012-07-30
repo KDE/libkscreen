@@ -3,7 +3,8 @@
     [
         {
             "id" : 1,
-            "name" : "FakeOutput_1",
+            "name" : "LVDS1",
+            "type" : "LVDS",
             "modes" :
             [
                 {
@@ -31,7 +32,8 @@
         },
         {
             "id" : 2,
-            "name" : "FakeOutput_2",
+            "name" : "HDMI1",
+            "type" : "HDMI",
             "modes" :
             [
                 {

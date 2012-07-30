@@ -3,7 +3,8 @@
     [
         {
             "id" : 1,
-            "name" : "FakeOutput_1",
+            "name" : "LVDS1",
+            "type" : "LVDS",
             "modes" :
             [
                 {

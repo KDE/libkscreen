@@ -52,7 +52,8 @@ void testScreenConfig::singleOutput()
 
     Output *output = config->outputs().take(1);
 
-    QCOMPARE(output->name(), QString("FakeOutput_1"));
+    QCOMPARE(output->name(), QString("LVDS1"));
+    QCOMPARE(output->type(), QString("LVDS"));
     QCOMPARE(output->modes().count(), 1);
     QCOMPARE(output->pos(), QPoint(0, 0));
     QCOMPARE(output->size(), QSize(1280, 800));
@@ -78,7 +79,8 @@ void testScreenConfig::multiOutput()
 
     Output *output = config->outputs().take(2);
 
-    QCOMPARE(output->name(), QString("FakeOutput_2"));
+    QCOMPARE(output->name(), QString("HDMI1"));
+    QCOMPARE(output->type(), QString("HDMI"));
     QCOMPARE(output->modes().count(), 1);
     QCOMPARE(output->pos(), QPoint(0, 0));
     QCOMPARE(output->size(), QSize(1920, 1080));
