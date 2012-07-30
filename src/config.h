@@ -38,8 +38,11 @@ class KSCREEN_EXPORT Config : public QObject
 
         QHash<int, Output*> outputs();
         void setOutputs(OutputList outputs);
+        bool isValid();
+        void setValid(bool valid);
 
     private:
+        bool m_valid;
         OutputList m_outputs;
 };
 

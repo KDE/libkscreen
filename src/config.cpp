@@ -18,7 +18,9 @@
 
 #include "config.h"
 
-Config::Config(QObject* parent): QObject(parent)
+Config::Config(QObject* parent)
+ : QObject(parent)
+ , m_valid(false)
 {
 
 }
@@ -37,5 +39,16 @@ void Config::setOutputs(OutputList outputs)
 {
     m_outputs = outputs;
 }
+
+bool Config::isValid()
+{
+    return isValid();
+}
+
+void Config::setValid(bool valid)
+{
+    m_valid = valid;
+}
+
 
 #include "config.moc"
