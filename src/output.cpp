@@ -41,6 +41,26 @@ void Output::setName(const QString& name)
     m_name = name;
 }
 
+QString Output::type() const
+{
+    return m_type;
+}
+
+void Output::setType(const QString& type)
+{
+    m_type = type;
+}
+
+QString Output::icon() const
+{
+    return m_icon;
+}
+
+void Output::setIcon(const QString& icon)
+{
+    m_icon = icon;
+}
+
 QHash< int, Mode* > Output::modes() const
 {
     return m_modeList;
@@ -53,7 +73,7 @@ void Output::setModes(ModeList modes)
 
 Mode* Output::currentMode() const
 {
-    return new Mode();
+    return new Mode(1);
 }
 
 void Output::setCurrentMode(Mode* mode)
@@ -89,6 +109,16 @@ Output::Rotation Output::rotation() const
 void Output::setRotation(Output::Rotation rotation)
 {
     m_rotation = rotation;
+}
+
+int Output::id()
+{
+    return m_id;
+}
+
+void Output::setId(int id)
+{
+    m_id = id;
 }
 
 bool Output::isConnected() const

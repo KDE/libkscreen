@@ -35,10 +35,13 @@ class KSCREEN_EXPORT Output : public QObject
 
     public:
         Q_PROPERTY(QString name READ name WRITE setName)
+        Q_PROPERTY(QString type READ type WRITE setType)
+        Q_PROPERTY(QString icon READ icon WRITE setIcon)
         Q_PROPERTY(ModeList modes READ modes)
         Q_PROPERTY(QPoint pos READ pos WRITE setPos)
         Q_PROPERTY(QSize size READ size WRITE setSize)
         Q_PROPERTY(Rotation rotation READ rotation WRITE setRotation)
+        Q_PROPERTY(int id READ id WRITE setId)
         Q_PROPERTY(bool connected READ isConnected WRITE setConnected)
         Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
         Q_PROPERTY(bool primary READ isPrimary WRITE setPrimary)
@@ -58,6 +61,12 @@ class KSCREEN_EXPORT Output : public QObject
         QString name() const;
         void setName(const QString& name);
 
+        QString type() const;
+        void setType(const QString& type);
+
+        QString icon() const;
+        void setIcon(const QString& icon);
+
         QHash<int, Mode*> modes() const;
         void setModes(ModeList modes);
 
@@ -72,6 +81,9 @@ class KSCREEN_EXPORT Output : public QObject
 
         Rotation rotation() const;
         void setRotation(Rotation rotation);
+
+        int id();
+        void setId(int id);
 
         bool isConnected() const;
         void setConnected(bool connected);
@@ -88,6 +100,8 @@ class KSCREEN_EXPORT Output : public QObject
     private:
         int m_id;
         QString m_name;
+        QString m_type;
+        QString m_icon;
         ModeList m_modeList;
         QHash<int, Output*> m_clones;
         Mode* m_currentMode;
