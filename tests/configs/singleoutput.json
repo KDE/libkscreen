@@ -8,12 +8,30 @@
             "modes" :
             [
                 {
-                    "id" : 1,
+                    "id" : 3,
                     "name" : "1280x800",
                     "refreshRate" : 59.9,
                     "size" : {
                         "width" : 1280,
                         "height" : 800
+                    }
+                },
+                {
+                    "id" : 2,
+                    "name" : "1024x768",
+                    "refreshRate" : 59.9,
+                    "size" : {
+                        "width" : 1024,
+                        "height" : 768
+                    }
+                },
+                {
+                    "id" : 1,
+                    "name" : "800x600",
+                    "refreshRate" : 59.9,
+                    "size" : {
+                        "width" : 800,
+                        "height" : 600
                     }
                 }
             ],
@@ -25,6 +43,7 @@
                 "width" : 1280,
                 "height" : 800
             },
+            "currentMode" : 3,
             "rotation" : 1,
             "connected" : true,
             "enabled" : true,

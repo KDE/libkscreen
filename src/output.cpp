@@ -71,12 +71,12 @@ void Output::setModes(ModeList modes)
     m_modeList = modes;
 }
 
-Mode* Output::currentMode() const
+int Output::currentMode() const
 {
-    return new Mode(1);
+    return m_currentMode;
 }
 
-void Output::setCurrentMode(Mode* mode)
+void Output::setCurrentMode(int mode)
 {
     m_currentMode = mode;
 }
