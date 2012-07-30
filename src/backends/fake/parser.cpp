@@ -70,6 +70,14 @@ Output* Parser::outputFromJson(const QVariant& data)
     }
     output->setModes(modelist);
 
+    if(map.contains("clones")) {
+        QList<int> clones;
+        Q_FOREACH(const QVariant id, map["clones"].toList()) {
+            clones.append(id.toInt());
+        }
+
+        output->setClones(clones);
+    }
     return output;
 }
 

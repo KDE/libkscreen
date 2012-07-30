@@ -146,12 +146,12 @@ void Output::setPrimary(bool primary)
     m_primary = primary;
 }
 
-QHash< int, Output* > Output::clones()
+QList<int> Output::clones()
 {
     return m_clones;
 }
 
-void Output::setClones(OutputList outputlist)
+void Output::setClones(QList<int> outputlist)
 {
     m_clones = outputlist;
 }

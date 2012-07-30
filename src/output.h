@@ -45,6 +45,7 @@ class KSCREEN_EXPORT Output : public QObject
         Q_PROPERTY(bool connected READ isConnected WRITE setConnected)
         Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
         Q_PROPERTY(bool primary READ isPrimary WRITE setPrimary)
+        Q_PROPERTY(QList<int> clones READ clones WRITE setClones)
 
         Q_ENUMS(Rotation)
 
@@ -92,8 +93,8 @@ class KSCREEN_EXPORT Output : public QObject
         bool isPrimary() const;
         void setPrimary(bool primary);
 
-        QHash<int, Output*> clones();
-        void setClones(QHash<int, Output*> outputlist);
+        QList<int> clones();
+        void setClones(QList<int> outputlist);
 
     private:
         int m_id;
@@ -101,7 +102,7 @@ class KSCREEN_EXPORT Output : public QObject
         QString m_type;
         QString m_icon;
         ModeList m_modeList;
-        QHash<int, Output*> m_clones;
+        QList<int> m_clones;
         int m_currentMode;
         QSize m_size;
         QPoint m_pos;

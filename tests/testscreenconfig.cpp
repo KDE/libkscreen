@@ -31,6 +31,7 @@ class testScreenConfig : public QObject
 private Q_SLOTS:
     void singleOutput();
     void multiOutput();
+    void clonesOutput();
 };
 
 void testScreenConfig::singleOutput()
@@ -97,6 +98,26 @@ void testScreenConfig::multiOutput()
     QCOMPARE(mode->size(), QSize(1920, 1080));
     QCOMPARE(mode->refreshRate(), (float)60.0);
 }
+
+void testScreenConfig::clonesOutput()
+{
+    QByteArray path(TEST_DATA);
+    path.append("/multipleclone.json");
+    setenv("TEST_DATA", path, 1);
+
+    KScreen *kscreen = KScreen::self();
+
+    Config *config = kscreen->config();
+
+    Output* one = config->outputs()[1];
+    Output* two = config->outputs()[2];
+
+    QCOMPARE(one->mode(one->currentMode())->size(), two->mode(two->currentMode())->size());
+    QCOMPARE(one->clones().count(), 1);
+    QCOMPARE(one->clones().first(), two->id());
+    QVERIFY2(two->clones().isEmpty(), "Output two should have no clones");
+}
+
 
 QTEST_MAIN(testScreenConfig)
 
