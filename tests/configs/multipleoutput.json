@@ -1,0 +1,61 @@
+{
+    "outputs" :
+    [
+        {
+            "id" : 1,
+            "name" : "FakeOutput_1",
+            "modes" :
+            [
+                {
+                    "id" : 1,
+                    "name" : "1280x800",
+                    "refreshRate" : 59.9,
+                    "size" : {
+                        "width" : 1280,
+                        "height" : 800
+                    }
+                }
+            ],
+            "pos" : {
+                "x" : 0,
+                "y" : 0
+            },
+            "size" : {
+                "width" : 1280,
+                "height" : 800
+            },
+            "rotation" : 1,
+            "connected" : true,
+            "enabled" : true,
+            "primary" : true
+        },
+        {
+            "id" : 2,
+            "name" : "FakeOutput_2",
+            "modes" :
+            [
+                {
+                    "id" : 1,
+                    "name" : "1920x1080",
+                    "refreshRate" : 59.9,
+                    "size" : {
+                        "width" : 1920,
+                        "height" : 1080
+                    }
+                }
+            ],
+            "pos" : {
+                "x" : 1280,
+                "y" : 0
+            },
+            "size" : {
+                "width" : 1920,
+                "height" : 1080
+            },
+            "rotation" : 1,
+            "connected" : true,
+            "enabled" : true,
+            "primary" : false
+        }
+    ]
+}

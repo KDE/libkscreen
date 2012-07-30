@@ -30,6 +30,7 @@ class testScreenConfig : public QObject
 
 private Q_SLOTS:
     void singleOutput();
+    void multiOutput();
 };
 
 void testScreenConfig::singleOutput()
@@ -63,6 +64,30 @@ void testScreenConfig::singleOutput()
 
 }
 
+void testScreenConfig::multiOutput()
+{
+    QByteArray path(TEST_DATA);
+    path.append("/multipleoutput.json");
+    setenv("TEST_DATA", path, 1);
+
+    KScreen *kscreen = KScreen::self();
+
+    Config *config = kscreen->config();
+
+    QCOMPARE(config->outputs().count(), 2);
+
+    Output *output = config->outputs().take(2);
+
+    QCOMPARE(output->name(), QString("FakeOutput_2"));
+    QCOMPARE(output->modes().count(), 1);
+    QCOMPARE(output->pos(), QPoint(0, 0));
+    QCOMPARE(output->size(), QSize(1920, 1080));
+    QCOMPARE(output->rotation(), Output::None);
+    QCOMPARE(output->isConnected(), true);
+    QCOMPARE(output->isEnabled(), true);
+    QCOMPARE(output->isPrimary(), false);
+    QVERIFY2(output->clones().isEmpty(), "This simulates extended output, no clones");
+}
 
 QTEST_MAIN(testScreenConfig)
 
