@@ -61,6 +61,11 @@ void Output::setIcon(const QString& icon)
     m_icon = icon;
 }
 
+Mode* Output::mode(int id) const
+{
+    return m_modeList[id];
+}
+
 QHash< int, Mode* > Output::modes() const
 {
     return m_modeList;
@@ -89,16 +94,6 @@ QPoint Output::pos() const
 void Output::setPos(const QPoint& pos)
 {
     m_pos = pos;
-}
-
-QSize Output::size() const
-{
-    return m_size;
-}
-
-void Output::setSize(const QSize& size)
-{
-    m_size = size;
 }
 
 Output::Rotation Output::rotation() const

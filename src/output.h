@@ -39,7 +39,6 @@ class KSCREEN_EXPORT Output : public QObject
         Q_PROPERTY(QString icon READ icon WRITE setIcon)
         Q_PROPERTY(ModeList modes READ modes)
         Q_PROPERTY(QPoint pos READ pos WRITE setPos)
-        Q_PROPERTY(QSize size READ size WRITE setSize)
         Q_PROPERTY(Rotation rotation READ rotation WRITE setRotation)
         Q_PROPERTY(int id READ id WRITE setId)
         Q_PROPERTY(int currentMode READ currentMode WRITE setCurrentMode)
@@ -68,6 +67,7 @@ class KSCREEN_EXPORT Output : public QObject
         QString icon() const;
         void setIcon(const QString& icon);
 
+        Mode* mode(int id) const;
         QHash<int, Mode*> modes() const;
         void setModes(ModeList modes);
 
@@ -76,9 +76,6 @@ class KSCREEN_EXPORT Output : public QObject
 
         QPoint pos() const;
         void setPos(const QPoint& pos);
-
-        QSize size() const;
-        void setSize(const QSize& size);
 
         Rotation rotation() const;
         void setRotation(Rotation rotation);

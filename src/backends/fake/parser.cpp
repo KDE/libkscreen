@@ -70,8 +70,6 @@ Output* Parser::outputFromJson(const QVariant& data)
     }
     output->setModes(modelist);
 
-    output->setSize(Parser::sizeFromJson(map["size"].toMap()));
-
     return output;
 }
 

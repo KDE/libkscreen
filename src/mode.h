@@ -32,7 +32,7 @@ class KSCREEN_EXPORT Mode : public QObject
     Q_PROPERTY(int id READ id WRITE setId)
     Q_PROPERTY(QString name READ name WRITE setName)
     Q_PROPERTY(QSize size READ size WRITE setSize)
-    Q_PROPERTY(float refreshrate READ refreshRate WRITE setRefreshDate)
+    Q_PROPERTY(float refreshRate READ refreshRate WRITE setRefreshDate)
 
     public:
         explicit Mode(int id, QObject *parent = 0);

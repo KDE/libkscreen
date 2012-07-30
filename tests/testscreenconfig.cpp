@@ -56,7 +56,6 @@ void testScreenConfig::singleOutput()
     QCOMPARE(output->type(), QString("LVDS"));
     QCOMPARE(output->modes().count(), 3);
     QCOMPARE(output->pos(), QPoint(0, 0));
-    QCOMPARE(output->size(), QSize(1280, 800));
     QCOMPARE(output->currentMode(), 3);
     QCOMPARE(output->rotation(), Output::None);
     QCOMPARE(output->isConnected(), true);
@@ -64,6 +63,9 @@ void testScreenConfig::singleOutput()
     QCOMPARE(output->isPrimary(), true);
     QVERIFY2(output->clones().isEmpty(), "In singleOutput is impossible to have clones");
 
+    Mode* mode = output->mode(output->currentMode());
+    QCOMPARE(mode->size(), QSize(1280, 800));
+    QCOMPARE(mode->refreshRate(), (float)59.9);
 }
 
 void testScreenConfig::multiOutput()
@@ -84,13 +86,16 @@ void testScreenConfig::multiOutput()
     QCOMPARE(output->type(), QString("HDMI"));
     QCOMPARE(output->modes().count(), 4);
     QCOMPARE(output->pos(), QPoint(0, 0));
-    QCOMPARE(output->size(), QSize(1920, 1080));
     QCOMPARE(output->currentMode(), 4);
     QCOMPARE(output->rotation(), Output::None);
     QCOMPARE(output->isConnected(), true);
     QCOMPARE(output->isEnabled(), true);
     QCOMPARE(output->isPrimary(), false);
     QVERIFY2(output->clones().isEmpty(), "This simulates extended output, no clones");
+
+    Mode* mode = output->mode(output->currentMode());
+    QCOMPARE(mode->size(), QSize(1920, 1080));
+    QCOMPARE(mode->refreshRate(), (float)60.0);
 }
 
 QTEST_MAIN(testScreenConfig)

@@ -28,7 +28,7 @@
                 {
                     "id" : 1,
                     "name" : "800x600",
-                    "refreshRate" : 59.9,
+                    "refreshRate" : 60,
                     "size" : {
                         "width" : 800,
                         "height" : 600
@@ -38,10 +38,6 @@
             "pos" : {
                 "x" : 0,
                 "y" : 0
-            },
-            "size" : {
-                "width" : 1280,
-                "height" : 800
             },
             "currentMode" : 3,
             "rotation" : 1,
@@ -58,7 +54,7 @@
                 {
                     "id" : 4,
                     "name" : "1920x1080",
-                    "refreshRate" : 59.9,
+                    "refreshRate" : 60,
                     "size" : {
                         "width" : 1920,
                         "height" : 1080
@@ -95,10 +91,6 @@
             "pos" : {
                 "x" : 1280,
                 "y" : 0
-            },
-            "size" : {
-                "width" : 1920,
-                "height" : 1080
             },
             "currentMode" : 4,
             "rotation" : 1,
