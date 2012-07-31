@@ -11,3 +11,4 @@ macro(KSCREEN_TESTS)
 endmacro(KSCREEN_TESTS)
 
 KSCREEN_TESTS(testscreenconfig )
+KSCREEN_TESTS(testxrandr )
