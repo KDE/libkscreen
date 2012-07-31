@@ -37,6 +37,7 @@ set(GENERIC_LIB_VERSION "0.9")
 set(GENERIC_LIB_SOVERSION "0")
 set(VERSION ${GENERIC_LIB_VERSION})
 
+add_subdirectory(qrandr)
 add_subdirectory(src)
 add_subdirectory(tests)
 
