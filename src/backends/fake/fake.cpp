@@ -22,8 +22,6 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
-#include <qjson/parser.h>
-#include <qjson/qobjecthelper.h>
 
 Fake::Fake()
 {
