@@ -9,6 +9,8 @@ set(libkscreen_SRCS
     mode.cpp
     backends/fake/fake.cpp
     backends/fake/parser.cpp
+
+    backends/xrandr/xrandr.cpp
 )
 
 qt4_automoc(${libkscreen_SRCS})
