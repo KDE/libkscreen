@@ -25,14 +25,12 @@ KScreen *KScreen::s_instance = 0;
 KScreen::Error KScreen::s_error = KScreen::None;
 
 KScreen::KScreen()
- : m_valid(true)
- , m_backend(0)
+ : m_backend(0)
 {
-    Fake *fake = new Fake();
-    if (fake->isValid()) {
-        m_valid = true;
-        m_backend = fake;
-        return;
+    QString backend(getenv("KSCREEN_BACKEND"));
+
+    if (backend == "Fake") {
+        m_backend = new Fake();
     }
 }
 
@@ -72,7 +70,7 @@ const QString KScreen::errorString()
 
 bool KScreen::isValid()
 {
-    return m_valid;
+    return m_backend;
 }
 
 const QString KScreen::backend()

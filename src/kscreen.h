@@ -60,7 +60,6 @@ class KSCREEN_EXPORT KScreen
         static Error s_error;
         static KScreen* s_instance;
 
-        bool m_valid;
         AbstractBackend *m_backend;
 };
 
