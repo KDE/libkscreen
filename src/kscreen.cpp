@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "backends/fake/fake.h"
+#include "backends/xrandr/xrandr.h"
 
 KScreen *KScreen::s_instance = 0;
 KScreen::Error KScreen::s_error = KScreen::None;
@@ -31,6 +32,8 @@ KScreen::KScreen()
 
     if (backend == "Fake") {
         m_backend = new Fake();
+    } else if(backend == "XRandR") {
+        m_backend = new XRandR();
     }
 }
 
