@@ -29,10 +29,16 @@ class testScreenConfig : public QObject
     Q_OBJECT
 
 private Q_SLOTS:
+    void initTestCase();
     void singleOutput();
     void multiOutput();
     void clonesOutput();
 };
+
+void testScreenConfig::initTestCase()
+{
+    setenv("KSCREEN_BACKEND", "Fake", 1);
+}
 
 void testScreenConfig::singleOutput()
 {
@@ -121,4 +127,4 @@ void testScreenConfig::clonesOutput()
 
 QTEST_MAIN(testScreenConfig)
 
-#include "config.moc"
+#include "testscreenconfig.moc"
