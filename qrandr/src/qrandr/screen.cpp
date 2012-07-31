@@ -36,7 +36,8 @@ Screen::Screen(int screenId, Display *display) : QObject()
 
 Screen::~Screen()
 {
-
+    XRRFreeScreenResources(m_resources);
+    m_resources = 0;
 }
 
 int Screen::id()

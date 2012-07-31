@@ -38,6 +38,8 @@ Crtc::Crtc(Screen* parent, RRCrtc id)
 
 Crtc::~Crtc()
 {
+    XRRFreeCrtcInfo(m_info);
+    m_info = 0;
 }
 
 RRCrtc Crtc::id() const

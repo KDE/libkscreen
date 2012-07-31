@@ -38,6 +38,8 @@ Output::Output(Screen* parent, RROutput id)
 
 Output::~Output()
 {
+    XRRFreeOutputInfo(m_info);
+    m_info = 0;
 }
 
 RROutput Output::id() const
