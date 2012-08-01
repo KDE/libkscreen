@@ -38,6 +38,7 @@ set(GENERIC_LIB_SOVERSION "0")
 set(VERSION ${GENERIC_LIB_VERSION})
 
 add_subdirectory(src)
+add_subdirectory(backends)
 add_subdirectory(tests)
 
 ############################################ apidox ############################################

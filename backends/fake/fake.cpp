@@ -18,7 +18,8 @@
 
 #include "fake.h"
 #include "parser.h"
-#include "../../config.h"
+
+#include <config.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QFile>

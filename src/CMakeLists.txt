@@ -1,15 +1,12 @@
 include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${QT_INCLUDES})
 
-add_subdirectory(backends/xrandr/qrandr/)
-add_subdirectory(backends/fake)
-
 set(libkscreen_SRCS
     kscreen.cpp
     config.cpp
     output.cpp
     mode.cpp
 
-    backends/xrandr/xrandr.cpp
+    ../backends/xrandr/xrandr.cpp
 )
 
 qt4_automoc(${libkscreen_SRCS})
@@ -28,7 +25,8 @@ install(TARGETS kscreen ${INSTALL_TARGETS_DEFAULT_ARGS})
 install(FILES kscreen_export.h
             kscreen.h
             mode.h
-            output.h DESTINATION include/kscreen)
+            output.h
+            config.h DESTINATION include/kscreen)
 
 if(NOT WIN32)
    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/kscreen.pc.in ${CMAKE_CURRENT_BINARY_DIR}/kscreen.pc @ONLY)
