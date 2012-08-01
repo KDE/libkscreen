@@ -18,13 +18,17 @@
 
 #include "fake.h"
 #include "parser.h"
-#include "config.h"
+#include "../../config.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
+#include <qplugin.h>
 
-Fake::Fake()
+Q_EXPORT_PLUGIN2(Fake, Fake)
+
+Fake::Fake(QObject* parent): QObject(parent)
 {
+
 }
 
 Fake::~Fake()
@@ -46,3 +50,5 @@ bool Fake::isValid() const
 {
     return true;
 }
+
+#include "fake.moc"

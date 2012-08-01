@@ -20,11 +20,15 @@
 #define FAKE_BACKEND_H
 
 #include "../abstractbackend.h"
+#include <QtCore/QObject>
 
-class Fake : public AbstractBackend
+class Fake : public QObject, public AbstractBackend
 {
+    Q_OBJECT
+    Q_INTERFACES(AbstractBackend)
+
     public:
-        Fake();
+        explicit Fake(QObject* parent = 0);
         virtual ~Fake();
 
         virtual QString name() const;

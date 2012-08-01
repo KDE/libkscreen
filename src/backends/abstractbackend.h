@@ -20,6 +20,7 @@
 #define ABSTRACT_BACKEND_H
 
 #include <QtCore/QString>
+#include <QtCore/QObject>
 
 class Config;
 class AbstractBackend
@@ -31,4 +32,5 @@ class AbstractBackend
         virtual bool isValid() const = 0;
 };
 
+Q_DECLARE_INTERFACE(AbstractBackend, "org.kde.libkscreen")
 #endif //ABSTRACT_BACKEND_H

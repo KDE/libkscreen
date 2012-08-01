@@ -22,18 +22,35 @@
 #include "backends/fake/fake.h"
 #include "backends/xrandr/xrandr.h"
 
+#include <QtCore/QDebug>
+#include <QtCore/QStringList>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QPluginLoader>
+
+
 KScreen *KScreen::s_instance = 0;
 KScreen::Error KScreen::s_error = KScreen::None;
 
 KScreen::KScreen()
  : m_backend(0)
 {
+    QStringList paths = QCoreApplication::libraryPaths();
     QString backend(getenv("KSCREEN_BACKEND"));
 
-    if (backend == "Fake") {
-        m_backend = new Fake();
-    } else if(backend == "XRandR") {
-        m_backend = new XRandR();
+    QPluginLoader loader;
+    QObject *instance;
+    Q_FOREACH(const QString& path, paths) {
+        loader.setFileName(path + "/kscreen/KSC_" + backend + ".so");
+        instance = loader.instance();
+        if (!instance) {
+            continue;
+        }
+
+        m_backend = qobject_cast< AbstractBackend* >(instance);
+        if (m_backend) {
+            return;
+        }
+
     }
 }
 

@@ -1,14 +1,13 @@
 include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${QT_INCLUDES})
 
 add_subdirectory(backends/xrandr/qrandr/)
+add_subdirectory(backends/fake)
 
 set(libkscreen_SRCS
     kscreen.cpp
     config.cpp
     output.cpp
     mode.cpp
-    backends/fake/fake.cpp
-    backends/fake/parser.cpp
 
     backends/xrandr/xrandr.cpp
 )
