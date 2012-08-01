@@ -41,6 +41,10 @@ QRandR* QRandR::self()
     }
 
     Display *display = QX11Info::display();
+    if (!display) {
+        qDebug() << "Returned display is 0";
+        return 0;
+    }
 
     int eventBase, errorBase;
     if(XRRQueryExtension(display, &eventBase, &errorBase) == False) {
