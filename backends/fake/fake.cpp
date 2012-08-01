@@ -23,7 +23,7 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
-#include <qplugin.h>
+#include <QtCore/qplugin.h>go
 
 Q_EXPORT_PLUGIN2(Fake, Fake)
 
