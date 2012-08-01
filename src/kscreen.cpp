@@ -53,6 +53,8 @@ KScreen::KScreen()
         }
 
     }
+
+    qDebug() << "Failed to load: " << backend;
 }
 
 KScreen* KScreen::self()
