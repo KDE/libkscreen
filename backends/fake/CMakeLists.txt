@@ -1,13 +1,4 @@
-# project(Fake)
-#
-# cmake_minimum_required(VERSION 2.6.2 FATAL_ERROR)
-# set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
-
-# Phonon
-# find_package(KScreen REQUIRED)
-add_definitions(${QT_DEFINITIONS})
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}/src ${CMAKE_BINARY_DIR} ${CMAKE_BUILD_DIR} ${QT_INCLUDES})
+include_directories(${CMAKE_SOURCE_DIR}/src ${CMAKE_BUILD_DIR} ${QT_INCLUDES})
 
 set(fake_SRCS
     fake.cpp
