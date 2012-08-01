@@ -5,8 +5,6 @@ set(libkscreen_SRCS
     config.cpp
     output.cpp
     mode.cpp
-
-    ../backends/xrandr/xrandr.cpp
 )
 
 qt4_automoc(${libkscreen_SRCS})
