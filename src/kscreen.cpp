@@ -41,6 +41,7 @@ KScreen::KScreen()
     QObject *instance;
     Q_FOREACH(const QString& path, paths) {
         loader.setFileName(path + "/kscreen/KSC_" + backend + ".so");
+        loader.load();
         instance = loader.instance();
         if (!instance) {
             continue;
