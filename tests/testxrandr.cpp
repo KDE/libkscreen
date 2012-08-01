@@ -56,7 +56,7 @@ void testXRandR::singleOutput()
 
     QCOMPARE(config->outputs().count(), 1);
 
-    Output *output = config->outputs().take(1);
+    Output *output = config->outputs().take(327);
 
     QCOMPARE(output->name(), QString("default"));
     QCOMPARE(output->type(), QString("unknown"));
