@@ -40,12 +40,6 @@ private:
 
 void testXRandR::initTestCase()
 {
-    qDebug() << "Starting Xephyr";
-    m_process.start("Xephyr", QStringList(":1"));
-    m_process.waitForStarted();
-    qDebug() << "Started";
-
-    setenv("DISPLAY", ":1", 1);
 }
 
 void testXRandR::singleOutput()
