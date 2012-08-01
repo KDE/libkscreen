@@ -85,6 +85,9 @@ QHash<RRMode,  Mode* > Output::modes()
 
 Mode* Output::mode()
 {
+    if (!crtc()) {
+        return 0;
+    }
     return crtc()->mode();
 }
 
