@@ -28,19 +28,18 @@
 
 namespace QRandR {
     class Screen;
-}
 
-class XRandR : public QObject
+class QRandR : public QObject
 {
     Q_OBJECT
 
     public:
-        static XRandR *self();
+        static QRandR *self();
         static bool x11EventFilter(void *message, long int *result);
 
         QPair<int, int> version();
-        QRandR::Screen * screen();
-        QList<QRandR::Screen *> screens();
+        Screen * screen();
+        QList<Screen *> screens();
         Display *display();
 
     public:
@@ -48,7 +47,7 @@ class XRandR : public QObject
         static int s_Timestamp;
 
     private:
-        XRandR();
+        QRandR();
         void setVersion(int major, int minor);
         void setDisplay(Display *display);
         void handleEvent(XEvent *event);
@@ -56,13 +55,13 @@ class XRandR : public QObject
         void passEventToScreens(XRRScreenChangeNotifyEvent *event);
 
     private:
-        static XRandR *s_instance;
+        static QRandR *s_instance;
         static QCoreApplication::EventFilter s_oldEventFilter;
         static int s_RRScreen, s_RRNotify;
 
         Display *m_display;
         QPair<int,int> m_version;
-        QList<QRandR::Screen *> m_screens;
+        QList<Screen *> m_screens;
 };
-
+}
 #endif // XRANDR_H

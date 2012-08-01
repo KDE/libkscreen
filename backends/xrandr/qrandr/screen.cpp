@@ -91,7 +91,7 @@ QHash<RRCrtc, Crtc *> Screen::crtc()
     for (int i = 0; i < screenResources->ncrtc; ++i)
     {
         id = screenResources->crtcs[i];
-        m_crtc[id] =new QRandR::Crtc(this, id);
+        m_crtc[id] =new Crtc(this, id);
     }
 
     return m_crtc;
@@ -111,7 +111,7 @@ QHash<RROutput, Output *> Screen::outputs()
     for (int i = 0; i < screenResources->noutput; ++i)
     {
         id = screenResources->outputs[i];
-        m_outputs[id] = new QRandR::Output(this, id);
+        m_outputs[id] = new Output(this, id);
         if (m_primary == id) {
             m_outputs[id]->setPrimary(true);
         }
@@ -131,7 +131,7 @@ QHash<RRMode,  Mode* > Screen::modes()
     for (int i = 0; i < screenResources->nmode; ++i)
     {
         id = screenResources->modes[i].id;
-        m_modes[id] = new QRandR::Mode(this,  &screenResources->modes[i]);
+        m_modes[id] = new Mode(this,  &screenResources->modes[i]);
     }
 
     return m_modes;
@@ -182,7 +182,7 @@ XRRScreenResources* Screen::resources()
 {
     if (!m_resources) {
         m_resources = XRRGetScreenResources(m_display, rootWindow());
-        XRandR::s_Timestamp = m_resources->timestamp;
+        QRandR::s_Timestamp = m_resources->timestamp;
     }
 
     return m_resources;
@@ -198,7 +198,7 @@ void Screen::handleEvent(XRRScreenChangeNotifyEvent* event)
 {
     qDebug() << "Handle Event";
 
-    XRandR::s_Timestamp = event->timestamp;
+    QRandR::s_Timestamp = event->timestamp;
     m_currentSize.setWidth(event->width);
     m_currentSize.setHeight(event->height);
 

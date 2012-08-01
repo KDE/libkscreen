@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    XRandR *randr =  XRandR::self();
+    QRandR::QRandR *randr =  QRandR::QRandR::self();
 
     if (!randr) {
         return -1;

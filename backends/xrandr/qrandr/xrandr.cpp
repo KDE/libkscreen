@@ -25,14 +25,16 @@
 #include "xrandr.h"
 #include "screen.h"
 
-int XRandR::s_RRNotify = 0;
-int XRandR::s_RRScreen = 0;
-int XRandR::s_Timestamp = 0;
-bool XRandR::has_1_3 = false;
-XRandR *XRandR::s_instance = 0;
-QCoreApplication::EventFilter XRandR::s_oldEventFilter = 0;
+namespace QRandR {
 
-XRandR* XRandR::self()
+int QRandR::s_RRNotify = 0;
+int QRandR::s_RRScreen = 0;
+int QRandR::s_Timestamp = 0;
+bool QRandR::has_1_3 = false;
+QRandR *QRandR::s_instance = 0;
+QCoreApplication::EventFilter QRandR::s_oldEventFilter = 0;
+
+QRandR* QRandR::self()
 {
     if (s_instance) {
         return s_instance;
@@ -58,20 +60,20 @@ XRandR* XRandR::self()
         return 0;
     }
 
-    XRandR::has_1_3 = (majorVersion > 1 || (majorVersion == 1 && minorVersion >= 3));
+    QRandR::has_1_3 = (majorVersion > 1 || (majorVersion == 1 && minorVersion >= 3));
 
     kDebug() << "Using XRandR " << majorVersion << " " << minorVersion;
 
-    s_instance = new XRandR();
+    s_instance = new QRandR();
     s_instance->setVersion(minorVersion, majorVersion);
     s_instance->setDisplay(display);
 
-    s_oldEventFilter = QCoreApplication::instance()->setEventFilter(XRandR::x11EventFilter);
+    s_oldEventFilter = QCoreApplication::instance()->setEventFilter(QRandR::x11EventFilter);
 
     return s_instance;
 }
 
-bool XRandR::x11EventFilter(void* message, long int* result)
+bool QRandR::x11EventFilter(void* message, long int* result)
 {
     XEvent *event = reinterpret_cast<XEvent*>(message);
     if (event->type == s_RRNotify || event->type == s_RRScreen) {
@@ -87,33 +89,33 @@ bool XRandR::x11EventFilter(void* message, long int* result)
     return true;
 }
 
-XRandR::XRandR() : QObject()
+QRandR::QRandR() : QObject()
 , m_display(0)
 {
 }
 
-QPair< int, int > XRandR::version()
+QPair< int, int > QRandR::version()
 {
     return m_version;
 }
 
-void XRandR::setVersion(int major, int minor)
+void QRandR::setVersion(int major, int minor)
 {
     m_version = QPair<int, int>(minor, major);
 }
 
-void XRandR::setDisplay(Display* display)
+void QRandR::setDisplay(Display* display)
 {
     m_display = display;
 }
 
-void XRandR::handleEvent(XEvent* event)
+void QRandR::handleEvent(XEvent* event)
 {
-    if (event->type == XRandR::s_RRScreen) {
+    if (event->type == QRandR::s_RRScreen) {
         XRRScreenChangeNotifyEvent *screenEvent = (XRRScreenChangeNotifyEvent*) event;
         qDebug() << "RRScreenChangeNotify";
         passEventToScreens(screenEvent);
-    } else if (event->type == XRandR::s_RRNotify) {
+    } else if (event->type == QRandR::s_RRNotify) {
         XRRNotifyEvent *notifyEvent = (XRRNotifyEvent*) event;
         qDebug() << "RRNotify";
         if (notifyEvent->subtype == RRNotify_CrtcChange) {
@@ -127,19 +129,19 @@ void XRandR::handleEvent(XEvent* event)
     }
 }
 
-void XRandR::passEventToScreens(XRRScreenChangeNotifyEvent* event)
+void QRandR::passEventToScreens(XRRScreenChangeNotifyEvent* event)
 {
-    Q_FOREACH(QRandR::Screen *screen, m_screens) {
+    Q_FOREACH(Screen *screen, m_screens) {
         screen->handleEvent(event);
     }
 }
 
-Display* XRandR::display()
+Display* QRandR::display()
 {
     return m_display;
 }
 
-QRandR::Screen* XRandR::screen()
+Screen* QRandR::screen()
 {
     if (m_screens.isEmpty()) {
         screens();
@@ -148,12 +150,13 @@ QRandR::Screen* XRandR::screen()
     return m_screens.at(DefaultScreen(m_display));
 }
 
-QList< QRandR::Screen* > XRandR::screens()
+QList< Screen* > QRandR::screens()
 {
     int numScreens = ScreenCount(m_display);
     for (int i = 0; i < numScreens; i++) {
-        m_screens.append(new QRandR::Screen(i, m_display));
+        m_screens.append(new Screen(i, m_display));
     }
 
     return m_screens;
+}
 }
