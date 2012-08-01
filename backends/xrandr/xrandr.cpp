@@ -19,11 +19,17 @@
 #include "xrandr.h"
 #include "config.h"
 
+#include "qrandr/qrandr.h"
+
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
+#include <QtCore/qplugin.h>
 
-XRandR::XRandR()
+Q_EXPORT_PLUGIN2(XRandR, XRandR)
+
+XRandR::XRandR(QObject* parent): QObject(parent)
 {
+    QRandR::QRandR::self();
 }
 
 XRandR::~XRandR()
@@ -45,3 +51,5 @@ bool XRandR::isValid() const
 {
     return true;
 }
+
+#include "xrandr.moc"

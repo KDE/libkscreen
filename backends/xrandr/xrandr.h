@@ -21,10 +21,13 @@
 
 #include "../abstractbackend.h"
 
-class XRandR : public AbstractBackend
+class XRandR : public QObject, public AbstractBackend
 {
+    Q_OBJECT
+    Q_INTERFACES(AbstractBackend)
+
     public:
-        XRandR();
+        explicit XRandR(QObject* parent = 0);
         virtual ~XRandR();
 
         virtual QString name() const;
