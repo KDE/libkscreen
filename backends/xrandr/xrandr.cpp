@@ -20,6 +20,10 @@
 #include "config.h"
 
 #include "qrandr/qrandr.h"
+#include "qrandr/screen.h"
+#include "qrandr/output.h"
+#include "qrandr/mode.h"
+#include "qrandr/crtc.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
@@ -44,7 +48,48 @@ QString XRandR::name() const
 
 Config* XRandR::config() const
 {
-    return new Config();
+    QRandR::Screen* screen = QRandR::QRandR::self()->screen();
+    QHash <RROutput, QRandR::Output* > outputs = screen->outputs();
+    qDebug() << outputs.count();
+
+    OutputList outputList;
+    Q_FOREACH(QRandR::Output* xOutput, outputs) {
+        Output *output = new Output((int) xOutput->id());
+        qDebug() << xOutput->name();
+        output->setName(xOutput->name());
+        output->setConnected(xOutput->isConnected());
+        output->setEnabled(xOutput->isEnabled());
+        output->setPrimary(xOutput->isPrimary());
+        output->setType("unknown");
+        if (xOutput->crtc()) {
+            output->setPos(xOutput->crtc()->rect().topLeft());
+        }
+
+        QHash <RRMode, QRandR::Mode* > xModes = xOutput->modes();
+
+        ModeList modeList;
+        Q_FOREACH(QRandR::Mode* xMode, xModes) {
+            Mode *mode = new Mode((int)xMode->id());
+            mode->setName(xMode->name());
+            mode->setRefreshDate(xMode->rate());
+            mode->setSize(xMode->size());
+
+            modeList.insert(mode->id(), mode);
+        }
+
+        output->setModes(modeList);
+        if (xOutput->mode()) {
+            output->setCurrentMode((int)xOutput->mode()->id());
+        }
+
+        outputList.insert(output->id(), output);
+
+    }
+
+    Config *config = new Config();
+    config->setOutputs(outputList);
+
+    return config;
 }
 
 bool XRandR::isValid() const
