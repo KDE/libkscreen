@@ -19,7 +19,7 @@
 #include "crtc.h"
 #include "screen.h"
 #include "mode.h"
-#include "xrandr.h"
+#include "qrandr.h"
 
 #include <X11/extensions/Xrandr.h>
 

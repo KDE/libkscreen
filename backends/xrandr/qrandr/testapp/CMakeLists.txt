@@ -1,7 +1,7 @@
 include_directories(${QT_INCLUDES} ${KDE4_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR} ${X11_Xrandr_INCLUDE_PATH})
 
 set(testApp_SRCS
-    ../xrandr.cpp
+    ../qrandr.cpp
     ../screen.cpp
     ../crtc.cpp
     ../output.cpp

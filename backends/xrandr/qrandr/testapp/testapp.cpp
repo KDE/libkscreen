@@ -19,7 +19,7 @@
 #include <QtGui/QApplication>
 #include <QtCore/QtDebug>
 
-#include "../xrandr.h"
+#include "../qrandr.h"
 #include "../screen.h"
 #include "../crtc.h"
 #include "../output.h"

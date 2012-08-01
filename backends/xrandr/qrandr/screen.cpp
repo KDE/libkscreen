@@ -20,7 +20,7 @@
 #include "crtc.h"
 #include "output.h"
 #include "mode.h"
-#include "xrandr.h"
+#include "qrandr.h"
 
 #include <QtCore/QDebug>
 

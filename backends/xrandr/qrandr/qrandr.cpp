@@ -22,7 +22,7 @@
 
 #include <X11/extensions/Xrandr.h>
 
-#include "xrandr.h"
+#include "qrandr.h"
 #include "screen.h"
 
 namespace QRandR {
