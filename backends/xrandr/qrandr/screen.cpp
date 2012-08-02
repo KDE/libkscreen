@@ -120,6 +120,15 @@ QHash<RROutput, Output *> Screen::outputs()
     return m_outputs;
 }
 
+Output* Screen::output(RROutput id)
+{
+    if (!m_outputs.contains(id)) {
+        return 0;
+    }
+
+    return m_outputs[id];
+}
+
 QHash<RRMode,  Mode* > Screen::modes()
 {
     if (!m_modes.isEmpty()) {

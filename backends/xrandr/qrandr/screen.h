@@ -49,6 +49,7 @@ class Screen : public QObject
 
         QHash<RROutput, Crtc *> crtc();
         QHash<RROutput, Output *> outputs();
+        Output* output(RROutput id);
         QHash<RRMode, Mode *> modes();
 
         Mode* mode(RRMode id);
