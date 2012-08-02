@@ -63,6 +63,10 @@ void Output::setIcon(const QString& icon)
 
 Mode* Output::mode(int id) const
 {
+    if (!m_modeList.contains(id)) {
+        return 0;
+    }
+
     return m_modeList[id];
 }
 
