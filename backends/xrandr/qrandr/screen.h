@@ -57,10 +57,10 @@ class Screen : public QObject
         void setPrimaryOutput(Output *output);
 
         void handleEvent(XRRScreenChangeNotifyEvent *event);
-Window rootWindow();
+        Window rootWindow();
+
     private:
         void getMinAndMaxSize();
-
         XRRScreenResources* resources();
 
     private:
