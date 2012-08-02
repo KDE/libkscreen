@@ -92,6 +92,11 @@ Config* XRandR::config() const
     return config;
 }
 
+void XRandR::setConfig(Config* config) const
+{
+    Q_UNUSED(config)
+}
+
 bool XRandR::isValid() const
 {
     return true;

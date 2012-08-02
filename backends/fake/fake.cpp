@@ -47,6 +47,11 @@ Config* Fake::config() const
     return Parser::fromJson(QString::fromLatin1(getenv("TEST_DATA")));
 }
 
+void Fake::setConfig(Config* config) const
+{
+    Q_UNUSED(config)
+}
+
 bool Fake::isValid() const
 {
     return true;

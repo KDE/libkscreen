@@ -29,6 +29,7 @@ class AbstractBackend
         virtual ~AbstractBackend() {};
         virtual QString name() const = 0;
         virtual Config* config() const = 0;
+        virtual void setConfig(Config* config) const = 0;
         virtual bool isValid() const = 0;
 };
 

@@ -33,6 +33,7 @@ class Fake : public QObject, public AbstractBackend
 
         virtual QString name() const;
         virtual Config* config() const;
+        virtual void setConfig(Config* config) const;
         virtual bool isValid() const;
 };
 
