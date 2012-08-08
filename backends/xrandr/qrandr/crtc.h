@@ -41,7 +41,6 @@ class Crtc : public QObject
         RRCrtc id() const;
 
         Mode *mode();
-        void setMode(Mode *mode);
 
     private:
         XRRCrtcInfo* info();
