@@ -129,6 +129,11 @@ Output* Screen::output(RROutput id)
     return m_outputs[id];
 }
 
+Output* Screen::primaryOutput()
+{
+    return output(m_primary);
+}
+
 QHash<RRMode,  Mode* > Screen::modes()
 {
     if (!m_modes.isEmpty()) {
