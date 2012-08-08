@@ -21,6 +21,13 @@
 
 #include "../abstractbackend.h"
 
+#include <QtCore/QSize>
+
+namespace QRandR {
+    class Output;
+    class Screen;
+}
+class Output;
 class XRandR : public QObject, public AbstractBackend
 {
     Q_OBJECT
@@ -34,6 +41,17 @@ class XRandR : public QObject, public AbstractBackend
         virtual Config* config() const;
         virtual void setConfig(Config* config) const;
         virtual bool isValid() const;
+
+    private:
+        QSize screenSize(Config* config) const;
+        bool setScreenSize(const QSize& size) const;
+        void setPrimaryOutput(int outputId) const;
+        void disableOutput(QRandR::Output* output) const;
+        void enableOutput(Output* output) const;
+        void changeOutput(Output* output) const;
+
+    private:
+        QRandR::Screen* m_screen;
 };
 
 #endif //XRandR_BACKEND_H
