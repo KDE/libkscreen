@@ -53,6 +53,8 @@ class KSCREEN_EXPORT KScreen
         const QString backend();
 
         Config* config();
+        void setConfig(Config* config);
+
     private:
         KScreen();
 

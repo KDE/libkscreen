@@ -105,3 +105,8 @@ Config* KScreen::config()
 {
     return m_backend->config();
 }
+
+void KScreen::setConfig(Config* config)
+{
+    m_backend->setConfig(config);
+}
