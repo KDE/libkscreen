@@ -106,9 +106,9 @@ int main(int argc, char *argv[])
         primary = output;
     }
 
-    randr->screen()->setPrimaryOutput(primary);
+//     randr->screen()->setPrimaryOutput(primary);
 
-    randr->screen()->outputs().value(65)->crtc()->setMode(randr->screen()->mode(71));
+//     randr->screen()->outputs().value(65)->crtc()->setMode(randr->screen()->mode(71));
 
     return app.exec();
 }
