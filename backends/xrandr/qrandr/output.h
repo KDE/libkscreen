@@ -44,6 +44,7 @@ class Output : public QObject
         const QString& name();
         QHash<RRMode, Mode*> modes();
         Mode *mode();
+        QSize realSize();
         bool isConnected();
         bool isEnabled();
         bool isPrimary();
@@ -57,6 +58,7 @@ class Output : public QObject
     private:
         QString m_name;
         QRect m_rect;
+        QSize m_realSize;
         RROutput m_id;
         XRROutputInfo *m_info;
         Screen *m_parent;

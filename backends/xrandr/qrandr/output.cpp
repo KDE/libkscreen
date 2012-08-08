@@ -91,6 +91,16 @@ Mode* Output::mode()
     return crtc()->mode();
 }
 
+QSize Output::realSize()
+{
+    if (m_realSize.isEmpty()) {
+        m_realSize.setHeight(info()->mm_height);
+        m_realSize.setWidth(info()->mm_width);
+    }
+
+    return m_realSize;
+}
+
 bool Output::isPrimary()
 {
     return m_primary;
