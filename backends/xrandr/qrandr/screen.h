@@ -65,6 +65,7 @@ class Screen : public QObject
 
     private:
         void getMinAndMaxSize();
+        void refreshCacheIfNeeded();
 
     private:
         int m_id;

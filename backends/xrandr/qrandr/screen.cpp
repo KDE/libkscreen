@@ -82,6 +82,7 @@ const QSize Screen::currentSize()
 QHash<RRCrtc, Crtc *> Screen::crtc()
 {
     if (!m_crtc.isEmpty()) {
+        refreshCacheIfNeeded();
         return m_crtc;
     }
 
@@ -100,6 +101,7 @@ QHash<RRCrtc, Crtc *> Screen::crtc()
 QHash<RROutput, Output *> Screen::outputs()
 {
     if (!m_outputs.isEmpty()) {
+        refreshCacheIfNeeded();
         return m_outputs;
     }
 
@@ -137,6 +139,7 @@ Output* Screen::primaryOutput()
 QHash<RRMode,  Mode* > Screen::modes()
 {
     if (!m_modes.isEmpty()) {
+        refreshCacheIfNeeded();
         return m_modes;
     }
 
@@ -182,6 +185,31 @@ void Screen::getMinAndMaxSize()
     m_maxSize.setHeight(maxHeight);
 }
 
+void Screen::refreshCacheIfNeeded()
+{
+    qDebug() << "Trying to refresh: " << m_resources;
+    Q_ASSERT_X(m_resources, "refreshCacheIfNeeded", "This method should be called when cache is not empty");
+
+    XRRScreenResources* resources = XRRGetScreenResources(m_display, rootWindow());
+    if (m_resources->timestamp == resources->timestamp) {
+        qDebug() << "Not need for refresh";
+        return;
+    }
+
+    qDeleteAll(m_outputs);
+    qDeleteAll(m_crtc);
+    qDeleteAll(m_modes);
+
+    m_modes.clear();
+    m_outputs.clear();
+    m_crtc.clear();
+
+    qDebug() << "Deleted";
+    modes();
+    crtc();
+    outputs();
+}
+
 Window Screen::rootWindow()
 {
     if (m_rootWindow != 0) {
@@ -194,9 +222,15 @@ Window Screen::rootWindow()
 
 XRRScreenResources* Screen::resources()
 {
+   XRRScreenResources* resources = XRRGetScreenResources(m_display, rootWindow());
     if (!m_resources) {
-        m_resources = XRRGetScreenResources(m_display, rootWindow());
-        QRandR::s_Timestamp = m_resources->timestamp;
+        m_resources = resources;
+        return m_resources;
+    }
+
+    if (m_resources->timestamp != resources->timestamp) {
+        XRRFreeScreenResources(m_resources);
+        m_resources = resources;
     }
 
     return m_resources;
