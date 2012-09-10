@@ -32,7 +32,6 @@ Mode::Mode(Screen* parent, XRRModeInfo* info) : QObject(parent)
 
 Mode::~Mode()
 {
-    XRRFreeModeInfo(m_info);
     m_info = 0;
 }
 
