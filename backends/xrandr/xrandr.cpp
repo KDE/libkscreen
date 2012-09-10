@@ -99,14 +99,14 @@ void XRandR::setConfig(Config* config) const
     QSize newSize = screenSize(config);
 
     int neededCrtc = 0;
+    int primaryOutput = 0;
     QRandR::Output *qOutput = 0;
-    QRandR::Output* primaryOutput = 0;
     OutputList toDisable, toEnable, toChange;
     Q_FOREACH(Output *output, outputs) {
         qOutput = screen->output(output->id());
 
         if (output->isPrimary()) {
-            primaryOutput = qOutput;
+            primaryOutput = qOutput->id();
         }
 
         if (!output->isEnabled() && qOutput->isEnabled()) {
@@ -151,6 +151,10 @@ void XRandR::setConfig(Config* config) const
     if (neededCrtc > screen->crtc().count()) {
         qDebug() << "We need more crtc than we have: " << neededCrtc << " - " << screen->crtc().count();
         return;//We don't have enough crtc
+    }
+
+    if (primaryOutput) {
+        setPrimaryOutput(primaryOutput);
     }
 
     Q_FOREACH(Output* output, toDisable) {
