@@ -117,7 +117,7 @@ void QRandR::handleEvent(XEvent* event)
 {
     if (event->type == QRandR::s_RRScreen) {
         XRRScreenChangeNotifyEvent *screenEvent = (XRRScreenChangeNotifyEvent*) event;
-        qDebug() << "RRScreenChangeNotify";
+        qDebug() << "RRScreenChangeNotify: " << screenEvent->timestamp;
         passEventToScreens(screenEvent);
     } else if (event->type == QRandR::s_RRNotify) {
         XRRNotifyEvent *notifyEvent = (XRRNotifyEvent*) event;
