@@ -71,7 +71,7 @@ Config* XRandR::config() const
         Q_FOREACH(QRandR::Mode* xMode, xModes) {
             Mode *mode = new Mode((int)xMode->id());
             mode->setName(xMode->name());
-            mode->setRefreshDate(xMode->rate());
+            mode->setRefreshRate(xMode->rate());
             mode->setSize(xMode->size());
 
             modeList.insert(mode->id(), mode);

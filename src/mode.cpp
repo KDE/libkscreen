@@ -64,7 +64,7 @@ float Mode::refreshRate() const
     return m_rate;
 }
 
-void Mode::setRefreshDate(float refresh)
+void Mode::setRefreshRate(float refresh)
 {
     m_rate = refresh;
 }
