@@ -39,6 +39,7 @@ class Crtc : public QObject
 
         QRect rect();
         RRCrtc id() const;
+	Rotation rotation();
 
         Mode *mode();
 

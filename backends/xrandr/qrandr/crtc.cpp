@@ -66,6 +66,12 @@ Mode* Crtc::mode()
     return m_mode;
 }
 
+Rotation Crtc::rotation()
+{
+    return info()->rotation;
+}
+
+
 XRRCrtcInfo* Crtc::info()
 {
     if (!m_info) {

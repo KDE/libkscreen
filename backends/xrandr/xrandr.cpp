@@ -139,6 +139,12 @@ void XRandR::setConfig(Config* config) const
                 }
             }
         }
+
+        if (output->rotation() != qOutput->crtc()->rotation()) {
+            if( !toChange.contains(output->id())) {
+                toChange.insert(output->id(), output);
+            }
+        }
     }
 
     if (newSize.width() > screen->maxSize().width() ||
@@ -236,8 +242,8 @@ void XRandR::enableOutput(Output* output) const
     RROutput *outputs = new RROutput[1];
     outputs[0] = output->id();
     Status s = XRRSetCrtcConfig(QX11Info::display(), m_screen->resources(), 64,
-                    CurrentTime, output->pos().rx(), output->pos().ry(), output->currentMode(),
-                    RR_Rotate_0, outputs, 1);
+			CurrentTime, output->pos().rx(), output->pos().ry(), output->currentMode(),
+			output->rotation(), outputs, 1);
 }
 
 void XRandR::changeOutput(Output* output) const
@@ -247,8 +253,8 @@ void XRandR::changeOutput(Output* output) const
     RROutput *outputs = new RROutput[1];
     outputs[0] = output->id();
     Status s = XRRSetCrtcConfig(QX11Info::display(), m_screen->resources(), m_screen->output(output->id())->crtc()->id(),
-                    CurrentTime, output->pos().rx(), output->pos().ry(), output->currentMode(),
-                    RR_Rotate_0, outputs, 1);
+			CurrentTime, output->pos().rx(), output->pos().ry(), output->currentMode(),
+			output->rotation(), outputs, 1);
 }
 
 bool XRandR::isValid() const

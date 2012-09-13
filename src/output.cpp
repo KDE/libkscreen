@@ -23,6 +23,7 @@ Output::Output(int id, QObject* parent)
  : QObject(parent)
  , m_id(id)
  , m_currentMode(0)
+ , m_rotation(None)
 {
 }
 
@@ -102,7 +103,7 @@ void Output::setPos(const QPoint& pos)
 
 Output::Rotation Output::rotation() const
 {
-    return Output::None;
+    return m_rotation;
 }
 
 void Output::setRotation(Output::Rotation rotation)
