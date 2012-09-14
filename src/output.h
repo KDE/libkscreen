@@ -51,9 +51,9 @@ class KSCREEN_EXPORT Output : public QObject
 
         enum Rotation {
             None = 1,
-            Left = 2,
+            Right = 2,
             Inverted = 4,
-            Right = 8
+            Left = 8
         };
 
         explicit Output(int id, QObject* parent = 0);
