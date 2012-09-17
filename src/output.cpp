@@ -19,17 +19,45 @@
 #include "output.h"
 #include "mode.h"
 
+Output::Output()
+ : QObject()
+ , m_id(0)
+ , m_currentMode(0)
+ , m_rotation(None)
+ , m_connected(false)
+ , m_enabled(false)
+ , m_primary(false)
+{
+
+}
+
 Output::Output(int id, QObject* parent)
  : QObject(parent)
  , m_id(id)
  , m_currentMode(0)
  , m_rotation(None)
+ , m_connected(false)
+ , m_enabled(false)
+ , m_primary(false)
 {
+
 }
 
 Output::~Output()
 {
 
+}
+
+int Output::id() const
+{
+    return m_id;
+}
+
+void Output::setId(int id)
+{
+    m_id = id;
+
+    Q_EMIT outputChanged();
 }
 
 QString Output::name() const
@@ -40,6 +68,8 @@ QString Output::name() const
 void Output::setName(const QString& name)
 {
     m_name = name;
+
+    Q_EMIT outputChanged();
 }
 
 QString Output::type() const
@@ -50,6 +80,8 @@ QString Output::type() const
 void Output::setType(const QString& type)
 {
     m_type = type;
+
+    Q_EMIT outputChanged();
 }
 
 QString Output::icon() const
@@ -60,6 +92,8 @@ QString Output::icon() const
 void Output::setIcon(const QString& icon)
 {
     m_icon = icon;
+
+    Q_EMIT outputChanged();
 }
 
 Mode* Output::mode(int id) const
@@ -89,6 +123,8 @@ int Output::currentMode() const
 void Output::setCurrentMode(int mode)
 {
     m_currentMode = mode;
+
+    Q_EMIT currentModeChanged();
 }
 
 QPoint Output::pos() const
@@ -99,6 +135,8 @@ QPoint Output::pos() const
 void Output::setPos(const QPoint& pos)
 {
     m_pos = pos;
+
+    Q_EMIT posChanged();
 }
 
 Output::Rotation Output::rotation() const
@@ -109,16 +147,8 @@ Output::Rotation Output::rotation() const
 void Output::setRotation(Output::Rotation rotation)
 {
     m_rotation = rotation;
-}
 
-int Output::id()
-{
-    return m_id;
-}
-
-void Output::setId(int id)
-{
-    m_id = id;
+    Q_EMIT rotationChanged();
 }
 
 bool Output::isConnected() const
@@ -129,6 +159,8 @@ bool Output::isConnected() const
 void Output::setConnected(bool connected)
 {
     m_connected = connected;
+
+    Q_EMIT isConnectedChanged();
 }
 
 bool Output::isEnabled() const
@@ -139,6 +171,8 @@ bool Output::isEnabled() const
 void Output::setEnabled(bool enabled)
 {
     m_enabled = enabled;
+
+    Q_EMIT isEnabledChanged();
 }
 
 bool Output::isPrimary() const
@@ -149,6 +183,8 @@ bool Output::isPrimary() const
 void Output::setPrimary(bool primary)
 {
     m_primary = primary;
+
+    Q_EMIT isPrimaryChanged();
 }
 
 QList<int> Output::clones()
@@ -159,6 +195,8 @@ QList<int> Output::clones()
 void Output::setClones(QList<int> outputlist)
 {
     m_clones = outputlist;
+
+    Q_EMIT clonesChanged();
 }
 
 #include "output.moc"

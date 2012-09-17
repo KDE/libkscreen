@@ -18,10 +18,20 @@
 
 #include "mode.h"
 
+Mode::Mode()
+ : QObject()
+ , m_id(0)
+ , m_rate(0)
+{
+
+}
+
 Mode::Mode(int id, QObject* parent)
  : QObject(parent)
  , m_id(id)
+ , m_rate(0)
 {
+
 }
 
 Mode::~Mode()
@@ -37,7 +47,10 @@ int Mode::id()
 void Mode::setId(int id)
 {
     m_id = id;
+
+   Q_EMIT modeChanged();
 }
+
 
 QString Mode::name() const
 {
@@ -47,7 +60,10 @@ QString Mode::name() const
 void Mode::setName(const QString& name)
 {
     m_name = name;
+
+    Q_EMIT modeChanged();
 }
+
 
 QSize Mode::size() const
 {
@@ -57,6 +73,8 @@ QSize Mode::size() const
 void Mode::setSize(const QSize& size)
 {
     m_size = size;
+
+    Q_EMIT modeChanged();
 }
 
 float Mode::refreshRate() const
@@ -67,6 +85,8 @@ float Mode::refreshRate() const
 void Mode::setRefreshRate(float refresh)
 {
     m_rate = refresh;
+
+    Q_EMIT modeChanged();
 }
 
 #include "mode.moc"

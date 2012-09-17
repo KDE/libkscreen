@@ -34,18 +34,18 @@ class KSCREEN_EXPORT Output : public QObject
     Q_OBJECT
 
     public:
-        Q_PROPERTY(QString name READ name WRITE setName)
-        Q_PROPERTY(QString type READ type WRITE setType)
-        Q_PROPERTY(QString icon READ icon WRITE setIcon)
-        Q_PROPERTY(ModeList modes READ modes)
-        Q_PROPERTY(QPoint pos READ pos WRITE setPos)
-        Q_PROPERTY(Rotation rotation READ rotation WRITE setRotation)
-        Q_PROPERTY(int id READ id WRITE setId)
-        Q_PROPERTY(int currentMode READ currentMode WRITE setCurrentMode)
-        Q_PROPERTY(bool connected READ isConnected WRITE setConnected)
-        Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
-        Q_PROPERTY(bool primary READ isPrimary WRITE setPrimary)
-        Q_PROPERTY(QList<int> clones READ clones WRITE setClones)
+        Q_PROPERTY(int id READ id WRITE setId NOTIFY outputChanged)
+        Q_PROPERTY(QString name READ name WRITE setName NOTIFY outputChanged)
+        Q_PROPERTY(QString type READ type WRITE setType NOTIFY outputChanged)
+        Q_PROPERTY(QString icon READ icon WRITE setIcon NOTIFY outputChanged)
+        Q_PROPERTY(ModeList modes READ modes CONSTANT)
+        Q_PROPERTY(QPoint pos READ pos WRITE setPos NOTIFY posChanged)
+        Q_PROPERTY(Rotation rotation READ rotation WRITE setRotation NOTIFY rotationChanged)
+        Q_PROPERTY(int currentMode READ currentMode WRITE setCurrentMode NOTIFY currentModeChanged)
+        Q_PROPERTY(bool connected READ isConnected WRITE setConnected NOTIFY isConnectedChanged)
+        Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled NOTIFY isEnabledChanged)
+        Q_PROPERTY(bool primary READ isPrimary WRITE setPrimary NOTIFY isPrimaryChanged)
+        Q_PROPERTY(QList<int> clones READ clones WRITE setClones NOTIFY clonesChanged)
 
         Q_ENUMS(Rotation)
 
@@ -56,8 +56,12 @@ class KSCREEN_EXPORT Output : public QObject
             Left = 8
         };
 
+	explicit Output();
         explicit Output(int id, QObject* parent = 0);
         virtual ~Output();
+
+	int id() const;
+	void setId(int id);
 
         QString name() const;
         void setName(const QString& name);
@@ -68,7 +72,7 @@ class KSCREEN_EXPORT Output : public QObject
         QString icon() const;
         void setIcon(const QString& icon);
 
-        Mode* mode(int id) const;
+        Q_INVOKABLE Mode* mode(int id) const;
         QHash<int, Mode*> modes() const;
         void setModes(ModeList modes);
 
@@ -81,9 +85,6 @@ class KSCREEN_EXPORT Output : public QObject
         Rotation rotation() const;
         void setRotation(Rotation rotation);
 
-        int id();
-        void setId(int id);
-
         bool isConnected() const;
         void setConnected(bool connected);
 
@@ -95,6 +96,16 @@ class KSCREEN_EXPORT Output : public QObject
 
         QList<int> clones();
         void setClones(QList<int> outputlist);
+
+    Q_SIGNALS:
+	void outputChanged();
+	void posChanged();
+	void currentModeChanged();
+	void rotationChanged();
+	void isConnectedChanged();
+	void isEnabledChanged();
+	void isPrimaryChanged();
+	void clonesChanged();
 
     private:
         int m_id;

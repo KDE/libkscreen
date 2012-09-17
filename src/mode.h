@@ -29,12 +29,13 @@
 class KSCREEN_EXPORT Mode : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int id READ id WRITE setId)
-    Q_PROPERTY(QString name READ name WRITE setName)
-    Q_PROPERTY(QSize size READ size WRITE setSize)
-    Q_PROPERTY(float refreshRate READ refreshRate WRITE setRefreshRate)
+    Q_PROPERTY(int id READ id WRITE setId NOTIFY modeChanged)
+    Q_PROPERTY(QString name READ name WRITE setName NOTIFY modeChanged)
+    Q_PROPERTY(QSize size READ size WRITE setSize NOTIFY modeChanged)
+    Q_PROPERTY(float refreshRate READ refreshRate WRITE setRefreshRate NOTIFY modeChanged)
 
     public:
+	explicit Mode();
         explicit Mode(int id, QObject *parent = 0);
         virtual ~Mode();
 
@@ -49,6 +50,9 @@ class KSCREEN_EXPORT Mode : public QObject
 
         float refreshRate() const;
         void setRefreshRate(float refresh);
+
+    Q_SIGNALS:
+	void modeChanged();
 
     private:
         int m_id;
