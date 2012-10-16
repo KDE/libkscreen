@@ -90,7 +90,6 @@ Config* XRandR::config() const
         for (int i = 0; i < outputInfo->nmode; ++i)
         {
             modeInfo = &resources->modes[i];
-            qDebug() << "Adding mode: " << modeInfo->id;
             Mode *mode = new Mode(modeInfo->id);
             mode->setName(QString::fromUtf8(modeInfo->name));
             mode->setSize(QSize(modeInfo->width, modeInfo->height));
@@ -119,6 +118,7 @@ void XRandR::setConfig(Config* config) const
     int primaryOutput = 0;
     Output *cOutput = 0;
     OutputList toDisable, toEnable, toChange;
+    QHash<int, int> currentCrtc;
     Q_FOREACH(Output *output, outputs) {
         cOutput = currentConfig->output(output->id());
 
@@ -141,6 +141,7 @@ void XRandR::setConfig(Config* config) const
 
         if (output->currentMode() != cOutput->currentMode()) {
             if (!toChange.contains(output->id())) {
+                currentCrtc.insert(output->id(), outputCrtc(output->id()));
                 toChange.insert(output->id(), output);
                 if (!toDisable.contains(output->id())) {
                     toDisable.insert(output->id(), output);
@@ -150,6 +151,7 @@ void XRandR::setConfig(Config* config) const
 
         if (output->pos() != cOutput->pos()) {
             if (!toChange.contains(output->id())) {
+                currentCrtc.insert(output->id(), outputCrtc(output->id()));
                 toChange.insert(output->id(), output);
                 if (!toDisable.contains(output->id())) {
                     toDisable.insert(output->id(), output);
@@ -159,6 +161,7 @@ void XRandR::setConfig(Config* config) const
 
         if (output->rotation() != cOutput->rotation()) {
             if( !toChange.contains(output->id())) {
+                currentCrtc.insert(output->id(), outputCrtc(output->id()));
                 toChange.insert(output->id(), output);
             }
         }
@@ -191,7 +194,7 @@ void XRandR::setConfig(Config* config) const
     }
 
     Q_FOREACH(Output* output, toChange) {
-        changeOutput(output);
+        changeOutput(output, currentCrtc[output->id()]);
     }
 }
 
@@ -259,18 +262,18 @@ void XRandR::enableOutput(Output* output) const
     qDebug() << "Enabling: " << output->id();
     RROutput *outputs = new RROutput[1];
     outputs[0] = output->id();
-    Status s = XRRSetCrtcConfig(m_display, screenResources(), 64,
+    Status s = XRRSetCrtcConfig(m_display, screenResources(), freeCrtc(),
         CurrentTime, output->pos().rx(), output->pos().ry(), output->currentMode(),
         output->rotation(), outputs, 1);
 }
 
-void XRandR::changeOutput(Output* output) const
+void XRandR::changeOutput(Output* output, int crtcId) const
 {
     qDebug() << "Updating: " << output->id();
 
     RROutput *outputs = new RROutput[1];
     outputs[0] = output->id();
-    Status s = XRRSetCrtcConfig(m_display, screenResources(), 64,
+    Status s = XRRSetCrtcConfig(m_display, screenResources(), crtcId,
         CurrentTime, output->pos().rx(), output->pos().ry(), output->currentMode(),
         output->rotation(), outputs, 1);
     qDebug() << outputCrtc(output->id());
@@ -287,6 +290,24 @@ RRCrtc XRandR::outputCrtc(int outputId) const
     XRROutputInfo* outputInfo = XRRGetOutputInfo(m_display, resources, outputId);
 
     return outputInfo->crtc;
+}
+
+RRCrtc XRandR::freeCrtc() const
+{
+    XRRScreenResources* resources = screenResources();
+
+    for (int i = 0; i < resources->ncrtc; ++i)
+    {
+       RRCrtc crtcId = resources->crtcs[i];
+       XRRCrtcInfo* crtc = XRRGetCrtcInfo(m_display, screenResources(), crtcId);
+       if (!crtc->noutput) {
+           qDebug() << "Returning: " << crtcId;
+           return crtcId;
+       }
+    }
+
+    qDebug() << "Returning: " << "ZERO";
+    return 0;
 }
 
 XRRScreenResources* XRandR::screenResources() const

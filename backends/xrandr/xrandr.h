@@ -49,9 +49,10 @@ class XRandR : public QObject, public AbstractBackend
         void setPrimaryOutput(int outputId) const;
         void disableOutput(Output* output) const;
         void enableOutput(Output* output) const;
-        void changeOutput(Output* output) const;
+        void changeOutput(Output* output, int crtcId) const;
 
         RRCrtc outputCrtc(int outputId) const;
+        RRCrtc freeCrtc() const;
         XRRScreenResources* screenResources() const;
 
     private:
