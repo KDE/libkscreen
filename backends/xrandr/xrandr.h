@@ -19,6 +19,7 @@
 #ifndef XRANDR_BACKEND_H
 #define XRANDR_BACKEND_H
 
+#include "xlibandxrandr.h"
 #include "../abstractbackend.h"
 
 #include <QtCore/QSize>
@@ -51,7 +52,9 @@ class XRandR : public QObject, public AbstractBackend
         void changeOutput(Output* output) const;
 
     private:
-        QRandR::Screen* m_screen;
+        int m_screen;
+        Display* m_display;
+        Window m_rootWindow;
 };
 
 #endif //XRandR_BACKEND_H
