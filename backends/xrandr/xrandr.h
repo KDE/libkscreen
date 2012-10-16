@@ -47,9 +47,12 @@ class XRandR : public QObject, public AbstractBackend
         QSize screenSize(Config* config) const;
         bool setScreenSize(const QSize& size) const;
         void setPrimaryOutput(int outputId) const;
-        void disableOutput(QRandR::Output* output) const;
+        void disableOutput(Output* output) const;
         void enableOutput(Output* output) const;
         void changeOutput(Output* output) const;
+
+        RRCrtc outputCrtc(int outputId) const;
+        XRRScreenResources* screenResources() const;
 
     private:
         int m_screen;

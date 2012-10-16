@@ -111,88 +111,88 @@ Config* XRandR::config() const
 
 void XRandR::setConfig(Config* config) const
 {
-//     QRandR::Screen* screen = QRandR::QRandR::self()->screen();
-//     OutputList outputs = config->outputs();
-//     QSize newSize = screenSize(config);
-//
-//     int neededCrtc = 0;
-//     int primaryOutput = 0;
-//     QRandR::Output *qOutput = 0;
-//     OutputList toDisable, toEnable, toChange;
-//     Q_FOREACH(Output *output, outputs) {
-//         qOutput = screen->output(output->id());
-//
-//         if (output->isPrimary()) {
-//             primaryOutput = qOutput->id();
-//         }
-//
-//         if (!output->isEnabled() && qOutput->isEnabled()) {
-//             toDisable.insert(output->id(), output);
-//             continue;
-//         } else if(output->isEnabled() && !qOutput->isEnabled()) {
-//             toEnable.insert(output->id(), output);
-//             neededCrtc ++;
-//             continue;
-//         } else if (!output->isEnabled() && !qOutput->isEnabled()) {
-//             continue;
-//         }
-//
-//         neededCrtc ++;
-//
-//         if (output->currentMode() != (int)qOutput->mode()->id()) {
-//             if (!toChange.contains(output->id())) {
-//                 toChange.insert(output->id(), output);
-//                 if (!toDisable.contains(output->id())) {
-//                     toDisable.insert(output->id(), output);
-//                 }
-//             }
-//         }
-//
-//         if (output->pos() != qOutput->crtc()->rect().topLeft()) {
-//             if (!toChange.contains(output->id())) {
-//                 toChange.insert(output->id(), output);
-//                 if (!toDisable.contains(output->id())) {
-//                     toDisable.insert(output->id(), output);
-//                 }
-//             }
-//         }
-//
-//         if (output->rotation() != qOutput->crtc()->rotation()) {
-//             if( !toChange.contains(output->id())) {
-//                 toChange.insert(output->id(), output);
-//             }
-//         }
-//     }
-//
+    Config *currentConfig = this->config();
+    OutputList outputs = config->outputs();
+    QSize newSize = screenSize(config);
+
+    int neededCrtc = 0;
+    int primaryOutput = 0;
+    Output *cOutput = 0;
+    OutputList toDisable, toEnable, toChange;
+    Q_FOREACH(Output *output, outputs) {
+        cOutput = currentConfig->output(output->id());
+
+        if (output->isPrimary()) {
+            primaryOutput = cOutput->id();
+        }
+
+        if (!output->isEnabled() && cOutput->isEnabled()) {
+            toDisable.insert(output->id(), output);
+            continue;
+        } else if(output->isEnabled() && !cOutput->isEnabled()) {
+            toEnable.insert(output->id(), output);
+            neededCrtc ++;
+            continue;
+        } else if (!output->isEnabled() && !cOutput->isEnabled()) {
+            continue;
+        }
+
+        neededCrtc ++;
+
+        if (output->currentMode() != cOutput->currentMode()) {
+            if (!toChange.contains(output->id())) {
+                toChange.insert(output->id(), output);
+                if (!toDisable.contains(output->id())) {
+                    toDisable.insert(output->id(), output);
+                }
+            }
+        }
+
+        if (output->pos() != cOutput->pos()) {
+            if (!toChange.contains(output->id())) {
+                toChange.insert(output->id(), output);
+                if (!toDisable.contains(output->id())) {
+                    toDisable.insert(output->id(), output);
+                }
+            }
+        }
+
+        if (output->rotation() != cOutput->rotation()) {
+            if( !toChange.contains(output->id())) {
+                toChange.insert(output->id(), output);
+            }
+        }
+    }
+
 //     if (newSize.width() > screen->maxSize().width() ||
 //         newSize.height() > screen->maxSize().height()) {
 //         qDebug() << "The new size is too big: " << newSize << " - " << screen->maxSize();
 //         return;//Too big
 //     }
-//
+
 //     qDebug() << neededCrtc;
 //     if (neededCrtc > screen->crtc().count()) {
 //         qDebug() << "We need more crtc than we have: " << neededCrtc << " - " << screen->crtc().count();
 //         return;//We don't have enough crtc
 //     }
-//
-//     if (primaryOutput) {
-//         setPrimaryOutput(primaryOutput);
-//     }
-//
-//     Q_FOREACH(Output* output, toDisable) {
-//         disableOutput(m_screen->output(output->id()));
-//     }
-//
-//     setScreenSize(newSize);
-//
-//     Q_FOREACH(Output* output, toEnable) {
-//         enableOutput(output);
-//     }
-//
-//     Q_FOREACH(Output* output, toChange) {
-//         changeOutput(output);
-//     }
+
+    if (primaryOutput) {
+        setPrimaryOutput(primaryOutput);
+    }
+
+    Q_FOREACH(Output* output, toDisable) {
+        disableOutput(output);
+    }
+
+    setScreenSize(newSize);
+
+    Q_FOREACH(Output* output, toEnable) {
+        enableOutput(output);
+    }
+
+    Q_FOREACH(Output* output, toChange) {
+        changeOutput(output);
+    }
 }
 
 QSize XRandR::screenSize(Config* config) const
@@ -245,33 +245,35 @@ void XRandR::setPrimaryOutput(int outputId) const
     XRRSetOutputPrimary(m_display, m_rootWindow, outputId);
 }
 
-void XRandR::disableOutput(QRandR::Output* output) const
+void XRandR::disableOutput(Output* output) const
 {
-//     qDebug() << "Disabling: " << output->id();
-//     int crtcId = output->crtc()->id();
-//     XRRSetCrtcConfig (QX11Info::display(), m_screen->resources(), crtcId, CurrentTime,
-//                  0, 0, None, RR_Rotate_0, NULL, 0);
+    qDebug() << "Disabling: " << output->id();
+    int crtcId = outputCrtc(output->id());
+    qDebug() << crtcId;
+    XRRSetCrtcConfig (QX11Info::display(), screenResources(), crtcId, CurrentTime,
+                 0, 0, None, RR_Rotate_0, NULL, 0);
 }
 
 void XRandR::enableOutput(Output* output) const
 {
-//     qDebug() << "Enabling: " << output->id();
-//     RROutput *outputs = new RROutput[1];
-//     outputs[0] = output->id();
-//     Status s = XRRSetCrtcConfig(m_display, m_screen->resources(), 64,
-//         CurrentTime, output->pos().rx(), output->pos().ry(), output->currentMode(),
-//         output->rotation(), outputs, 1);
+    qDebug() << "Enabling: " << output->id();
+    RROutput *outputs = new RROutput[1];
+    outputs[0] = output->id();
+    Status s = XRRSetCrtcConfig(m_display, screenResources(), 64,
+        CurrentTime, output->pos().rx(), output->pos().ry(), output->currentMode(),
+        output->rotation(), outputs, 1);
 }
 
 void XRandR::changeOutput(Output* output) const
 {
     qDebug() << "Updating: " << output->id();
 
-//     RROutput *outputs = new RROutput[1];
-//     outputs[0] = output->id();
-//     Status s = XRRSetCrtcConfig(m_display, m_screen->resources(), m_screen->output(output->id())->crtc()->id(),
-//         CurrentTime, output->pos().rx(), output->pos().ry(), output->currentMode(),
-//         output->rotation(), outputs, 1);
+    RROutput *outputs = new RROutput[1];
+    outputs[0] = output->id();
+    Status s = XRRSetCrtcConfig(m_display, screenResources(), 64,
+        CurrentTime, output->pos().rx(), output->pos().ry(), output->currentMode(),
+        output->rotation(), outputs, 1);
+    qDebug() << outputCrtc(output->id());
 }
 
 bool XRandR::isValid() const
@@ -279,4 +281,16 @@ bool XRandR::isValid() const
     return true;
 }
 
+RRCrtc XRandR::outputCrtc(int outputId) const
+{
+    XRRScreenResources* resources = screenResources();
+    XRROutputInfo* outputInfo = XRRGetOutputInfo(m_display, resources, outputId);
+
+    return outputInfo->crtc;
+}
+
+XRRScreenResources* XRandR::screenResources() const
+{
+    return XRRGetScreenResources(m_display, m_rootWindow);
+}
 #include "xrandr.moc"
