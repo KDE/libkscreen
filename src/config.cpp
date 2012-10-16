@@ -30,6 +30,11 @@ Config::~Config()
 
 }
 
+Output* Config::output(int outputId)
+{
+    return m_outputs[outputId];
+}
+
 QHash< int, Output* > Config::outputs()
 {
     return m_outputs;
