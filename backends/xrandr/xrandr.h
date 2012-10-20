@@ -24,10 +24,6 @@
 
 #include <QtCore/QSize>
 
-namespace QRandR {
-    class Output;
-    class Screen;
-}
 class Output;
 class XRandR : public QObject, public AbstractBackend
 {
