@@ -98,9 +98,13 @@ Config* XRandR::config() const
             modeList.insert(mode->id(), mode);
         }
 
+        XRRFreeOutputInfo(outputInfo);
+
         output->setModes(modeList);
         outputList.insert(output->id(), output);
     }
+
+    XRRFreeScreenResources(resources);
 
     Config *config = new Config();
     config->setOutputs(outputList);
@@ -286,24 +290,31 @@ bool XRandR::isValid() const
 
 RRCrtc XRandR::outputCrtc(int outputId) const
 {
+    RRCrtc crtcId;
     XRRScreenResources* resources = screenResources();
     XRROutputInfo* outputInfo = XRRGetOutputInfo(m_display, resources, outputId);
 
-    return outputInfo->crtc;
+    crtcId = outputInfo->crtc;
+    XRRFreeOutputInfo(outputInfo);
+
+    return crtcId;
 }
 
 RRCrtc XRandR::freeCrtc() const
 {
     XRRScreenResources* resources = screenResources();
 
+    XRRCrtcInfo *crtc;
     for (int i = 0; i < resources->ncrtc; ++i)
     {
        RRCrtc crtcId = resources->crtcs[i];
-       XRRCrtcInfo* crtc = XRRGetCrtcInfo(m_display, screenResources(), crtcId);
+       crtc = XRRGetCrtcInfo(m_display, screenResources(), crtcId);
        if (!crtc->noutput) {
            qDebug() << "Returning: " << crtcId;
+           XRRFreeCrtcInfo(crtc);
            return crtcId;
        }
+       XRRFreeCrtcInfo(crtc);
     }
 
     qDebug() << "Returning: " << "ZERO";
