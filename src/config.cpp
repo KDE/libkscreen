@@ -17,6 +17,7 @@
  *************************************************************************************/
 
 #include "config.h"
+#include "output.h"
 
 Config::Config(QObject* parent)
  : QObject(parent)
@@ -32,6 +33,10 @@ Config::~Config()
 
 Output* Config::output(int outputId)
 {
+    if (!m_outputs.contains(outputId)) {
+        return 0;
+    }
+
     return m_outputs[outputId];
 }
 

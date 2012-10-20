@@ -16,19 +16,18 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA   *
  *************************************************************************************/
 
-#ifndef OUTPUT_H
-#define OUTPUT_H
+#ifndef OUTPUT_CONFIG_H
+#define OUTPUT_CONFIG_H
 
-#include "kscreen_export.h"
 #include "mode.h"
+#include "kscreen_export.h"
 
-#include <QtCore/QObject>
 #include <QtCore/QSize>
 #include <QtCore/QPoint>
-#include <QtCore/QHash>
+#include <QtCore/QPoint>
+#include <QtCore/QObject>
 #include <QtCore/QMetaType>
 
-class Mode;
 class KSCREEN_EXPORT Output : public QObject
 {
     Q_OBJECT

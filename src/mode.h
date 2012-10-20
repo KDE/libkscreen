@@ -16,8 +16,8 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA   *
  *************************************************************************************/
 
-#ifndef MODE_H
-#define MODE_H
+#ifndef MODE_CONFIG_H
+#define MODE_CONFIG_H
 
 #include "kscreen_export.h"
 
@@ -35,7 +35,7 @@ class KSCREEN_EXPORT Mode : public QObject
     Q_PROPERTY(float refreshRate READ refreshRate WRITE setRefreshRate NOTIFY modeChanged)
 
     public:
-	explicit Mode();
+        explicit Mode();
         explicit Mode(int id, QObject *parent = 0);
         virtual ~Mode();
 
@@ -52,7 +52,7 @@ class KSCREEN_EXPORT Mode : public QObject
         void setRefreshRate(float refresh);
 
     Q_SIGNALS:
-	void modeChanged();
+        void modeChanged();
 
     private:
         int m_id;

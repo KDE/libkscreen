@@ -16,17 +16,16 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA   *
  *************************************************************************************/
 
-#ifndef SCREEN_CONFIG_H
-#define SCREEN_CONFIG_H
+#ifndef KSCREEN_CONFIG_H
+#define KSCREEN_CONFIG_H
 
-#include "kscreen_export.h"
 #include "output.h"
+#include "kscreen_export.h"
 
 #include <QtCore/QHash>
 #include <QtCore/QObject>
 #include <QtCore/QMetaType>
 
-class Output;
 class KSCREEN_EXPORT Config : public QObject
 {
     Q_OBJECT
@@ -39,6 +38,7 @@ class KSCREEN_EXPORT Config : public QObject
         Output* output(int outputId);
         QHash<int, Output*> outputs();
         void setOutputs(OutputList outputs);
+
         bool isValid();
         void setValid(bool valid);
 
@@ -47,4 +47,4 @@ class KSCREEN_EXPORT Config : public QObject
         OutputList m_outputs;
 };
 
-#endif //SCREEN_CONFIG_H
+#endif //KSCREEN_CONFIG_H
