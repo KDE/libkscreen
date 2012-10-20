@@ -56,12 +56,12 @@ class KSCREEN_EXPORT Output : public QObject
             Left = 8
         };
 
-	explicit Output();
+        explicit Output();
         explicit Output(int id, QObject* parent = 0);
         virtual ~Output();
 
-	int id() const;
-	void setId(int id);
+        int id() const;
+        void setId(int id);
 
         QString name() const;
         void setName(const QString& name);
@@ -98,14 +98,14 @@ class KSCREEN_EXPORT Output : public QObject
         void setClones(QList<int> outputlist);
 
     Q_SIGNALS:
-	void outputChanged();
-	void posChanged();
-	void currentModeChanged();
-	void rotationChanged();
-	void isConnectedChanged();
-	void isEnabledChanged();
-	void isPrimaryChanged();
-	void clonesChanged();
+        void outputChanged();
+        void posChanged();
+        void currentModeChanged();
+        void rotationChanged();
+        void isConnectedChanged();
+        void isEnabledChanged();
+        void isPrimaryChanged();
+        void clonesChanged();
 
     private:
         int m_id;
