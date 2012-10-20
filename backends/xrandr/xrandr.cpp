@@ -53,7 +53,7 @@ QString XRandR::name() const
 Config* XRandR::config() const
 {
     qDebug() << "XRandR::Config";
-    XRRScreenResources* resources = XRRGetScreenResources(m_display, m_rootWindow);
+    XRRScreenResources* resources = screenResources();
 
     RROutput id, primary;
     XRROutputInfo* outputInfo;
@@ -65,7 +65,8 @@ Config* XRandR::config() const
     for (int i = 0; i < resources->noutput; ++i)
     {
         id = resources->outputs[i];
-        outputInfo = XRRGetOutputInfo(m_display, resources, id);
+        outputInfo = XRROutput(id);
+
         Output *output = new Output(id);
         output->setName(outputInfo->name);
         output->setConnected(outputInfo->connection == RR_Connected);
@@ -74,7 +75,7 @@ Config* XRandR::config() const
         output->setType("unknown");
 
         if (outputInfo->crtc) {
-            XRRCrtcInfo* crtcInfo = XRRGetCrtcInfo(m_display, resources, outputInfo->crtc);
+            XRRCrtcInfo* crtcInfo = XRRCrtc(outputInfo->crtc);
             QRect rect;
             rect.setRect(crtcInfo->x, crtcInfo->y, crtcInfo->width, crtcInfo->height);
             output->setPos(rect.topLeft());
@@ -292,7 +293,7 @@ RRCrtc XRandR::outputCrtc(int outputId) const
 {
     RRCrtc crtcId;
     XRRScreenResources* resources = screenResources();
-    XRROutputInfo* outputInfo = XRRGetOutputInfo(m_display, resources, outputId);
+    XRROutputInfo* outputInfo = XRROutput(outputId);
 
     crtcId = outputInfo->crtc;
     XRRFreeOutputInfo(outputInfo);
@@ -308,7 +309,7 @@ RRCrtc XRandR::freeCrtc() const
     for (int i = 0; i < resources->ncrtc; ++i)
     {
        RRCrtc crtcId = resources->crtcs[i];
-       crtc = XRRGetCrtcInfo(m_display, screenResources(), crtcId);
+       crtc = XRRCrtc(crtcId);
        if (!crtc->noutput) {
            qDebug() << "Returning: " << crtcId;
            XRRFreeCrtcInfo(crtc);
@@ -325,4 +326,15 @@ XRRScreenResources* XRandR::screenResources() const
 {
     return XRRGetScreenResources(m_display, m_rootWindow);
 }
+
+XRROutputInfo* XRandR::XRROutput(int outputId) const
+{
+    return XRRGetOutputInfo(m_display, screenResources(), outputId);
+}
+
+XRRCrtcInfo* XRandR::XRRCrtc(int crtcId) const
+{
+    return XRRGetCrtcInfo(m_display, screenResources(), crtcId);
+}
+
 #include "xrandr.moc"

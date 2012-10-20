@@ -54,6 +54,8 @@ class XRandR : public QObject, public AbstractBackend
         RRCrtc outputCrtc(int outputId) const;
         RRCrtc freeCrtc() const;
         XRRScreenResources* screenResources() const;
+        XRROutputInfo* XRROutput(int outputId) const;
+        XRRCrtcInfo* XRRCrtc(int crtcId) const;
 
     private:
         int m_screen;
