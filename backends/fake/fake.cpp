@@ -19,11 +19,11 @@
 #include "fake.h"
 #include "parser.h"
 
-#include <config.h>
+#include "config.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
-#include <QtCore/qplugin.h>go
+#include <QtCore/qplugin.h>
 
 Q_EXPORT_PLUGIN2(Fake, Fake)
 

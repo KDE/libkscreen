@@ -85,7 +85,6 @@ Config* XRandR::config() const
             }
         }
 
-        RRMode modeId;
         ModeList modeList;
         XRRModeInfo* modeInfo;
         for (int i = 0; i < outputInfo->nmode; ++i)
@@ -270,6 +269,8 @@ void XRandR::enableOutput(Output* output) const
     Status s = XRRSetCrtcConfig(m_display, screenResources(), freeCrtc(),
         CurrentTime, output->pos().rx(), output->pos().ry(), output->currentMode(),
         output->rotation(), outputs, 1);
+
+    Q_UNUSED(s);
 }
 
 void XRandR::changeOutput(Output* output, int crtcId) const
@@ -281,7 +282,8 @@ void XRandR::changeOutput(Output* output, int crtcId) const
     Status s = XRRSetCrtcConfig(m_display, screenResources(), crtcId,
         CurrentTime, output->pos().rx(), output->pos().ry(), output->currentMode(),
         output->rotation(), outputs, 1);
-    qDebug() << outputCrtc(output->id());
+
+    Q_UNUSED(s);
 }
 
 bool XRandR::isValid() const
@@ -292,7 +294,6 @@ bool XRandR::isValid() const
 RRCrtc XRandR::outputCrtc(int outputId) const
 {
     RRCrtc crtcId;
-    XRRScreenResources* resources = screenResources();
     XRROutputInfo* outputInfo = XRROutput(outputId);
 
     crtcId = outputInfo->crtc;

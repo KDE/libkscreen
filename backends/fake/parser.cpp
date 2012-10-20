@@ -126,10 +126,12 @@ QRect Parser::rectFromJson(const QVariant& data)
 
 bool Parser::validate(const QByteArray& data)
 {
+    Q_UNUSED(data);
     return true;
 }
 
 bool Parser::validate(const QString& data)
 {
+    Q_UNUSED(data);
     return true;
 }
