@@ -18,14 +18,6 @@
 
 #include "mode.h"
 
-Mode::Mode()
- : QObject()
- , m_id(0)
- , m_rate(0)
-{
-
-}
-
 Mode::Mode(int id, QObject* parent)
  : QObject(parent)
  , m_id(id)
@@ -43,14 +35,6 @@ int Mode::id()
 {
     return m_id;
 }
-
-void Mode::setId(int id)
-{
-    m_id = id;
-
-   Q_EMIT modeChanged();
-}
-
 
 QString Mode::name() const
 {

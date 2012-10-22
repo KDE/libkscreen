@@ -29,18 +29,16 @@
 class KSCREEN_EXPORT Mode : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int id READ id WRITE setId NOTIFY modeChanged)
+    Q_PROPERTY(int id READ id NOTIFY modeChanged)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY modeChanged)
     Q_PROPERTY(QSize size READ size WRITE setSize NOTIFY modeChanged)
     Q_PROPERTY(float refreshRate READ refreshRate WRITE setRefreshRate NOTIFY modeChanged)
 
     public:
-        explicit Mode();
         explicit Mode(int id, QObject *parent = 0);
         virtual ~Mode();
 
         int id();
-        void setId(int id);
 
         QString name() const;
         void setName(const QString& name);

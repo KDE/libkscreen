@@ -19,18 +19,6 @@
 #include "output.h"
 #include "mode.h"
 
-Output::Output()
- : QObject()
- , m_id(0)
- , m_currentMode(0)
- , m_rotation(None)
- , m_connected(false)
- , m_enabled(false)
- , m_primary(false)
-{
-
-}
-
 Output::Output(int id, QObject* parent)
  : QObject(parent)
  , m_id(id)
@@ -51,13 +39,6 @@ Output::~Output()
 int Output::id() const
 {
     return m_id;
-}
-
-void Output::setId(int id)
-{
-    m_id = id;
-
-    Q_EMIT outputChanged();
 }
 
 QString Output::name() const

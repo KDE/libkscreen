@@ -33,7 +33,7 @@ class KSCREEN_EXPORT Output : public QObject
     Q_OBJECT
 
     public:
-        Q_PROPERTY(int id READ id WRITE setId NOTIFY outputChanged)
+        Q_PROPERTY(int id READ id NOTIFY outputChanged)
         Q_PROPERTY(QString name READ name WRITE setName NOTIFY outputChanged)
         Q_PROPERTY(QString type READ type WRITE setType NOTIFY outputChanged)
         Q_PROPERTY(QString icon READ icon WRITE setIcon NOTIFY outputChanged)
@@ -55,12 +55,10 @@ class KSCREEN_EXPORT Output : public QObject
             Left = 8
         };
 
-        explicit Output();
         explicit Output(int id, QObject* parent = 0);
         virtual ~Output();
 
         int id() const;
-        void setId(int id);
 
         QString name() const;
         void setName(const QString& name);
