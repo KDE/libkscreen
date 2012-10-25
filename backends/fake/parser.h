@@ -27,6 +27,7 @@
 #include <QtCore/QPoint>
 
 class Config;
+class CScreen;
 class Output;
 class Mode;
 class Parser
@@ -38,6 +39,7 @@ class Parser
         static bool validate(const QString &data);
 
     private:
+        static CScreen* screenFromJson(const QMap<QString, QVariant>& data);
         static Output* outputFromJson(const QVariant& data);
         static Mode* modeFromJson(const QVariant& data);
         static QSize sizeFromJson(const QVariant& data);

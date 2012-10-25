@@ -20,6 +20,7 @@
 #include <QtCore/QObject>
 
 #include "../src/kscreen.h"
+#include "../src/screen.h"
 #include "../src/config.h"
 #include "../src/output.h"
 #include "../src/mode.h"
@@ -55,6 +56,12 @@ void testScreenConfig::singleOutput()
 
     Config *config = kscreen->config();
 
+    CScreen* screen = config->screen();
+
+    QCOMPARE(screen->minSize(), QSize(320, 200));
+    QCOMPARE(screen->maxSize(), QSize(8192, 8192));
+    QCOMPARE(screen->currentSize(), QSize(1280, 800));
+
     QCOMPARE(config->outputs().count(), 1);
 
     Output *output = config->outputs().take(1);
@@ -85,6 +92,12 @@ void testScreenConfig::multiOutput()
 
     Config *config = kscreen->config();
 
+    CScreen* screen = config->screen();
+
+    QCOMPARE(screen->minSize(), QSize(320, 200));
+    QCOMPARE(screen->maxSize(), QSize(8192, 8192));
+    QCOMPARE(screen->currentSize(), QSize(3200, 1880));
+
     QCOMPARE(config->outputs().count(), 2);
 
     Output *output = config->outputs().take(2);
@@ -114,6 +127,11 @@ void testScreenConfig::clonesOutput()
     KScreen *kscreen = KScreen::self();
 
     Config *config = kscreen->config();
+    CScreen* screen = config->screen();
+
+    QCOMPARE(screen->minSize(), QSize(320, 200));
+    QCOMPARE(screen->maxSize(), QSize(8192, 8192));
+    QCOMPARE(screen->currentSize(), QSize(1024, 768));
 
     Output* one = config->outputs()[1];
     Output* two = config->outputs()[2];

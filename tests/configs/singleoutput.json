@@ -1,4 +1,20 @@
 {
+    "screen" :
+    {
+        "id" : 1,
+        "maxSize" : {
+            "width" : 8192,
+            "height" : 8192
+        },
+        "minSize" : {
+            "width" : 320,
+            "height" : 200
+        },
+        "currentSize" : {
+            "width" : 1280,
+            "height" : 800
+        }
+    },
     "outputs" :
     [
         {
