@@ -184,17 +184,18 @@ void XRandR::setConfig(Config* config) const
         }
     }
 
-//     if (newSize.width() > screen->maxSize().width() ||
-//         newSize.height() > screen->maxSize().height()) {
-//         qDebug() << "The new size is too big: " << newSize << " - " << screen->maxSize();
-//         return;//Too big
-//     }
+    CScreen* screen = config->screen();
+    if (newSize.width() > screen->maxSize().width() ||
+        newSize.height() > screen->maxSize().height()) {
+        qDebug() << "The new size is too big: " << newSize << " - " << screen->maxSize();
+        return;//Too big
+    }
 
-//     qDebug() << neededCrtc;
-//     if (neededCrtc > screen->crtc().count()) {
-//         qDebug() << "We need more crtc than we have: " << neededCrtc << " - " << screen->crtc().count();
-//         return;//We don't have enough crtc
-//     }
+    qDebug() << neededCrtc;
+    if (neededCrtc > screenResources()->ncrtc) {
+        qDebug() << "We need more crtc than we have: " << neededCrtc << " - " << screenResources()->ncrtc;
+        return;//We don't have enough crtc
+    }
 
     if (primaryOutput) {
         setPrimaryOutput(primaryOutput);
