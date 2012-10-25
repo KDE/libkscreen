@@ -53,14 +53,19 @@ QString XRandR::name() const
 Config* XRandR::config() const
 {
     qDebug() << "XRandR::Config";
+
+    Config *config = new Config();
+
     QSize min, max;
     XRRGetScreenSizeRange (m_display, m_rootWindow, &min.rwidth(), &min.rheight(),
                            &max.rwidth(), &max.rheight());
 
-    CScreen* screen = new CScreen(m_screen);
+    CScreen* screen = new CScreen(m_screen, config);
     screen->setMaxSize(max);
     screen->setMinSize(min);
     screen->setCurrentSize(QSize(DisplayWidth(m_display, m_screen),DisplayHeight(m_display, m_screen)));
+
+    config->setScreen(screen);
 
     XRRScreenResources* resources = screenResources();
 
@@ -76,7 +81,7 @@ Config* XRandR::config() const
         id = resources->outputs[i];
         outputInfo = XRROutput(id);
 
-        Output *output = new Output(id);
+        Output *output = new Output(id, config);
         output->setName(outputInfo->name);
         output->setConnected(outputInfo->connection == RR_Connected);
         output->setEnabled(outputInfo->crtc != None);
@@ -99,7 +104,7 @@ Config* XRandR::config() const
         for (int i = 0; i < outputInfo->nmode; ++i)
         {
             modeInfo = &resources->modes[i];
-            Mode *mode = new Mode(modeInfo->id);
+            Mode *mode = new Mode(modeInfo->id,  config);
             mode->setName(QString::fromUtf8(modeInfo->name));
             mode->setSize(QSize(modeInfo->width, modeInfo->height));
             mode->setRefreshRate(((float) modeInfo->dotClock / ((float) modeInfo->hTotal * (float) modeInfo->vTotal)));
@@ -115,8 +120,6 @@ Config* XRandR::config() const
 
     XRRFreeScreenResources(resources);
 
-    Config *config = new Config();
-    config->setScreen(screen);
     config->setOutputs(outputList);
 
     return config;
