@@ -3,6 +3,7 @@ include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_BINA
 set(libkscreen_SRCS
     kscreen.cpp
     config.cpp
+    screen.cpp
     output.cpp
     mode.cpp
 )

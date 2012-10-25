@@ -19,6 +19,7 @@
 #ifndef KSCREEN_CONFIG_H
 #define KSCREEN_CONFIG_H
 
+#include "screen.h"
 #include "output.h"
 #include "kscreen_export.h"
 
@@ -29,11 +30,15 @@
 class KSCREEN_EXPORT Config : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(CScreen* screen READ screen)
     Q_PROPERTY(OutputList outputs READ outputs)
 
     public:
         explicit Config(QObject *parent = 0);
         virtual ~Config();
+
+        CScreen* screen();
+        void setScreen(CScreen* screen);
 
         Output* output(int outputId);
         QHash<int, Output*> outputs();
@@ -44,6 +49,7 @@ class KSCREEN_EXPORT Config : public QObject
 
     private:
         bool m_valid;
+        CScreen* m_screen;
         OutputList m_outputs;
 };
 

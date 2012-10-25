@@ -53,6 +53,15 @@ QString XRandR::name() const
 Config* XRandR::config() const
 {
     qDebug() << "XRandR::Config";
+    QSize min, max;
+    XRRGetScreenSizeRange (m_display, m_rootWindow, &min.rwidth(), &min.rheight(),
+                           &max.rwidth(), &max.rheight());
+
+    CScreen* screen = new CScreen(m_screen);
+    screen->setMaxSize(max);
+    screen->setMinSize(min);
+    screen->setCurrentSize(QSize(DisplayWidth(m_display, m_screen),DisplayHeight(m_display, m_screen)));
+
     XRRScreenResources* resources = screenResources();
 
     RROutput id, primary;
@@ -107,6 +116,7 @@ Config* XRandR::config() const
     XRRFreeScreenResources(resources);
 
     Config *config = new Config();
+    config->setScreen(screen);
     config->setOutputs(outputList);
 
     return config;

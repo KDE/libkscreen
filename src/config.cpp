@@ -22,6 +22,7 @@
 Config::Config(QObject* parent)
  : QObject(parent)
  , m_valid(false)
+ , m_screen(0)
 {
 
 }
@@ -29,6 +30,16 @@ Config::Config(QObject* parent)
 Config::~Config()
 {
 
+}
+
+CScreen* Config::screen()
+{
+    return m_screen;
+}
+
+void Config::setScreen(CScreen* screen)
+{
+    m_screen = screen;
 }
 
 Output* Config::output(int outputId)
