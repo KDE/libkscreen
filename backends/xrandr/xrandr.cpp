@@ -63,7 +63,7 @@ Config* XRandR::config() const
     XRRGetScreenSizeRange (m_display, m_rootWindow, &min.rwidth(), &min.rheight(),
                            &max.rwidth(), &max.rheight());
 
-    CScreen* screen = new CScreen(m_screen, config);
+    KScreen::Screen* screen = new KScreen::Screen(m_screen, config);
     screen->setMaxSize(max);
     screen->setMinSize(min);
     screen->setCurrentSize(QSize(DisplayWidth(m_display, m_screen),DisplayHeight(m_display, m_screen)));
@@ -187,7 +187,7 @@ void XRandR::setConfig(Config* config) const
         }
     }
 
-    CScreen* screen = config->screen();
+    KScreen::Screen* screen = config->screen();
     if (newSize.width() > screen->maxSize().width() ||
         newSize.height() > screen->maxSize().height()) {
         qDebug() << "The new size is too big: " << newSize << " - " << screen->maxSize();

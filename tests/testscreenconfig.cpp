@@ -55,7 +55,7 @@ void testScreenConfig::singleOutput()
 
     Config *config = Config::current();
 
-    CScreen* screen = config->screen();
+    Screen* screen = config->screen();
 
     QCOMPARE(screen->minSize(), QSize(320, 200));
     QCOMPARE(screen->maxSize(), QSize(8192, 8192));
@@ -89,7 +89,7 @@ void testScreenConfig::multiOutput()
 
     Config *config = Config::current();
 
-    CScreen* screen = config->screen();
+    Screen* screen = config->screen();
 
     QCOMPARE(screen->minSize(), QSize(320, 200));
     QCOMPARE(screen->maxSize(), QSize(8192, 8192));
@@ -122,7 +122,7 @@ void testScreenConfig::clonesOutput()
     setenv("TEST_DATA", path, 1);
 
     Config *config = Config::current();
-    CScreen* screen = config->screen();
+    Screen* screen = config->screen();
 
     QCOMPARE(screen->minSize(), QSize(320, 200));
     QCOMPARE(screen->maxSize(), QSize(8192, 8192));

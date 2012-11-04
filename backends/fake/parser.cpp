@@ -34,7 +34,7 @@ Config* Parser::fromJson(const QByteArray& data)
 
     QVariantMap json = parser.parse(data).toMap();
 
-    CScreen* screen = Parser::screenFromJson(json["screen"].toMap());
+    Screen* screen = Parser::screenFromJson(json["screen"].toMap());
 
     QList <QVariant> outputs = json["outputs"].toList();
     if (outputs.isEmpty()) {
@@ -61,9 +61,9 @@ Config* Parser::fromJson(const QString& path)
     return Parser::fromJson(file.readAll());
 }
 
-CScreen* Parser::screenFromJson(const QMap< QString, QVariant >& data)
+Screen* Parser::screenFromJson(const QMap< QString, QVariant >& data)
 {
-    CScreen* screen = new CScreen(data["id"].toInt());
+    Screen* screen = new Screen(data["id"].toInt());
     screen->setMinSize(Parser::sizeFromJson(data["minSize"].toMap()));
     screen->setMaxSize(Parser::sizeFromJson(data["maxSize"].toMap()));
     screen->setCurrentSize(Parser::sizeFromJson(data["currentSize"].toMap()));

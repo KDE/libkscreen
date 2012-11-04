@@ -55,12 +55,12 @@ Config::~Config()
 
 }
 
-CScreen* Config::screen()
+Screen* Config::screen()
 {
     return m_screen;
 }
 
-void Config::setScreen(CScreen* screen)
+void Config::setScreen(Screen* screen)
 {
     m_screen = screen;
 }

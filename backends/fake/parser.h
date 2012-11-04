@@ -28,7 +28,7 @@
 
 namespace KScreen {
     class Config;
-    class CScreen;
+    class Screen;
     class Output;
     class Mode;
 }
@@ -41,7 +41,7 @@ class Parser
         static bool validate(const QString &data);
 
     private:
-        static KScreen::CScreen* screenFromJson(const QMap<QString, QVariant>& data);
+        static KScreen::Screen* screenFromJson(const QMap<QString, QVariant>& data);
         static KScreen::Output* outputFromJson(const QVariant& data);
         static KScreen::Mode* modeFromJson(const QVariant& data);
         static QSize sizeFromJson(const QVariant& data);

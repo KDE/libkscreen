@@ -20,47 +20,47 @@
 
 namespace KScreen {
 
-CScreen::CScreen(int screenId, QObject *parent)
+Screen::Screen(int screenId, QObject *parent)
  : QObject(parent)
  , m_id(screenId)
 {
 }
 
-CScreen::~CScreen()
+Screen::~Screen()
 {
 }
 
-int CScreen::id() const
+int Screen::id() const
 {
     return m_id;
 }
 
-QSize CScreen::currentSize() const
+QSize Screen::currentSize() const
 {
     return m_currentSize;
 }
 
-void CScreen::setCurrentSize(const QSize& currentSize)
+void Screen::setCurrentSize(const QSize& currentSize)
 {
     m_currentSize = currentSize;
 }
 
-QSize CScreen::maxSize() const
+QSize Screen::maxSize() const
 {
     return m_maxSize;
 }
 
-void CScreen::setMaxSize(const QSize& maxSize)
+void Screen::setMaxSize(const QSize& maxSize)
 {
     m_maxSize = maxSize;
 }
 
-QSize CScreen::minSize() const
+QSize Screen::minSize() const
 {
     return m_minSize;
 }
 
-void CScreen::setMinSize(const QSize& minSize)
+void Screen::setMinSize(const QSize& minSize)
 {
     m_minSize = minSize;
 }

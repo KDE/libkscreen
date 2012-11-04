@@ -26,7 +26,7 @@
 
 namespace KScreen {
 
-class KSCREEN_EXPORT CScreen : public QObject
+class KSCREEN_EXPORT Screen : public QObject
 {
     Q_OBJECT
 
@@ -36,8 +36,8 @@ class KSCREEN_EXPORT CScreen : public QObject
         Q_PROPERTY(QSize minSize READ minSize CONSTANT);
         Q_PROPERTY(QSize maxSize READ maxSize CONSTANT);
 
-        CScreen(int screenId, QObject *parent = 0);
-        virtual ~CScreen();
+        Screen(int screenId, QObject *parent = 0);
+        virtual ~Screen();
 
         int id() const;
 

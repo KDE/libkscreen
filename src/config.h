@@ -32,7 +32,7 @@ namespace KScreen {
 class KSCREEN_EXPORT Config : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(CScreen* screen READ screen)
+    Q_PROPERTY(Screen* screen READ screen)
     Q_PROPERTY(OutputList outputs READ outputs)
 
     public:
@@ -42,8 +42,8 @@ class KSCREEN_EXPORT Config : public QObject
         explicit Config(QObject *parent = 0);
         virtual ~Config();
 
-        CScreen* screen();
-        void setScreen(CScreen* screen);
+        Screen* screen();
+        void setScreen(Screen* screen);
 
         Output* output(int outputId);
         QHash<int, Output*> outputs();
@@ -54,7 +54,7 @@ class KSCREEN_EXPORT Config : public QObject
 
     private:
         bool m_valid;
-        CScreen* m_screen;
+        Screen* m_screen;
         OutputList m_outputs;
 };
 
