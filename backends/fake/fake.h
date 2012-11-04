@@ -32,8 +32,8 @@ class Fake : public QObject, public AbstractBackend
         virtual ~Fake();
 
         virtual QString name() const;
-        virtual Config* config() const;
-        virtual void setConfig(Config* config) const;
+        virtual KScreen::Config* config() const;
+        virtual void setConfig(KScreen::Config* config) const;
         virtual bool isValid() const;
 };
 

@@ -26,22 +26,24 @@
 #include <QtCore/QRect>
 #include <QtCore/QPoint>
 
-class Config;
-class CScreen;
-class Output;
-class Mode;
+namespace KScreen {
+    class Config;
+    class CScreen;
+    class Output;
+    class Mode;
+}
 class Parser
 {
     public:
-        static Config* fromJson(const QByteArray &data);
-        static Config* fromJson(const QString &path);
+        static KScreen::Config* fromJson(const QByteArray &data);
+        static KScreen::Config* fromJson(const QString &path);
         static bool validate(const QByteArray &data);
         static bool validate(const QString &data);
 
     private:
-        static CScreen* screenFromJson(const QMap<QString, QVariant>& data);
-        static Output* outputFromJson(const QVariant& data);
-        static Mode* modeFromJson(const QVariant& data);
+        static KScreen::CScreen* screenFromJson(const QMap<QString, QVariant>& data);
+        static KScreen::Output* outputFromJson(const QVariant& data);
+        static KScreen::Mode* modeFromJson(const QVariant& data);
         static QSize sizeFromJson(const QVariant& data);
         static QRect rectFromJson(const QVariant& data);
         static QPoint pointFromJson(const QVariant& data);

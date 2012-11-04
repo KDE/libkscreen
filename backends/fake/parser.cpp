@@ -25,6 +25,8 @@
 #include <qjson/parser.h>
 #include <qjson/qobjecthelper.h>
 
+using namespace KScreen;
+
 Config* Parser::fromJson(const QByteArray& data)
 {
     Config *config =  new Config();

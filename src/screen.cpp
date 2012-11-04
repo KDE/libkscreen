@@ -18,6 +18,8 @@
 
 #include "screen.h"
 
+namespace KScreen {
+
 CScreen::CScreen(int screenId, QObject *parent)
  : QObject(parent)
  , m_id(screenId)
@@ -63,4 +65,5 @@ void CScreen::setMinSize(const QSize& minSize)
     m_minSize = minSize;
 }
 
+} //KScreen namespace
 #include "screen.moc"

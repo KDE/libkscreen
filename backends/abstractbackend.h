@@ -22,14 +22,17 @@
 #include <QtCore/QString>
 #include <QtCore/QObject>
 
-class Config;
+namespace KScreen {
+    class Config;
+}
+
 class AbstractBackend
 {
     public:
         virtual ~AbstractBackend() {};
         virtual QString name() const = 0;
-        virtual Config* config() const = 0;
-        virtual void setConfig(Config* config) const = 0;
+        virtual KScreen::Config* config() const = 0;
+        virtual void setConfig(KScreen::Config* config) const = 0;
         virtual bool isValid() const = 0;
 };
 

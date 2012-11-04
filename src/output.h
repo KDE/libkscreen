@@ -28,6 +28,8 @@
 #include <QtCore/QObject>
 #include <QtCore/QMetaType>
 
+namespace KScreen {
+
 class KSCREEN_EXPORT Output : public QObject
 {
     Q_OBJECT
@@ -121,6 +123,9 @@ class KSCREEN_EXPORT Output : public QObject
 };
 
 typedef QHash<int, Output*> OutputList;
-Q_DECLARE_METATYPE(OutputList);
+
+} //KScreen namespace
+
+Q_DECLARE_METATYPE(KScreen::OutputList);
 
 #endif //OUTPUT_H

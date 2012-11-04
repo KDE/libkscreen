@@ -18,6 +18,8 @@
 
 #include "mode.h"
 
+namespace KScreen {
+
 Mode::Mode(int id, QObject* parent)
  : QObject(parent)
  , m_id(id)
@@ -73,4 +75,5 @@ void Mode::setRefreshRate(float refresh)
     Q_EMIT modeChanged();
 }
 
+} //KScreen namespace
 #include "mode.moc"

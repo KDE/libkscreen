@@ -21,6 +21,8 @@
 #include "backendloader.h"
 #include "backends/abstractbackend.h"
 
+namespace KScreen {
+
 Config* Config::current()
 {
     if (!BackendLoader::init()) {
@@ -92,5 +94,5 @@ void Config::setValid(bool valid)
     m_valid = valid;
 }
 
-
+} //KScreen namespace
 #include "config.moc"

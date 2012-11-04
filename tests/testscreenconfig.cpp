@@ -24,6 +24,8 @@
 #include "../src/output.h"
 #include "../src/mode.h"
 
+using namespace KScreen;
+
 class testScreenConfig : public QObject
 {
     Q_OBJECT

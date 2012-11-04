@@ -18,6 +18,7 @@
 
 #include "xrandr.h"
 #include "config.h"
+#include "output.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
@@ -27,6 +28,8 @@
 #include <QtGui/QX11Info>
 
 Q_EXPORT_PLUGIN2(XRandR, XRandR)
+
+using namespace KScreen;
 
 XRandR::XRandR(QObject* parent): QObject(parent)
 {

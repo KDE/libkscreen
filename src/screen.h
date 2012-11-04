@@ -24,6 +24,8 @@
 #include <QtCore/QSize>
 #include <QtCore/QObject>
 
+namespace KScreen {
+
 class KSCREEN_EXPORT CScreen : public QObject
 {
     Q_OBJECT
@@ -55,4 +57,5 @@ class KSCREEN_EXPORT CScreen : public QObject
         QSize m_maxSize;
 };
 
+} //KScreen namespace
 #endif //SCREEN_H

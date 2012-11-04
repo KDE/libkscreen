@@ -24,7 +24,10 @@
 
 #include <QtCore/QSize>
 
-class Output;
+namespace KScreen {
+    class Output;
+}
+
 class XRandR : public QObject, public AbstractBackend
 {
     Q_OBJECT
@@ -35,17 +38,17 @@ class XRandR : public QObject, public AbstractBackend
         virtual ~XRandR();
 
         virtual QString name() const;
-        virtual Config* config() const;
-        virtual void setConfig(Config* config) const;
+        virtual KScreen::Config* config() const;
+        virtual void setConfig(KScreen::Config* config) const;
         virtual bool isValid() const;
 
     private:
-        QSize screenSize(Config* config) const;
+        QSize screenSize(KScreen::Config* config) const;
         bool setScreenSize(const QSize& size) const;
         void setPrimaryOutput(int outputId) const;
-        void disableOutput(Output* output) const;
-        void enableOutput(Output* output) const;
-        void changeOutput(Output* output, int crtcId) const;
+        void disableOutput(KScreen::Output* output) const;
+        void enableOutput(KScreen::Output* output) const;
+        void changeOutput(KScreen::Output* output, int crtcId) const;
 
         RRCrtc outputCrtc(int outputId) const;
         RRCrtc freeCrtc() const;

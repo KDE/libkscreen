@@ -27,6 +27,8 @@
 #include <QtCore/QObject>
 #include <QtCore/QMetaType>
 
+namespace KScreen {
+
 class KSCREEN_EXPORT Config : public QObject
 {
     Q_OBJECT
@@ -56,4 +58,5 @@ class KSCREEN_EXPORT Config : public QObject
         OutputList m_outputs;
 };
 
+} //KScreen namespace
 #endif //KSCREEN_CONFIG_H

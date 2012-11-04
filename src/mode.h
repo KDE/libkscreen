@@ -26,6 +26,8 @@
 #include <QtCore/QObject>
 #include <QtCore/QMetaType>
 
+namespace KScreen {
+
 class KSCREEN_EXPORT Mode : public QObject
 {
     Q_OBJECT
@@ -60,6 +62,9 @@ class KSCREEN_EXPORT Mode : public QObject
 };
 
 typedef QHash<int, Mode*> ModeList;
-Q_DECLARE_METATYPE(ModeList);
+
+} //KSCreen namespace
+
+Q_DECLARE_METATYPE(KScreen::ModeList);
 
 #endif //MODE_H

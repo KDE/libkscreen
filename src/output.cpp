@@ -19,6 +19,8 @@
 #include "output.h"
 #include "mode.h"
 
+namespace KScreen {
+
 Output::Output(int id, QObject* parent)
  : QObject(parent)
  , m_id(id)
@@ -180,4 +182,5 @@ void Output::setClones(QList<int> outputlist)
     Q_EMIT clonesChanged();
 }
 
+} //KScreen namespace
 #include "output.moc"
