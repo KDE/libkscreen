@@ -22,7 +22,6 @@ set_target_properties(kscreen PROPERTIES
 install(TARGETS kscreen ${INSTALL_TARGETS_DEFAULT_ARGS})
 
 install(FILES kscreen_export.h
-            kscreen.h
             mode.h
             output.h
             config.h DESTINATION include/kscreen)
