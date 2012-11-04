@@ -16,24 +16,22 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA   *
  *************************************************************************************/
 
-#include "kscreen.h"
-#include "config.h"
+#include "backendloader.h"
+#include "backends/abstractbackend.h"
 
-#include "backends/fake/fake.h"
-#include "backends/xrandr/xrandr.h"
-
-#include <QtCore/QDebug>
 #include <QtCore/QStringList>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QPluginLoader>
 
+AbstractBackend* BackendLoader::s_backend = 0;
 
-KScreen *KScreen::s_instance = 0;
-KScreen::Error KScreen::s_error = KScreen::None;
 
-KScreen::KScreen()
- : m_backend(0)
+bool BackendLoader::init()
 {
+    if(s_backend) {
+        return true;
+    }
+
     QStringList paths = QCoreApplication::libraryPaths();
     QString backend(getenv("KSCREEN_BACKEND"));
 
@@ -47,66 +45,17 @@ KScreen::KScreen()
             continue;
         }
 
-        m_backend = qobject_cast< AbstractBackend* >(instance);
-        if (m_backend) {
-            return;
+        s_backend = qobject_cast< AbstractBackend* >(instance);
+        if (s_backend) {
+            return true;
         }
 
     }
 
-    qDebug() << "Failed to load: " << backend;
+    return false;
 }
 
-KScreen* KScreen::self()
+AbstractBackend* BackendLoader::backend()
 {
-    if (s_instance) {
-        return s_instance;
-    }
-
-    s_instance = new KScreen();
-
-    if (!s_instance->isValid()) {
-        return 0;
-    }
-
-    return s_instance;
-}
-
-KScreen::Error KScreen::error()
-{
-    return s_error;
-}
-
-const QString KScreen::errorString()
-{
-    switch(s_error) {
-        case None:
-            return QString();
-            break;
-        case NoCompatibleBackend:
-            return QString("No compatible backend has been found");
-            break;
-        default:
-            return QString("Unknown error");
-    }
-}
-
-bool KScreen::isValid()
-{
-    return m_backend;
-}
-
-const QString KScreen::backend()
-{
-    return m_backend->name();
-}
-
-Config* KScreen::config()
-{
-    return m_backend->config();
-}
-
-void KScreen::setConfig(Config* config)
-{
-    m_backend->setConfig(config);
+    return s_backend;
 }

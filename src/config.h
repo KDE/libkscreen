@@ -34,6 +34,9 @@ class KSCREEN_EXPORT Config : public QObject
     Q_PROPERTY(OutputList outputs READ outputs)
 
     public:
+        static Config* current();
+        static bool setConfig(Config* config);
+
         explicit Config(QObject *parent = 0);
         virtual ~Config();
 

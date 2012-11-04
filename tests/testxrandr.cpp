@@ -21,7 +21,6 @@
 #include <QtTest>
 #include <QtCore/QObject>
 
-#include "../src/kscreen.h"
 #include "../src/config.h"
 #include "../src/output.h"
 #include "../src/mode.h"
@@ -46,13 +45,11 @@ void testXRandR::singleOutput()
 {
     setenv("KSCREEN_BACKEND", "XRandR", 1);
 
-    KScreen *kscreen = KScreen::self();
+//     QVERIFY2(kscreen, KScreen::errorString().toLatin1());
 
-    QVERIFY2(kscreen, KScreen::errorString().toLatin1());
+//     QVERIFY2(!kscreen->backend().isEmpty(), "No backend loaded");
 
-    QVERIFY2(!kscreen->backend().isEmpty(), "No backend loaded");
-
-    Config *config = kscreen->config();
+    Config *config = Config::current();
 
     QCOMPARE(config->outputs().count(), 1);
 

@@ -18,6 +18,27 @@
 
 #include "config.h"
 #include "output.h"
+#include "backendloader.h"
+#include "backends/abstractbackend.h"
+
+Config* Config::current()
+{
+    if (!BackendLoader::init()) {
+        return 0;
+    }
+
+    return BackendLoader::backend()->config();
+}
+
+bool Config::setConfig(Config* config)
+{
+    if (!BackendLoader::init()) {
+        return false;
+    }
+
+    BackendLoader::backend()->setConfig(config);
+    return true;
+}
 
 Config::Config(QObject* parent)
  : QObject(parent)

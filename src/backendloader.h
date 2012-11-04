@@ -16,53 +16,19 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA   *
  *************************************************************************************/
 
-#ifndef KSCREEN_H
-#define KSCREEN_H
+#ifndef BACKEND_LOADER_H
+#define BACKEND_LOADER_H
 
-#include "kscreen_export.h"
-
-#include <QtCore/QString>
-
-class Config;
 class AbstractBackend;
-class KSCREEN_EXPORT KScreen
+
+class BackendLoader
 {
     public:
-        enum Error {
-            None = 0x0,
-            NoCompatibleBackend = 0x1
-        };
-
-        /**
-         * Returns an instance of KScreen as a pointer. The library is in charge of the memory
-         * you should not delete this pointer.
-         * @return KScreen* instance or 0 if in error
-         */
-        static KScreen* self();
-
-        static Error error();
-        static const QString errorString();
-
-        /**
-         * Under some circumstances the object won't be valid or will be invalidated. A possible
-         * reason is if no valid backend is found
-         * @return Wherever the instance is valid or not
-         */
-        bool isValid();
-
-        const QString backend();
-
-        Config* config();
-        void setConfig(Config* config);
+        static bool init();
+        static AbstractBackend* backend();
 
     private:
-        KScreen();
-
-    private:
-        static Error s_error;
-        static KScreen* s_instance;
-
-        AbstractBackend *m_backend;
+        static AbstractBackend* s_backend;
 };
 
-#endif //KSCREEN_H
+#endif //BACKEND_LOADER_H
