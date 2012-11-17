@@ -1,6 +1,15 @@
 project(libkscreen)
+set(libkscreen_VERSION_MAJOR 0)
+set(libkscreen_VERSION_MINOR 9)
+set(libkscreen_VERSION_RELEASE 0)
+set(libkscreen_VERSION "0.9.0")
 
 cmake_minimum_required(VERSION 2.8.0)
+
+if(POLICY CMP0017)
+  cmake_policy(SET CMP0017 NEW)
+endif()
+
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules ${CMAKE_MODULE_PATH})
 enable_testing()
 find_package(Qt4 REQUIRED)
@@ -32,15 +41,28 @@ set(INSTALL_TARGETS_DEFAULT_ARGS  RUNTIME DESTINATION "${BIN_INSTALL_DIR}"
                                   LIBRARY DESTINATION "${LIB_INSTALL_DIR}"
                                   ARCHIVE DESTINATION "${LIB_INSTALL_DIR}" COMPONENT Devel )
 
-
-set(GENERIC_LIB_VERSION "0.9")
-set(GENERIC_LIB_SOVERSION "0")
-set(VERSION ${GENERIC_LIB_VERSION})
-
 add_subdirectory(src)
 add_subdirectory(tools)
 add_subdirectory(backends)
 add_subdirectory(tests)
+
+configure_file(${libkscreen_SOURCE_DIR}/LibKScreenConfig.cmake.in
+               ${libkscreen_BINARY_DIR}/LibKScreenConfig.cmake
+               @ONLY
+)
+# this file is used by to check if the installed version can be used.
+macro_write_basic_cmake_version_file(${libkscreen_BINARY_DIR}/LibKScreenConfigVersion.cmake
+                                     ${libkscreen_VERSION_MAJOR} ${libkscreen_VERSION_MINOR} ${libkscreen_VERSION_RELEASE})
+
+install(FILES ${libkscreen_BINARY_DIR}/LibKScreenConfig.cmake ${libkscreen_BINARY_DIR}/LibKScreenConfigVersion.cmake
+        DESTINATION ${LIB_INSTALL_DIR}/cmake/LibKScreen)
+
+# Install the file with the exported targets
+install(EXPORT kscreenLibraryTargets
+        DESTINATION ${LIB_INSTALL_DIR}/cmake/LibKScreen
+        FILE LibKScreenTargetsWithPrefix.cmake)
+
+
 
 ############################################ apidox ############################################
 

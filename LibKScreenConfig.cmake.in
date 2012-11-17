@@ -1,0 +1,25 @@
+# Do not modify this file. Any change will be overwritten by CMake.
+
+# Config file for LibKScreen. This file will define:
+# LibKScreen_INCLUDE_DIR - The LibKScreen include directory
+# LibKScreen_LIBRARY - The library needed to use LibKScreen
+# LibKScreen_VERSION - The LibKScreen version
+
+get_filename_component(_currentDir ${CMAKE_CURRENT_LIST_FILE} PATH) # The current directory
+get_filename_component(rootDir ${_currentDir}/@relInstallDir@ ABSOLUTE) # The install prefix
+
+# The library version
+set(LibKScreen_VERSION_MAJOR @LIBKSCREEN_VERSION_MAJOR@)
+set(LibKScreen_VERSION_MINOR @LIBKSCREEN_VERSION_MINOR@)
+set(LibKScreen_VERSION_RELEASE @LIBKSCREEN_VERSION_RELEASE@)
+set(LibKScreen_VERSION ${LibKScreen_VERSION_MAJOR}.${LibKScreen_VERSION_MINOR}.${LibKScreen_VERSION_RELEASE})
+
+# Include directory
+set(LibKScreen_INSTALL_PREFIX "${rootDir}")
+set(LibKScreen_INCLUDE_DIR "@INCLUDE_INSTALL_DIR@")
+
+# import the exported targets
+include(${_currentDir}/LibKScreenTargetsWithPrefix.cmake)
+
+# Set the library variable
+set(LibKScreen_LIBRARY kscreen)

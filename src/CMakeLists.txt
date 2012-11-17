@@ -15,11 +15,11 @@ add_library(kscreen SHARED ${libkscreen_SRCS})
 target_link_libraries(kscreen ${QT_QTCORE_LIBRARY} ${QT_QTDBUS_LIBRARY} ${QJSON_LIBRARIES})
 
 set_target_properties(kscreen PROPERTIES
-    VERSION ${GENERIC_LIB_VERSION}
-    SOVERSION ${GENERIC_LIB_SOVERSION}
+    VERSION ${libkscreen_VERSION}
+    SOVERSION ${libkscreen_VERSION_MAJOR}
 )
 
-install(TARGETS kscreen ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS kscreen EXPORT kscreenLibraryTargets  ${INSTALL_TARGETS_DEFAULT_ARGS})
 
 install(FILES kscreen_export.h
             mode.h
