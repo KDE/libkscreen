@@ -63,7 +63,8 @@ Config* XRandR::config() const
     XRRGetScreenSizeRange (m_display, m_rootWindow, &min.rwidth(), &min.rheight(),
                            &max.rwidth(), &max.rheight());
 
-    KScreen::Screen* screen = new KScreen::Screen(m_screen, config);
+    KScreen::Screen* screen = new KScreen::Screen(config);
+    screen->setId(m_screen);
     screen->setMaxSize(max);
     screen->setMinSize(min);
     screen->setCurrentSize(QSize(DisplayWidth(m_display, m_screen),DisplayHeight(m_display, m_screen)));
@@ -84,12 +85,21 @@ Config* XRandR::config() const
         id = resources->outputs[i];
         outputInfo = XRROutput(id);
 
-        Output *output = new Output(id, config);
+        Output *output = new Output(config);
+        output->setId(id);
         output->setName(outputInfo->name);
         output->setConnected(outputInfo->connection == RR_Connected);
         output->setEnabled(outputInfo->crtc != None);
         output->setPrimary(id == primary);
         output->setType("unknown");
+
+        size_t len;
+        quint8 *data = outputEdid(id, &len);
+        if (data) {
+            Edid *edid = new Edid(data, len, output);
+            output->setEdid(edid);
+            delete data;
+        }
 
         if (outputInfo->crtc) {
             XRRCrtcInfo* crtcInfo = XRRCrtc(outputInfo->crtc);
@@ -107,7 +117,8 @@ Config* XRandR::config() const
         for (int i = 0; i < outputInfo->nmode; ++i)
         {
             modeInfo = &resources->modes[i];
-            Mode *mode = new Mode(modeInfo->id,  config);
+            Mode *mode = new Mode(config);
+            mode->setId(modeInfo->id);
             mode->setName(QString::fromUtf8(modeInfo->name));
             mode->setSize(QSize(modeInfo->width, modeInfo->height));
             mode->setRefreshRate(((float) modeInfo->dotClock / ((float) modeInfo->hTotal * (float) modeInfo->vTotal)));

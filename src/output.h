@@ -57,10 +57,11 @@ class KSCREEN_EXPORT Output : public QObject
             Left = 8
         };
 
-        explicit Output(int id, QObject* parent = 0);
+        explicit Output(QObject *parent = 0);
         virtual ~Output();
 
         int id() const;
+        void setId(int id);
 
         QString name() const;
         void setName(const QString& name);

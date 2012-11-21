@@ -20,9 +20,9 @@
 
 namespace KScreen {
 
-Screen::Screen(int screenId, QObject *parent)
+Screen::Screen(QObject *parent)
  : QObject(parent)
- , m_id(screenId)
+ , m_id(0)
 {
 }
 
@@ -33,6 +33,11 @@ Screen::~Screen()
 int Screen::id() const
 {
     return m_id;
+}
+
+void Screen::setId(int id)
+{
+    m_id = id;
 }
 
 QSize Screen::currentSize() const

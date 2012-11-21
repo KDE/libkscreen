@@ -63,7 +63,8 @@ Config* Parser::fromJson(const QString& path)
 
 Screen* Parser::screenFromJson(const QMap< QString, QVariant >& data)
 {
-    Screen* screen = new Screen(data["id"].toInt());
+    Screen* screen = new Screen;
+    screen->setId(data["id"].toInt());
     screen->setMinSize(Parser::sizeFromJson(data["minSize"].toMap()));
     screen->setMaxSize(Parser::sizeFromJson(data["maxSize"].toMap()));
     screen->setCurrentSize(Parser::sizeFromJson(data["currentSize"].toMap()));
@@ -74,7 +75,8 @@ Screen* Parser::screenFromJson(const QMap< QString, QVariant >& data)
 Output* Parser::outputFromJson(const QVariant& data)
 {
     QVariantMap map = data.toMap();
-    Output *output = new Output(map["id"].toInt());
+    Output *output = new Output;
+    output->setId(map["id"].toInt());
     QJson::QObjectHelper::qvariant2qobject(map, output);
 
     Mode *mode;
@@ -100,7 +102,8 @@ Output* Parser::outputFromJson(const QVariant& data)
 Mode* Parser::modeFromJson(const QVariant& data)
 {
     QVariantMap map = data.toMap();
-    Mode *mode = new Mode(map["id"].toInt());
+    Mode *mode = new Mode;
+    mode->setId(map["id"].toInt());
     QJson::QObjectHelper::qvariant2qobject(map, mode);
 
     mode->setSize(Parser::sizeFromJson(map["size"].toMap()));

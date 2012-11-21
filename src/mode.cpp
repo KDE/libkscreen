@@ -20,10 +20,10 @@
 
 namespace KScreen {
 
-Mode::Mode(int id, QObject* parent)
- : QObject(parent)
- , m_id(id)
- , m_rate(0)
+Mode::Mode(QObject *parent)
+  : QObject(parent)
+  , m_id(0)
+  , m_rate(0)
 {
 
 }
@@ -36,6 +36,13 @@ Mode::~Mode()
 int Mode::id()
 {
     return m_id;
+}
+
+void Mode::setId(int id)
+{
+    m_id = id;
+
+    Q_EMIT modeChanged();
 }
 
 QString Mode::name() const

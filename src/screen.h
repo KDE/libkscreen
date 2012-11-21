@@ -36,10 +36,11 @@ class KSCREEN_EXPORT Screen : public QObject
         Q_PROPERTY(QSize minSize READ minSize CONSTANT);
         Q_PROPERTY(QSize maxSize READ maxSize CONSTANT);
 
-        Screen(int screenId, QObject *parent = 0);
+        explicit Screen(QObject *parent = 0);
         virtual ~Screen();
 
         int id() const;
+        void setId(int id);
 
         QSize currentSize() const;
         void setCurrentSize(const QSize& currentSize);
