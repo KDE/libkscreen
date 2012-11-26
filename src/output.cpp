@@ -18,6 +18,7 @@
 
 #include "output.h"
 #include "mode.h"
+#include "edid.h"
 
 namespace KScreen {
 
@@ -29,6 +30,7 @@ Output::Output(QObject *parent)
  , m_connected(false)
  , m_enabled(false)
  , m_primary(false)
+ , m_edid(0)
 {
 
 }
@@ -188,6 +190,18 @@ void Output::setClones(QList<int> outputlist)
 
     Q_EMIT clonesChanged();
 }
+
+Edid *Output::edid() const
+{
+    return m_edid;
+}
+
+void Output::setEdid(Edid *edid)
+{
+    m_edid = edid;
+}
+
+
 
 } //KScreen namespace
 #include "output.moc"

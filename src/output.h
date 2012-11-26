@@ -30,6 +30,8 @@
 
 namespace KScreen {
 
+class Edid;
+
 class KSCREEN_EXPORT Output : public QObject
 {
     Q_OBJECT
@@ -47,6 +49,7 @@ class KSCREEN_EXPORT Output : public QObject
         Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled NOTIFY isEnabledChanged)
         Q_PROPERTY(bool primary READ isPrimary WRITE setPrimary NOTIFY isPrimaryChanged)
         Q_PROPERTY(QList<int> clones READ clones WRITE setClones NOTIFY clonesChanged)
+	Q_PROPERTY(KScreen::Edid* edid READ edid CONSTANT)
 
         Q_ENUMS(Rotation)
 
@@ -97,6 +100,9 @@ class KSCREEN_EXPORT Output : public QObject
         QList<int> clones();
         void setClones(QList<int> outputlist);
 
+	Edid* edid() const;
+	void setEdid(Edid *edid);
+
     Q_SIGNALS:
         void outputChanged();
         void posChanged();
@@ -121,6 +127,7 @@ class KSCREEN_EXPORT Output : public QObject
         bool m_connected;
         bool m_enabled;
         bool m_primary;
+	Edid *m_edid;
 };
 
 typedef QHash<int, Output*> OutputList;

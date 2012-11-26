@@ -19,6 +19,7 @@
 #include "xrandr.h"
 #include "config.h"
 #include "output.h"
+#include "edid.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
@@ -92,6 +93,14 @@ Config* XRandR::config() const
         output->setEnabled(outputInfo->crtc != None);
         output->setPrimary(id == primary);
         output->setType("unknown");
+
+	size_t len;
+	quint8 *data = outputEdid(id, len);
+	if (data) {
+	    Edid *edid = new Edid(data, len, output);
+	    output->setEdid(edid);
+	    delete data;
+	}
 
         if (outputInfo->crtc) {
             XRRCrtcInfo* crtcInfo = XRRCrtc(outputInfo->crtc);
@@ -309,6 +318,61 @@ void XRandR::changeOutput(Output* output, int crtcId) const
 bool XRandR::isValid() const
 {
     return true;
+}
+
+quint8* XRandR::getXProperty(Display *dpy, RROutput output, Atom atom, size_t &len) const
+{
+    unsigned char *prop;
+    int actual_format;
+    unsigned long nitems, bytes_after;
+    Atom actual_type;
+    quint8 *result;
+
+    XRRGetOutputProperty(dpy, output, atom,
+                         0, 100, false, false,
+                         AnyPropertyType,
+                         &actual_type, &actual_format,
+                         &nitems, &bytes_after, &prop);
+
+    if (actual_type == XA_INTEGER && actual_format == 8) {
+        result = new quint8[nitems];
+        memcpy(result, prop, nitems);
+        len = nitems;
+    } else {
+        result = NULL;
+    }
+
+    XFree (prop);
+    return result;
+}
+
+quint8 *XRandR::outputEdid(int outputId, size_t &len) const
+{
+   Atom edid_atom;
+    quint8 *result;
+
+    edid_atom = XInternAtom(QX11Info::display(), RR_PROPERTY_RANDR_EDID, false);
+    result = getXProperty(QX11Info::display(), outputId, edid_atom, len);
+    if (result == NULL) {
+        edid_atom = XInternAtom(QX11Info::display(), "EDID_DATA", false);
+        result = getXProperty(QX11Info::display(), outputId, edid_atom, len);
+    }
+
+    if (result == NULL) {
+        edid_atom = XInternAtom(QX11Info::display(), "XFree86_DDC_EDID1_RAWDATA", false);
+        result = getXProperty(QX11Info::display(), outputId, edid_atom, len);
+    }
+
+    if (result) {
+        if (len % 128 == 0) {
+            return result;
+        } else {
+            len = 0;
+            delete result;
+        }
+    }
+
+    return 0;
 }
 
 RRCrtc XRandR::outputCrtc(int outputId) const

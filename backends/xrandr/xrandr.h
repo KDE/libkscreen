@@ -51,12 +51,15 @@ class XRandR : public QObject, public AbstractBackend
         void changeOutput(KScreen::Output* output, int crtcId) const;
 
         RRCrtc outputCrtc(int outputId) const;
+	quint8 *outputEdid(int outputId, size_t &len) const;
         RRCrtc freeCrtc() const;
         XRRScreenResources* screenResources() const;
         XRROutputInfo* XRROutput(int outputId) const;
         XRRCrtcInfo* XRRCrtc(int crtcId) const;
 
     private:
+	quint8* getXProperty(Display *dpy, RROutput output, Atom atom, size_t &len) const;
+
         int m_screen;
         Display* m_display;
         Window m_rootWindow;

@@ -5,6 +5,7 @@ set(libkscreen_SRCS
     config.cpp
     screen.cpp
     output.cpp
+    edid.cpp
     mode.cpp
 )
 
@@ -24,6 +25,8 @@ install(TARGETS kscreen EXPORT kscreenLibraryTargets  ${INSTALL_TARGETS_DEFAULT_
 install(FILES kscreen_export.h
             mode.h
             output.h
+            edid.h
+            screen.h
             config.h DESTINATION include/kscreen)
 
 if(NOT WIN32)
