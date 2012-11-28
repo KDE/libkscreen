@@ -94,13 +94,13 @@ Config* XRandR::config() const
         output->setPrimary(id == primary);
         output->setType("unknown");
 
-	size_t len;
-	quint8 *data = outputEdid(id, len);
-	if (data) {
-	    Edid *edid = new Edid(data, len, output);
-	    output->setEdid(edid);
-	    delete data;
-	}
+        size_t len;
+        quint8 *data = outputEdid(id, len);
+        if (data) {
+            Edid *edid = new Edid(data, len, output);
+            output->setEdid(edid);
+            delete data;
+        }
 
         if (outputInfo->crtc) {
             XRRCrtcInfo* crtcInfo = XRRCrtc(outputInfo->crtc);
