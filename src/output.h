@@ -49,7 +49,7 @@ class KSCREEN_EXPORT Output : public QObject
         Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled NOTIFY isEnabledChanged)
         Q_PROPERTY(bool primary READ isPrimary WRITE setPrimary NOTIFY isPrimaryChanged)
         Q_PROPERTY(QList<int> clones READ clones WRITE setClones NOTIFY clonesChanged)
-	Q_PROPERTY(KScreen::Edid* edid READ edid CONSTANT)
+        Q_PROPERTY(KScreen::Edid* edid READ edid CONSTANT)
 
         Q_ENUMS(Rotation)
 
@@ -100,8 +100,8 @@ class KSCREEN_EXPORT Output : public QObject
         QList<int> clones();
         void setClones(QList<int> outputlist);
 
-	Edid* edid() const;
-	void setEdid(Edid *edid);
+        Edid* edid() const;
+        void setEdid(Edid *edid);
 
     Q_SIGNALS:
         void outputChanged();
