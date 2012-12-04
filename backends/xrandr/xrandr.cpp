@@ -17,6 +17,8 @@
  *************************************************************************************/
 
 #include "xrandr.h"
+#include "xrandrconfig.h"
+
 #include "config.h"
 #include "output.h"
 #include "edid.h"
@@ -32,12 +34,13 @@ Q_EXPORT_PLUGIN2(XRandR, XRandR)
 
 using namespace KScreen;
 
-XRandR::XRandR(QObject* parent): QObject(parent)
+XRandR::XRandR(QObject* parent)
+    : QObject(parent)
+    , m_display(QX11Info::display())
+    , m_screen(DefaultScreen(m_display))
+    , m_rootWindow(XRootWindow(m_display, m_screen))
+    , m_internalConfig(new XRandRConfig(this))
 {
-    m_display = QX11Info::display();
-    m_screen = DefaultScreen(m_display);
-    m_rootWindow = XRootWindow(m_display, m_screen);
-
     qDebug() << "XRandR Cto";
     qDebug() << "\t" << "Display: " << m_display;
     qDebug() << "\t" << "Screen: " << m_screen;
@@ -54,265 +57,37 @@ QString XRandR::name() const
     return QString("XRandR");
 }
 
+
 Config* XRandR::config() const
 {
-    qDebug() << "XRandR::Config";
-
-    Config *config = new Config();
-
-    QSize min, max;
-    XRRGetScreenSizeRange (m_display, m_rootWindow, &min.rwidth(), &min.rheight(),
-                           &max.rwidth(), &max.rheight());
-
-    KScreen::Screen* screen = new KScreen::Screen(config);
-    screen->setId(m_screen);
-    screen->setMaxSize(max);
-    screen->setMinSize(min);
-    screen->setCurrentSize(QSize(DisplayWidth(m_display, m_screen),DisplayHeight(m_display, m_screen)));
-
-    config->setScreen(screen);
-
-    XRRScreenResources* resources = screenResources();
-
-    RROutput id, primary;
-    XRROutputInfo* outputInfo;
-    primary = XRRGetOutputPrimary(m_display, m_rootWindow);
-
-    qDebug() << "\t" << "Primary: " << primary;
-
-    OutputList outputList;
-    for (int i = 0; i < resources->noutput; ++i)
-    {
-        id = resources->outputs[i];
-        outputInfo = XRROutput(id);
-
-        Output *output = new Output(config);
-        output->setId(id);
-        output->setName(outputInfo->name);
-        output->setConnected(outputInfo->connection == RR_Connected);
-        output->setEnabled(outputInfo->crtc != None);
-        output->setPrimary(id == primary);
-        output->setType("unknown");
-
-	size_t len;
-	quint8 *data = outputEdid(id, len);
-	if (data) {
-	    Edid *edid = new Edid(data, len, output);
-	    output->setEdid(edid);
-	    delete data;
-	}
-
-        if (outputInfo->crtc) {
-            XRRCrtcInfo* crtcInfo = XRRCrtc(outputInfo->crtc);
-            QRect rect;
-            rect.setRect(crtcInfo->x, crtcInfo->y, crtcInfo->width, crtcInfo->height);
-            output->setPos(rect.topLeft());
-
-            if (crtcInfo->mode) {
-                output->setCurrentMode(crtcInfo->mode);
-            }
-        }
-
-        ModeList modeList;
-        XRRModeInfo* modeInfo;
-        for (int i = 0; i < outputInfo->nmode; ++i)
-        {
-            modeInfo = &resources->modes[i];
-            Mode *mode = new Mode(config);
-            mode->setId(modeInfo->id);
-            mode->setName(QString::fromUtf8(modeInfo->name));
-            mode->setSize(QSize(modeInfo->width, modeInfo->height));
-            mode->setRefreshRate(((float) modeInfo->dotClock / ((float) modeInfo->hTotal * (float) modeInfo->vTotal)));
-
-            modeList.insert(mode->id(), mode);
-        }
-
-        XRRFreeOutputInfo(outputInfo);
-
-        output->setModes(modeList);
-        outputList.insert(output->id(), output);
-    }
-
-    XRRFreeScreenResources(resources);
-
-    config->setOutputs(outputList);
-
-    return config;
+    return m_internalConfig->toKScreenConfig();
 }
 
 void XRandR::setConfig(Config* config) const
 {
-    Config *currentConfig = this->config();
-    OutputList outputs = config->outputs();
-    QSize newSize = screenSize(config);
-
-    int neededCrtc = 0;
-    int primaryOutput = 0;
-    Output *cOutput = 0;
-    OutputList toDisable, toEnable, toChange;
-    QHash<int, int> currentCrtc;
-    Q_FOREACH(Output *output, outputs) {
-        cOutput = currentConfig->output(output->id());
-
-        if (output->isPrimary()) {
-            primaryOutput = cOutput->id();
-        }
-
-        if (!output->isEnabled() && cOutput->isEnabled()) {
-            toDisable.insert(output->id(), output);
-            continue;
-        } else if(output->isEnabled() && !cOutput->isEnabled()) {
-            toEnable.insert(output->id(), output);
-            neededCrtc ++;
-            continue;
-        } else if (!output->isEnabled() && !cOutput->isEnabled()) {
-            continue;
-        }
-
-        neededCrtc ++;
-
-        if (output->currentMode() != cOutput->currentMode()) {
-            if (!toChange.contains(output->id())) {
-                currentCrtc.insert(output->id(), outputCrtc(output->id()));
-                toChange.insert(output->id(), output);
-                if (!toDisable.contains(output->id())) {
-                    toDisable.insert(output->id(), output);
-                }
-            }
-        }
-
-        if (output->pos() != cOutput->pos()) {
-            if (!toChange.contains(output->id())) {
-                currentCrtc.insert(output->id(), outputCrtc(output->id()));
-                toChange.insert(output->id(), output);
-                if (!toDisable.contains(output->id())) {
-                    toDisable.insert(output->id(), output);
-                }
-            }
-        }
-
-        if (output->rotation() != cOutput->rotation()) {
-            if( !toChange.contains(output->id())) {
-                currentCrtc.insert(output->id(), outputCrtc(output->id()));
-                toChange.insert(output->id(), output);
-            }
-        }
-    }
-
-    KScreen::Screen* screen = config->screen();
-    if (newSize.width() > screen->maxSize().width() ||
-        newSize.height() > screen->maxSize().height()) {
-        qDebug() << "The new size is too big: " << newSize << " - " << screen->maxSize();
-        return;//Too big
-    }
-
-    qDebug() << neededCrtc;
-    if (neededCrtc > screenResources()->ncrtc) {
-        qDebug() << "We need more crtc than we have: " << neededCrtc << " - " << screenResources()->ncrtc;
-        return;//We don't have enough crtc
-    }
-
-    if (primaryOutput) {
-        setPrimaryOutput(primaryOutput);
-    }
-
-    Q_FOREACH(Output* output, toDisable) {
-        disableOutput(output);
-    }
-
-    setScreenSize(newSize);
-
-    Q_FOREACH(Output* output, toEnable) {
-        enableOutput(output);
-    }
-
-    Q_FOREACH(Output* output, toChange) {
-        changeOutput(output, currentCrtc[output->id()]);
-    }
+    m_internalConfig->applyKScreenConfig(config);
 }
 
-QSize XRandR::screenSize(Config* config) const
+Edid *XRandR::edid(int outputId) const
 {
-    int cord;
-    QSize size, outputSize;
-    OutputList outputs = config->outputs();
-    Q_FOREACH(const Output* output, outputs) {
-        if (!output->isEnabled()) {
-            continue;
-        }
+    XRandROutput::Map outputs = m_internalConfig->outputs();
+    XRandROutput *output = outputs.value(outputId);
+    if (!output) {
+        return 0;
+    }
 
-        outputSize = output->mode(output->currentMode())->size();
-        cord = output->pos().y() + outputSize.height();
-        if (cord > size.height()) {
-            size.setHeight(cord);
-        }
-
-        cord = output->pos().x() + outputSize.width();
-        if (cord > size.width()) {
-            size.setWidth(cord);
+    Edid *edid = output->outputProperty(XRandROutput::PropertyEdid).value<Edid*>();
+    if (!edid) {
+        size_t len;
+        quint8 *data = outputEdid(outputId, len);
+        if (data) {
+            edid = new Edid(data, len, output);
+            output->setOutputProperty(XRandROutput::PropertyEdid, QVariant::fromValue(edid));
+            delete data;
         }
     }
 
-    return size;
-}
-
-bool XRandR::setScreenSize(const QSize& size) const
-{
-    double dpi;
-    int widthMM, heightMM;
-    dpi = (25.4 * DisplayHeight(m_display, m_screen)) / DisplayHeightMM(m_display, m_screen);
-
-    qDebug() << "DPI: " << dpi;
-    qDebug() << "Size: " << size;
-
-    widthMM =  ((25.4 * size.width()) / dpi);
-    heightMM = ((25.4 * size.height()) / dpi);
-
-    qDebug() << "MM: " << widthMM << "x" << heightMM;
-
-    qDebug() << size << " " << widthMM << "x" << heightMM;
-    XRRSetScreenSize(m_display, m_rootWindow, size.width(), size.height(), widthMM, heightMM);
-
-    return true;
-}
-
-void XRandR::setPrimaryOutput(int outputId) const
-{
-    XRRSetOutputPrimary(m_display, m_rootWindow, outputId);
-}
-
-void XRandR::disableOutput(Output* output) const
-{
-    qDebug() << "Disabling: " << output->id();
-    int crtcId = outputCrtc(output->id());
-    qDebug() << crtcId;
-    XRRSetCrtcConfig (QX11Info::display(), screenResources(), crtcId, CurrentTime,
-                 0, 0, None, RR_Rotate_0, NULL, 0);
-}
-
-void XRandR::enableOutput(Output* output) const
-{
-    qDebug() << "Enabling: " << output->id();
-    RROutput *outputs = new RROutput[1];
-    outputs[0] = output->id();
-    Status s = XRRSetCrtcConfig(m_display, screenResources(), freeCrtc(),
-        CurrentTime, output->pos().rx(), output->pos().ry(), output->currentMode(),
-        output->rotation(), outputs, 1);
-
-    Q_UNUSED(s);
-}
-
-void XRandR::changeOutput(Output* output, int crtcId) const
-{
-    qDebug() << "Updating: " << output->id();
-
-    RROutput *outputs = new RROutput[1];
-    outputs[0] = output->id();
-    Status s = XRRSetCrtcConfig(m_display, screenResources(), crtcId,
-        CurrentTime, output->pos().rx(), output->pos().ry(), output->currentMode(),
-        output->rotation(), outputs, 1);
-
-    Q_UNUSED(s);
+    return edid;
 }
 
 bool XRandR::isValid() const
@@ -420,6 +195,21 @@ XRROutputInfo* XRandR::XRROutput(int outputId) const
 XRRCrtcInfo* XRandR::XRRCrtc(int crtcId) const
 {
     return XRRGetCrtcInfo(m_display, screenResources(), crtcId);
+}
+
+Display *XRandR::display() const
+{
+    return m_display;
+}
+
+Window XRandR::rootWindow() const
+{
+    return m_rootWindow;
+}
+
+int XRandR::screen() const
+{
+    return m_screen;
 }
 
 #include "xrandr.moc"

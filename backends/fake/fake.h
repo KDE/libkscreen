@@ -35,6 +35,7 @@ class Fake : public QObject, public AbstractBackend
         virtual KScreen::Config* config() const;
         virtual void setConfig(KScreen::Config* config) const;
         virtual bool isValid() const;
+        virtual KScreen::Edid *edid(int outputId) const;
 };
 
 #endif //FAKE_BACKEND_H

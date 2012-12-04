@@ -24,6 +24,7 @@
 
 #include <QtCore/QSize>
 
+class XRandRConfig;
 namespace KScreen {
     class Output;
 }
@@ -41,28 +42,25 @@ class XRandR : public QObject, public AbstractBackend
         virtual KScreen::Config* config() const;
         virtual void setConfig(KScreen::Config* config) const;
         virtual bool isValid() const;
-
-    private:
-        QSize screenSize(KScreen::Config* config) const;
-        bool setScreenSize(const QSize& size) const;
-        void setPrimaryOutput(int outputId) const;
-        void disableOutput(KScreen::Output* output) const;
-        void enableOutput(KScreen::Output* output) const;
-        void changeOutput(KScreen::Output* output, int crtcId) const;
+        virtual KScreen::Edid *edid(int outputId) const;
 
         RRCrtc outputCrtc(int outputId) const;
-	quint8 *outputEdid(int outputId, size_t &len) const;
+        quint8 *outputEdid(int outputId, size_t &len) const;
         RRCrtc freeCrtc() const;
         XRRScreenResources* screenResources() const;
         XRROutputInfo* XRROutput(int outputId) const;
         XRRCrtcInfo* XRRCrtc(int crtcId) const;
+        Display* display() const;
+        int screen() const;
+        Window rootWindow() const;
 
     private:
-	quint8* getXProperty(Display *dpy, RROutput output, Atom atom, size_t &len) const;
+        quint8* getXProperty(Display *dpy, RROutput output, Atom atom, size_t &len) const;
 
-        int m_screen;
         Display* m_display;
+        int m_screen;
         Window m_rootWindow;
+        XRandRConfig *m_internalConfig;
 };
 
 #endif //XRandR_BACKEND_H

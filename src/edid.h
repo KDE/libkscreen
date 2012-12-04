@@ -95,4 +95,6 @@ private:
 
 }
 
+Q_DECLARE_METATYPE(KScreen::Edid*)
+
 #endif // EDID_H

@@ -59,4 +59,12 @@ bool Fake::isValid() const
     return true;
 }
 
+Edid *Fake::edid(int outputId) const
+{
+    Q_UNUSED(outputId);
+
+    return 0;
+}
+
+
 #include "fake.moc"

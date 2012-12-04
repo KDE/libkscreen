@@ -2,6 +2,10 @@ include_directories(${CMAKE_SOURCE_DIR}/src ${KDE4_INCLUDES} ${CMAKE_BUILD_DIR} 
 
 set(xrandr_SRCS
     xrandr.cpp
+    xrandrconfig.cpp
+    xrandroutput.cpp
+    xrandrmode.cpp
+    xrandrscreen.cpp
 )
 
 automoc4_add_library(KSC_XRandR MODULE ${xrandr_SRCS})
