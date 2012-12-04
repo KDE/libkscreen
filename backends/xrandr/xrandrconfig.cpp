@@ -1,23 +1,21 @@
-/*
- * Copyright 2012  Dan Vrátil <dvratil@redhat.com>
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License or (at your option) version 3 or any later version
- * accepted by the membership of KDE e.V. (or its successor approved
- * by the membership of KDE e.V.), which shall act as a proxy
- * defined in Section 14 of version 3 of the license.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- */
+/*************************************************************************************
+ *  Copyright (C) 2012 by Alejandro Fiestas Olivares <afiestas@kde.org>              *
+ *  Copyright (C) 2012 by Dan Vrátil <dvratil@redhat.com>                            *
+ *                                                                                   *
+ *  This program is free software; you can redistribute it and/or                    *
+ *  modify it under the terms of the GNU General Public License                      *
+ *  as published by the Free Software Foundation; either version 2                   *
+ *  of the License, or (at your option) any later version.                           *
+ *                                                                                   *
+ *  This program is distributed in the hope that it will be useful,                  *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of                   *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                    *
+ *  GNU General Public License for more details.                                     *
+ *                                                                                   *
+ *  You should have received a copy of the GNU General Public License                *
+ *  along with this program; if not, write to the Free Software                      *
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA   *
+ *************************************************************************************/
 
 #include "xrandrconfig.h"
 #include "xrandrscreen.h"
@@ -32,15 +30,15 @@
 
 using namespace KScreen;
 
-XRandRConfig::XRandRConfig(XRandR *xrandr)
-    : QObject(xrandr)
+XRandRConfig::XRandRConfig()
+    : QObject()
     , m_screen(new XRandRScreen(this))
 {
-    XRRScreenResources* resources = xrandr->screenResources();
+    XRRScreenResources* resources = XRandR::screenResources();
 
     RROutput id, primary;
     XRROutputInfo* outputInfo;
-    primary = XRRGetOutputPrimary(backend()->display(), backend()->rootWindow());
+    primary = XRRGetOutputPrimary(XRandR::display(), XRandR::rootWindow());
 
     qDebug() << "\t" << "Primary: " << primary;
 
@@ -48,7 +46,7 @@ XRandRConfig::XRandRConfig(XRandR *xrandr)
     for (int i = 0; i < resources->noutput; ++i)
     {
         id = resources->outputs[i];
-        outputInfo = xrandr->XRROutput(id);
+        outputInfo = XRandR::XRROutput(id);
 
         XRandROutput *output = new XRandROutput(id, outputInfo, this);
         output->setOutputProperty(XRandROutput::PropertyPrimary, id == primary);
@@ -122,7 +120,7 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
 
         if (output->currentMode() != currentOutput->outputProperty(XRandROutput::PropertyCurrentMode).toInt()) {
             if (!toChange.contains(output->id())) {
-                currentCrtc.insert(output->id(), backend()->outputCrtc(output->id()));
+                currentCrtc.insert(output->id(), XRandR::outputCrtc(output->id()));
                 toChange.insert(output->id(), output);
                 if (!toDisable.contains(output->id())) {
                     toDisable.insert(output->id(), output);
@@ -132,7 +130,7 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
 
         if (output->pos() != currentOutput->outputProperty(XRandROutput::PropertyPos).toPoint()) {
             if (!toChange.contains(output->id())) {
-                currentCrtc.insert(output->id(), backend()->outputCrtc(output->id()));
+                currentCrtc.insert(output->id(), XRandR::outputCrtc(output->id()));
                 toChange.insert(output->id(), output);
                 if (!toDisable.contains(output->id())) {
                     toDisable.insert(output->id(), output);
@@ -142,7 +140,7 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
 
         if (output->rotation() != (KScreen::Output::Rotation) currentOutput->outputProperty(XRandROutput::PropertyRotation).toInt()) {
             if( !toChange.contains(output->id())) {
-                currentCrtc.insert(output->id(), backend()->outputCrtc(output->id()));
+                currentCrtc.insert(output->id(), XRandR::outputCrtc(output->id()));
                 toChange.insert(output->id(), output);
             }
         }
@@ -156,7 +154,7 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
     }
 
     qDebug() << neededCrtc;
-    XRRScreenResources *screenResources = backend()->screenResources();
+    XRRScreenResources *screenResources = XRandR::screenResources();
     if (neededCrtc > screenResources->ncrtc) {
         qDebug() << "We need more crtc than we have: " << neededCrtc << " - " << screenResources->ncrtc;
         XRRFreeScreenResources(screenResources);
@@ -216,7 +214,7 @@ bool XRandRConfig::setScreenSize(const QSize& size) const
 {
     double dpi;
     int widthMM, heightMM;
-    dpi = (25.4 * DisplayHeight(backend()->display(), backend()->screen())) / DisplayHeightMM(backend()->display(), backend()->screen());
+    dpi = (25.4 * DisplayHeight(XRandR::display(), XRandR::screen())) / DisplayHeightMM(XRandR::display(), XRandR::screen());
 
     qDebug() << "DPI: " << dpi;
     qDebug() << "Size: " << size;
@@ -227,7 +225,7 @@ bool XRandRConfig::setScreenSize(const QSize& size) const
     qDebug() << "MM: " << widthMM << "x" << heightMM;
 
     qDebug() << size << " " << widthMM << "x" << heightMM;
-    XRRSetScreenSize(backend()->display(), backend()->rootWindow(),
+    XRRSetScreenSize(XRandR::display(), XRandR::rootWindow(),
                      size.width(), size.height(), widthMM, heightMM);
 
     return true;
@@ -235,15 +233,15 @@ bool XRandRConfig::setScreenSize(const QSize& size) const
 
 void XRandRConfig::setPrimaryOutput(int outputId) const
 {
-    XRRSetOutputPrimary(backend()->display(), backend()->rootWindow(), outputId);
+    XRRSetOutputPrimary(XRandR::display(), XRandR::rootWindow(), outputId);
 }
 
 void XRandRConfig::disableOutput(Output* output) const
 {
     qDebug() << "Disabling: " << output->id();
-    int crtcId = backend()->outputCrtc(output->id());
+    int crtcId = XRandR::outputCrtc(output->id());
     qDebug() << crtcId;
-    XRRSetCrtcConfig (backend()->display(), backend()->screenResources(), crtcId, CurrentTime,
+    XRRSetCrtcConfig (XRandR::display(), XRandR::screenResources(), crtcId, CurrentTime,
                  0, 0, None, RR_Rotate_0, NULL, 0);
 }
 
@@ -252,7 +250,7 @@ void XRandRConfig::enableOutput(Output* output) const
     qDebug() << "Enabling: " << output->id();
     RROutput *outputs = new RROutput[1];
     outputs[0] = output->id();
-    Status s = XRRSetCrtcConfig(backend()->display(), backend()->screenResources(), backend()->freeCrtc(),
+    Status s = XRRSetCrtcConfig(XRandR::display(), XRandR::screenResources(), XRandR::freeCrtc(),
         CurrentTime, output->pos().rx(), output->pos().ry(), output->currentMode(),
         output->rotation(), outputs, 1);
 
@@ -265,7 +263,7 @@ void XRandRConfig::changeOutput(Output* output, int crtcId) const
 
     RROutput *outputs = new RROutput[1];
     outputs[0] = output->id();
-    Status s = XRRSetCrtcConfig(backend()->display(), backend()->screenResources(), crtcId,
+    Status s = XRRSetCrtcConfig(XRandR::display(), XRandR::screenResources(), crtcId,
         CurrentTime, output->pos().rx(), output->pos().ry(), output->currentMode(),
         output->rotation(), outputs, 1);
 

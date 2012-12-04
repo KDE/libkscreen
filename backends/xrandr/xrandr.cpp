@@ -1,5 +1,6 @@
 /*************************************************************************************
  *  Copyright (C) 2012 by Alejandro Fiestas Olivares <afiestas@kde.org>              *
+ *  Copyright (C) 2012 by Dan Vrátil <dvratil@redhat.com>                            *
  *                                                                                   *
  *  This program is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU General Public License                      *
@@ -27,24 +28,42 @@
 #include <QtCore/QFile>
 #include <QtCore/qplugin.h>
 #include <QtCore/QRect>
+#include <QAbstractEventDispatcher>
 
 #include <QtGui/QX11Info>
+#include <QApplication>
 
 Q_EXPORT_PLUGIN2(XRandR, XRandR)
+
+Display* XRandR::s_display = 0;
+int XRandR::s_screen = 0;
+Window XRandR::s_rootWindow = 0;
+XRandRConfig* XRandR::s_internalConfig = 0;
+int XRandR::s_randrBase = 0;
+int XRandR::s_randrError = 0;
+bool XRandR::s_monitorInitialized = false;
 
 using namespace KScreen;
 
 XRandR::XRandR(QObject* parent)
     : QObject(parent)
-    , m_display(QX11Info::display())
-    , m_screen(DefaultScreen(m_display))
-    , m_rootWindow(XRootWindow(m_display, m_screen))
-    , m_internalConfig(new XRandRConfig(this))
 {
-    qDebug() << "XRandR Cto";
-    qDebug() << "\t" << "Display: " << m_display;
-    qDebug() << "\t" << "Screen: " << m_screen;
-    qDebug() << "\t" << "RootWindow: " << m_rootWindow;
+    if (s_display == 0) {
+        s_display = QX11Info::display();
+        s_screen = DefaultScreen(s_display);
+        s_rootWindow = XRootWindow(s_display, s_screen);
+
+        XRRQueryExtension(s_display, &s_randrBase, &s_randrError);
+    }
+
+    if (s_internalConfig == 0) {
+        s_internalConfig = new XRandRConfig();
+    }
+
+    if (!s_monitorInitialized) {
+        initMonitor();
+        s_monitorInitialized = true;
+    }
 }
 
 XRandR::~XRandR()
@@ -57,20 +76,43 @@ QString XRandR::name() const
     return QString("XRandR");
 }
 
+void XRandR::initMonitor()
+{
+    /* Use a separate window for getting events so that we don't change Qt's event mask */
+    Window window = XCreateSimpleWindow(s_display, DefaultRootWindow(s_display), 0, 0, 1, 1, 0, 0, 0);
+    XRRSelectInput(s_display, window, RROutputChangeNotifyMask);
+
+    QAbstractEventDispatcher::instance()->setEventFilter((QAbstractEventDispatcher::EventFilter) handleX11Event);
+}
+
+bool XRandR::handleX11Event(void *message)
+{
+    XEvent *event = (XEvent *) message;
+
+    if (event->xany.type == s_randrBase + RRNotify) {
+        XRRNotifyEvent* e2 = reinterpret_cast< XRRNotifyEvent* >(event);
+        if (e2->subtype == RRNotify_OutputChange) { // TODO && e2->window == window )
+            qDebug() << "Monitor change detected";
+        }
+    }
+
+    return false;
+}
+
 
 Config* XRandR::config() const
 {
-    return m_internalConfig->toKScreenConfig();
+    return s_internalConfig->toKScreenConfig();
 }
 
 void XRandR::setConfig(Config* config) const
 {
-    m_internalConfig->applyKScreenConfig(config);
+    s_internalConfig->applyKScreenConfig(config);
 }
 
 Edid *XRandR::edid(int outputId) const
 {
-    XRandROutput::Map outputs = m_internalConfig->outputs();
+    XRandROutput::Map outputs = s_internalConfig->outputs();
     XRandROutput *output = outputs.value(outputId);
     if (!output) {
         return 0;
@@ -95,7 +137,7 @@ bool XRandR::isValid() const
     return true;
 }
 
-quint8* XRandR::getXProperty(Display *dpy, RROutput output, Atom atom, size_t &len) const
+quint8* XRandR::getXProperty(Display *dpy, RROutput output, Atom atom, size_t &len)
 {
     unsigned char *prop;
     int actual_format;
@@ -121,21 +163,21 @@ quint8* XRandR::getXProperty(Display *dpy, RROutput output, Atom atom, size_t &l
     return result;
 }
 
-quint8 *XRandR::outputEdid(int outputId, size_t &len) const
+quint8 *XRandR::outputEdid(int outputId, size_t &len)
 {
    Atom edid_atom;
     quint8 *result;
 
     edid_atom = XInternAtom(QX11Info::display(), RR_PROPERTY_RANDR_EDID, false);
-    result = getXProperty(QX11Info::display(), outputId, edid_atom, len);
+    result = XRandR::getXProperty(QX11Info::display(), outputId, edid_atom, len);
     if (result == NULL) {
         edid_atom = XInternAtom(QX11Info::display(), "EDID_DATA", false);
-        result = getXProperty(QX11Info::display(), outputId, edid_atom, len);
+        result = XRandR::getXProperty(QX11Info::display(), outputId, edid_atom, len);
     }
 
     if (result == NULL) {
         edid_atom = XInternAtom(QX11Info::display(), "XFree86_DDC_EDID1_RAWDATA", false);
-        result = getXProperty(QX11Info::display(), outputId, edid_atom, len);
+        result = XRandR::getXProperty(QX11Info::display(), outputId, edid_atom, len);
     }
 
     if (result) {
@@ -150,7 +192,7 @@ quint8 *XRandR::outputEdid(int outputId, size_t &len) const
     return 0;
 }
 
-RRCrtc XRandR::outputCrtc(int outputId) const
+RRCrtc XRandR::outputCrtc(int outputId)
 {
     RRCrtc crtcId;
     XRROutputInfo* outputInfo = XRROutput(outputId);
@@ -161,7 +203,7 @@ RRCrtc XRandR::outputCrtc(int outputId) const
     return crtcId;
 }
 
-RRCrtc XRandR::freeCrtc() const
+RRCrtc XRandR::freeCrtc()
 {
     XRRScreenResources* resources = screenResources();
 
@@ -182,34 +224,34 @@ RRCrtc XRandR::freeCrtc() const
     return 0;
 }
 
-XRRScreenResources* XRandR::screenResources() const
+XRRScreenResources* XRandR::screenResources()
 {
-    return XRRGetScreenResources(m_display, m_rootWindow);
+    return XRRGetScreenResources(s_display, s_rootWindow);
 }
 
-XRROutputInfo* XRandR::XRROutput(int outputId) const
+XRROutputInfo* XRandR::XRROutput(int outputId)
 {
-    return XRRGetOutputInfo(m_display, screenResources(), outputId);
+    return XRRGetOutputInfo(s_display, screenResources(), outputId);
 }
 
-XRRCrtcInfo* XRandR::XRRCrtc(int crtcId) const
+XRRCrtcInfo* XRandR::XRRCrtc(int crtcId)
 {
-    return XRRGetCrtcInfo(m_display, screenResources(), crtcId);
+    return XRRGetCrtcInfo(s_display, screenResources(), crtcId);
 }
 
-Display *XRandR::display() const
+Display *XRandR::display()
 {
-    return m_display;
+    return s_display;
 }
 
-Window XRandR::rootWindow() const
+Window XRandR::rootWindow()
 {
-    return m_rootWindow;
+    return s_rootWindow;
 }
 
-int XRandR::screen() const
+int XRandR::screen()
 {
-    return m_screen;
+    return s_screen;
 }
 
 #include "xrandr.moc"

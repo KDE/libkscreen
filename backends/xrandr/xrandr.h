@@ -1,5 +1,6 @@
 /*************************************************************************************
  *  Copyright (C) 2012 by Alejandro Fiestas Olivares <afiestas@kde.org>              *
+ *  Copyright (C) 2012 by Dan Vrátil <dvratil@redhat.com>                            *
  *                                                                                   *
  *  This program is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU General Public License                      *
@@ -44,23 +45,30 @@ class XRandR : public QObject, public AbstractBackend
         virtual bool isValid() const;
         virtual KScreen::Edid *edid(int outputId) const;
 
-        RRCrtc outputCrtc(int outputId) const;
-        quint8 *outputEdid(int outputId, size_t &len) const;
-        RRCrtc freeCrtc() const;
-        XRRScreenResources* screenResources() const;
-        XRROutputInfo* XRROutput(int outputId) const;
-        XRRCrtcInfo* XRRCrtc(int crtcId) const;
-        Display* display() const;
-        int screen() const;
-        Window rootWindow() const;
+        static RRCrtc outputCrtc(int outputId);
+        static quint8 *outputEdid(int outputId, size_t &len);
+        static RRCrtc freeCrtc();
+        static XRRScreenResources* screenResources();
+        static XRROutputInfo* XRROutput(int outputId);
+        static XRRCrtcInfo* XRRCrtc(int crtcId);
+        static Display* display();
+        static int screen();
+        static Window rootWindow();
 
     private:
-        quint8* getXProperty(Display *dpy, RROutput output, Atom atom, size_t &len) const;
+        void initMonitor();
 
-        Display* m_display;
-        int m_screen;
-        Window m_rootWindow;
-        XRandRConfig *m_internalConfig;
+        static bool handleX11Event(void* message);
+
+        static quint8* getXProperty(Display *dpy, RROutput output, Atom atom, size_t &len);
+
+        static Display* s_display;
+        static int s_screen;
+        static Window s_rootWindow;
+        static XRandRConfig *s_internalConfig;
+        static int s_randrBase;
+        static int s_randrError;
+        static bool s_monitorInitialized;
 };
 
 #endif //XRandR_BACKEND_H
