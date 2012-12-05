@@ -19,6 +19,8 @@
 #include "output.h"
 #include "mode.h"
 #include "edid.h"
+#include "backendloader.h"
+#include <backends/abstractbackend.h>
 
 namespace KScreen {
 
@@ -104,6 +106,9 @@ QHash< int, Mode* > Output::modes() const
 
 void Output::setModes(ModeList modes)
 {
+    if (!m_modeList.isEmpty()) {
+        qDeleteAll(m_modeList);
+    }
     m_modeList = modes;
 }
 
@@ -193,14 +198,13 @@ void Output::setClones(QList<int> outputlist)
 
 Edid *Output::edid() const
 {
+    if (m_edid == 0) {
+        AbstractBackend *backend = BackendLoader::backend();
+        m_edid = backend->edid(m_id);
+    }
+
     return m_edid;
 }
-
-void Output::setEdid(Edid *edid)
-{
-    m_edid = edid;
-}
-
 
 
 } //KScreen namespace

@@ -1,5 +1,6 @@
 /*************************************************************************************
  *  Copyright (C) 2012 by Alejandro Fiestas Olivares <afiestas@kde.org>              *
+ *  Copyright (C) 2012 by Dan Vrátil <dvratil@redhat.com>                            *
  *                                                                                   *
  *  This program is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU General Public License                      *
@@ -16,27 +17,52 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA   *
  *************************************************************************************/
 
-#ifndef FAKE_BACKEND_H
-#define FAKE_BACKEND_H
 
-#include "../abstractbackend.h"
-#include <QtCore/QObject>
+#include "xrandrscreen.h"
+#include "xrandrconfig.h"
+#include "xlibandxrandr.h"
 
-class Fake : public QObject, public AbstractBackend
+#include "screen.h"
+#include "config.h"
+#include <QX11Info>
+
+XRandRScreen::XRandRScreen(XRandRConfig *config)
+    : QObject(config)
 {
-    Q_OBJECT
-    Q_INTERFACES(AbstractBackend)
+    update();
+}
 
-    public:
-        explicit Fake(QObject* parent = 0);
-        virtual ~Fake();
+XRandRScreen::~XRandRScreen()
+{
+}
 
-        virtual QString name() const;
-        virtual KScreen::Config* config() const;
-        virtual void setConfig(KScreen::Config* config) const;
-        virtual bool isValid() const;
-        virtual KScreen::Edid *edid(int outputId) const;
-        virtual void updateConfig(KScreen::Config *config) const;
-};
+void XRandRScreen::update()
+{
+    Display *display = QX11Info::display();
+    int screen = DefaultScreen(display);
+    Window rootWindow = XRootWindow(display, screen);
 
-#endif //FAKE_BACKEND_H
+    XRRGetScreenSizeRange (display, rootWindow,
+                           &m_minSize.rwidth(), &m_minSize.rheight(),
+                           &m_maxSize.rwidth(), &m_maxSize.rheight());
+    m_currentSize = QSize(DisplayWidth(display, screen),DisplayHeight(display, screen));
+}
+
+KScreen::Screen *XRandRScreen::toKScreenScreen(KScreen::Config *parent) const
+{
+    KScreen::Screen *kscreenScreen = new KScreen::Screen(parent);
+    kscreenScreen->setId(m_id);
+    kscreenScreen->setMaxSize(m_maxSize);
+    kscreenScreen->setMinSize(m_minSize);
+    kscreenScreen->setCurrentSize(m_currentSize);
+
+    return kscreenScreen;
+}
+
+void XRandRScreen::updateKScreenScreen(KScreen::Screen *screen) const
+{
+    screen->setCurrentSize(m_currentSize);
+}
+
+
+#include "xrandrscreen.moc"

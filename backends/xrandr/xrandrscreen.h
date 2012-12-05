@@ -1,5 +1,5 @@
 /*************************************************************************************
- *  Copyright (C) 2012 by Alejandro Fiestas Olivares <afiestas@kde.org>              *
+ *  Copyright (C) 2012 by Dan Vrátil <dvratil@redhat.com>                            *
  *                                                                                   *
  *  This program is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU General Public License                      *
@@ -16,27 +16,37 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA   *
  *************************************************************************************/
 
-#ifndef FAKE_BACKEND_H
-#define FAKE_BACKEND_H
+#ifndef XRANDRSCREEN_H
+#define XRANDRSCREEN_H
 
-#include "../abstractbackend.h"
-#include <QtCore/QObject>
+#include <QObject>
+#include <QSize>
 
-class Fake : public QObject, public AbstractBackend
+class XRandRConfig;
+namespace KScreen
+{
+class Screen;
+class Config;
+}
+
+class XRandRScreen : public QObject
 {
     Q_OBJECT
-    Q_INTERFACES(AbstractBackend)
 
-    public:
-        explicit Fake(QObject* parent = 0);
-        virtual ~Fake();
+public:
+    explicit XRandRScreen(XRandRConfig *config = 0);
+    virtual ~XRandRScreen();
 
-        virtual QString name() const;
-        virtual KScreen::Config* config() const;
-        virtual void setConfig(KScreen::Config* config) const;
-        virtual bool isValid() const;
-        virtual KScreen::Edid *edid(int outputId) const;
-        virtual void updateConfig(KScreen::Config *config) const;
+    KScreen::Screen *toKScreenScreen(KScreen::Config *parent) const;
+    void updateKScreenScreen(KScreen::Screen *screen) const;
+
+    void update();
+
+private:
+    int m_id;
+    QSize m_minSize;
+    QSize m_maxSize;
+    QSize m_currentSize;
 };
 
-#endif //FAKE_BACKEND_H
+#endif // XRANDRSCREEN_H

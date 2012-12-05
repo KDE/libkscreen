@@ -1,5 +1,5 @@
 /*************************************************************************************
- *  Copyright (C) 2012 by Alejandro Fiestas Olivares <afiestas@kde.org>              *
+ *  Copyright (C) 2012 by Dan Vrátil <dvratil@redhat.com>                            *
  *                                                                                   *
  *  This program is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU General Public License                      *
@@ -16,27 +16,36 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA   *
  *************************************************************************************/
 
-#ifndef FAKE_BACKEND_H
-#define FAKE_BACKEND_H
 
-#include "../abstractbackend.h"
-#include <QtCore/QObject>
+#include "xrandrmode.h"
+#include "xrandroutput.h"
+#include "mode.h"
+#include "output.h"
 
-class Fake : public QObject, public AbstractBackend
+XRandRMode::XRandRMode(XRRModeInfo *modeInfo, XRandROutput *output)
+    : QObject(output)
 {
-    Q_OBJECT
-    Q_INTERFACES(AbstractBackend)
+    m_id = modeInfo->id;
+    m_name = QString::fromUtf8(modeInfo->name);
+    m_size = QSize(modeInfo->width, modeInfo->height);
+    m_refreshRate = ((float) modeInfo->dotClock / ((float) modeInfo->hTotal * (float) modeInfo->vTotal));
+}
 
-    public:
-        explicit Fake(QObject* parent = 0);
-        virtual ~Fake();
 
-        virtual QString name() const;
-        virtual KScreen::Config* config() const;
-        virtual void setConfig(KScreen::Config* config) const;
-        virtual bool isValid() const;
-        virtual KScreen::Edid *edid(int outputId) const;
-        virtual void updateConfig(KScreen::Config *config) const;
-};
+XRandRMode::~XRandRMode()
+{
+}
 
-#endif //FAKE_BACKEND_H
+KScreen::Mode *XRandRMode::toKScreenMode(KScreen::Output *parent)
+{
+    KScreen::Mode *kscreenMode = new KScreen::Mode(parent);
+
+    kscreenMode->setId(m_id);
+    kscreenMode->setName(m_name);
+    kscreenMode->setSize(m_size);
+    kscreenMode->setRefreshRate(m_refreshRate);
+
+    return kscreenMode;
+}
+
+#include "xrandrmode.moc"

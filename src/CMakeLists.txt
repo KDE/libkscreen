@@ -3,6 +3,7 @@ include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_BINA
 set(libkscreen_SRCS
     backendloader.cpp
     config.cpp
+    configmonitor.cpp
     screen.cpp
     output.cpp
     edid.cpp
@@ -27,7 +28,9 @@ install(FILES kscreen_export.h
             output.h
             edid.h
             screen.h
-            config.h DESTINATION include/kscreen)
+            config.h
+            configmonitor.h
+            DESTINATION include/kscreen)
 
 if(NOT WIN32)
    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/kscreen.pc.in ${CMAKE_CURRENT_BINARY_DIR}/kscreen.pc @ONLY)

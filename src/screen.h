@@ -32,7 +32,7 @@ class KSCREEN_EXPORT Screen : public QObject
 
     public:
         Q_PROPERTY(int id READ id CONSTANT);
-        Q_PROPERTY(QSize currentSize READ currentSize CONSTANT);
+        Q_PROPERTY(QSize currentSize READ currentSize WRITE setCurrentSize NOTIFY currentSizeChanged);
         Q_PROPERTY(QSize minSize READ minSize CONSTANT);
         Q_PROPERTY(QSize maxSize READ maxSize CONSTANT);
 
@@ -50,6 +50,9 @@ class KSCREEN_EXPORT Screen : public QObject
 
         QSize maxSize() const;
         void setMaxSize(const QSize& maxSize);
+
+    Q_SIGNALS:
+        void currentSizeChanged();
 
     private:
         int m_id;

@@ -1,5 +1,5 @@
 /*************************************************************************************
- *  Copyright (C) 2012 by Alejandro Fiestas Olivares <afiestas@kde.org>              *
+ *  Copyright (C) 2012 by Dan Vrátil <dvratil@redhat.com>                            *
  *                                                                                   *
  *  This program is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU General Public License                      *
@@ -16,27 +16,45 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA   *
  *************************************************************************************/
 
-#ifndef FAKE_BACKEND_H
-#define FAKE_BACKEND_H
+#ifndef XRANDRCONFIG_H
+#define XRANDRCONFIG_H
 
-#include "../abstractbackend.h"
-#include <QtCore/QObject>
+#include <QObject>
 
-class Fake : public QObject, public AbstractBackend
+#include "xrandr.h"
+#include "xrandroutput.h"
+
+class XRandRScreen;
+namespace KScreen {
+class Config;
+}
+
+class XRandRConfig : public QObject
 {
     Q_OBJECT
-    Q_INTERFACES(AbstractBackend)
 
-    public:
-        explicit Fake(QObject* parent = 0);
-        virtual ~Fake();
+public:
+    explicit XRandRConfig();
+    virtual ~XRandRConfig();
 
-        virtual QString name() const;
-        virtual KScreen::Config* config() const;
-        virtual void setConfig(KScreen::Config* config) const;
-        virtual bool isValid() const;
-        virtual KScreen::Edid *edid(int outputId) const;
-        virtual void updateConfig(KScreen::Config *config) const;
+    void update();
+
+    XRandROutput::Map outputs() const;
+
+    KScreen::Config *toKScreenConfig() const;
+    void updateKScreenConfig(KScreen::Config *config) const;
+    void applyKScreenConfig(KScreen::Config *config);
+
+private:
+    QSize screenSize(KScreen::Config* config) const;
+    bool setScreenSize(const QSize& size) const;
+    void setPrimaryOutput(int outputId) const;
+    void disableOutput(KScreen::Output* output) const;
+    void enableOutput(KScreen::Output* output) const;
+    void changeOutput(KScreen::Output* output, int crtcId) const;
+
+    XRandROutput::Map m_outputs;
+    XRandRScreen *m_screen;
 };
 
-#endif //FAKE_BACKEND_H
+#endif // XRANDRCONFIG_H

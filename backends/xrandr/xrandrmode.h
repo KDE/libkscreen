@@ -1,5 +1,5 @@
 /*************************************************************************************
- *  Copyright (C) 2012 by Alejandro Fiestas Olivares <afiestas@kde.org>              *
+ *  Copyright (C) 2012 by Dan Vrátil <dvratil@redhat.com>                            *
  *                                                                                   *
  *  This program is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU General Public License                      *
@@ -16,27 +16,42 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA   *
  *************************************************************************************/
 
-#ifndef FAKE_BACKEND_H
-#define FAKE_BACKEND_H
+#ifndef XRANDRMODE_H
+#define XRANDRMODE_H
 
-#include "../abstractbackend.h"
-#include <QtCore/QObject>
+#include <QObject>
+#include <QMap>
+#include <QVariant>
+#include <QSize>
 
-class Fake : public QObject, public AbstractBackend
+#include "xlibandxrandr.h"
+
+class XRandROutput;
+namespace KScreen
+{
+class Output;
+class Mode;
+}
+
+class XRandRMode : public QObject
 {
     Q_OBJECT
-    Q_INTERFACES(AbstractBackend)
 
-    public:
-        explicit Fake(QObject* parent = 0);
-        virtual ~Fake();
+public:
+    typedef QMap<int, XRandRMode*> Map;
 
-        virtual QString name() const;
-        virtual KScreen::Config* config() const;
-        virtual void setConfig(KScreen::Config* config) const;
-        virtual bool isValid() const;
-        virtual KScreen::Edid *edid(int outputId) const;
-        virtual void updateConfig(KScreen::Config *config) const;
+    explicit XRandRMode(XRRModeInfo* modeInfo, XRandROutput *output);
+    virtual ~XRandRMode();
+
+    KScreen::Mode* toKScreenMode(KScreen::Output *parent);
+
+private:
+    int m_id;
+    QString m_name;
+    QSize m_size;
+    float m_refreshRate;
 };
 
-#endif //FAKE_BACKEND_H
+Q_DECLARE_METATYPE(XRandRMode::Map)
+
+#endif // XRANDRMODE_H

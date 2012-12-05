@@ -1,5 +1,6 @@
 /*************************************************************************************
  *  Copyright (C) 2012 by Alejandro Fiestas Olivares <afiestas@kde.org>              *
+ *  Copyright (C) 2012 by Dan Vrátil <dvratil@redhat.com>                            *
  *                                                                                   *
  *  This program is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU General Public License                      *
@@ -24,6 +25,7 @@
 
 #include <QtCore/QSize>
 
+class XRandRConfig;
 namespace KScreen {
     class Output;
 }
@@ -41,28 +43,32 @@ class XRandR : public QObject, public AbstractBackend
         virtual KScreen::Config* config() const;
         virtual void setConfig(KScreen::Config* config) const;
         virtual bool isValid() const;
+        virtual KScreen::Edid *edid(int outputId) const;
+        virtual void updateConfig(KScreen::Config *config) const;
+
+        static RRCrtc outputCrtc(int outputId);
+        static quint8 *outputEdid(int outputId, size_t &len);
+        static RRCrtc freeCrtc();
+        static XRRScreenResources* screenResources();
+        static XRROutputInfo* XRROutput(int outputId);
+        static XRRCrtcInfo* XRRCrtc(int crtcId);
+        static Display* display();
+        static int screen();
+        static Window rootWindow();
 
     private:
-        QSize screenSize(KScreen::Config* config) const;
-        bool setScreenSize(const QSize& size) const;
-        void setPrimaryOutput(int outputId) const;
-        void disableOutput(KScreen::Output* output) const;
-        void enableOutput(KScreen::Output* output) const;
-        void changeOutput(KScreen::Output* output, int crtcId) const;
+        void initMonitor();
 
-        RRCrtc outputCrtc(int outputId) const;
-        quint8* outputEdid(int outputId, size_t &len) const;
-        RRCrtc freeCrtc() const;
-        XRRScreenResources* screenResources() const;
-        XRROutputInfo* XRROutput(int outputId) const;
-        XRRCrtcInfo* XRRCrtc(int crtcId) const;
+        static bool handleX11Event(void* message);
+        static quint8* getXProperty(Display *dpy, RROutput output, Atom atom, size_t &len);
 
-    private:
-        quint8* getXProperty(Display *dpy, RROutput output, Atom atom, size_t &len) const;
-
-        int m_screen;
-        Display* m_display;
-        Window m_rootWindow;
+        static Display* s_display;
+        static int s_screen;
+        static Window s_rootWindow;
+        static XRandRConfig *s_internalConfig;
+        static int s_randrBase;
+        static int s_randrError;
+        static bool s_monitorInitialized;
 };
 
 #endif //XRandR_BACKEND_H
