@@ -42,6 +42,7 @@ public:
     XRandROutput::Map outputs() const;
 
     KScreen::Config *toKScreenConfig() const;
+    void updateKScreenConfig(KScreen::Config *config) const;
     void applyKScreenConfig(KScreen::Config *config);
 
 private:

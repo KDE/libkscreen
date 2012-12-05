@@ -22,6 +22,7 @@
 #include <QObject>
 #include <QMap>
 #include <QVariant>
+#include <QSize>
 
 #include "xlibandxrandr.h"
 
@@ -35,29 +36,20 @@ class Mode;
 class XRandRMode : public QObject
 {
     Q_OBJECT
-    Q_FLAGS(Property Properties)
 
 public:
     typedef QMap<int, XRandRMode*> Map;
 
-    enum Property {
-        PropertyId          = 1 << 0,
-        PropertyName        = 1 << 1,
-        PropertySize        = 1 << 2,
-        PropertyRefreshRate = 1 << 3
-    };
-    Q_DECLARE_FLAGS(Properties, Property);
-
     explicit XRandRMode(XRRModeInfo* modeInfo, XRandROutput *output);
     virtual ~XRandRMode();
-
-    void setModeProperty(Property id, const QVariant &value);
-    QVariant modeProperty(Property id) const;
 
     KScreen::Mode* toKScreenMode(KScreen::Output *parent);
 
 private:
-    QMap<Property, QVariant> m_properties;
+    int m_id;
+    QString m_name;
+    QSize m_size;
+    float m_refreshRate;
 };
 
 Q_DECLARE_METATYPE(XRandRMode::Map)

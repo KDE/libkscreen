@@ -25,12 +25,15 @@
 #include <QVariant>
 
 #include "xlibandxrandr.h"
+#include "xrandrmode.h"
+#include "output.h"
 
 class XRandRConfig;
 namespace KScreen
 {
 class Config;
 class Output;
+class Edid;
 }
 
 class XRandROutput : public QObject
@@ -58,20 +61,41 @@ public:
     };
     Q_DECLARE_FLAGS(Properties, Property)
 
-    explicit XRandROutput(int id, XRandRConfig *config = 0);
+    explicit XRandROutput(int id, bool primary, XRandRConfig *config = 0);
     virtual ~XRandROutput();
 
-    void setOutputProperty(XRandROutput::Property id, const QVariant &value);
-    QVariant outputProperty(XRandROutput::Property id);
+    void update(bool primary = false);
 
-    void update();
+    int id() const;
+    bool isEnabled() const;
+    bool isConnected() const;
+    bool isPrimary() const;
+    QPoint position() const;
+    int currentMode() const;
+    KScreen::Output::Rotation rotation() const;
+    KScreen::Edid* edid() const;
+    void setEdid(KScreen::Edid *edid);
 
     KScreen::Output* toKScreenOutput(KScreen::Config *parent) const;
+    void updateKScreenOutput(KScreen::Output *output) const;
 private:
     void updateOutput(const XRROutputInfo *outputInfo);
 
     int m_id;
-    QMap<Property, QVariant> m_properties;
+    QString m_name;
+    QString m_type;
+    QString m_icon;
+    XRandRMode::Map m_modes;
+    QPoint m_position;
+    KScreen::Output::Rotation m_rotation;
+    int m_currentMode;
+    int m_connected : 1;
+    int m_enabled : 1;
+    int m_primary : 1;
+    QList<int> m_clones;
+    mutable KScreen::Edid *m_edid;
+
+    int m_changedProperties;
 };
 
 Q_DECLARE_METATYPE(XRandROutput::Map)

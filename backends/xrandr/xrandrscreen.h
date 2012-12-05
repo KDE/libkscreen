@@ -38,6 +38,7 @@ public:
     virtual ~XRandRScreen();
 
     KScreen::Screen *toKScreenScreen(KScreen::Config *parent) const;
+    void updateKScreenScreen(KScreen::Screen *screen) const;
 
     void update();
 

@@ -59,5 +59,10 @@ KScreen::Screen *XRandRScreen::toKScreenScreen(KScreen::Config *parent) const
     return kscreenScreen;
 }
 
+void XRandRScreen::updateKScreenScreen(KScreen::Screen *screen) const
+{
+    screen->setCurrentSize(m_currentSize);
+}
+
 
 #include "xrandrscreen.moc"

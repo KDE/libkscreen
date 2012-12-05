@@ -66,5 +66,11 @@ Edid *Fake::edid(int outputId) const
     return 0;
 }
 
+void Fake::updateConfig(Config *config) const
+{
+    Q_UNUSED(config);
+}
+
+
 
 #include "fake.moc"

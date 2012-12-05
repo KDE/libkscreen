@@ -23,29 +23,34 @@
 #include "xrandr.h"
 #include "output.h"
 #include "config.h"
+#include "edid.h"
 
 #include <QRect>
+#include <QDebug>
 
 Q_DECLARE_METATYPE(QList<int>)
 
-XRandROutput::XRandROutput(int id, XRandRConfig *config)
+XRandROutput::XRandROutput(int id, bool primary, XRandRConfig *config)
     : QObject(config)
     , m_id(id)
+    , m_type("unknown")
+    , m_edid(0)
+    , m_changedProperties(0)
 {
     XRROutputInfo *outputInfo = XRandR::XRROutput(m_id);
     updateOutput(outputInfo);
+    m_primary = primary;
+
 
     /* Init modes */
-    XRandRMode::Map modes;
     XRRModeInfo* modeInfo;
     XRRScreenResources *resources = XRandR::screenResources();
     for (int i = 0; i < outputInfo->nmode; ++i)
     {
         modeInfo = &resources->modes[i];
         XRandRMode *mode = new XRandRMode(modeInfo, this);
-        modes.insert(modeInfo->id, mode);
+        m_modes.insert(modeInfo->id, mode);
     }
-    setOutputProperty(XRandROutput::PropertyModes, QVariant::fromValue(modes));
 
     XRRFreeOutputInfo(outputInfo);
 }
@@ -53,72 +58,132 @@ XRandROutput::XRandROutput(int id, XRandRConfig *config)
 
 XRandROutput::~XRandROutput()
 {
+    delete m_edid;
 }
 
-void XRandROutput::setOutputProperty(XRandROutput::Property id, const QVariant &value)
+int XRandROutput::id() const
 {
-    m_properties.insert(id, value);
+    return m_id;
 }
 
-QVariant XRandROutput::outputProperty(XRandROutput::Property id)
+bool XRandROutput::isConnected() const
 {
-    return m_properties.value(id);
+    return m_connected;
 }
 
-void XRandROutput::update()
+bool XRandROutput::isEnabled() const
+{
+    return m_enabled;
+}
+
+bool XRandROutput::isPrimary() const
+{
+    return m_primary;
+}
+
+QPoint XRandROutput::position() const
+{
+    return m_position;
+}
+
+int XRandROutput::currentMode() const
+{
+    return m_currentMode;
+}
+
+KScreen::Output::Rotation XRandROutput::rotation() const
+{
+    return m_rotation;
+}
+
+KScreen::Edid *XRandROutput::edid() const
+{
+    if (!m_edid) {
+        size_t len;
+        quint8 *data = XRandR::outputEdid(m_id, len);
+        if (data) {
+            m_edid = new KScreen::Edid(data, len, 0);
+            delete data;
+        }
+    }
+
+    return m_edid;
+}
+
+void XRandROutput::update(bool primary)
 {
     XRROutputInfo *outputInfo = XRandR::XRROutput(m_id);
 
+    m_changedProperties = 0;
     updateOutput(outputInfo);
 
-    /* FIXME: Can modes change? */
+    if (m_primary != primary) {
+        m_primary = primary;
+        m_changedProperties |= PropertyPrimary;
+    }
 
     XRRFreeOutputInfo(outputInfo);
 }
 
 void XRandROutput::updateOutput(const XRROutputInfo *outputInfo)
 {
-    setOutputProperty(XRandROutput::PropertyId, (int) m_id);
-    setOutputProperty(XRandROutput::PropertyName, outputInfo->name);
-    setOutputProperty(XRandROutput::PropertyConnected, outputInfo->connection == RR_Connected);
-    setOutputProperty(XRandROutput::PropertyEnabled, outputInfo->crtc != None);
-    setOutputProperty(XRandROutput::PropertyType, "unknown");
-    setOutputProperty(XRandROutput::PropertyRotation, (int) KScreen::Output::None);
+    if (m_name != outputInfo->name) {
+        m_name = outputInfo->name;
+        m_changedProperties |= PropertyName;
+    }
+
+    if (m_connected != (outputInfo->connection == RR_Connected)) {
+        m_connected = outputInfo->connection == RR_Connected;
+        m_changedProperties |= PropertyConnected;
+    }
+
+    if (m_enabled != (outputInfo->crtc != None)) {
+        m_enabled = outputInfo->crtc != None;
+        m_changedProperties |= PropertyEnabled;
+    }
+
+    QList<int> clones;
+    for (int i = 0; i < outputInfo->nclone; i++) {
+        clones << outputInfo->clones[i];
+    }
+    if (m_clones != clones) {
+        m_clones = clones;
+        m_changedProperties |= PropertyClones;
+    }
 
     if (outputInfo->crtc) {
         XRRCrtcInfo* crtcInfo = XRandR::XRRCrtc(outputInfo->crtc);
         QRect rect;
         rect.setRect(crtcInfo->x, crtcInfo->y, crtcInfo->width, crtcInfo->height);
-        setOutputProperty(XRandROutput::PropertyPos, rect.topLeft());
+        if (m_position != rect.topLeft()) {
+            m_position = rect.topLeft();
+            m_changedProperties |= PropertyPos;
+        }
 
         if (crtcInfo->mode) {
-            setOutputProperty(XRandROutput::PropertyCurrentMode, (int) crtcInfo->mode);
+            if (m_currentMode != (int) crtcInfo->mode) {
+                m_currentMode = crtcInfo->mode;
+                m_changedProperties |= PropertyCurrentMode;
+            }
+
+            if (m_rotation != crtcInfo->rotation) {
+                m_rotation = (KScreen::Output::Rotation) crtcInfo->rotation;
+                m_changedProperties |= PropertyRotation;
+            }
         }
     }
 }
-
-
 
 KScreen::Output *XRandROutput::toKScreenOutput(KScreen::Config *parent) const
 {
     KScreen::Output *kscreenOutput = new KScreen::Output(parent);
 
-    kscreenOutput->setId(m_properties.value(PropertyId).toInt());
-    kscreenOutput->setName(m_properties.value(PropertyName).toString());
-    kscreenOutput->setType(m_properties.value(PropertyType).toString());
-    kscreenOutput->setIcon(m_properties.value(PropertyIcon).toString());
-    kscreenOutput->setPos(m_properties.value(PropertyPos).toPoint());
-    kscreenOutput->setRotation((KScreen::Output::Rotation) m_properties.value(PropertyRotation).toInt());
-    kscreenOutput->setCurrentMode(m_properties.value(PropertyCurrentMode).toInt());
-    kscreenOutput->setConnected(m_properties.value(PropertyConnected).toBool());
-    kscreenOutput->setEnabled(m_properties.value(PropertyEnabled).toBool());
-    kscreenOutput->setPrimary(m_properties.value(PropertyPrimary).toBool());
-    kscreenOutput->setClones(m_properties.value(PropertyClones).value< QList<int> >());
+    kscreenOutput->setId(m_id);
+    updateKScreenOutput(kscreenOutput);
 
-    XRandRMode::Map modes = m_properties.value(PropertyModes).value<XRandRMode::Map>();
     KScreen::ModeList kscreenModes;
     XRandRMode::Map::ConstIterator iter;
-    for (iter = modes.constBegin(); iter != modes.constEnd(); iter++) {
+    for (iter = m_modes.constBegin(); iter != m_modes.constEnd(); iter++) {
         XRandRMode *mode = iter.value();
         KScreen::Mode *kscreenMode = mode->toKScreenMode(kscreenOutput);
         kscreenModes.insert(iter.key(), kscreenMode);
@@ -128,5 +193,47 @@ KScreen::Output *XRandROutput::toKScreenOutput(KScreen::Config *parent) const
     return kscreenOutput;
 }
 
+void XRandROutput::updateKScreenOutput(KScreen::Output *output) const
+{
+    if (!m_changedProperties || (m_changedProperties & PropertyName)) {
+        output->setName(m_name);
+    }
+
+    if (!m_changedProperties || (m_changedProperties & PropertyType)) {
+        output->setType(m_type);
+    }
+
+    if (!m_changedProperties || (m_changedProperties & PropertyIcon)) {
+        output->setIcon(m_icon);
+    }
+
+    if (!m_changedProperties || (m_changedProperties & PropertyPos)) {
+        output->setPos(m_position);
+    }
+
+    if (!m_changedProperties || (m_changedProperties & PropertyRotation)) {
+        output->setRotation(m_rotation);
+    }
+
+    if (!m_changedProperties || (m_changedProperties & PropertyCurrentMode)) {
+        output->setCurrentMode(m_currentMode);
+    }
+
+    if (!m_changedProperties || (m_changedProperties & PropertyConnected)) {
+        output->setConnected(m_connected);
+    }
+
+    if (!m_changedProperties || (m_changedProperties & PropertyEnabled)) {
+        output->setEnabled(m_enabled);
+    }
+
+    if (!m_changedProperties || (m_changedProperties & PropertyPrimary)) {
+        output->setPrimary(m_primary);
+    }
+
+    if (!m_changedProperties || (m_changedProperties & PropertyClones)) {
+        output->setClones(m_clones);
+    }
+}
 
 #include "xrandroutput.moc"

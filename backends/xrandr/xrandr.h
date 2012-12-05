@@ -44,6 +44,7 @@ class XRandR : public QObject, public AbstractBackend
         virtual void setConfig(KScreen::Config* config) const;
         virtual bool isValid() const;
         virtual KScreen::Edid *edid(int outputId) const;
+        virtual void updateConfig(KScreen::Config *config) const;
 
         static RRCrtc outputCrtc(int outputId);
         static quint8 *outputEdid(int outputId, size_t &len);

@@ -94,14 +94,13 @@ bool XRandR::handleX11Event(void *message)
         XRRNotifyEvent* e2 = reinterpret_cast< XRRNotifyEvent* >(event);
         if (e2->subtype == RRNotify_OutputChange) { // TODO && e2->window == window )
             s_internalConfig->update();
-            //KScreen::ConfigMonitor::changeNotify();
+            KScreen::ConfigMonitor::instance()->notifyUpdate();
             qDebug() << "Monitor change detected";
         }
     }
 
     return false;
 }
-
 
 Config* XRandR::config() const
 {
@@ -121,23 +120,17 @@ Edid *XRandR::edid(int outputId) const
         return 0;
     }
 
-    Edid *edid = output->outputProperty(XRandROutput::PropertyEdid).value<Edid*>();
-    if (!edid) {
-        size_t len;
-        quint8 *data = outputEdid(outputId, len);
-        if (data) {
-            edid = new Edid(data, len, output);
-            output->setOutputProperty(XRandROutput::PropertyEdid, QVariant::fromValue(edid));
-            delete data;
-        }
-    }
-
-    return edid;
+    return output->edid();
 }
 
 bool XRandR::isValid() const
 {
     return true;
+}
+
+void XRandR::updateConfig(Config *config) const
+{
+    s_internalConfig->updateKScreenConfig(config);
 }
 
 quint8* XRandR::getXProperty(Display *dpy, RROutput output, Atom atom, size_t &len)

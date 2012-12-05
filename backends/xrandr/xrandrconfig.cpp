@@ -39,15 +39,12 @@ XRandRConfig::XRandRConfig()
     RROutput id, primary;
     primary = XRRGetOutputPrimary(XRandR::display(), XRandR::rootWindow());
 
-    qDebug() << "\t" << "Primary: " << primary;
-
     XRandROutput::Map outputs;
     for (int i = 0; i < resources->noutput; ++i)
     {
         id = resources->outputs[i];
 
-        XRandROutput *output = new XRandROutput(id, this);
-        output->setOutputProperty(XRandROutput::PropertyPrimary, id == primary);
+        XRandROutput *output = new XRandROutput(id, (id == primary), this);
         m_outputs.insert(id, output);
     }
 
@@ -62,10 +59,12 @@ void XRandRConfig::update()
 {
     m_screen->update();
 
+    RROutput primary = XRRGetOutputPrimary(XRandR::display(), XRandR::rootWindow());
+
     XRandROutput::Map::Iterator iter;
     for (iter = m_outputs.begin(); iter != m_outputs.end(); iter++) {
         XRandROutput *output = iter.value();
-        output->update();
+        output->update(iter.key() == (int) primary);
     }
 }
 
@@ -92,6 +91,19 @@ KScreen::Config *XRandRConfig::toKScreenConfig() const
     return config;
 }
 
+void XRandRConfig::updateKScreenConfig(Config *config) const
+{
+    KScreen::Screen *kscreenScreen = config->screen();
+    m_screen->updateKScreenScreen(kscreenScreen);
+
+    XRandROutput::Map::ConstIterator iter;
+    for (iter = m_outputs.constBegin(); iter != m_outputs.constEnd(); iter++) {
+        XRandROutput *output = iter.value();
+        KScreen::Output *kscreenOutput = config->output(output->id());
+        output->updateKScreenOutput(kscreenOutput);
+    }
+}
+
 void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
 {
     KScreen::OutputList outputs = config->outputs();
@@ -105,10 +117,10 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
         XRandROutput *currentOutput = m_outputs.value(output->id());
 
         if (output->isPrimary()) {
-            primaryOutput = currentOutput->outputProperty(XRandROutput::PropertyId).toInt();
+            primaryOutput = currentOutput->id();
         }
 
-        bool currentEnabled = currentOutput->outputProperty(XRandROutput::PropertyEnabled).toBool();
+        bool currentEnabled = currentOutput->isEnabled();
         if (!output->isEnabled() && currentEnabled) {
             toDisable.insert(output->id(), output);
             continue;
@@ -122,7 +134,7 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
 
         neededCrtc ++;
 
-        if (output->currentMode() != currentOutput->outputProperty(XRandROutput::PropertyCurrentMode).toInt()) {
+        if (output->currentMode() != currentOutput->currentMode()) {
             if (!toChange.contains(output->id())) {
                 currentCrtc.insert(output->id(), XRandR::outputCrtc(output->id()));
                 toChange.insert(output->id(), output);
@@ -132,7 +144,7 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
             }
         }
 
-        if (output->pos() != currentOutput->outputProperty(XRandROutput::PropertyPos).toPoint()) {
+        if (output->pos() != currentOutput->position()) {
             if (!toChange.contains(output->id())) {
                 currentCrtc.insert(output->id(), XRandR::outputCrtc(output->id()));
                 toChange.insert(output->id(), output);
@@ -142,7 +154,7 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
             }
         }
 
-        if (output->rotation() != (KScreen::Output::Rotation) currentOutput->outputProperty(XRandROutput::PropertyRotation).toInt()) {
+        if (output->rotation() != currentOutput->rotation()) {
             if( !toChange.contains(output->id())) {
                 currentCrtc.insert(output->id(), XRandR::outputCrtc(output->id()));
                 toChange.insert(output->id(), output);

@@ -25,10 +25,10 @@
 XRandRMode::XRandRMode(XRRModeInfo *modeInfo, XRandROutput *output)
     : QObject(output)
 {
-    setModeProperty(PropertyId, (int) modeInfo->id);
-    setModeProperty(PropertyName, QString::fromUtf8(modeInfo->name));
-    setModeProperty(PropertySize, QSize(modeInfo->width, modeInfo->height));
-    setModeProperty(PropertyRefreshRate, ((float) modeInfo->dotClock / ((float) modeInfo->hTotal * (float) modeInfo->vTotal)));
+    m_id = modeInfo->id;
+    m_name = QString::fromUtf8(modeInfo->name);
+    m_size = QSize(modeInfo->width, modeInfo->height);
+    m_refreshRate = ((float) modeInfo->dotClock / ((float) modeInfo->hTotal * (float) modeInfo->vTotal));
 }
 
 
@@ -36,24 +36,14 @@ XRandRMode::~XRandRMode()
 {
 }
 
-void XRandRMode::setModeProperty(XRandRMode::Property id, const QVariant &value)
-{
-    m_properties.insert(id, value);
-}
-
-QVariant XRandRMode::modeProperty(XRandRMode::Property id) const
-{
-    return m_properties.value(id);
-}
-
 KScreen::Mode *XRandRMode::toKScreenMode(KScreen::Output *parent)
 {
     KScreen::Mode *kscreenMode = new KScreen::Mode(parent);
 
-    kscreenMode->setId(m_properties.value(PropertyId).toInt());
-    kscreenMode->setName(m_properties.value(PropertyName).toString());
-    kscreenMode->setSize(m_properties.value(PropertySize).toSize());
-    kscreenMode->setRefreshRate(m_properties.value(PropertyRefreshRate).toFloat());
+    kscreenMode->setId(m_id);
+    kscreenMode->setName(m_name);
+    kscreenMode->setSize(m_size);
+    kscreenMode->setRefreshRate(m_refreshRate);
 
     return kscreenMode;
 }

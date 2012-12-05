@@ -36,6 +36,7 @@ class AbstractBackend
         virtual void setConfig(KScreen::Config* config) const = 0;
         virtual bool isValid() const = 0;
         virtual KScreen::Edid* edid(int outputId) const = 0;
+        virtual void updateConfig(KScreen::Config* config) const = 0;
 };
 
 Q_DECLARE_INTERFACE(AbstractBackend, "org.kde.libkscreen")
