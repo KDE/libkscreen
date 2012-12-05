@@ -23,7 +23,7 @@
 #include "config.h"
 #include "output.h"
 #include "edid.h"
-#include <configmonitor.h>
+#include "configmonitor.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QFile>

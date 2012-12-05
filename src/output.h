@@ -27,6 +27,7 @@
 #include <QtCore/QPoint>
 #include <QtCore/QObject>
 #include <QtCore/QMetaType>
+#include <QPointer>
 
 namespace KScreen {
 
@@ -126,7 +127,7 @@ class KSCREEN_EXPORT Output : public QObject
         bool m_connected;
         bool m_enabled;
         bool m_primary;
-        mutable Edid* m_edid;
+        mutable QPointer<Edid> m_edid;
 };
 
 typedef QHash<int, Output*> OutputList;

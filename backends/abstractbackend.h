@@ -24,7 +24,7 @@
 
 namespace KScreen {
     class Config;
-class Edid;
+    class Edid;
 }
 
 class AbstractBackend

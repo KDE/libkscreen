@@ -39,18 +39,8 @@ XRandROutput::XRandROutput(int id, bool primary, XRandRConfig *config)
 {
     XRROutputInfo *outputInfo = XRandR::XRROutput(m_id);
     updateOutput(outputInfo);
+    updateModes(outputInfo);
     m_primary = primary;
-
-
-    /* Init modes */
-    XRRModeInfo* modeInfo;
-    XRRScreenResources *resources = XRandR::screenResources();
-    for (int i = 0; i < outputInfo->nmode; ++i)
-    {
-        modeInfo = &resources->modes[i];
-        XRandRMode *mode = new XRandRMode(modeInfo, this);
-        m_modes.insert(modeInfo->id, mode);
-    }
 
     XRRFreeOutputInfo(outputInfo);
 }
@@ -132,11 +122,6 @@ void XRandROutput::updateOutput(const XRROutputInfo *outputInfo)
         m_changedProperties |= PropertyName;
     }
 
-    if (m_connected != (outputInfo->connection == RR_Connected)) {
-        m_connected = outputInfo->connection == RR_Connected;
-        m_changedProperties |= PropertyConnected;
-    }
-
     if (m_enabled != (outputInfo->crtc != None)) {
         m_enabled = outputInfo->crtc != None;
         m_changedProperties |= PropertyEnabled;
@@ -172,23 +157,50 @@ void XRandROutput::updateOutput(const XRROutputInfo *outputInfo)
             }
         }
     }
+
+    /* When an output is disconnected then force reset most properties */
+    if (m_connected != (outputInfo->connection == RR_Connected)) {
+        m_connected = (outputInfo->connection == RR_Connected);
+        if (!m_connected) {
+            m_clones.clear();
+            m_position = QPoint();
+            m_currentMode = 0;
+            m_rotation = KScreen::Output::None;
+            qDeleteAll(m_modes);
+            m_modes.clear();
+            m_primary = false;
+            delete m_edid;
+            m_changedProperties |= PropertyConnected | PropertyClones | PropertyPos |
+                                PropertyCurrentMode | PropertyRotation | PropertyModes |
+                                PropertyPrimary | PropertyEdid;
+        } else {
+            updateModes(outputInfo);
+            m_changedProperties |= PropertyConnected | PropertyModes;
+        }
+    }
 }
+
+void XRandROutput::updateModes(const XRROutputInfo *outputInfo)
+{
+    /* Init modes */
+    XRRModeInfo* modeInfo;
+    XRRScreenResources *resources = XRandR::screenResources();
+    for (int i = 0; i < outputInfo->nmode; ++i)
+    {
+        modeInfo = &resources->modes[i];
+        XRandRMode *mode = new XRandRMode(modeInfo, this);
+        m_modes.insert(modeInfo->id, mode);
+    }
+}
+
 
 KScreen::Output *XRandROutput::toKScreenOutput(KScreen::Config *parent) const
 {
     KScreen::Output *kscreenOutput = new KScreen::Output(parent);
 
+    m_changedProperties = 0;
     kscreenOutput->setId(m_id);
     updateKScreenOutput(kscreenOutput);
-
-    KScreen::ModeList kscreenModes;
-    XRandRMode::Map::ConstIterator iter;
-    for (iter = m_modes.constBegin(); iter != m_modes.constEnd(); iter++) {
-        XRandRMode *mode = iter.value();
-        KScreen::Mode *kscreenMode = mode->toKScreenMode(kscreenOutput);
-        kscreenModes.insert(iter.key(), kscreenMode);
-    }
-    kscreenOutput->setModes(kscreenModes);
 
     return kscreenOutput;
 }
@@ -233,6 +245,17 @@ void XRandROutput::updateKScreenOutput(KScreen::Output *output) const
 
     if (!m_changedProperties || (m_changedProperties & PropertyClones)) {
         output->setClones(m_clones);
+    }
+
+    if (!m_changedProperties || (m_changedProperties & PropertyModes)) {
+        XRandRMode::Map::ConstIterator iter;
+        KScreen::ModeList kscreenModes;
+        for (iter = m_modes.constBegin(); iter != m_modes.constEnd(); iter++) {
+            XRandRMode *mode = iter.value();
+            KScreen::Mode *kscreenMode = mode->toKScreenMode(output);
+            kscreenModes.insert(iter.key(), kscreenMode);
+        }
+        output->setModes(kscreenModes);
     }
 }
 

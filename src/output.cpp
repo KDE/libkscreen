@@ -106,6 +106,9 @@ QHash< int, Mode* > Output::modes() const
 
 void Output::setModes(ModeList modes)
 {
+    if (!m_modeList.isEmpty()) {
+        qDeleteAll(m_modeList);
+    }
     m_modeList = modes;
 }
 

@@ -51,7 +51,6 @@ ConfigMonitor::~ConfigMonitor()
 void ConfigMonitor::addConfig(Config *config)
 {
     if (!m_watchedConfigs.contains(QPointer<Config>(config))) {
-        qDebug() << "Registered config" << config;
         m_watchedConfigs << QPointer<Config>(config);
     }
 }
@@ -66,6 +65,8 @@ void ConfigMonitor::removeConfig(Config *config)
 void ConfigMonitor::notifyUpdate()
 {
     updateConfigs();
+
+    Q_EMIT configurationChanged();
 }
 
 

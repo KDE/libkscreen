@@ -23,6 +23,7 @@
 #include <QObject>
 #include <QMap>
 #include <QVariant>
+#include <QPointer>
 
 #include "xlibandxrandr.h"
 #include "xrandrmode.h"
@@ -74,12 +75,12 @@ public:
     int currentMode() const;
     KScreen::Output::Rotation rotation() const;
     KScreen::Edid* edid() const;
-    void setEdid(KScreen::Edid *edid);
 
     KScreen::Output* toKScreenOutput(KScreen::Config *parent) const;
     void updateKScreenOutput(KScreen::Output *output) const;
 private:
     void updateOutput(const XRROutputInfo *outputInfo);
+    void updateModes(const XRROutputInfo *outputInfo);
 
     int m_id;
     QString m_name;
@@ -93,9 +94,9 @@ private:
     int m_enabled : 1;
     int m_primary : 1;
     QList<int> m_clones;
-    mutable KScreen::Edid *m_edid;
+    mutable QPointer<KScreen::Edid> m_edid;
 
-    int m_changedProperties;
+    mutable int m_changedProperties;
 };
 
 Q_DECLARE_METATYPE(XRandROutput::Map)

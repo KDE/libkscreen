@@ -37,14 +37,18 @@ class KSCREEN_EXPORT ConfigMonitor : public QObject
 {
     Q_OBJECT
 
-public:
+  public:
     static ConfigMonitor* instance();
 
     void addConfig(KScreen::Config *config);
     void removeConfig(KScreen::Config *config);
 
     void notifyUpdate();
-private:
+
+  Q_SIGNALS:
+    void configurationChanged();
+
+  private:
     explicit ConfigMonitor();
     virtual ~ConfigMonitor();
 
