@@ -37,7 +37,7 @@ public:
     explicit XRandRConfig();
     virtual ~XRandRConfig();
 
-    XRandR* backend() const;
+    void update();
 
     XRandROutput::Map outputs() const;
 
@@ -54,7 +54,6 @@ private:
 
     XRandROutput::Map m_outputs;
     XRandRScreen *m_screen;
-
 };
 
 #endif // XRANDRCONFIG_H

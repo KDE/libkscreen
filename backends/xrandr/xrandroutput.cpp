@@ -28,27 +28,14 @@
 
 Q_DECLARE_METATYPE(QList<int>)
 
-XRandROutput::XRandROutput(int id, XRROutputInfo *outputInfo, XRandRConfig *config)
+XRandROutput::XRandROutput(int id, XRandRConfig *config)
     : QObject(config)
+    , m_id(id)
 {
-    setOutputProperty(XRandROutput::PropertyId, (int) id);
-    setOutputProperty(XRandROutput::PropertyName, outputInfo->name);
-    setOutputProperty(XRandROutput::PropertyConnected, outputInfo->connection == RR_Connected);
-    setOutputProperty(XRandROutput::PropertyEnabled, outputInfo->crtc != None);
-    setOutputProperty(XRandROutput::PropertyType, "unknown");
-    setOutputProperty(XRandROutput::PropertyRotation, (int) KScreen::Output::None);
+    XRROutputInfo *outputInfo = XRandR::XRROutput(m_id);
+    updateOutput(outputInfo);
 
-    if (outputInfo->crtc) {
-        XRRCrtcInfo* crtcInfo = XRandR::XRRCrtc(outputInfo->crtc);
-        QRect rect;
-        rect.setRect(crtcInfo->x, crtcInfo->y, crtcInfo->width, crtcInfo->height);
-        setOutputProperty(XRandROutput::PropertyPos, rect.topLeft());
-
-        if (crtcInfo->mode) {
-            setOutputProperty(XRandROutput::PropertyCurrentMode, (int) crtcInfo->mode);
-        }
-    }
-
+    /* Init modes */
     XRandRMode::Map modes;
     XRRModeInfo* modeInfo;
     XRRScreenResources *resources = XRandR::screenResources();
@@ -59,6 +46,8 @@ XRandROutput::XRandROutput(int id, XRROutputInfo *outputInfo, XRandRConfig *conf
         modes.insert(modeInfo->id, mode);
     }
     setOutputProperty(XRandROutput::PropertyModes, QVariant::fromValue(modes));
+
+    XRRFreeOutputInfo(outputInfo);
 }
 
 
@@ -75,6 +64,39 @@ QVariant XRandROutput::outputProperty(XRandROutput::Property id)
 {
     return m_properties.value(id);
 }
+
+void XRandROutput::update()
+{
+    XRROutputInfo *outputInfo = XRandR::XRROutput(m_id);
+
+    updateOutput(outputInfo);
+
+    /* FIXME: Can modes change? */
+
+    XRRFreeOutputInfo(outputInfo);
+}
+
+void XRandROutput::updateOutput(const XRROutputInfo *outputInfo)
+{
+    setOutputProperty(XRandROutput::PropertyId, (int) m_id);
+    setOutputProperty(XRandROutput::PropertyName, outputInfo->name);
+    setOutputProperty(XRandROutput::PropertyConnected, outputInfo->connection == RR_Connected);
+    setOutputProperty(XRandROutput::PropertyEnabled, outputInfo->crtc != None);
+    setOutputProperty(XRandROutput::PropertyType, "unknown");
+    setOutputProperty(XRandROutput::PropertyRotation, (int) KScreen::Output::None);
+
+    if (outputInfo->crtc) {
+        XRRCrtcInfo* crtcInfo = XRandR::XRRCrtc(outputInfo->crtc);
+        QRect rect;
+        rect.setRect(crtcInfo->x, crtcInfo->y, crtcInfo->width, crtcInfo->height);
+        setOutputProperty(XRandROutput::PropertyPos, rect.topLeft());
+
+        if (crtcInfo->mode) {
+            setOutputProperty(XRandROutput::PropertyCurrentMode, (int) crtcInfo->mode);
+        }
+    }
+}
+
 
 
 KScreen::Output *XRandROutput::toKScreenOutput(KScreen::Config *parent) const

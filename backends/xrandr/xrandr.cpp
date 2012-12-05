@@ -23,6 +23,7 @@
 #include "config.h"
 #include "output.h"
 #include "edid.h"
+#include <configmonitor.h>
 
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
@@ -92,6 +93,8 @@ bool XRandR::handleX11Event(void *message)
     if (event->xany.type == s_randrBase + RRNotify) {
         XRRNotifyEvent* e2 = reinterpret_cast< XRRNotifyEvent* >(event);
         if (e2->subtype == RRNotify_OutputChange) { // TODO && e2->window == window )
+            s_internalConfig->update();
+            //KScreen::ConfigMonitor::changeNotify();
             qDebug() << "Monitor change detected";
         }
     }

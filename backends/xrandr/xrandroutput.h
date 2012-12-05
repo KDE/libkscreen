@@ -58,14 +58,19 @@ public:
     };
     Q_DECLARE_FLAGS(Properties, Property)
 
-    explicit XRandROutput(int id, XRROutputInfo *outputInfo, XRandRConfig *config = 0);
+    explicit XRandROutput(int id, XRandRConfig *config = 0);
     virtual ~XRandROutput();
 
     void setOutputProperty(XRandROutput::Property id, const QVariant &value);
     QVariant outputProperty(XRandROutput::Property id);
 
+    void update();
+
     KScreen::Output* toKScreenOutput(KScreen::Config *parent) const;
 private:
+    void updateOutput(const XRROutputInfo *outputInfo);
+
+    int m_id;
     QMap<Property, QVariant> m_properties;
 };
 

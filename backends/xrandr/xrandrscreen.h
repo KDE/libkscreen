@@ -39,6 +39,8 @@ public:
 
     KScreen::Screen *toKScreenScreen(KScreen::Config *parent) const;
 
+    void update();
+
 private:
     int m_id;
     QSize m_minSize;

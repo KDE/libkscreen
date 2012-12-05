@@ -37,7 +37,6 @@ XRandRConfig::XRandRConfig()
     XRRScreenResources* resources = XRandR::screenResources();
 
     RROutput id, primary;
-    XRROutputInfo* outputInfo;
     primary = XRRGetOutputPrimary(XRandR::display(), XRandR::rootWindow());
 
     qDebug() << "\t" << "Primary: " << primary;
@@ -46,13 +45,10 @@ XRandRConfig::XRandRConfig()
     for (int i = 0; i < resources->noutput; ++i)
     {
         id = resources->outputs[i];
-        outputInfo = XRandR::XRROutput(id);
 
-        XRandROutput *output = new XRandROutput(id, outputInfo, this);
+        XRandROutput *output = new XRandROutput(id, this);
         output->setOutputProperty(XRandROutput::PropertyPrimary, id == primary);
         m_outputs.insert(id, output);
-
-        XRRFreeOutputInfo(outputInfo);
     }
 
     XRRFreeScreenResources(resources);
@@ -62,9 +58,15 @@ XRandRConfig::~XRandRConfig()
 {
 }
 
-XRandR *XRandRConfig::backend() const
+void XRandRConfig::update()
 {
-    return qobject_cast<XRandR*>(parent());
+    m_screen->update();
+
+    XRandROutput::Map::Iterator iter;
+    for (iter = m_outputs.begin(); iter != m_outputs.end(); iter++) {
+        XRandROutput *output = iter.value();
+        output->update();
+    }
 }
 
 XRandROutput::Map XRandRConfig::outputs() const
@@ -77,7 +79,9 @@ KScreen::Config *XRandRConfig::toKScreenConfig() const
     KScreen::Config *config = new KScreen::Config();
     KScreen::OutputList kscreenOutputs;
 
-    Q_FOREACH (const XRandROutput *output, m_outputs) {
+    XRandROutput::Map::ConstIterator iter;
+    for (iter = m_outputs.constBegin(); iter != m_outputs.constEnd(); iter++) {
+        XRandROutput *output = iter.value();
         KScreen::Output *kscreenOutput = output->toKScreenOutput(config);
         kscreenOutputs.insert(kscreenOutput->id(), kscreenOutput);
     }

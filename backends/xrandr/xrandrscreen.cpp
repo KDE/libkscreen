@@ -29,6 +29,15 @@
 XRandRScreen::XRandRScreen(XRandRConfig *config)
     : QObject(config)
 {
+    update();
+}
+
+XRandRScreen::~XRandRScreen()
+{
+}
+
+void XRandRScreen::update()
+{
     Display *display = QX11Info::display();
     int screen = DefaultScreen(display);
     Window rootWindow = XRootWindow(display, screen);
@@ -38,11 +47,6 @@ XRandRScreen::XRandRScreen(XRandRConfig *config)
                            &m_maxSize.rwidth(), &m_maxSize.rheight());
     m_currentSize = QSize(DisplayWidth(display, screen),DisplayHeight(display, screen));
 }
-
-XRandRScreen::~XRandRScreen()
-{
-}
-
 
 KScreen::Screen *XRandRScreen::toKScreenScreen(KScreen::Config *parent) const
 {
