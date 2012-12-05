@@ -48,6 +48,8 @@ QSize Screen::currentSize() const
 void Screen::setCurrentSize(const QSize& currentSize)
 {
     m_currentSize = currentSize;
+
+    Q_EMIT currentSizeChanged();
 }
 
 QSize Screen::maxSize() const
