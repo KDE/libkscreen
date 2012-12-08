@@ -25,7 +25,7 @@
 #include <QObject>
 #include <QPointer>
 
-#include <kscreen/config.h>
+#include "config.h"
 #include "kscreen_export.h"
 
 class AbstractBackend;
