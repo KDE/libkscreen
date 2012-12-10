@@ -69,6 +69,8 @@ class XRandR : public QObject, public AbstractBackend
         static int s_randrBase;
         static int s_randrError;
         static bool s_monitorInitialized;
+        static bool s_has_1_3;
+        static bool s_xorgCacheInitialized;
 };
 
 #endif //XRandR_BACKEND_H

@@ -43,6 +43,8 @@ XRandRConfig* XRandR::s_internalConfig = 0;
 int XRandR::s_randrBase = 0;
 int XRandR::s_randrError = 0;
 bool XRandR::s_monitorInitialized = false;
+bool XRandR::s_has_1_3 = false;
+bool XRandR::s_xorgCacheInitialized = false;
 
 using namespace KScreen;
 
@@ -56,6 +58,11 @@ XRandR::XRandR(QObject* parent)
 
         XRRQueryExtension(s_display, &s_randrBase, &s_randrError);
     }
+
+    int majorVersion, minorVersion;
+    XRRQueryVersion(s_display, &majorVersion, &minorVersion);
+
+    XRandR::s_has_1_3 = (majorVersion > 1 || (majorVersion == 1 && minorVersion >= 3));
 
     if (s_internalConfig == 0) {
         s_internalConfig = new XRandRConfig();
@@ -222,7 +229,24 @@ RRCrtc XRandR::freeCrtc()
 
 XRRScreenResources* XRandR::screenResources()
 {
-    return XRRGetScreenResources(s_display, s_rootWindow);
+    XRRScreenResources *resources;
+
+    if (XRandR::s_has_1_3) {
+        if (XRandR::s_xorgCacheInitialized) {
+            resources = XRRGetScreenResourcesCurrent(s_display, s_rootWindow);
+        } else {
+            /* XRRGetScreenResourcesCurrent is faster then XRRGetScreenResources
+             * because it returns cached values. However the cached values are not
+             * available until someone calls XRRGetScreenResources first. In case
+             * we happen to be the first ones, we need to fill the cache first. */
+            resources = XRRGetScreenResources(s_display, s_rootWindow);
+            XRandR::s_xorgCacheInitialized = true;
+        }
+    } else {
+        resources = XRRGetScreenResources(s_display, s_rootWindow);
+    }
+
+    return resources;
 }
 
 XRROutputInfo* XRandR::XRROutput(int outputId)
