@@ -59,7 +59,8 @@
             "rotation" : 1,
             "connected" : true,
             "enabled" : true,
-            "primary" : true
+            "primary" : true,
+            "edid" : "AP///////wBMLcMFMzJGRQkUAQMOMx14Ku6Ro1RMmSYPUFQjCACBAIFAgYCVAKlAswABAQEBAjqAGHE4LUBYLEUA/h8RAAAeAAAA/QA4PB5REQAKICAgICAgAAAA/ABTeW5jTWFzdGVyCiAgAAAA/wBIOU1aMzAyMTk2CiAgAC4="
         }
     ]
 }

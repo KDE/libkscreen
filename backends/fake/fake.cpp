@@ -20,11 +20,13 @@
 #include "parser.h"
 
 #include "config.h"
+#include "edid.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
 #include <QtCore/qplugin.h>
 
+#include <qjson/parser.h>
 Q_EXPORT_PLUGIN2(Fake, Fake)
 
 using namespace KScreen;
@@ -62,7 +64,22 @@ bool Fake::isValid() const
 Edid *Fake::edid(int outputId) const
 {
     Q_UNUSED(outputId);
+    QFile file(QString::fromLatin1(getenv("TEST_DATA")));
+    file.open(QIODevice::ReadOnly);
 
+    QJson::Parser parser;
+    QVariantMap json = parser.parse(file.readAll()).toMap();
+
+    QList <QVariant> outputs = json["outputs"].toList();
+    Q_FOREACH(const QVariant &value, outputs) {
+        QMap <QString, QVariant > output = value.toMap();
+        if (output["id"].toInt() != outputId) {
+            continue;
+        }
+
+        QByteArray data = QByteArray::fromBase64(output["edid"].toByteArray());
+        return new Edid((quint8*)data.data(), data.length());
+    }
     return 0;
 }
 
