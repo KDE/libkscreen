@@ -34,6 +34,7 @@ XRandROutput::XRandROutput(int id, bool primary, XRandRConfig *config)
     : QObject(config)
     , m_id(id)
     , m_type("unknown")
+    , m_preferredMode(0)
     , m_edid(0)
     , m_changedProperties(0)
 {
@@ -190,6 +191,10 @@ void XRandROutput::updateModes(const XRROutputInfo *outputInfo)
         modeInfo = &resources->modes[i];
         XRandRMode *mode = new XRandRMode(modeInfo, this);
         m_modes.insert(modeInfo->id, mode);
+
+        if (i == outputInfo->npreferred) {
+            m_preferredMode = modeInfo->id;
+        }
     }
 }
 
@@ -200,6 +205,7 @@ KScreen::Output *XRandROutput::toKScreenOutput(KScreen::Config *parent) const
 
     m_changedProperties = 0;
     kscreenOutput->setId(m_id);
+    kscreenOutput->setPreferredMode(m_preferredMode);
     updateKScreenOutput(kscreenOutput);
 
     return kscreenOutput;

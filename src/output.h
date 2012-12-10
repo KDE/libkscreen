@@ -46,6 +46,7 @@ class KSCREEN_EXPORT Output : public QObject
         Q_PROPERTY(QPoint pos READ pos WRITE setPos NOTIFY posChanged)
         Q_PROPERTY(Rotation rotation READ rotation WRITE setRotation NOTIFY rotationChanged)
         Q_PROPERTY(int currentMode READ currentMode WRITE setCurrentMode NOTIFY currentModeChanged)
+        Q_PROPERTY(int preferredMode READ preferredMode CONSTANT)
         Q_PROPERTY(bool connected READ isConnected WRITE setConnected NOTIFY isConnectedChanged)
         Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled NOTIFY isEnabledChanged)
         Q_PROPERTY(bool primary READ isPrimary WRITE setPrimary NOTIFY isPrimaryChanged)
@@ -82,6 +83,9 @@ class KSCREEN_EXPORT Output : public QObject
 
         int currentMode() const;
         void setCurrentMode(int mode);
+
+        void setPreferredMode(int preferredMode);
+        int preferredMode() const;
 
         QPoint pos() const;
         void setPos(const QPoint& pos);
@@ -121,6 +125,7 @@ class KSCREEN_EXPORT Output : public QObject
         ModeList m_modeList;
         QList<int> m_clones;
         int m_currentMode;
+        int m_preferredMode;
         QSize m_size;
         QPoint m_pos;
         Rotation m_rotation;

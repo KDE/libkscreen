@@ -124,6 +124,16 @@ void Output::setCurrentMode(int mode)
     Q_EMIT currentModeChanged();
 }
 
+void Output::setPreferredMode(int preferredMode)
+{
+    m_preferredMode = preferredMode;
+}
+
+int Output::preferredMode() const
+{
+    return m_preferredMode;
+}
+
 QPoint Output::pos() const
 {
     return m_pos;
