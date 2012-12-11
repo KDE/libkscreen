@@ -66,6 +66,6 @@ typedef QHash<int, Mode*> ModeList;
 
 } //KSCreen namespace
 
-Q_DECLARE_METATYPE(KScreen::ModeList);
+Q_DECLARE_METATYPE(KScreen::ModeList)
 
 #endif //MODE_H

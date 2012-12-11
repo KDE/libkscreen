@@ -139,6 +139,6 @@ typedef QHash<int, Output*> OutputList;
 
 } //KScreen namespace
 
-Q_DECLARE_METATYPE(KScreen::OutputList);
+Q_DECLARE_METATYPE(KScreen::OutputList)
 
 #endif //OUTPUT_H
