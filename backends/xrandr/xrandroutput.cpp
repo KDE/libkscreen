@@ -157,6 +157,7 @@ void XRandROutput::updateOutput(const XRROutputInfo *outputInfo)
                 m_changedProperties |= PropertyRotation;
             }
         }
+        XRRFreeCrtcInfo(crtcInfo);
     }
 
     /* When an output is disconnected then force reset most properties */
@@ -196,6 +197,7 @@ void XRandROutput::updateModes(const XRROutputInfo *outputInfo)
             m_preferredMode = modeInfo->id;
         }
     }
+    XRRFreeScreenResources(resources);
 }
 
 
