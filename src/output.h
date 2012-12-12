@@ -38,6 +38,7 @@ class KSCREEN_EXPORT Output : public QObject
     Q_OBJECT
 
     public:
+        Q_ENUMS(Rotation)
         Q_PROPERTY(int id READ id NOTIFY outputChanged)
         Q_PROPERTY(QString name READ name WRITE setName NOTIFY outputChanged)
         Q_PROPERTY(QString type READ type WRITE setType NOTIFY outputChanged)
@@ -52,8 +53,6 @@ class KSCREEN_EXPORT Output : public QObject
         Q_PROPERTY(bool primary READ isPrimary WRITE setPrimary NOTIFY isPrimaryChanged)
         Q_PROPERTY(QList<int> clones READ clones WRITE setClones NOTIFY clonesChanged)
         Q_PROPERTY(KScreen::Edid* edid READ edid CONSTANT)
-
-        Q_ENUMS(Rotation)
 
         enum Rotation {
             None = 1,
@@ -140,5 +139,6 @@ typedef QHash<int, Output*> OutputList;
 } //KScreen namespace
 
 Q_DECLARE_METATYPE(KScreen::OutputList)
+Q_DECLARE_METATYPE(KScreen::Output::Rotation)
 
 #endif //OUTPUT_H
