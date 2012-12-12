@@ -158,6 +158,7 @@ void XRandROutput::updateOutput(const XRROutputInfo *outputInfo)
                 m_changedProperties |= PropertyRotation;
             }
         }
+        XRRFreeCrtcInfo(crtcInfo);
     }
 
     /* When an output is disconnected then force reset most properties */
@@ -189,14 +190,23 @@ void XRandROutput::updateModes(const XRROutputInfo *outputInfo)
     XRRScreenResources *resources = XRandR::screenResources();
     for (int i = 0; i < outputInfo->nmode; ++i)
     {
-        modeInfo = &resources->modes[i];
-        XRandRMode *mode = new XRandRMode(modeInfo, this);
-        m_modes.insert(modeInfo->id, mode);
+        /* Resources->modes contains all possible modes, we are only interested
+         * in those listed in outputInfo->modes. */
+        for (int j = 0; j < resources->nmode; ++j) {
+            modeInfo = &resources->modes[j];
+            if (modeInfo->id != outputInfo->modes[i]) {
+                continue;
+            }
 
-        if (i == outputInfo->npreferred) {
-            m_preferredMode = modeInfo->id;
+            XRandRMode *mode = new XRandRMode(modeInfo, this);
+            m_modes.insert(modeInfo->id, mode);
+
+            if (i == outputInfo->npreferred) {
+                m_preferredMode = modeInfo->id;
+            }
         }
     }
+    XRRFreeScreenResources(resources);
 }
 
 
