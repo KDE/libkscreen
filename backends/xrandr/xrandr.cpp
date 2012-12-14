@@ -97,7 +97,11 @@ bool XRandR::handleX11Event(void *message)
 {
     XEvent *event = (XEvent *) message;
 
-    if (event->xany.type == s_randrBase + RRNotify) {
+    if (event->xany.type == s_randrBase + RRScreenChangeNotify) {
+        s_internalConfig->update();
+        KScreen::ConfigMonitor::instance()->notifyUpdate();
+        qDebug() << "Screen property change detected!";
+    } else if (event->xany.type == s_randrBase + RRNotify) {
         XRRNotifyEvent* e2 = reinterpret_cast< XRRNotifyEvent* >(event);
         if (e2->subtype == RRNotify_OutputChange) { // TODO && e2->window == window )
             s_internalConfig->update();
