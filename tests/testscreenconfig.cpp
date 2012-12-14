@@ -70,6 +70,7 @@ void testScreenConfig::singleOutput()
     QCOMPARE(output->modes().count(), 3);
     QCOMPARE(output->pos(), QPoint(0, 0));
     QCOMPARE(output->currentMode(), 3);
+    QCOMPARE(output->preferredMode(), 3);
     QCOMPARE(output->rotation(), Output::None);
     QCOMPARE(output->isConnected(), true);
     QCOMPARE(output->isEnabled(), true);
@@ -104,6 +105,7 @@ void testScreenConfig::multiOutput()
     QCOMPARE(output->modes().count(), 4);
     QCOMPARE(output->pos(), QPoint(0, 0));
     QCOMPARE(output->currentMode(), 4);
+    QCOMPARE(output->preferredMode(), 4);
     QCOMPARE(output->rotation(), Output::None);
     QCOMPARE(output->isConnected(), true);
     QCOMPARE(output->isEnabled(), true);
