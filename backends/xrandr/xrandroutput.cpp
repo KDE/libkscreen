@@ -115,11 +115,17 @@ void XRandROutput::update(bool primary)
         m_changedProperties |= PropertyPrimary;
     }
 
+    if (m_changedProperties == 0) {
+        m_changedProperties = PropertyNone;
+    }
+
     XRRFreeOutputInfo(outputInfo);
 }
 
 void XRandROutput::updateOutput(const XRROutputInfo *outputInfo)
 {
+    bool isConnected = (outputInfo->connection == RR_Connected);
+
     if (m_name != outputInfo->name) {
         m_name = outputInfo->name;
         m_changedProperties |= PropertyName;
@@ -134,12 +140,13 @@ void XRandROutput::updateOutput(const XRROutputInfo *outputInfo)
     for (int i = 0; i < outputInfo->nclone; i++) {
         clones << outputInfo->clones[i];
     }
-    if (m_clones != clones) {
+    if (isConnected && (m_clones != clones)) {
         m_clones = clones;
         m_changedProperties |= PropertyClones;
     }
 
-    if (outputInfo->crtc) {
+    /* Don't update modes on disconnected output */
+    if (isConnected && (outputInfo->crtc)) {
         XRRCrtcInfo* crtcInfo = XRandR::XRRCrtc(outputInfo->crtc);
         QRect rect;
         rect.setRect(crtcInfo->x, crtcInfo->y, crtcInfo->width, crtcInfo->height);
@@ -163,12 +170,13 @@ void XRandROutput::updateOutput(const XRROutputInfo *outputInfo)
     }
 
     /* When an output is disconnected then force reset most properties */
-    if (m_connected != (outputInfo->connection == RR_Connected)) {
-        m_connected = (outputInfo->connection == RR_Connected);
+    if (m_connected != isConnected) {
+        m_connected = isConnected;
         if (!m_connected) {
             m_clones.clear();
             m_position = QPoint();
             m_currentMode = 0;
+            m_preferredMode = 0;
             m_rotation = KScreen::Output::None;
             qDeleteAll(m_modes);
             m_modes.clear();
@@ -176,10 +184,10 @@ void XRandROutput::updateOutput(const XRROutputInfo *outputInfo)
             delete m_edid;
             m_changedProperties |= PropertyConnected | PropertyClones | PropertyPos |
                                 PropertyCurrentMode | PropertyRotation | PropertyModes |
-                                PropertyPrimary | PropertyEdid;
+                                PropertyPrimary | PropertyEdid | PropertyPreferredMode;
         } else {
             updateModes(outputInfo);
-            m_changedProperties |= PropertyConnected | PropertyModes;
+            m_changedProperties |= PropertyConnected | PropertyModes | PropertyPreferredMode;
         }
     }
 }
@@ -247,6 +255,14 @@ void XRandROutput::updateKScreenOutput(KScreen::Output *output) const
 
     if (!m_changedProperties || (m_changedProperties & PropertyCurrentMode)) {
         output->setCurrentMode(m_currentMode);
+    }
+
+    if (!m_changedProperties || (m_changedProperties & PropertyPreferredMode)) {
+        output->setPreferredMode(m_preferredMode);
+    }
+
+    if (!m_changedProperties || (m_changedProperties & PropertyModes)) {
+        output->setModes(KScreen::ModeList());
     }
 
     if (!m_changedProperties || (m_changedProperties & PropertyConnected)) {
