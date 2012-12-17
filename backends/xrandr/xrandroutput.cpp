@@ -201,7 +201,7 @@ void XRandROutput::updateModes(const XRROutputInfo *outputInfo)
             XRandRMode *mode = new XRandRMode(modeInfo, this);
             m_modes.insert(modeInfo->id, mode);
 
-            if (i == outputInfo->npreferred) {
+            if (i == outputInfo->npreferred -1) {
                 m_preferredMode = modeInfo->id;
             }
         }
