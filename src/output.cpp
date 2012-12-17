@@ -49,6 +49,10 @@ int Output::id() const
 
 void Output::setId(int id)
 {
+    if (m_id == id) {
+        return;
+    }
+
     m_id = id;
 
     Q_EMIT outputChanged();
@@ -61,6 +65,10 @@ QString Output::name() const
 
 void Output::setName(const QString& name)
 {
+    if (m_name == name) {
+        return;
+    }
+
     m_name = name;
 
     Q_EMIT outputChanged();
@@ -73,6 +81,10 @@ QString Output::type() const
 
 void Output::setType(const QString& type)
 {
+    if (m_type == type) {
+        return;
+    }
+
     m_type = type;
 
     Q_EMIT outputChanged();
@@ -85,6 +97,10 @@ QString Output::icon() const
 
 void Output::setIcon(const QString& icon)
 {
+    if (m_icon == icon) {
+        return;
+    }
+
     m_icon = icon;
 
     Q_EMIT outputChanged();
@@ -119,6 +135,10 @@ int Output::currentMode() const
 
 void Output::setCurrentMode(int mode)
 {
+    if (m_currentMode == mode) {
+        return;
+    }
+
     m_currentMode = mode;
 
     Q_EMIT currentModeChanged();
@@ -141,6 +161,10 @@ QPoint Output::pos() const
 
 void Output::setPos(const QPoint& pos)
 {
+    if (m_pos == pos) {
+        return;
+    }
+
     m_pos = pos;
 
     Q_EMIT posChanged();
@@ -153,6 +177,10 @@ Output::Rotation Output::rotation() const
 
 void Output::setRotation(Output::Rotation rotation)
 {
+    if (m_rotation == rotation) {
+        return;
+    }
+
     m_rotation = rotation;
 
     Q_EMIT rotationChanged();
@@ -165,6 +193,10 @@ bool Output::isConnected() const
 
 void Output::setConnected(bool connected)
 {
+    if (m_connected == connected) {
+        return;
+    }
+
     m_connected = connected;
 
     Q_EMIT isConnectedChanged();
@@ -177,6 +209,10 @@ bool Output::isEnabled() const
 
 void Output::setEnabled(bool enabled)
 {
+    if (m_enabled == enabled) {
+        return;
+    }
+
     m_enabled = enabled;
 
     Q_EMIT isEnabledChanged();
@@ -189,6 +225,10 @@ bool Output::isPrimary() const
 
 void Output::setPrimary(bool primary)
 {
+    if (m_primary == primary) {
+        return;
+    }
+
     m_primary = primary;
 
     Q_EMIT isPrimaryChanged();
@@ -201,6 +241,10 @@ QList<int> Output::clones()
 
 void Output::setClones(QList<int> outputlist)
 {
+    if (m_clones == outputlist) {
+        return;
+    }
+
     m_clones = outputlist;
 
     Q_EMIT clonesChanged();

@@ -40,6 +40,10 @@ int Mode::id()
 
 void Mode::setId(int id)
 {
+    if (m_id == id) {
+        return;
+    }
+
     m_id = id;
 
     Q_EMIT modeChanged();
@@ -52,6 +56,10 @@ QString Mode::name() const
 
 void Mode::setName(const QString& name)
 {
+    if (m_name == name) {
+        return;
+    }
+
     m_name = name;
 
     Q_EMIT modeChanged();
@@ -65,6 +73,10 @@ QSize Mode::size() const
 
 void Mode::setSize(const QSize& size)
 {
+    if (m_size == size) {
+        return;
+    }
+
     m_size = size;
 
     Q_EMIT modeChanged();
@@ -77,6 +89,10 @@ float Mode::refreshRate() const
 
 void Mode::setRefreshRate(float refresh)
 {
+    if (m_rate == refresh) {
+        return;
+    }
+
     m_rate = refresh;
 
     Q_EMIT modeChanged();

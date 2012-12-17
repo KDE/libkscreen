@@ -47,6 +47,10 @@ QSize Screen::currentSize() const
 
 void Screen::setCurrentSize(const QSize& currentSize)
 {
+    if (m_currentSize == currentSize) {
+        return;
+    }
+
     m_currentSize = currentSize;
 
     Q_EMIT currentSizeChanged();
