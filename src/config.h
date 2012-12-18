@@ -47,6 +47,7 @@ class KSCREEN_EXPORT Config : public QObject
 
         Output* output(int outputId);
         QHash<int, Output*> outputs();
+        QHash<int, Output*> connectedOutputs();
         void setOutputs(OutputList outputs);
 
         bool isValid();

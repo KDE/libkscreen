@@ -79,6 +79,19 @@ QHash< int, Output* > Config::outputs()
     return m_outputs;
 }
 
+QHash< int, Output* > Config::connectedOutputs()
+{
+    QHash< int, Output* > outputs;
+    Q_FOREACH(Output* output, m_outputs) {
+        if (!output->isConnected()) {
+            continue;
+        }
+        outputs.insert(output->id(), output);
+    }
+
+    return outputs;
+}
+
 void Config::setOutputs(OutputList outputs)
 {
     m_outputs = outputs;
