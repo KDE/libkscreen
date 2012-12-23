@@ -279,7 +279,7 @@ void XRandRConfig::changeOutput(Output* output, int crtcId) const
 
     RROutput *outputs = new RROutput[1];
     outputs[0] = output->id();
-    Status s = XRRSetCrtcConfig(XRandR::display(), XRandR::screenResources(), crtcId,
+    Status s = XRRSetCrtcConfig(XRandR::display(), XRandR::screenResources(), XRandR::freeCrtc(),
         CurrentTime, output->pos().rx(), output->pos().ry(), output->currentMode(),
         output->rotation(), outputs, 1);
 
