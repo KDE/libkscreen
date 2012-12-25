@@ -183,7 +183,7 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
     }
 
     //If there is nothing to do, not even bother
-    if (!toDisable.isEmpty() || !toEnable.isEmpty() || !toChange.isEmpty()) {
+    if (toDisable.isEmpty() && toEnable.isEmpty() && toChange.isEmpty()) {
         return;
     }
 
