@@ -182,6 +182,11 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
         setPrimaryOutput(primaryOutput);
     }
 
+    //If there is nothing to do, not even bother
+    if (!toDisable.isEmpty() || !toEnable.isEmpty() || !toChange.isEmpty()) {
+        return;
+    }
+
     Q_FOREACH(KScreen::Output* output, toDisable) {
         disableOutput(output);
     }
