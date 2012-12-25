@@ -158,6 +158,9 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
             if( !toChange.contains(output->id())) {
                 currentCrtc.insert(output->id(), XRandR::outputCrtc(output->id()));
                 toChange.insert(output->id(), output);
+                if (!toDisable.contains(output->id())) {
+                    toDisable.insert(output->id(), output);
+                }
             }
         }
     }
