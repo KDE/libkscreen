@@ -221,12 +221,22 @@ QSize XRandRConfig::screenSize(Config* config) const
         Mode *currentMode = output->mode(output->currentMode());
         if (currentMode) {
             outputSize = currentMode->size();
-            cord = output->pos().y() + outputSize.height();
+            cord = output->pos().y();
+            if (output->rotation() == Output::Left || output->rotation() == Output::Right) {
+                cord += outputSize.width();
+            } else {
+                cord += outputSize.height();
+            }
             if (cord > size.height()) {
                 size.setHeight(cord);
             }
 
-            cord = output->pos().x() + outputSize.width();
+            cord = output->pos().x();
+            if (output->rotation() == Output::Left || output->rotation() == Output::Right) {
+                cord += outputSize.height();
+            } else {
+                cord += outputSize.width();
+            }
             if (cord > size.width()) {
                 size.setWidth(cord);
             }
