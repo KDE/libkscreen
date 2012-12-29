@@ -19,6 +19,9 @@ include(KDE4Defaults)
 
 include(CheckCXXCompilerFlag)
 
+# Required to build on Gentoo
+link_directories(${QJSON_LIBRARY_DIRS})
+
 check_cxx_compiler_flag(-fvisibility=hidden _HAVE_VISIBILITY)
 if (_HAVE_VISIBILITY AND NOT WIN32)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
