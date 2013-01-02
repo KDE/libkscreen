@@ -25,6 +25,7 @@
 
 #include <QtCore/QSize>
 
+class XRandRX11Helper;
 class XRandRConfig;
 namespace KScreen {
     class Output;
@@ -56,10 +57,10 @@ class XRandR : public QObject, public AbstractBackend
         static int screen();
         static Window rootWindow();
 
-    private:
-        void initMonitor();
+    private Q_SLOTS:
+        void updateConfig();
 
-        static bool handleX11Event(void* message);
+    private:
         static quint8* getXProperty(Display *dpy, RROutput output, Atom atom, size_t &len);
 
         static Display* s_display;
@@ -71,6 +72,8 @@ class XRandR : public QObject, public AbstractBackend
         static bool s_monitorInitialized;
         static bool s_has_1_3;
         static bool s_xorgCacheInitialized;
+
+        XRandRX11Helper *m_x11Helper;
 };
 
 #endif //XRandR_BACKEND_H

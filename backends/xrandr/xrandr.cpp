@@ -19,6 +19,7 @@
 
 #include "xrandr.h"
 #include "xrandrconfig.h"
+#include "xrandrx11helper.h"
 
 #include "config.h"
 #include "output.h"
@@ -69,14 +70,16 @@ XRandR::XRandR(QObject* parent)
     }
 
     if (!s_monitorInitialized) {
-        initMonitor();
+        m_x11Helper = new XRandRX11Helper();
+        connect(m_x11Helper, SIGNAL(outputsChanged()), SLOT(updateConfig()));
+        connect(m_x11Helper, SIGNAL(outputPropertyChanged()), SLOT(updateConfig()));
         s_monitorInitialized = true;
     }
 }
 
 XRandR::~XRandR()
 {
-
+    delete m_x11Helper;
 }
 
 QString XRandR::name() const
@@ -84,33 +87,10 @@ QString XRandR::name() const
     return QString("XRandR");
 }
 
-void XRandR::initMonitor()
+void XRandR::updateConfig()
 {
-    /* Use a separate window for getting events so that we don't change Qt's event mask */
-    Window window = XCreateSimpleWindow(s_display, DefaultRootWindow(s_display), 0, 0, 1, 1, 0, 0, 0);
-    XRRSelectInput(s_display, window, RROutputChangeNotifyMask);
-
-    QAbstractEventDispatcher::instance()->setEventFilter((QAbstractEventDispatcher::EventFilter) handleX11Event);
-}
-
-bool XRandR::handleX11Event(void *message)
-{
-    XEvent *event = (XEvent *) message;
-
-    if (event->xany.type == s_randrBase + RRScreenChangeNotify) {
-        s_internalConfig->update();
-        KScreen::ConfigMonitor::instance()->notifyUpdate();
-        qDebug() << "Screen property change detected!";
-    } else if (event->xany.type == s_randrBase + RRNotify) {
-        XRRNotifyEvent* e2 = reinterpret_cast< XRRNotifyEvent* >(event);
-        if (e2->subtype == RRNotify_OutputChange) { // TODO && e2->window == window )
-            s_internalConfig->update();
-            KScreen::ConfigMonitor::instance()->notifyUpdate();
-            qDebug() << "Monitor change detected";
-        }
-    }
-
-    return false;
+    s_internalConfig->update();
+    KScreen::ConfigMonitor::instance()->notifyUpdate();;
 }
 
 Config* XRandR::config() const
