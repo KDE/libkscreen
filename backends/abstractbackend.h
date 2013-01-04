@@ -30,7 +30,7 @@ namespace KScreen {
 class AbstractBackend
 {
     public:
-        virtual ~AbstractBackend() {};
+        virtual ~AbstractBackend() {}
         virtual QString name() const = 0;
         virtual KScreen::Config* config() const = 0;
         virtual void setConfig(KScreen::Config* config) const = 0;
