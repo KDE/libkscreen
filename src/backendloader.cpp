@@ -22,6 +22,7 @@
 #include <QtCore/QStringList>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QPluginLoader>
+#include <QtCore/QDebug>
 
 AbstractBackend* BackendLoader::s_backend = 0;
 
