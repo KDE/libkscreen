@@ -118,6 +118,10 @@ Config* XRandR::config() const
 
 void XRandR::setConfig(Config* config) const
 {
+    if (!config) {
+        return;
+    }
+
     s_internalConfig->applyKScreenConfig(config);
 }
 
@@ -139,6 +143,8 @@ bool XRandR::isValid() const
 
 void XRandR::updateConfig(Config *config) const
 {
+    Q_ASSERT(config == 0);
+
     s_internalConfig->updateKScreenConfig(config);
 }
 

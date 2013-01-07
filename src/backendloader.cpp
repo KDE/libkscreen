@@ -28,12 +28,16 @@ AbstractBackend* BackendLoader::s_backend = 0;
 
 bool BackendLoader::init()
 {
-    if(s_backend) {
+    if (s_backend) {
         return true;
     }
 
     QStringList paths = QCoreApplication::libraryPaths();
     QString backend(getenv("KSCREEN_BACKEND"));
+    if (backend.isEmpty()) {
+        qWarning() << "No KScreen backend set!";
+        return false;
+    }
 
     QPluginLoader loader;
     QObject *instance;
@@ -52,6 +56,7 @@ bool BackendLoader::init()
 
     }
 
+    qWarning() << "Backend '" << backend << "' not found";
     return false;
 }
 
