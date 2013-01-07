@@ -173,18 +173,11 @@ void XRandROutput::updateOutput(const XRROutputInfo *outputInfo)
     if (m_connected != isConnected) {
         m_connected = isConnected;
         if (!m_connected) {
-            m_clones.clear();
-            m_position = QPoint();
-            m_currentMode = 0;
             m_preferredMode = 0;
-            m_rotation = KScreen::Output::None;
             qDeleteAll(m_modes);
             m_modes.clear();
-            m_primary = false;
             delete m_edid;
-            m_changedProperties |= PropertyConnected | PropertyClones | PropertyPos |
-                                PropertyCurrentMode | PropertyRotation | PropertyModes |
-                                PropertyPrimary | PropertyEdid | PropertyPreferredMode;
+            m_changedProperties |= PropertyConnected | PropertyModes | PropertyEdid | PropertyPreferredMode;
         } else {
             updateModes(outputInfo);
             m_changedProperties |= PropertyConnected | PropertyModes | PropertyPreferredMode;
