@@ -138,9 +138,6 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
             if (!toChange.contains(output->id())) {
                 currentCrtc.insert(output->id(), XRandR::outputCrtc(output->id()));
                 toChange.insert(output->id(), output);
-                if (!toDisable.contains(output->id())) {
-                    toDisable.insert(output->id(), output);
-                }
             }
         }
 
@@ -148,9 +145,6 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
             if (!toChange.contains(output->id())) {
                 currentCrtc.insert(output->id(), XRandR::outputCrtc(output->id()));
                 toChange.insert(output->id(), output);
-                if (!toDisable.contains(output->id())) {
-                    toDisable.insert(output->id(), output);
-                }
             }
         }
 
@@ -158,9 +152,32 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
             if( !toChange.contains(output->id())) {
                 currentCrtc.insert(output->id(), XRandR::outputCrtc(output->id()));
                 toChange.insert(output->id(), output);
-                if (!toDisable.contains(output->id())) {
-                    toDisable.insert(output->id(), output);
-                }
+            }
+        }
+
+        QSize size = output->mode(currentOutput->currentMode())->size();
+
+        int x, y;
+
+        //TODO: Move this code within libkscreen
+        y = currentOutput->position().y();
+        if (currentOutput->rotation() == Output::Left || currentOutput->rotation() == Output::Right) {
+            y += size.width();
+        } else {
+            y += size.height();
+        }
+
+        x = currentOutput->position().x();
+        if (currentOutput->rotation() == Output::Left || currentOutput->rotation() == Output::Right) {
+            x += size.height();
+        } else {
+            x += size.width();
+        }
+
+        if (x > newSize.width() || y > newSize.height()) {
+            if (!toDisable.contains(output->id())) {
+                qDebug() << "Output doesn't fit: " << x << "x" << y << newSize;
+                toDisable.insert(output->id(), output);
             }
         }
     }
@@ -199,13 +216,6 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
     }
 
     bool forceScreenSizeUpdate = false;
-    Q_FOREACH(KScreen::Output* output, toEnable) {
-        if (!enableOutput(output)) {
-            output->setEnabled(false);
-            forceScreenSizeUpdate = true;
-        }
-    }
-
     Q_FOREACH(KScreen::Output* output, toChange) {
         if (!changeOutput(output, currentCrtc[output->id()])) {
 
@@ -217,6 +227,14 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
             }
         }
     }
+
+    Q_FOREACH(KScreen::Output* output, toEnable) {
+        if (!enableOutput(output)) {
+            output->setEnabled(false);
+            forceScreenSizeUpdate = true;
+        }
+    }
+
 
     if (forceScreenSizeUpdate) {
         newSize = screenSize(config);
@@ -319,7 +337,7 @@ bool XRandRConfig::changeOutput(Output* output, int crtcId) const
 
     RROutput *outputs = new RROutput[1];
     outputs[0] = output->id();
-    Status s = XRRSetCrtcConfig(XRandR::display(), XRandR::screenResources(), XRandR::freeCrtc(output->id()),
+    Status s = XRRSetCrtcConfig(XRandR::display(), XRandR::screenResources(), crtcId,
         CurrentTime, output->pos().rx(), output->pos().ry(), output->currentMode(),
         output->rotation(), outputs, 1);
 
