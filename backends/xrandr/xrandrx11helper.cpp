@@ -43,9 +43,7 @@ XRandRX11Helper::XRandRX11Helper():
     XRRSelectInput(XRandR::display(), XRandR::rootWindow(), 0);
     XRRSelectInput(XRandR::display(), XRandR::rootWindow(),
                    RRScreenChangeNotifyMask | RRCrtcChangeNotifyMask |
-                   RROutputChangeNotifyMask | RROutputPropertyNotifyMask |
-                   RRProviderChangeNotifyMask | RRProviderPropertyNotifyMask |
-                   RRResourceChangeNotifyMask);
+                   RROutputChangeNotifyMask | RROutputPropertyNotifyMask);
 
     KSystemEventFilter::installEventFilter(this);
 }
@@ -158,29 +156,6 @@ bool XRandRX11Helper::x11Event(XEvent *event)
                 qDebug() << "\tState (newValue, Deleted): " << e2->state;
                 qDebug();
                 XFree(atom_name);
-            }
-
-        } else if (e2->subtype == RRNotify_ProviderChange) {
-            XRRProviderPropertyNotifyEvent* e2 = reinterpret_cast< XRRProviderPropertyNotifyEvent* >(event);
-
-            if (m_debugMode) {
-                char *atom_name = XGetAtomName(XRandR::display(), e2->property);
-                qDebug() << "RRNotify_ProviderProperty";
-                qDebug() << "\tTimestamp: " << e2->timestamp;
-                qDebug() << "\tProvider: " << e2->provider;
-                qDebug() << "\tProperty: " << atom_name;
-                qDebug() << "\tState (newValue, Deleted): " << e2->state;
-                qDebug();
-                XFree(atom_name);
-            }
-
-        } else if (e2->subtype == RRNotify_ResourceChange) {
-            XRRResourceChangeNotifyEvent* e2 = reinterpret_cast< XRRResourceChangeNotifyEvent* >(event);
-
-            if (m_debugMode) {
-                qDebug() << "RRNotify_ResourceChange";
-                qDebug() << "\tTimestamp: " << e2->timestamp;
-                qDebug();
             }
         }
     }
