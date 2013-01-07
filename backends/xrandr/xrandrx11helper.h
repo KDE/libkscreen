@@ -20,6 +20,7 @@
 #define XRANDRX11HELPER_H
 
 #include <QWidget>
+#include "xlibandxrandr.h"
 
 class XRandRX11Helper : public QWidget
 {
@@ -30,14 +31,27 @@ class XRandRX11Helper : public QWidget
         virtual ~XRandRX11Helper();
 
     Q_SIGNALS:
+        /* Emitted when only XRandR 1.1 or older is available */
         void outputsChanged();
-        void outputPropertyChanged();
+
+        /* Emitted only when XRandR 1.2 or newer is available */
+        void crtcChanged(RRCrtc crtc);
+        void outputChanged(RROutput output);
+        void outputPropertyChanged(RROutput output);
+
+    private:
+        QString rotationToString(Rotation rotation);
+        QString connectionToString(Connection connection);
 
     protected:
         virtual bool x11Event(XEvent *);
 
         int m_randrBase;
         int m_randrError;
+        int m_versionMajor;
+        int m_versionMinor;
+
+        bool m_debugMode;
 };
 
 #endif // XRANDRX11HELPER_H

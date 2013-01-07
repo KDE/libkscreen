@@ -60,6 +60,9 @@ class XRandR : public QObject, public AbstractBackend
     private Q_SLOTS:
         void updateConfig();
 
+        void updateOutput(RROutput output);
+        void updateCrtc(RRCrtc crtc);
+
     private:
         static quint8* getXProperty(Display *dpy, RROutput output, Atom atom, size_t &len);
 

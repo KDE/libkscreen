@@ -71,8 +71,12 @@ XRandR::XRandR(QObject* parent)
 
     if (!s_monitorInitialized) {
         m_x11Helper = new XRandRX11Helper();
+        /* In case of XRandR 1.0 or 1.1 */
         connect(m_x11Helper, SIGNAL(outputsChanged()), SLOT(updateConfig()));
-        connect(m_x11Helper, SIGNAL(outputPropertyChanged()), SLOT(updateConfig()));
+
+        /* XRandR >= 1.2 */
+        connect(m_x11Helper, SIGNAL(outputChanged(RROutput)), SLOT(updateOutput(RROutput)));
+        connect(m_x11Helper, SIGNAL(crtcChanged(RRCrtc)), SLOT(updateCrtc(RRCrtc)));
         s_monitorInitialized = true;
     }
 }
@@ -91,6 +95,20 @@ void XRandR::updateConfig()
 {
     s_internalConfig->update();
     KScreen::ConfigMonitor::instance()->notifyUpdate();;
+}
+
+void XRandR::updateOutput(RROutput output)
+{
+    XRandROutput *xOutput = s_internalConfig->outputs().value(output);
+    RROutput primary = XRRGetOutputPrimary(XRandR::display(), XRandR::rootWindow());
+
+    xOutput->update((output == primary));
+    KScreen::ConfigMonitor::instance()->notifyUpdate();
+}
+
+void XRandR::updateCrtc(RRCrtc crtc)
+{
+    Q_UNUSED(crtc);
 }
 
 Config* XRandR::config() const
@@ -200,14 +218,14 @@ RRCrtc XRandR::freeCrtc()
        RRCrtc crtcId = resources->crtcs[i];
        crtc = XRRCrtc(crtcId);
        if (!crtc->noutput) {
-           qDebug() << "Returning: " << crtcId;
+           qDebug() << "Found free CRTC" << crtcId;
            XRRFreeCrtcInfo(crtc);
            return crtcId;
        }
        XRRFreeCrtcInfo(crtc);
     }
 
-    qDebug() << "Returning: " << "ZERO";
+    qDebug() << "No free CRTC found!";
     return 0;
 }
 
