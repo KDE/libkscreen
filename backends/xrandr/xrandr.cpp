@@ -208,14 +208,14 @@ RRCrtc XRandR::outputCrtc(int outputId)
     return crtcId;
 }
 
-RRCrtc XRandR::freeCrtc()
+RRCrtc XRandR::freeCrtc(int outputId)
 {
-    XRRScreenResources* resources = screenResources();
+    XRROutputInfo* outputInfo = XRROutput(outputId);
 
     XRRCrtcInfo *crtc;
-    for (int i = 0; i < resources->ncrtc; ++i)
+    for (int i = 0; i < outputInfo->ncrtc; ++i)
     {
-       RRCrtc crtcId = resources->crtcs[i];
+        RRCrtc crtcId = outputInfo->crtcs[i];
        crtc = XRRCrtc(crtcId);
        if (!crtc->noutput) {
            qDebug() << "Found free CRTC" << crtcId;

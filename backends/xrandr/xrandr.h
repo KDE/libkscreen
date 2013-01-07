@@ -49,7 +49,7 @@ class XRandR : public QObject, public AbstractBackend
 
         static RRCrtc outputCrtc(int outputId);
         static quint8 *outputEdid(int outputId, size_t &len);
-        static RRCrtc freeCrtc();
+        static RRCrtc freeCrtc(int outputId);
         static XRRScreenResources* screenResources();
         static XRROutputInfo* XRROutput(int outputId);
         static XRRCrtcInfo* XRRCrtc(int crtcId);

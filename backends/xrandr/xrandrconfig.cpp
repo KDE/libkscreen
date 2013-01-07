@@ -305,7 +305,7 @@ bool XRandRConfig::enableOutput(Output* output) const
     qDebug() << "Enabling: " << output->id();
     RROutput *outputs = new RROutput[1];
     outputs[0] = output->id();
-    Status s = XRRSetCrtcConfig(XRandR::display(), XRandR::screenResources(), XRandR::freeCrtc(),
+    Status s = XRRSetCrtcConfig(XRandR::display(), XRandR::screenResources(), XRandR::freeCrtc(output->id()),
         CurrentTime, output->pos().rx(), output->pos().ry(), output->currentMode(),
         output->rotation(), outputs, 1);
 
@@ -319,7 +319,7 @@ bool XRandRConfig::changeOutput(Output* output, int crtcId) const
 
     RROutput *outputs = new RROutput[1];
     outputs[0] = output->id();
-    Status s = XRRSetCrtcConfig(XRandR::display(), XRandR::screenResources(), XRandR::freeCrtc(),
+    Status s = XRRSetCrtcConfig(XRandR::display(), XRandR::screenResources(), XRandR::freeCrtc(output->id()),
         CurrentTime, output->pos().rx(), output->pos().ry(), output->currentMode(),
         output->rotation(), outputs, 1);
 
