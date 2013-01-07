@@ -60,7 +60,7 @@ public:
         PropertyPrimary         = 1 << 11,
         PropertyClones          = 1 << 12,
         PropertyEdid            = 1 << 13,
-        PropertyPreferredMode   = 1 << 14,
+        PropertyPreferredMode   = 1 << 14
     };
     Q_DECLARE_FLAGS(Properties, Property)
 
