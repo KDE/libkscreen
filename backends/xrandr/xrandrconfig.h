@@ -49,9 +49,9 @@ private:
     QSize screenSize(KScreen::Config* config) const;
     bool setScreenSize(const QSize& size) const;
     void setPrimaryOutput(int outputId) const;
-    void disableOutput(KScreen::Output* output) const;
-    void enableOutput(KScreen::Output* output) const;
-    void changeOutput(KScreen::Output* output, int crtcId) const;
+    bool disableOutput(KScreen::Output* output) const;
+    bool enableOutput(KScreen::Output* output) const;
+    bool changeOutput(KScreen::Output* output, int crtcId) const;
 
     XRandROutput::Map m_outputs;
     XRandRScreen *m_screen;

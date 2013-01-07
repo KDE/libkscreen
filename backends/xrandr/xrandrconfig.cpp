@@ -198,12 +198,29 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
         setScreenSize(newSize);
     }
 
+    bool forceScreenSizeUpdate = false;
     Q_FOREACH(KScreen::Output* output, toEnable) {
-        enableOutput(output);
+        if (!enableOutput(output)) {
+            output->setEnabled(false);
+            forceScreenSizeUpdate = true;
+        }
     }
 
     Q_FOREACH(KScreen::Output* output, toChange) {
-        changeOutput(output, currentCrtc[output->id()]);
+        if (!changeOutput(output, currentCrtc[output->id()])) {
+
+            /* If we disabled the output before changing it and XRandR failed
+             * to re-enable it, then update screen size too */
+            if (toDisable.contains(output->id())) {
+                output->setEnabled(false);
+                forceScreenSizeUpdate = true;
+            }
+        }
+    }
+
+    if (forceScreenSizeUpdate) {
+        newSize = screenSize(config);
+        setScreenSize(newSize);
     }
 }
 
@@ -272,16 +289,18 @@ void XRandRConfig::setPrimaryOutput(int outputId) const
     XRRSetOutputPrimary(XRandR::display(), XRandR::rootWindow(), outputId);
 }
 
-void XRandRConfig::disableOutput(Output* output) const
+bool XRandRConfig::disableOutput(Output* output) const
 {
-    qDebug() << "Disabling: " << output->id();
     int crtcId = XRandR::outputCrtc(output->id());
-    qDebug() << crtcId;
-    XRRSetCrtcConfig (XRandR::display(), XRandR::screenResources(), crtcId, CurrentTime,
+    qDebug() << "Disabling: " << output->id() << "(CRTC" << crtcId << ")";
+    Status s = XRRSetCrtcConfig (XRandR::display(), XRandR::screenResources(), crtcId, CurrentTime,
                  0, 0, None, RR_Rotate_0, NULL, 0);
+
+    qDebug() << "XRRSetCrtcConfig() returned" << s;
+    return (s == RRSetConfigSuccess);
 }
 
-void XRandRConfig::enableOutput(Output* output) const
+bool XRandRConfig::enableOutput(Output* output) const
 {
     qDebug() << "Enabling: " << output->id();
     RROutput *outputs = new RROutput[1];
@@ -290,10 +309,11 @@ void XRandRConfig::enableOutput(Output* output) const
         CurrentTime, output->pos().rx(), output->pos().ry(), output->currentMode(),
         output->rotation(), outputs, 1);
 
-    Q_UNUSED(s);
+    qDebug() << "XRRSetCrtcConfig() returned" << s;
+    return (s == RRSetConfigSuccess);
 }
 
-void XRandRConfig::changeOutput(Output* output, int crtcId) const
+bool XRandRConfig::changeOutput(Output* output, int crtcId) const
 {
     qDebug() << "Updating: " << output->id();
 
@@ -303,7 +323,8 @@ void XRandRConfig::changeOutput(Output* output, int crtcId) const
         CurrentTime, output->pos().rx(), output->pos().ry(), output->currentMode(),
         output->rotation(), outputs, 1);
 
-    Q_UNUSED(s);
+    qDebug() << "XRRSetCrtcConfig() returned" << s;
+    return (s == RRSetConfigSuccess);
 }
 
 
