@@ -144,7 +144,7 @@ void XRandR::updateConfig(Config *config) const
 
 quint8* XRandR::getXProperty(Display *dpy, RROutput output, Atom atom, size_t &len)
 {
-    unsigned char *prop;
+    unsigned char *prop = 0;
     int actual_format;
     unsigned long nitems, bytes_after;
     Atom actual_type;
