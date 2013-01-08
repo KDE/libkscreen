@@ -162,15 +162,15 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
         int x, y;
 
         //TODO: Move this code within libkscreen
-        y = output->pos().y();
-        if (output->rotation() == Output::Left || output->rotation() == Output::Right) {
+        y = currentOutput->position().y();
+        if (currentOutput->rotation() == Output::Left || currentOutput->rotation() == Output::Right) {
             y += size.width();
         } else {
             y += size.height();
         }
 
-        x = output->pos().x();
-        if (output->rotation() == Output::Left || output->rotation() == Output::Right) {
+        x = currentOutput->position().x();
+        if (currentOutput->rotation() == Output::Left || currentOutput->rotation() == Output::Right) {
             x += size.height();
         } else {
             x += size.width();
