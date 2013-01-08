@@ -27,6 +27,7 @@
 
 #include <QX11Info>
 #include <QDebug>
+#include <QRect>
 
 using namespace KScreen;
 
@@ -161,15 +162,15 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
         int x, y;
 
         //TODO: Move this code within libkscreen
-        y = currentOutput->position().y();
-        if (currentOutput->rotation() == Output::Left || currentOutput->rotation() == Output::Right) {
+        y = output->pos().y();
+        if (output->rotation() == Output::Left || output->rotation() == Output::Right) {
             y += size.width();
         } else {
             y += size.height();
         }
 
-        x = currentOutput->position().x();
-        if (currentOutput->rotation() == Output::Left || currentOutput->rotation() == Output::Right) {
+        x = output->pos().x();
+        if (output->rotation() == Output::Left || output->rotation() == Output::Right) {
             x += size.height();
         } else {
             x += size.width();
@@ -244,41 +245,51 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
 }
 
 
-QSize XRandRConfig::screenSize(Config* config) const
+QSize XRandRConfig::screenSize(KScreen::Config* config) const
 {
-    int cord;
-    QSize size, outputSize;
-    OutputList outputs = config->outputs();
-    Q_FOREACH(const Output* output, outputs) {
+    QRect rect;
+    QSize outputSize;
+    Q_FOREACH(const KScreen::Output* output, config->outputs()) {
         if (!output->isEnabled() || !output->isConnected()) {
             continue;
         }
 
         Mode *currentMode = output->mode(output->currentMode());
-        if (currentMode) {
-            outputSize = currentMode->size();
-            cord = output->pos().y();
-            if (output->rotation() == Output::Left || output->rotation() == Output::Right) {
-                cord += outputSize.width();
-            } else {
-                cord += outputSize.height();
-            }
-            if (cord > size.height()) {
-                size.setHeight(cord);
-            }
-
-            cord = output->pos().x();
-            if (output->rotation() == Output::Left || output->rotation() == Output::Right) {
-                cord += outputSize.height();
-            } else {
-                cord += outputSize.width();
-            }
-            if (cord > size.width()) {
-                size.setWidth(cord);
-            }
+        if (!currentMode) {
+            continue;
         }
+
+        QSize outputSize = currentMode->size();
+
+        if (output->pos().x() < rect.x()) {
+            rect.setX(output->pos().x());
+        }
+
+        if (output->pos().y() < rect.y()) {
+            rect.setY(output->pos().y());
+        }
+
+        QPoint bottomRight;
+        if ((output->rotation() == KScreen::Output::Inverted) || (output->rotation() == KScreen::Output::None)) {
+            bottomRight = QPoint(output->pos().x() + outputSize.width(),
+                                 output->pos().y() + outputSize.height());
+        } else {
+            bottomRight = QPoint(output->pos().x() + outputSize.height(),
+                                 output->pos().y() + outputSize.width());
+        }
+
+        if (bottomRight.x() > rect.width()) {
+            rect.setWidth(bottomRight.x());
+        }
+
+        if (bottomRight.y() > rect.height()) {
+            rect.setHeight(bottomRight.y());
+        }
+
     }
 
+    QSize size = QSize(rect.width(), rect.height());
+    qDebug() << "Requested screen size is" << size;
     return size;
 }
 
@@ -334,7 +345,7 @@ bool XRandRConfig::enableOutput(Output* output) const
 
 bool XRandRConfig::changeOutput(Output* output, int crtcId) const
 {
-    qDebug() << "Updating: " << output->id();
+    qDebug() << "Updating: " << output->id() << "with CRTC" << crtcId;
 
     RROutput *outputs = new RROutput[1];
     outputs[0] = output->id();

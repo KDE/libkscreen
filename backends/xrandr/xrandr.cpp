@@ -143,7 +143,7 @@ bool XRandR::isValid() const
 
 void XRandR::updateConfig(Config *config) const
 {
-    Q_ASSERT(config == 0);
+    Q_ASSERT(config != 0);
 
     s_internalConfig->updateKScreenConfig(config);
 }
@@ -207,6 +207,7 @@ RRCrtc XRandR::outputCrtc(int outputId)
 {
     RRCrtc crtcId;
     XRROutputInfo* outputInfo = XRROutput(outputId);
+    qDebug() << "Output" << outputId << "has CRTC" << outputInfo->crtc;
 
     crtcId = outputInfo->crtc;
     XRRFreeOutputInfo(outputInfo);
