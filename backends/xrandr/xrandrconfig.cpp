@@ -181,7 +181,7 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
                 toDisable.insert(output->id(), output);
             }
         }
-    }
+    }//Q_FOREACH(KScreen::Output *output, outputs)
 
     KScreen::Screen* screen = config->screen();
     if (newSize.width() > screen->maxSize().width() ||
