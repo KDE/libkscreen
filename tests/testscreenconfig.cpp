@@ -75,6 +75,7 @@ void testScreenConfig::singleOutput()
     QCOMPARE(output->isConnected(), true);
     QCOMPARE(output->isEnabled(), true);
     QCOMPARE(output->isPrimary(), true);
+    QCOMPARE(output->isEmbedded(), true);
     QVERIFY2(output->clones().isEmpty(), "In singleOutput is impossible to have clones");
 
     Mode* mode = output->mode(output->currentMode());
@@ -111,6 +112,10 @@ void testScreenConfig::multiOutput()
     QCOMPARE(output->isEnabled(), true);
     QCOMPARE(output->isPrimary(), false);
     QVERIFY2(output->clones().isEmpty(), "This simulates extended output, no clones");
+    QCOMPARE(output->isEmbedded(), false);
+
+    Output *laptop = config->outputs().take(1);
+    QCOMPARE(laptop->isEmbedded(), true);
 
     Mode* mode = output->mode(output->currentMode());
     QCOMPARE(mode->size(), QSize(1920, 1080));

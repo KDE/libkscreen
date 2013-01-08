@@ -101,6 +101,8 @@ class KSCREEN_EXPORT Output : public QObject
         bool isPrimary() const;
         void setPrimary(bool primary);
 
+        bool isEmbedded() const;
+
         QList<int> clones();
         void setClones(QList<int> outputlist);
 

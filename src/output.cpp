@@ -22,6 +22,8 @@
 #include "backendloader.h"
 #include <backends/abstractbackend.h>
 
+#include <QtCore/QStringList>
+
 namespace KScreen {
 
 Output::Output(QObject *parent)
@@ -232,6 +234,22 @@ void Output::setPrimary(bool primary)
     m_primary = primary;
 
     Q_EMIT isPrimaryChanged();
+}
+
+bool Output::isEmbedded() const
+{
+    QStringList embedded;
+    embedded << "LVDS";
+    embedded << "IDP";
+    embedded << "EDP";
+
+    Q_FOREACH(const QString &pre, embedded) {
+        if (m_name.toUpper().startsWith(pre)) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 QList<int> Output::clones()
