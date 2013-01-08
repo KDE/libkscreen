@@ -115,6 +115,7 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
     QHash<int, int> currentCrtc;
     Q_FOREACH(KScreen::Output *output, outputs) {
         XRandROutput *currentOutput = m_outputs.value(output->id());
+        currentOutput->update(currentOutput->isPrimary());
 
         if (output->isPrimary()) {
             primaryOutput = currentOutput->id();
