@@ -211,7 +211,7 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
         disableOutput(output);
     }
 
-    if (newSize != config->screen()->currentSize()) {
+    if (newSize != m_screen->currentSize()) {
         setScreenSize(newSize);
     }
 
