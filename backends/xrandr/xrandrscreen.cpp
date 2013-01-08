@@ -48,6 +48,12 @@ void XRandRScreen::update()
     m_currentSize = QSize(DisplayWidth(display, screen),DisplayHeight(display, screen));
 }
 
+QSize XRandRScreen::currentSize()
+{
+    update();
+    return m_currentSize;
+}
+
 KScreen::Screen *XRandRScreen::toKScreenScreen(KScreen::Config *parent) const
 {
     KScreen::Screen *kscreenScreen = new KScreen::Screen(parent);
