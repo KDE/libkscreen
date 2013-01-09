@@ -97,6 +97,8 @@ KScreen::Edid *XRandROutput::edid() const
         if (data) {
             m_edid = new KScreen::Edid(data, len, 0);
             delete data;
+        } else {
+            m_edid = new KScreen::Edid(0, 0, 0);
         }
     }
 
@@ -190,6 +192,7 @@ void XRandROutput::updateModes(const XRROutputInfo *outputInfo)
     /* Init modes */
     XRRModeInfo* modeInfo;
     XRRScreenResources *resources = XRandR::screenResources();
+    bool found = false;
     for (int i = 0; i < outputInfo->nmode; ++i)
     {
         /* Resources->modes contains all possible modes, we are only interested
@@ -203,8 +206,11 @@ void XRandROutput::updateModes(const XRROutputInfo *outputInfo)
             XRandRMode *mode = new XRandRMode(modeInfo, this);
             m_modes.insert(modeInfo->id, mode);
 
-            if (i == outputInfo->npreferred -1) {
+            /* outputInfo->npreferred is the number of preferred modes,
+               Use the first one found if there is at least one preferred mode. */
+            if (!found && outputInfo->npreferred) {
                 m_preferredMode = modeInfo->id;
+                found = true;
             }
         }
     }
