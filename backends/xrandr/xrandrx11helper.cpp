@@ -40,8 +40,8 @@ XRandRX11Helper::XRandRX11Helper():
     }
 
 
-    XRRSelectInput(XRandR::display(), XRandR::rootWindow(), 0);
-    XRRSelectInput(XRandR::display(), XRandR::rootWindow(),
+    m_window = XCreateSimpleWindow(XRandR::display(), XRandR::rootWindow(), 0, 0, 1, 1, 0, 0, 0 );
+    XRRSelectInput(XRandR::display(), m_window,
                    RRScreenChangeNotifyMask | RRCrtcChangeNotifyMask |
                    RROutputChangeNotifyMask | RROutputPropertyNotifyMask);
 
@@ -51,6 +51,7 @@ XRandRX11Helper::XRandRX11Helper():
 XRandRX11Helper::~XRandRX11Helper()
 {
     KSystemEventFilter::removeEventFilter(this);
+    XDestroyWindow(XRandR::display(), m_window);
 }
 
 QString XRandRX11Helper::rotationToString(Rotation rotation)
