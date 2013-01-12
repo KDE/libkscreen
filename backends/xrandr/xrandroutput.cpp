@@ -192,6 +192,7 @@ void XRandROutput::updateModes(const XRROutputInfo *outputInfo)
     /* Init modes */
     XRRModeInfo* modeInfo;
     XRRScreenResources *resources = XRandR::screenResources();
+    bool found = false;
 
     for (int i = 0; i < outputInfo->nmode; ++i)
     {
