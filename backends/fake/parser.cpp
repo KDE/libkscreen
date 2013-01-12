@@ -77,7 +77,7 @@ Output* Parser::outputFromJson(const QVariant& data)
     QVariantMap map = data.toMap();
     Output *output = new Output;
     output->setId(map["id"].toInt());
-    output->setPreferredMode(map["preferredMode"].toInt());
+//     output->setPreferredMode(map["preferredMode"].toList());
     QJson::QObjectHelper::qvariant2qobject(map, output);
 
     Mode *mode;

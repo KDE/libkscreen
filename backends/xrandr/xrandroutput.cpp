@@ -224,7 +224,7 @@ KScreen::Output *XRandROutput::toKScreenOutput(KScreen::Config *parent) const
 
     m_changedProperties = 0;
     kscreenOutput->setId(m_id);
-    kscreenOutput->setPreferredMode(m_preferredMode);
+//     kscreenOutput->setPreferredMode(biggestPreferredMode());
     updateKScreenOutput(kscreenOutput);
 
     return kscreenOutput;
@@ -257,7 +257,7 @@ void XRandROutput::updateKScreenOutput(KScreen::Output *output) const
     }
 
     if (!m_changedProperties || (m_changedProperties & PropertyPreferredMode)) {
-        output->setPreferredMode(m_preferredMode);
+//         output->setPreferredMode(biggestPreferredMode());
     }
 
     if (!m_changedProperties || (m_changedProperties & PropertyModes)) {
