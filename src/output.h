@@ -85,6 +85,9 @@ class KSCREEN_EXPORT Output : public QObject
 
         void setPreferredModes(QList<int> modes);
         ModeList preferredModes() const;
+        /**
+         * Returns the preferred mode with higer resolution and refresh
+         */
         int preferredMode();
 
         QPoint pos() const;
