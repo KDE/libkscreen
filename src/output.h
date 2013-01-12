@@ -83,7 +83,7 @@ class KSCREEN_EXPORT Output : public QObject
         int currentMode() const;
         void setCurrentMode(int mode);
 
-        void setPreferredModes(ModeList modes);
+        void setPreferredModes(QList<int> modes);
         ModeList preferredModes() const;
         int preferredMode();
 
@@ -128,7 +128,7 @@ class KSCREEN_EXPORT Output : public QObject
         QList<int> m_clones;
         int m_currentMode;
         int m_preferredMode;
-        ModeList m_preferredModes;
+        QList<int> m_preferredModes;
         QSize m_size;
         QPoint m_pos;
         Rotation m_rotation;
