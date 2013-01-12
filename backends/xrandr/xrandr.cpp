@@ -108,7 +108,12 @@ void XRandR::updateOutput(RROutput output)
 
 void XRandR::updateCrtc(RRCrtc crtc)
 {
-    Q_UNUSED(crtc);
+    XRRCrtcInfo* crtcInfo = XRRCrtc(crtc);
+    for (int i = 0; i < crtcInfo->noutput; ++i) {
+        updateOutput(crtcInfo->outputs[i]);
+    }
+
+    XRRFreeCrtcInfo(crtcInfo);
 }
 
 Config* XRandR::config() const
