@@ -36,7 +36,6 @@ XRandROutput::XRandROutput(int id, bool primary, XRandRConfig *config)
     , m_type("unknown")
     , m_rotation(KScreen::Output::None)
     , m_currentMode(0)
-    , m_preferredMode(0)
     , m_edid(0)
     , m_changedProperties(0)
 {
@@ -175,7 +174,7 @@ void XRandROutput::updateOutput(const XRROutputInfo *outputInfo)
     if (m_connected != isConnected) {
         m_connected = isConnected;
         if (!m_connected) {
-            m_preferredMode = 0;
+            m_preferredModes.clear();
             qDeleteAll(m_modes);
             m_modes.clear();
             delete m_edid;
@@ -206,11 +205,8 @@ void XRandROutput::updateModes(const XRROutputInfo *outputInfo)
             XRandRMode *mode = new XRandRMode(modeInfo, this);
             m_modes.insert(modeInfo->id, mode);
 
-            /* outputInfo->npreferred is the number of preferred modes,
-               Use the first one found if there is at least one preferred mode. */
-            if (!found && outputInfo->npreferred) {
-                m_preferredMode = modeInfo->id;
-                found = true;
+            if (i < outputInfo->npreferred) {
+                m_preferredModes.append((int) modeInfo->id);
             }
         }
     }
@@ -224,7 +220,6 @@ KScreen::Output *XRandROutput::toKScreenOutput(KScreen::Config *parent) const
 
     m_changedProperties = 0;
     kscreenOutput->setId(m_id);
-//     kscreenOutput->setPreferredMode(biggestPreferredMode());
     updateKScreenOutput(kscreenOutput);
 
     return kscreenOutput;
@@ -257,7 +252,7 @@ void XRandROutput::updateKScreenOutput(KScreen::Output *output) const
     }
 
     if (!m_changedProperties || (m_changedProperties & PropertyPreferredMode)) {
-//         output->setPreferredMode(biggestPreferredMode());
+        output->setPreferredModes(m_preferredModes);
     }
 
     if (!m_changedProperties || (m_changedProperties & PropertyModes)) {

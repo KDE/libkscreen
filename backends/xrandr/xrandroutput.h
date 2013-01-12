@@ -92,7 +92,7 @@ private:
     QPoint m_position;
     KScreen::Output::Rotation m_rotation;
     int m_currentMode;
-    int m_preferredMode;
+    QList<int> m_preferredModes;
     int m_connected : 1;
     int m_enabled : 1;
     int m_primary : 1;
