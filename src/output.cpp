@@ -146,13 +146,39 @@ void Output::setCurrentMode(int mode)
     Q_EMIT currentModeChanged();
 }
 
-void Output::setPreferredMode(int preferredMode)
+void Output::setPreferredModes(ModeList modes)
 {
-    m_preferredMode = preferredMode;
+    m_preferredMode = 0;
+    m_preferredModes = modes;
 }
 
-int Output::preferredMode() const
+int Output::preferredMode()
 {
+    if (m_preferredMode || m_preferredModes.isEmpty()) {
+        return m_preferredMode;
+    }
+
+    int area, total = 0;
+    KScreen::Mode* biggest = 0;
+    Q_FOREACH(KScreen::Mode* mode, m_preferredModes) {
+        area = mode->size().width() * mode->size().height();
+        if (area < total) {
+            continue;
+        }
+        if (area == total && biggest && mode->refreshRate() > biggest->refreshRate()) {
+            biggest = mode;
+            continue;
+        }
+
+        total = area;
+        biggest = mode;
+    }
+
+    if (!biggest) {
+        return m_preferredMode;
+    }
+
+    m_preferredMode = biggest->id();
     return m_preferredMode;
 }
 
