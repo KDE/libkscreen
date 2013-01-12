@@ -152,7 +152,7 @@ void Output::setPreferredModes(QList<int> modes)
     m_preferredModes = modes;
 }
 
-int Output::preferredMode()
+int Output::preferredMode() const
 {
     if (m_preferredMode || m_preferredModes.isEmpty()) {
         return m_preferredMode;
