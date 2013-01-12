@@ -57,7 +57,7 @@
             },
             "clones" : [2],
             "currentMode" : 2,
-            "preferredMode" : 2,
+            "preferredModes" : [2],
             "rotation" : 1,
             "connected" : true,
             "enabled" : true,
@@ -112,7 +112,7 @@
                 "y" : 0
             },
             "currentMode" : 2,
-            "preferredMode" : 2,
+            "preferredModes" : [2],
             "rotation" : 1,
             "connected" : true,
             "enabled" : true,

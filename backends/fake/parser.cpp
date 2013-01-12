@@ -77,12 +77,19 @@ Output* Parser::outputFromJson(const QVariant& data)
     QVariantMap map = data.toMap();
     Output *output = new Output;
     output->setId(map["id"].toInt());
-//     output->setPreferredMode(map["preferredMode"].toList());
+
+    QList<int> preferredModes;
+    QVariantList modes = map["preferredModes"].toList();
+    Q_FOREACH(QVariant mode, modes) {
+        preferredModes.append(mode.toInt());
+    }
+    output->setPreferredModes(preferredModes);
+
     QJson::QObjectHelper::qvariant2qobject(map, output);
 
     Mode *mode;
     ModeList modelist;
-    QList <QVariant> modes = map["modes"].toList();
+    modes = map["modes"].toList();
     Q_FOREACH(const QVariant &modeValue, modes) {
         mode = Parser::modeFromJson(modeValue);
         modelist.insert(mode->id(), mode);
