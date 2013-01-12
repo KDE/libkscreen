@@ -62,12 +62,19 @@ public:
         PropertyEdid            = 1 << 13,
         PropertyPreferredMode   = 1 << 14
     };
+
+    enum {
+        NoChange = 0,
+        SetPrimary = 1,
+        UnsetPrimary = 2,
+    } PrimaryChange;
+
     Q_DECLARE_FLAGS(Properties, Property)
 
     explicit XRandROutput(int id, bool primary, XRandRConfig *config = 0);
     virtual ~XRandROutput();
 
-    void update(bool primary = false);
+    void update(PrimaryChange primary = NoChange);
 
     int id() const;
     bool isEnabled() const;

@@ -105,16 +105,19 @@ KScreen::Edid *XRandROutput::edid() const
     return m_edid;
 }
 
-void XRandROutput::update(bool primary)
+void XRandROutput::update(PrimaryChange primary)
 {
     XRROutputInfo *outputInfo = XRandR::XRROutput(m_id);
 
     m_changedProperties = 0;
     updateOutput(outputInfo);
 
-    if (m_primary != primary) {
-        m_primary = primary;
-        m_changedProperties |= PropertyPrimary;
+    if (primary != NoChange) {
+        bool setPrimary = (primary == SetPrimary);
+        if (m_primary != setPrimary) {
+            m_primary = setPrimary;
+            m_changedProperties |= PropertyPrimary;
+        }
     }
 
     if (m_changedProperties == 0) {
