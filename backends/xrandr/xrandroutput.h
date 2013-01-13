@@ -63,11 +63,11 @@ public:
         PropertyPreferredMode   = 1 << 14
     };
 
-    enum {
+    enum PrimaryChange {
         NoChange = 0,
         SetPrimary = 1,
         UnsetPrimary = 2,
-    } PrimaryChange;
+    };
 
     Q_DECLARE_FLAGS(Properties, Property)
 
