@@ -1,4 +1,5 @@
 include_directories(${CMAKE_SOURCE_DIR}/src ${CMAKE_BUILD_DIR} ${QT_INCLUDES})
+include_directories(${QJSON_INCLUDE_DIR})
 
 set(fake_SRCS
     fake.cpp
