@@ -92,6 +92,16 @@ QHash< int, Output* > Config::connectedOutputs()
     return outputs;
 }
 
+Output* Config::primaryOutput() const
+{
+    Q_FOREACH(Output* output, m_outputs) {
+        if (output->isPrimary()) {
+            return output;
+        }
+    }
+    return 0;
+}
+
 void Config::setOutputs(OutputList outputs)
 {
     m_outputs = outputs;
