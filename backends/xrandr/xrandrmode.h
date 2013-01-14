@@ -37,7 +37,6 @@ class XRandRMode : public QObject
 {
     Q_OBJECT
 
-friend class XRandROutput;
 public:
     typedef QMap<int, XRandRMode*> Map;
 
