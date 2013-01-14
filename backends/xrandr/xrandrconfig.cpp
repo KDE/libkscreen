@@ -250,6 +250,7 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
              * to re-enable it, then update screen size too */
             if (toDisable.contains(output->id())) {
                 output->setEnabled(false);
+                kDebug() << "Output failed to change: " << output->name();
                 forceScreenSizeUpdate = true;
             }
         }
@@ -258,6 +259,7 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
     Q_FOREACH(KScreen::Output* output, toEnable) {
         if (!enableOutput(output)) {
             output->setEnabled(false);
+            kDebug() << "Output failed to be Enabled: " << output->name();
             forceScreenSizeUpdate = true;
         }
     }
@@ -265,6 +267,7 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
 
     if (forceScreenSizeUpdate) {
         newSize = screenSize(config);
+        kDebug() << "forced to change screen Size: " << newSize;
         setScreenSize(newSize);
     }
 }
