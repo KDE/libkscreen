@@ -23,8 +23,6 @@
 #include "backendloader.h"
 #include "backends/abstractbackend.h"
 
-#include <QDebug>
-
 KScreen::ConfigMonitor* KScreen::ConfigMonitor::s_instance = 0;
 
 using namespace KScreen;
