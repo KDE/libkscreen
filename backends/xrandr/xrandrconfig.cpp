@@ -82,6 +82,8 @@ KScreen::Config *XRandRConfig::toKScreenConfig() const
     XRandROutput::Map::ConstIterator iter;
     for (iter = m_outputs.constBegin(); iter != m_outputs.constEnd(); iter++) {
         XRandROutput *output = iter.value();
+        //FIXME XRandR backend should keep updated itself
+        output->update(XRandROutput::NoChange);
         KScreen::Output *kscreenOutput = output->toKScreenOutput(config);
         kscreenOutputs.insert(kscreenOutput->id(), kscreenOutput);
     }
