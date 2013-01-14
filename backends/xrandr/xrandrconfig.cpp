@@ -110,7 +110,7 @@ void XRandRConfig::updateKScreenConfig(Config *config) const
 
 void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
 {
-    KDebug::Block apply("Applying KScreen Config");
+    KDebug::Block apply("Applying KScreen Config", dXndr());
     KScreen::OutputList outputs = config->outputs();
     QSize newSize = screenSize(config);
 
@@ -275,7 +275,7 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
 
 QSize XRandRConfig::screenSize(KScreen::Config* config) const
 {
-    KDebug::Block screenBlock("Calculating screen size");
+    KDebug::Block screenBlock("Calculating screen size", dXndr());
     QRect rect;
     QSize outputSize;
     Q_FOREACH(const KScreen::Output* output, config->outputs()) {
@@ -327,7 +327,7 @@ QSize XRandRConfig::screenSize(KScreen::Config* config) const
 
 bool XRandRConfig::setScreenSize(const QSize& size) const
 {
-    KDebug::Block setBlock("Setting screen size");
+    KDebug::Block setBlock("Setting screen size", dXndr());
     double dpi;
     int widthMM, heightMM;
     dpi = (25.4 * DisplayHeight(XRandR::display(), XRandR::screen())) / DisplayHeightMM(XRandR::display(), XRandR::screen());
@@ -352,7 +352,7 @@ void XRandRConfig::setPrimaryOutput(int outputId) const
 
 bool XRandRConfig::disableOutput(Output* output) const
 {
-    KDebug::Block disablock("Disable output");
+    KDebug::Block disablock("Disable output", dXndr());
     int crtcId = XRandR::outputCrtc(output->id());
     kDebug(dXndr()) << "Disabling: " << output->id() << "(CRTC" << crtcId << ")";
     Status s = XRRSetCrtcConfig (XRandR::display(), XRandR::screenResources(), crtcId, CurrentTime,
@@ -364,7 +364,7 @@ bool XRandRConfig::disableOutput(Output* output) const
 
 bool XRandRConfig::enableOutput(Output* output) const
 {
-    KDebug::Block disablock("Enable output");
+    KDebug::Block disablock("Enable output", dXndr());
     kDebug(dXndr()) << "Enabling: " << output->id();
     RROutput *outputs = new RROutput[1];
     outputs[0] = output->id();
@@ -378,7 +378,7 @@ bool XRandRConfig::enableOutput(Output* output) const
 
 bool XRandRConfig::changeOutput(Output* output, int crtcId) const
 {
-    KDebug::Block disablock("Change output");
+    KDebug::Block disablock("Change output", dXndr());
     kDebug(dXndr()) << "Updating: " << output->id() << "with CRTC" << crtcId;
 
     RROutput *outputs = new RROutput[1];
