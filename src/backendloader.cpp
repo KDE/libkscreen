@@ -22,7 +22,7 @@
 #include <QtCore/QStringList>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QPluginLoader>
-#include <QtCore/QDebug>
+#include <kdebug.h>
 
 AbstractBackend* BackendLoader::s_backend = 0;
 
@@ -33,13 +33,16 @@ bool BackendLoader::init()
         return true;
     }
 
+    KDebug::Block block("Loading backend");
+
     QStringList paths = QCoreApplication::libraryPaths();
     QString backend(getenv("KSCREEN_BACKEND"));
     if (backend.isEmpty()) {
-        qWarning() << "No KScreen backend set!";
+        kWarning() << "No KScreen backend set!";
         return false;
     }
 
+    kDebug() << "Backend to load: " << backend;
     QPluginLoader loader;
     QObject *instance;
     Q_FOREACH(const QString& path, paths) {
@@ -52,6 +55,7 @@ bool BackendLoader::init()
 
         s_backend = qobject_cast< AbstractBackend* >(instance);
         if (s_backend) {
+            kDebug() << "Backend Loaded";
             return true;
         }
 
