@@ -26,7 +26,6 @@
 #include "edid.h"
 
 #include <QRect>
-#include <QDebug>
 
 Q_DECLARE_METATYPE(QList<int>)
 
