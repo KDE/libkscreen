@@ -16,7 +16,7 @@ find_package(Qt4 REQUIRED)
 find_package(KDE4 REQUIRED)
 find_package(QJSON 0.8 REQUIRED)
 include(KDE4Defaults)
-
+add_definitions(${KDE4_DEFINITIONS})
 include(CheckCXXCompilerFlag)
 
 # Required to build on Gentoo
@@ -43,6 +43,8 @@ set(LIB_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX})
 set(INSTALL_TARGETS_DEFAULT_ARGS  RUNTIME DESTINATION "${BIN_INSTALL_DIR}"
                                   LIBRARY DESTINATION "${LIB_INSTALL_DIR}"
                                   ARCHIVE DESTINATION "${LIB_INSTALL_DIR}" COMPONENT Devel )
+
+include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${QT_INCLUDES} ${KDE4_INCLUDES})
 
 add_subdirectory(src)
 add_subdirectory(tools)
