@@ -22,7 +22,6 @@
 #include "config.h"
 #include "edid.h"
 
-#include <QtCore/QDebug>
 #include <QtCore/QFile>
 #include <QtCore/qplugin.h>
 
