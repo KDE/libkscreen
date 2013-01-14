@@ -26,7 +26,6 @@
 #include "edid.h"
 #include "configmonitor.h"
 
-#include <QtCore/QDebug>
 #include <QtCore/QFile>
 #include <QtCore/qplugin.h>
 #include <QtCore/QRect>
@@ -34,6 +33,8 @@
 
 #include <QtGui/QX11Info>
 #include <QApplication>
+
+#include <kdebug.h>
 
 Q_EXPORT_PLUGIN2(XRandR, XRandR)
 
@@ -214,7 +215,7 @@ RRCrtc XRandR::outputCrtc(int outputId)
 {
     RRCrtc crtcId;
     XRROutputInfo* outputInfo = XRROutput(outputId);
-    qDebug() << "Output" << outputId << "has CRTC" << outputInfo->crtc;
+    kDebug(dXndr()) << "Output" << outputId << "has CRTC" << outputInfo->crtc;
 
     crtcId = outputInfo->crtc;
     XRRFreeOutputInfo(outputInfo);
@@ -232,14 +233,14 @@ RRCrtc XRandR::freeCrtc(int outputId)
         RRCrtc crtcId = outputInfo->crtcs[i];
        crtc = XRRCrtc(crtcId);
        if (!crtc->noutput) {
-           qDebug() << "Found free CRTC" << crtcId;
+           kDebug(dXndr()) << "Found free CRTC" << crtcId;
            XRRFreeCrtcInfo(crtc);
            return crtcId;
        }
        XRRFreeCrtcInfo(crtc);
     }
 
-    qDebug() << "No free CRTC found!";
+    kDebug(dXndr()) << "No free CRTC found!";
     return 0;
 }
 
@@ -289,5 +290,7 @@ int XRandR::screen()
 {
     return s_screen;
 }
+
+extern int dXndr() { static int s_area = KDebug::registerArea("kscreen-xrandr", false); return s_area; }
 
 #include "xrandr.moc"

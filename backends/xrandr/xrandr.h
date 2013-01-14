@@ -79,4 +79,5 @@ class XRandR : public QObject, public AbstractBackend
         XRandRX11Helper *m_x11Helper;
 };
 
+extern int dXndr();
 #endif //XRandR_BACKEND_H
