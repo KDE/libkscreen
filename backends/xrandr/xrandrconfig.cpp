@@ -65,7 +65,7 @@ void XRandRConfig::update()
     XRandROutput::Map::Iterator iter;
     for (iter = m_outputs.begin(); iter != m_outputs.end(); iter++) {
         XRandROutput *output = iter.value();
-        output->update(iter.key() == (int) primary);
+        output->update((iter.key() == (int) primary) ? XRandROutput::SetPrimary : XRandROutput::UnsetPrimary);
     }
 }
 
@@ -116,7 +116,7 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
     QHash<int, int> currentCrtc;
     Q_FOREACH(KScreen::Output *output, outputs) {
         XRandROutput *currentOutput = m_outputs.value(output->id());
-        currentOutput->update(currentOutput->isPrimary());
+        currentOutput->update(currentOutput->isPrimary() ? XRandROutput::SetPrimary : XRandROutput::UnsetPrimary);
 
         if (output->isPrimary()) {
             primaryOutput = currentOutput->id();

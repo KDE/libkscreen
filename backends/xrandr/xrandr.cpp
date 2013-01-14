@@ -102,7 +102,7 @@ void XRandR::updateOutput(RROutput output)
     XRandROutput *xOutput = s_internalConfig->outputs().value(output);
     RROutput primary = XRRGetOutputPrimary(XRandR::display(), XRandR::rootWindow());
 
-    xOutput->update((output == primary));
+    xOutput->update((output == primary) ? XRandROutput::SetPrimary : XRandROutput::UnsetPrimary);
     KScreen::ConfigMonitor::instance()->notifyUpdate();
 }
 
@@ -110,10 +110,12 @@ void XRandR::updateCrtc(RRCrtc crtc)
 {
     XRRCrtcInfo* crtcInfo = XRRCrtc(crtc);
     for (int i = 0; i < crtcInfo->noutput; ++i) {
-        updateOutput(crtcInfo->outputs[i]);
+        XRandROutput *xOutput = s_internalConfig->outputs().value(crtcInfo->outputs[i]);
+        xOutput->update();
     }
-
     XRRFreeCrtcInfo(crtcInfo);
+
+    KScreen::ConfigMonitor::instance()->notifyUpdate();
 }
 
 Config* XRandR::config() const
