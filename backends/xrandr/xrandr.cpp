@@ -291,6 +291,6 @@ int XRandR::screen()
     return s_screen;
 }
 
-extern int dXndr() { static int s_area = KDebug::registerArea("kscreen-xrandr", false); return s_area; }
+extern int dXndr() { static int s_area = KDebug::registerArea("KSRandr", false); return s_area; }
 
 #include "xrandr.moc"
