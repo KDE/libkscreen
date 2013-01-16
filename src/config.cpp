@@ -23,6 +23,19 @@
 
 namespace KScreen {
 
+class Config::Private
+{
+  public:
+    Private():
+      valid(true),
+      screen(0)
+    { }
+
+    bool valid;
+    Screen* screen;
+    OutputList outputs;
+};
+
 Config* Config::current()
 {
     if (!BackendLoader::init()) {
@@ -44,45 +57,44 @@ bool Config::setConfig(Config* config)
 
 Config::Config(QObject* parent)
  : QObject(parent)
- , m_valid(false)
- , m_screen(0)
+ , d(new Private())
 {
 
 }
 
 Config::~Config()
 {
-
+    delete d;
 }
 
-Screen* Config::screen()
+Screen* Config::screen() const
 {
-    return m_screen;
+    return d->screen;
 }
 
 void Config::setScreen(Screen* screen)
 {
-    m_screen = screen;
+    d->screen = screen;
 }
 
-Output* Config::output(int outputId)
+Output* Config::output(int outputId) const
 {
-    if (!m_outputs.contains(outputId)) {
+    if (!d->outputs.contains(outputId)) {
         return 0;
     }
 
-    return m_outputs[outputId];
+    return d->outputs[outputId];
 }
 
-QHash< int, Output* > Config::outputs()
+QHash< int, Output* > Config::outputs() const
 {
-    return m_outputs;
+    return d->outputs;
 }
 
-QHash< int, Output* > Config::connectedOutputs()
+QHash< int, Output* > Config::connectedOutputs() const
 {
     QHash< int, Output* > outputs;
-    Q_FOREACH(Output* output, m_outputs) {
+    Q_FOREACH(Output* output, d->outputs) {
         if (!output->isConnected()) {
             continue;
         }
@@ -94,7 +106,7 @@ QHash< int, Output* > Config::connectedOutputs()
 
 Output* Config::primaryOutput() const
 {
-    Q_FOREACH(Output* output, m_outputs) {
+    Q_FOREACH(Output* output, d->outputs) {
         if (output->isPrimary()) {
             return output;
         }
@@ -104,17 +116,17 @@ Output* Config::primaryOutput() const
 
 void Config::setOutputs(OutputList outputs)
 {
-    m_outputs = outputs;
+    d->outputs = outputs;
 }
 
-bool Config::isValid()
+bool Config::isValid() const
 {
-    return isValid();
+    return d->valid;
 }
 
 void Config::setValid(bool valid)
 {
-    m_valid = valid;
+    d->valid = valid;
 }
 
 } //KScreen namespace

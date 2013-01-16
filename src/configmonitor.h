@@ -52,12 +52,10 @@ class KSCREEN_EXPORT ConfigMonitor : public QObject
     explicit ConfigMonitor();
     virtual ~ConfigMonitor();
 
-    void updateConfigs();
+    Q_DISABLE_COPY(ConfigMonitor)
 
-    QList< QPointer<KScreen::Config> >  m_watchedConfigs;
-    AbstractBackend* m_backend;
-
-    static ConfigMonitor *s_instance;
+    class Private;
+    Private * const d;
 };
 
 } /* namespace KScreen */

@@ -20,47 +20,60 @@
 
 namespace KScreen {
 
+class Mode::Private
+{
+  public:
+    Private():
+      id(0),
+      rate(0)
+    { }
+
+    int id;
+    QString name;
+    QSize size;
+    float rate;
+};
+
 Mode::Mode(QObject *parent)
   : QObject(parent)
-  , m_id(0)
-  , m_rate(0)
+  , d(new Private())
 {
 
 }
 
 Mode::~Mode()
 {
-
+    delete d;
 }
 
-int Mode::id()
+int Mode::id() const
 {
-    return m_id;
+    return d->id;
 }
 
 void Mode::setId(int id)
 {
-    if (m_id == id) {
+    if (d->id == id) {
         return;
     }
 
-    m_id = id;
+    d->id = id;
 
     Q_EMIT modeChanged();
 }
 
 QString Mode::name() const
 {
-    return m_name;
+    return d->name;
 }
 
 void Mode::setName(const QString& name)
 {
-    if (m_name == name) {
+    if (d->name == name) {
         return;
     }
 
-    m_name = name;
+    d->name = name;
 
     Q_EMIT modeChanged();
 }
@@ -68,35 +81,36 @@ void Mode::setName(const QString& name)
 
 QSize Mode::size() const
 {
-    return m_size;
+    return d->size;
 }
 
 void Mode::setSize(const QSize& size)
 {
-    if (m_size == size) {
+    if (d->size == size) {
         return;
     }
 
-    m_size = size;
+    d->size = size;
 
     Q_EMIT modeChanged();
 }
 
 float Mode::refreshRate() const
 {
-    return m_rate;
+    return d->rate;
 }
 
 void Mode::setRefreshRate(float refresh)
 {
-    if (m_rate == refresh) {
+    if (d->rate == refresh) {
         return;
     }
 
-    m_rate = refresh;
+    d->rate = refresh;
 
     Q_EMIT modeChanged();
 }
 
 } //KScreen namespace
+
 #include "mode.moc"

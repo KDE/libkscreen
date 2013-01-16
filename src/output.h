@@ -104,7 +104,7 @@ class KSCREEN_EXPORT Output : public QObject
         bool isPrimary() const;
         void setPrimary(bool primary);
 
-        QList<int> clones();
+        QList<int> clones() const;
         void setClones(QList<int> outputlist);
 
         Edid* edid() const;
@@ -120,22 +120,11 @@ class KSCREEN_EXPORT Output : public QObject
         void clonesChanged();
 
     private:
-        int m_id;
-        QString m_name;
-        QString m_type;
-        QString m_icon;
-        ModeList m_modeList;
-        QList<int> m_clones;
-        int m_currentMode;
-        mutable int m_preferredMode;
-        QList<int> m_preferredModes;
-        QSize m_size;
-        QPoint m_pos;
-        Rotation m_rotation;
-        bool m_connected;
-        bool m_enabled;
-        bool m_primary;
-        mutable QPointer<Edid> m_edid;
+        Q_DISABLE_COPY(Output)
+
+        class Private;
+        Private * const d;
+
 };
 
 typedef QHash<int, Output*> OutputList;

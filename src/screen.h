@@ -55,10 +55,10 @@ class KSCREEN_EXPORT Screen : public QObject
         void currentSizeChanged();
 
     private:
-        int m_id;
-        QSize m_currentSize;
-        QSize m_minSize;
-        QSize m_maxSize;
+        Q_DISABLE_COPY(Screen)
+
+        class Private;
+        Private * const d;
 };
 
 } //KScreen namespace

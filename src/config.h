@@ -42,22 +42,23 @@ class KSCREEN_EXPORT Config : public QObject
         explicit Config(QObject *parent = 0);
         virtual ~Config();
 
-        Screen* screen();
+        Screen* screen() const;
         void setScreen(Screen* screen);
 
-        Output* output(int outputId);
-        QHash<int, Output*> outputs();
-        QHash<int, Output*> connectedOutputs();
-        void setOutputs(OutputList outputs);
+        Output* output(int outputId) const;
+        QHash<int, Output*> outputs() const;
+        QHash<int, Output*> connectedOutputs() const;
         Output* primaryOutput() const;
+        void setOutputs(OutputList outputs);
 
-        bool isValid();
+        bool isValid() const;
         void setValid(bool valid);
 
     private:
-        bool m_valid;
-        Screen* m_screen;
-        OutputList m_outputs;
+        Q_DISABLE_COPY(Config)
+
+        class Private;
+        Private * const d;
 };
 
 } //KScreen namespace

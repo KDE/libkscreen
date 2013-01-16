@@ -23,12 +23,35 @@
 #include "backendloader.h"
 #include "backends/abstractbackend.h"
 
-KScreen::ConfigMonitor* KScreen::ConfigMonitor::s_instance = 0;
-
 using namespace KScreen;
+
+
+class ConfigMonitor::Private
+{
+  public:
+    Private():
+      backend(0)
+    { }
+
+    void updateConfigs();
+
+    QList< QPointer<KScreen::Config> >  watchedConfigs;
+    AbstractBackend* backend;
+};
+
+void ConfigMonitor::Private::updateConfigs()
+{
+    Q_FOREACH(QPointer<Config> config, watchedConfigs) {
+        if (config) {
+            backend->updateConfig(config);
+        }
+    }
+}
 
 ConfigMonitor *ConfigMonitor::instance()
 {
+    static ConfigMonitor *s_instance;
+
     if (s_instance == 0) {
         s_instance = new ConfigMonitor();
     }
@@ -38,45 +61,35 @@ ConfigMonitor *ConfigMonitor::instance()
 
 ConfigMonitor::ConfigMonitor():
     QObject(),
-    m_backend(BackendLoader::backend())
+    d(new Private())
 {
 }
 
 ConfigMonitor::~ConfigMonitor()
 {
+    delete d;
 }
 
 void ConfigMonitor::addConfig(Config *config)
 {
-    if (!m_watchedConfigs.contains(QPointer<Config>(config))) {
-        m_watchedConfigs << QPointer<Config>(config);
+    if (!d->watchedConfigs.contains(QPointer<Config>(config))) {
+        d->watchedConfigs << QPointer<Config>(config);
     }
 }
 
 void ConfigMonitor::removeConfig(Config *config)
 {
-    if (m_watchedConfigs.contains(QPointer<Config>(config))) {
-        m_watchedConfigs.removeAll(QPointer<Config>(config));
+    if (d->watchedConfigs.contains(QPointer<Config>(config))) {
+        d->watchedConfigs.removeAll(QPointer<Config>(config));
     }
 }
 
 void ConfigMonitor::notifyUpdate()
 {
-    updateConfigs();
+    d->updateConfigs();
 
     Q_EMIT configurationChanged();
 }
-
-
-void ConfigMonitor::updateConfigs()
-{
-    Q_FOREACH(QPointer<Config> config, m_watchedConfigs) {
-        if (config) {
-            m_backend->updateConfig(config);
-        }
-    }
-}
-
 
 
 #include "configmonitor.moc"

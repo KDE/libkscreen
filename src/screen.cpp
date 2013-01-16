@@ -20,60 +20,74 @@
 
 namespace KScreen {
 
+class Screen::Private
+{
+  public:
+    Private():
+      id(0)
+    { }
+
+    int id;
+    QSize currentSize;
+    QSize minSize;
+    QSize maxSize;
+};
+
 Screen::Screen(QObject *parent)
  : QObject(parent)
- , m_id(0)
+ , d(new Private())
 {
 }
 
 Screen::~Screen()
 {
+    delete d;
 }
 
 int Screen::id() const
 {
-    return m_id;
+    return d->id;
 }
 
 void Screen::setId(int id)
 {
-    m_id = id;
+    d->id = id;
 }
 
 QSize Screen::currentSize() const
 {
-    return m_currentSize;
+    return d->currentSize;
 }
 
 void Screen::setCurrentSize(const QSize& currentSize)
 {
-    if (m_currentSize == currentSize) {
+    if (d->currentSize == currentSize) {
         return;
     }
 
-    m_currentSize = currentSize;
+    d->currentSize = currentSize;
 
     Q_EMIT currentSizeChanged();
 }
 
 QSize Screen::maxSize() const
 {
-    return m_maxSize;
+    return d->maxSize;
 }
 
 void Screen::setMaxSize(const QSize& maxSize)
 {
-    m_maxSize = maxSize;
+    d->maxSize = maxSize;
 }
 
 QSize Screen::minSize() const
 {
-    return m_minSize;
+    return d->minSize;
 }
 
 void Screen::setMinSize(const QSize& minSize)
 {
-    m_minSize = minSize;
+    d->minSize = minSize;
 }
 
 } //KScreen namespace

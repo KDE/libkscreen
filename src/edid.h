@@ -71,26 +71,8 @@ public:
     QQuaternion white() const;
 
 private:
-    bool parse(const quint8 *data, size_t length);
-    int edidGetBit(int in, int bit) const;
-    int edidGetBits(int in, int begin, int end) const;
-    double edidDecodeFraction(int high, int low) const;
-    QString edidParseString(const quint8 *data) const;
-
-    bool m_valid;
-    QString m_monitorName;
-    QString m_vendorName;
-    QString m_serialNumber;
-    QString m_eisaId;
-    QString m_checksum;
-    QString m_pnpId;
-    uint m_width;
-    uint m_height;
-    qreal m_gamma;
-    QQuaternion m_red;
-    QQuaternion m_green;
-    QQuaternion m_blue;
-    QQuaternion m_white;
+    class Private;
+    Private * const d;
 };
 
 }

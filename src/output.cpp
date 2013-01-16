@@ -26,147 +26,172 @@
 
 namespace KScreen {
 
+class Output::Private
+{
+  public:
+    Private():
+        id(0),
+        currentMode(0),
+        rotation(None),
+        connected(false),
+        enabled(false),
+        primary(false),
+        edid(0)
+    {}
+
+    int id;
+    QString name;
+    QString type;
+    QString icon;
+    ModeList modeList;
+    QList<int> clones;
+    int currentMode;
+    mutable int preferredMode;
+    QList<int> preferredModes;
+    QSize size;
+    QPoint pos;
+    Rotation rotation;
+    bool connected;
+    bool enabled;
+    bool primary;
+
+    mutable QPointer<Edid> edid;
+};
 Output::Output(QObject *parent)
  : QObject(parent)
- , m_id(0)
- , m_currentMode(0)
- , m_rotation(None)
- , m_connected(false)
- , m_enabled(false)
- , m_primary(false)
- , m_edid(0)
+ , d(new Private())
 {
 
 }
 
 Output::~Output()
 {
-
+    delete d;
 }
 
 int Output::id() const
 {
-    return m_id;
+    return d->id;
 }
 
 void Output::setId(int id)
 {
-    if (m_id == id) {
+    if (d->id == id) {
         return;
     }
 
-    m_id = id;
+    d->id = id;
 
     Q_EMIT outputChanged();
 }
 
 QString Output::name() const
 {
-    return m_name;
+    return d->name;
 }
 
 void Output::setName(const QString& name)
 {
-    if (m_name == name) {
+    if (d->name == name) {
         return;
     }
 
-    m_name = name;
+    d->name = name;
 
     Q_EMIT outputChanged();
 }
 
 QString Output::type() const
 {
-    return m_type;
+    return d->type;
 }
 
 void Output::setType(const QString& type)
 {
-    if (m_type == type) {
+    if (d->type == type) {
         return;
     }
 
-    m_type = type;
+    d->type = type;
 
     Q_EMIT outputChanged();
 }
 
 QString Output::icon() const
 {
-    return m_icon;
+    return d->icon;
 }
 
 void Output::setIcon(const QString& icon)
 {
-    if (m_icon == icon) {
+    if (d->icon == icon) {
         return;
     }
 
-    m_icon = icon;
+    d->icon = icon;
 
     Q_EMIT outputChanged();
 }
 
 Mode* Output::mode(int id) const
 {
-    if (!m_modeList.contains(id)) {
+    if (!d->modeList.contains(id)) {
         return 0;
     }
 
-    return m_modeList[id];
+    return d->modeList[id];
 }
 
 QHash< int, Mode* > Output::modes() const
 {
-    return m_modeList;
+    return d->modeList;
 }
 
 void Output::setModes(ModeList modes)
 {
-    if (!m_modeList.isEmpty()) {
-        qDeleteAll(m_modeList);
+    if (!d->modeList.isEmpty()) {
+        qDeleteAll(d->modeList);
     }
-    m_modeList = modes;
+    d->modeList = modes;
 }
 
 int Output::currentMode() const
 {
-    return m_currentMode;
+    return d->currentMode;
 }
 
 void Output::setCurrentMode(int mode)
 {
-    if (m_currentMode == mode) {
+    if (d->currentMode == mode) {
         return;
     }
 
-    m_currentMode = mode;
+    d->currentMode = mode;
 
     Q_EMIT currentModeChanged();
 }
 
 void Output::setPreferredModes(QList<int> modes)
 {
-    m_preferredMode = 0;
-    m_preferredModes = modes;
+    d->preferredMode = 0;
+    d->preferredModes = modes;
 }
 
 QList<int> Output::preferredModes() const
 {
-    return m_preferredModes;
+    return d->preferredModes;
 }
 
 int Output::preferredMode() const
 {
-    if (m_preferredMode || m_preferredModes.isEmpty()) {
-        return m_preferredMode;
+    if (d->preferredMode || d->preferredModes.isEmpty()) {
+        return d->preferredMode;
     }
 
     int area, total = 0;
     KScreen::Mode* biggest = 0;
     KScreen::Mode* candidateMode = 0;
-    Q_FOREACH(int modeId, m_preferredModes) {
+    Q_FOREACH(int modeId, d->preferredModes) {
         candidateMode = mode(modeId);
         area = candidateMode->size().width() * candidateMode->size().height();
         if (area < total) {
@@ -182,117 +207,117 @@ int Output::preferredMode() const
     }
 
     if (!biggest) {
-        return m_preferredMode;
+        return d->preferredMode;
     }
 
-    m_preferredMode = biggest->id();
-    return m_preferredMode;
+    d->preferredMode = biggest->id();
+    return d->preferredMode;
 }
 
 QPoint Output::pos() const
 {
-    return m_pos;
+    return d->pos;
 }
 
 void Output::setPos(const QPoint& pos)
 {
-    if (m_pos == pos) {
+    if (d->pos == pos) {
         return;
     }
 
-    m_pos = pos;
+    d->pos = pos;
 
     Q_EMIT posChanged();
 }
 
 Output::Rotation Output::rotation() const
 {
-    return m_rotation;
+    return d->rotation;
 }
 
 void Output::setRotation(Output::Rotation rotation)
 {
-    if (m_rotation == rotation) {
+    if (d->rotation == rotation) {
         return;
     }
 
-    m_rotation = rotation;
+    d->rotation = rotation;
 
     Q_EMIT rotationChanged();
 }
 
 bool Output::isConnected() const
 {
-    return m_connected;
+    return d->connected;
 }
 
 void Output::setConnected(bool connected)
 {
-    if (m_connected == connected) {
+    if (d->connected == connected) {
         return;
     }
 
-    m_connected = connected;
+    d->connected = connected;
 
     Q_EMIT isConnectedChanged();
 }
 
 bool Output::isEnabled() const
 {
-    return m_enabled;
+    return d->enabled;
 }
 
 void Output::setEnabled(bool enabled)
 {
-    if (m_enabled == enabled) {
+    if (d->enabled == enabled) {
         return;
     }
 
-    m_enabled = enabled;
+    d->enabled = enabled;
 
     Q_EMIT isEnabledChanged();
 }
 
 bool Output::isPrimary() const
 {
-    return m_primary;
+    return d->primary;
 }
 
 void Output::setPrimary(bool primary)
 {
-    if (m_primary == primary) {
+    if (d->primary == primary) {
         return;
     }
 
-    m_primary = primary;
+    d->primary = primary;
 
     Q_EMIT isPrimaryChanged();
 }
 
-QList<int> Output::clones()
+QList<int> Output::clones() const
 {
-    return m_clones;
+    return d->clones;
 }
 
 void Output::setClones(QList<int> outputlist)
 {
-    if (m_clones == outputlist) {
+    if (d->clones == outputlist) {
         return;
     }
 
-    m_clones = outputlist;
+    d->clones = outputlist;
 
     Q_EMIT clonesChanged();
 }
 
 Edid *Output::edid() const
 {
-    if (m_edid == 0) {
+    if (d->edid == 0) {
         AbstractBackend *backend = BackendLoader::backend();
-        m_edid = backend->edid(m_id);
+        d->edid = backend->edid(d->id);
     }
 
-    return m_edid;
+    return d->edid;
 }
 
 

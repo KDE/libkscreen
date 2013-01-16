@@ -47,27 +47,61 @@
 
 namespace KScreen {
 
+
+class Edid::Private
+{
+  public:
+    Private():
+      valid(false),
+      width(0),
+      height(0),
+      gamma(0)
+    { }
+
+    bool parse(const quint8 *data, size_t length);
+    int edidGetBit(int in, int bit) const;
+    int edidGetBits(int in, int begin, int end) const;
+    double edidDecodeFraction(int high, int low) const;
+    QString edidParseString(const quint8 *data) const;
+
+    bool valid;
+    QString monitorName;
+    QString vendorName;
+    QString serialNumber;
+    QString eisaId;
+    QString checksum;
+    QString pnpId;
+    uint width;
+    uint height;
+    qreal gamma;
+    QQuaternion red;
+    QQuaternion green;
+    QQuaternion blue;
+    QQuaternion white;
+};
+
+
 Edid::Edid()
   : QObject()
-  , m_valid(false)
+  , d(new Private())
 {
 }
 
 Edid::Edid(const quint8 *data, size_t length, QObject *parent)
   : QObject(parent)
-  , m_valid(false)
+  , d(new Private())
 {
-    parse(data, length);
+    d->parse(data, length);
 }
 
 Edid::~Edid()
 {
-
+    delete d;
 }
 
 bool Edid::isValid() const
 {
-    return m_valid;
+    return d->valid;
 }
 
 QString Edid::deviceId(const QString &fallbackName) const
@@ -81,7 +115,7 @@ QString Edid::deviceId(const QString &fallbackName) const
             // all info we have are empty strings
             id.append(QLatin1String("-unknown"));
         }
-    } else if (m_valid) {
+    } else if (d->valid) {
         if (!vendor().isNull()) {
             id.append(QLatin1Char('-') % vendor());
         }
@@ -98,101 +132,101 @@ QString Edid::deviceId(const QString &fallbackName) const
 
 QString Edid::name() const
 {
-    if (m_valid) {
-        return m_monitorName;
+    if (d->valid) {
+        return d->monitorName;
     }
     return QString();
 }
 
 QString Edid::vendor() const
 {
-    if (m_valid) {
-        return m_vendorName;
+    if (d->valid) {
+        return d->vendorName;
     }
     return QString();
 }
 
 QString Edid::serial() const
 {
-    if (m_valid) {
-        return m_serialNumber;
+    if (d->valid) {
+        return d->serialNumber;
     }
     return QString();
 }
 
 QString Edid::eisaId() const
 {
-    if (m_valid) {
-        return m_eisaId;
+    if (d->valid) {
+        return d->eisaId;
     }
     return QString();
 }
 
 QString Edid::hash() const
 {
-    if (m_valid) {
-        return m_checksum;
+    if (d->valid) {
+        return d->checksum;
     }
     return QString();
 }
 
 QString Edid::pnpId() const
 {
-    if (m_valid) {
-        return m_pnpId;
+    if (d->valid) {
+        return d->pnpId;
     }
     return QString();
 }
 
 uint Edid::width() const
 {
-    return m_width;
+    return d->width;
 }
 
 uint Edid::height() const
 {
-    return m_height;
+    return d->height;
 }
 
 qreal Edid::gamma() const
 {
-    return m_gamma;
+    return d->gamma;
 }
 
 QQuaternion Edid::red() const
 {
-    return m_red;
+    return d->red;
 }
 
 QQuaternion Edid::green() const
 {
-    return m_green;
+    return d->green;
 }
 
 QQuaternion Edid::blue() const
 {
-    return m_blue;
+    return d->blue;
 }
 
 QQuaternion Edid::white() const
 {
-    return m_white;
+    return d->white;
 }
 
-bool Edid::parse(const quint8 *data, size_t length)
+bool Edid::Private::parse(const quint8 *data, size_t length)
 {
     quint32 serial;
 
     /* check header */
     if (length < 128) {
         kWarning() << "EDID length is too small";
-        m_valid = false;
-        return m_valid;
+        valid = false;
+        return valid;
     }
     if (data[0] != 0x00 || data[1] != 0xff) {
         kWarning() << "Failed to parse EDID header";
-        m_valid = false;
-        return m_valid;
+        valid = false;
+        return valid;
     }
 
     /* decode the PNP ID from three 5 bit words packed into 2 bytes
@@ -200,20 +234,20 @@ bool Edid::parse(const quint8 *data, size_t length)
      * 7654321076543210
      * |\---/\---/\---/
      * R  C1   C2   C3 */
-    m_pnpId[0] = 'A' + ((data[GCM_EDID_OFFSET_PNPID + 0] & 0x7c) / 4) - 1;
-    m_pnpId[1] = 'A' + ((data[GCM_EDID_OFFSET_PNPID + 0] & 0x3) * 8) + ((data[GCM_EDID_OFFSET_PNPID+1] & 0xe0) / 32) - 1;
-    m_pnpId[2] = 'A' + (data[GCM_EDID_OFFSET_PNPID + 1] & 0x1f) - 1;
+    pnpId[0] = 'A' + ((data[GCM_EDID_OFFSET_PNPID + 0] & 0x7c) / 4) - 1;
+    pnpId[1] = 'A' + ((data[GCM_EDID_OFFSET_PNPID + 0] & 0x3) * 8) + ((data[GCM_EDID_OFFSET_PNPID+1] & 0xe0) / 32) - 1;
+    pnpId[2] = 'A' + (data[GCM_EDID_OFFSET_PNPID + 1] & 0x1f) - 1;
 
     // load the PNP_IDS file and load the vendor name
-    if (!m_pnpId.isEmpty()) {
+    if (!pnpId.isEmpty()) {
         QFile pnpIds(PNP_IDS);
         if (pnpIds.open(QIODevice::ReadOnly)) {
             while (!pnpIds.atEnd()) {
                 QString line = pnpIds.readLine();
-                if (line.startsWith(m_pnpId)) {
+                if (line.startsWith(pnpId)) {
                     QStringList parts = line.split(QLatin1Char('\t'));
                     if (parts.size() == 2) {
-                        m_vendorName = line.split(QLatin1Char('\t')).at(1).simplified();
+                        vendorName = line.split(QLatin1Char('\t')).at(1).simplified();
                     }
                     break;
                 }
@@ -227,41 +261,41 @@ bool Edid::parse(const quint8 *data, size_t length)
     serial += static_cast<quint32>(data[GCM_EDID_OFFSET_SERIAL + 2] * 0x10000);
     serial += static_cast<quint32>(data[GCM_EDID_OFFSET_SERIAL + 3] * 0x1000000);
     if (serial > 0) {
-        m_serialNumber = QString::number(serial);
+        serialNumber = QString::number(serial);
     }
 
     /* get the size */
-    m_width = data[GCM_EDID_OFFSET_SIZE + 0];
-    m_height = data[GCM_EDID_OFFSET_SIZE + 1];
+    width = data[GCM_EDID_OFFSET_SIZE + 0];
+    height = data[GCM_EDID_OFFSET_SIZE + 1];
 
     /* we don't care about aspect */
-    if (m_width == 0 || m_height == 0) {
-        m_width = 0;
-        m_height = 0;
+    if (width == 0 || height == 0) {
+        width = 0;
+        height = 0;
     }
 
     /* get gamma */
     if (data[GCM_EDID_OFFSET_GAMMA] == 0xff) {
-        m_gamma = 1.0f;
+        gamma = 1.0f;
     } else {
-        m_gamma = (static_cast<float>(data[GCM_EDID_OFFSET_GAMMA] / 100) + 1);
+        gamma = (static_cast<float>(data[GCM_EDID_OFFSET_GAMMA] / 100) + 1);
     }
 
     /* get color red */
-    m_red.setX(edidDecodeFraction(data[0x1b], edidGetBits(data[0x19], 6, 7)));
-    m_red.setY(edidDecodeFraction(data[0x1c], edidGetBits(data[0x19], 5, 4)));
+    red.setX(edidDecodeFraction(data[0x1b], edidGetBits(data[0x19], 6, 7)));
+    red.setY(edidDecodeFraction(data[0x1c], edidGetBits(data[0x19], 5, 4)));
 
     /* get color green */
-    m_green.setX(edidDecodeFraction(data[0x1d], edidGetBits(data[0x19], 2, 3)));
-    m_green.setY(edidDecodeFraction(data[0x1e], edidGetBits(data[0x19], 0, 1)));
+    green.setX(edidDecodeFraction(data[0x1d], edidGetBits(data[0x19], 2, 3)));
+    green.setY(edidDecodeFraction(data[0x1e], edidGetBits(data[0x19], 0, 1)));
 
     /* get color blue */
-    m_blue.setX(edidDecodeFraction(data[0x1f], edidGetBits(data[0x1a], 6, 7)));
-    m_blue.setY(edidDecodeFraction(data[0x20], edidGetBits(data[0x1a], 4, 5)));
+    blue.setX(edidDecodeFraction(data[0x1f], edidGetBits(data[0x1a], 6, 7)));
+    blue.setY(edidDecodeFraction(data[0x20], edidGetBits(data[0x1a], 4, 5)));
 
     /* get color white */
-    m_white.setX(edidDecodeFraction(data[0x21], edidGetBits(data[0x1a], 2, 3)));
-    m_white.setY(edidDecodeFraction(data[0x22], edidGetBits(data[0x1a], 0, 1)));
+    white.setX(edidDecodeFraction(data[0x21], edidGetBits(data[0x1a], 2, 3)));
+    white.setY(edidDecodeFraction(data[0x22], edidGetBits(data[0x1a], 0, 1)));
 
     /* parse EDID data */
     for (uint i = GCM_EDID_OFFSET_DATA_BLOCKS;
@@ -279,30 +313,30 @@ bool Edid::parse(const quint8 *data, size_t length)
         if (data[i+3] == GCM_DESCRIPTOR_DISPLAY_PRODUCT_NAME) {
             QString tmp = edidParseString(&data[i+5]);
             if (!tmp.isEmpty()) {
-                m_monitorName = tmp;
+                monitorName = tmp;
             }
         } else if (data[i+3] == GCM_DESCRIPTOR_DISPLAY_PRODUCT_SERIAL_NUMBER) {
             QString tmp = edidParseString(&data[i+5]);
             if (!tmp.isEmpty()) {
-                m_serialNumber = tmp;
+                serialNumber = tmp;
             }
         } else if (data[i+3] == GCM_DESCRIPTOR_COLOR_MANAGEMENT_DATA) {
             kWarning() << "failing to parse color management data";
         } else if (data[i+3] == GCM_DESCRIPTOR_ALPHANUMERIC_DATA_STRING) {
             QString tmp = edidParseString(&data[i+5]);
             if (!tmp.isEmpty()) {
-                m_eisaId = tmp;
+                eisaId = tmp;
             }
         } else if (data[i+3] == GCM_DESCRIPTOR_COLOR_POINT) {
             if (data[i+3+9] != 0xff) {
                 /* extended EDID block(1) which contains
                                      * a better gamma value */
-                m_gamma = ((float) data[i+3+9] / 100) + 1;
+                gamma = ((float) data[i+3+9] / 100) + 1;
             }
             if (data[i+3+14] != 0xff) {
                 /* extended EDID block(2) which contains
                                      * a better gamma value */
-                m_gamma = ((float) data[i+3+9] / 100) + 1;
+                gamma = ((float) data[i+3+9] / 100) + 1;
             }
         }
     }
@@ -310,25 +344,25 @@ bool Edid::parse(const quint8 *data, size_t length)
     // calculate checksum
     QCryptographicHash hash(QCryptographicHash::Md5);
     hash.addData(reinterpret_cast<const char *>(data), length);
-    m_checksum = hash.result().toHex();
+    checksum = hash.result().toHex();
 
-    m_valid = true;
-    return m_valid;
+    valid = true;
+    return valid;
 }
 
-int Edid::edidGetBit(int in, int bit) const
+int Edid::Private::edidGetBit(int in, int bit) const
 {
         return (in & (1 << bit)) >> bit;
 }
 
-int Edid::edidGetBits(int in, int begin, int end) const
+int Edid::Private::edidGetBits(int in, int begin, int end) const
 {
         int mask = (1 << (end - begin + 1)) - 1;
 
         return (in >> begin) & mask;
 }
 
-double Edid::edidDecodeFraction(int high, int low) const
+double Edid::Private::edidDecodeFraction(int high, int low) const
 {
         double result = 0.0;
         int i;
@@ -340,7 +374,7 @@ double Edid::edidDecodeFraction(int high, int low) const
         return result;
 }
 
-QString Edid::edidParseString(const quint8 *data) const
+QString Edid::Private::edidParseString(const quint8 *data) const
 {
         QString text;
 
