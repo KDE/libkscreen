@@ -46,12 +46,10 @@ void testXRandR::initTestCase()
 void testXRandR::singleOutput()
 {
     setenv("KSCREEN_BACKEND", "XRandR", 1);
-
-//     QVERIFY2(kscreen, KScreen::errorString().toLatin1());
-
-//     QVERIFY2(!kscreen->backend().isEmpty(), "No backend loaded");
-
     Config *config = Config::current();
+    if (!config) {
+        QSKIP("XRandR X extension is not available", SkipAll);
+    }
 
     QCOMPARE(config->outputs().count(), 1);
 
