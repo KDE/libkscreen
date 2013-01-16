@@ -50,7 +50,7 @@ QString Fake::name() const
 
 Config* Fake::config() const
 {
-    return Parser::fromJson(qgetenv("TEST_DATA"));
+    return Parser::fromJson(QString(qgetenv("TEST_DATA")));
 }
 
 void Fake::setConfig(Config* config) const
@@ -66,7 +66,7 @@ bool Fake::isValid() const
 Edid *Fake::edid(int outputId) const
 {
     Q_UNUSED(outputId);
-    QFile file(qgetenv("TEST_DATA").constData());
+    QFile file(QString(qgetenv("TEST_DATA")));
     file.open(QIODevice::ReadOnly);
 
     QJson::Parser parser;
