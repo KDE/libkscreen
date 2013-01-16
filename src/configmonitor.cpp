@@ -30,7 +30,7 @@ class ConfigMonitor::Private
 {
   public:
     Private():
-      backend(0)
+      backend(BackendLoader::backend())
     { }
 
     void updateConfigs();
