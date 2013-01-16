@@ -52,6 +52,8 @@ using namespace KScreen;
 
 XRandR::XRandR(QObject* parent)
     : QObject(parent)
+    , m_x11Helper(0)
+    , m_isValid(false)
 {
     if (s_display == 0) {
         s_display = QX11Info::display();
@@ -61,8 +63,15 @@ XRandR::XRandR(QObject* parent)
         XRRQueryExtension(s_display, &s_randrBase, &s_randrError);
     }
 
-    int majorVersion, minorVersion;
+    int majorVersion = 0, minorVersion = 0;
     XRRQueryVersion(s_display, &majorVersion, &minorVersion);
+
+    if ((majorVersion >= 1) && (minorVersion >= 0)) {
+        m_isValid = true;
+    } else {
+        kDebug() << "XRandR eXtension not available or unsupported version";
+        return;
+    }
 
     XRandR::s_has_1_3 = (majorVersion > 1 || (majorVersion == 1 && minorVersion >= 3));
 
@@ -146,7 +155,7 @@ Edid *XRandR::edid(int outputId) const
 
 bool XRandR::isValid() const
 {
-    return true;
+    return m_isValid;
 }
 
 void XRandR::updateConfig(Config *config) const

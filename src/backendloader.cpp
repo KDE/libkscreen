@@ -55,6 +55,14 @@ bool BackendLoader::init()
 
         s_backend = qobject_cast< AbstractBackend* >(instance);
         if (s_backend) {
+            if (!s_backend->isValid()) {
+                kDebug() << "Backend is not available";
+                delete s_backend;
+                s_backend = 0;
+
+                return false;
+            }
+
             kDebug() << "Backend Loaded";
             return true;
         }

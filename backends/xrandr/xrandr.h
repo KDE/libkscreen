@@ -77,6 +77,7 @@ class XRandR : public QObject, public AbstractBackend
         static bool s_xorgCacheInitialized;
 
         XRandRX11Helper *m_x11Helper;
+        bool m_isValid;
 };
 
 extern int dXndr();
