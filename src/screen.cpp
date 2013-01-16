@@ -77,4 +77,5 @@ void Screen::setMinSize(const QSize& minSize)
 }
 
 } //KScreen namespace
+
 #include "screen.moc"

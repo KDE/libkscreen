@@ -118,4 +118,5 @@ void Config::setValid(bool valid)
 }
 
 } //KScreen namespace
+
 #include "config.moc"

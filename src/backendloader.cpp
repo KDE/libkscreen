@@ -36,7 +36,7 @@ bool BackendLoader::init()
     KDebug::Block block("Loading backend");
 
     QStringList paths = QCoreApplication::libraryPaths();
-    QString backend(getenv("KSCREEN_BACKEND"));
+    QString backend = qgetenv("KSCREEN_BACKEND").constData();
     if (backend.isEmpty()) {
         kWarning() << "No KScreen backend set!";
         return false;

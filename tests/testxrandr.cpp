@@ -18,7 +18,7 @@
 
 #define QT_GUI_LIB
 
-#include <QtTest>
+#include <QtTest/QtTest>
 #include <QtCore/QObject>
 
 #include "../src/config.h"

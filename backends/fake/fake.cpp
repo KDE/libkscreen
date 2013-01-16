@@ -28,6 +28,7 @@
 #include <QtCore/qplugin.h>
 
 #include <qjson/parser.h>
+
 Q_EXPORT_PLUGIN2(Fake, Fake)
 
 using namespace KScreen;
@@ -49,7 +50,7 @@ QString Fake::name() const
 
 Config* Fake::config() const
 {
-    return Parser::fromJson(QString::fromLatin1(getenv("TEST_DATA")));
+    return Parser::fromJson(qgetenv("TEST_DATA"));
 }
 
 void Fake::setConfig(Config* config) const
@@ -65,7 +66,7 @@ bool Fake::isValid() const
 Edid *Fake::edid(int outputId) const
 {
     Q_UNUSED(outputId);
-    QFile file(QString::fromLatin1(getenv("TEST_DATA")));
+    QFile file(qgetenv("TEST_DATA").constData());
     file.open(QIODevice::ReadOnly);
 
     QJson::Parser parser;

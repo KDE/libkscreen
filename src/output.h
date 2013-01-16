@@ -24,10 +24,9 @@
 
 #include <QtCore/QSize>
 #include <QtCore/QPoint>
-#include <QtCore/QPoint>
 #include <QtCore/QObject>
 #include <QtCore/QMetaType>
-#include <QPointer>
+#include <QtCore/QPointer>
 
 namespace KScreen {
 

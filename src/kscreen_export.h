@@ -19,7 +19,7 @@
 #ifndef KSCREEN_EXPORT_H
 #define KSCREEN_EXPORT_H
 
-#include <QtCore/qglobal.h>
+#include <QtCore/QtGlobal>
 
 #define KSCREEN_EXPORT Q_DECL_EXPORT
 

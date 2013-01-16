@@ -281,7 +281,7 @@ void XRandROutput::updateKScreenOutput(KScreen::Output *output) const
     if (!m_changedProperties || (m_changedProperties & PropertyModes)) {
         XRandRMode::Map::ConstIterator iter;
         KScreen::ModeList kscreenModes;
-        for (iter = m_modes.constBegin(); iter != m_modes.constEnd(); iter++) {
+        for (iter = m_modes.constBegin(); iter != m_modes.constEnd(); ++iter) {
             XRandRMode *mode = iter.value();
             KScreen::Mode *kscreenMode = mode->toKScreenMode(output);
             kscreenModes.insert(iter.key(), kscreenMode);

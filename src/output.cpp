@@ -297,4 +297,5 @@ Edid *Output::edid() const
 
 
 } //KScreen namespace
+
 #include "output.moc"

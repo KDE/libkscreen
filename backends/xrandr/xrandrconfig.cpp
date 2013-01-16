@@ -64,7 +64,7 @@ void XRandRConfig::update()
     RROutput primary = XRRGetOutputPrimary(XRandR::display(), XRandR::rootWindow());
 
     XRandROutput::Map::Iterator iter;
-    for (iter = m_outputs.begin(); iter != m_outputs.end(); iter++) {
+    for (iter = m_outputs.begin(); iter != m_outputs.end(); ++iter) {
         XRandROutput *output = iter.value();
         output->update((iter.key() == (int) primary) ? XRandROutput::SetPrimary : XRandROutput::UnsetPrimary);
     }
@@ -81,7 +81,7 @@ KScreen::Config *XRandRConfig::toKScreenConfig() const
     KScreen::OutputList kscreenOutputs;
 
     XRandROutput::Map::ConstIterator iter;
-    for (iter = m_outputs.constBegin(); iter != m_outputs.constEnd(); iter++) {
+    for (iter = m_outputs.constBegin(); iter != m_outputs.constEnd(); ++iter) {
         XRandROutput *output = iter.value();
         //FIXME XRandR backend should keep updated itself
         output->update(XRandROutput::NoChange);
@@ -101,7 +101,7 @@ void XRandRConfig::updateKScreenConfig(Config *config) const
     m_screen->updateKScreenScreen(kscreenScreen);
 
     XRandROutput::Map::ConstIterator iter;
-    for (iter = m_outputs.constBegin(); iter != m_outputs.constEnd(); iter++) {
+    for (iter = m_outputs.constBegin(); iter != m_outputs.constEnd(); ++iter) {
         XRandROutput *output = iter.value();
         KScreen::Output *kscreenOutput = config->output(output->id());
         output->updateKScreenOutput(kscreenOutput);

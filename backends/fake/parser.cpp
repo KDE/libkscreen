@@ -80,7 +80,7 @@ Output* Parser::outputFromJson(const QVariant& data)
 
     QList<int> preferredModes;
     QVariantList modes = map["preferredModes"].toList();
-    Q_FOREACH(QVariant mode, modes) {
+    Q_FOREACH(const QVariant &mode, modes) {
         preferredModes.append(mode.toInt());
     }
     output->setPreferredModes(preferredModes);
@@ -98,7 +98,7 @@ Output* Parser::outputFromJson(const QVariant& data)
 
     if(map.contains("clones")) {
         QList<int> clones;
-        Q_FOREACH(const QVariant id, map["clones"].toList()) {
+        Q_FOREACH(const QVariant &id, map["clones"].toList()) {
             clones.append(id.toInt());
         }
 
