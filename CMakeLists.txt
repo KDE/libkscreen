@@ -47,7 +47,6 @@ set(INSTALL_TARGETS_DEFAULT_ARGS  RUNTIME DESTINATION "${BIN_INSTALL_DIR}"
 include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${QT_INCLUDES} ${KDE4_INCLUDES})
 
 add_subdirectory(src)
-add_subdirectory(tools)
 add_subdirectory(backends)
 add_subdirectory(tests)
 
