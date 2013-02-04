@@ -59,7 +59,7 @@ void testXRandR::singleOutput()
     QCOMPARE(output->type(), QString("unknown"));
     QCOMPARE(output->modes().count(), 15);
     QCOMPARE(output->pos(), QPoint(0, 0));
-    QCOMPARE(output->currentMode(), 338);
+    QCOMPARE(output->currentModeId(), 338);
     QCOMPARE(output->rotation(), Output::None);
     QCOMPARE(output->isConnected(), true);
     QCOMPARE(output->isEnabled(), true);

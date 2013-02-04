@@ -45,8 +45,8 @@ class KSCREEN_EXPORT Output : public QObject
         Q_PROPERTY(ModeList modes READ modes CONSTANT)
         Q_PROPERTY(QPoint pos READ pos WRITE setPos NOTIFY posChanged)
         Q_PROPERTY(Rotation rotation READ rotation WRITE setRotation NOTIFY rotationChanged)
-        Q_PROPERTY(int currentMode READ currentMode WRITE setCurrentMode NOTIFY currentModeChanged)
-        Q_PROPERTY(int preferredMode READ preferredMode CONSTANT)
+        Q_PROPERTY(int currentModeId READ currentModeId WRITE setCurrentModeId NOTIFY currentModeIdChanged)
+        Q_PROPERTY(int preferredModeId READ preferredModeId CONSTANT)
         Q_PROPERTY(bool connected READ isConnected WRITE setConnected NOTIFY isConnectedChanged)
         Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled NOTIFY isEnabledChanged)
         Q_PROPERTY(bool primary READ isPrimary WRITE setPrimary NOTIFY isPrimaryChanged)
@@ -79,21 +79,33 @@ class KSCREEN_EXPORT Output : public QObject
         QHash<int, Mode*> modes() const;
         void setModes(ModeList modes);
 
-        int currentMode() const;
-        void setCurrentMode(int mode);
+        int currentModeId() const;
+        void setCurrentModeId(int mode);
+        Q_INVOKABLE Mode* currentMode() const;
 
         void setPreferredModes(QList<int> modes);
         QList<int> preferredModes() const;
         /**
          * Returns the preferred mode with higer resolution and refresh
          */
-        int preferredMode() const;
+        Q_INVOKABLE int preferredModeId() const;
+        /**
+         * Returns KScreen::Mode associated with preferredModeId()
+         */
+        Q_INVOKABLE Mode* preferredMode() const;
 
         QPoint pos() const;
         void setPos(const QPoint& pos);
 
         Rotation rotation() const;
         void setRotation(Rotation rotation);
+        /**
+         * A comfortable function that returns true when output is not rotated
+         * or is rotated upside down.
+         */
+        Q_INVOKABLE inline bool isHorizontal() const {
+            return ((rotation() == Output::None) || (rotation() == Output::Inverted));
+        }
 
         bool isConnected() const;
         void setConnected(bool connected);
@@ -112,7 +124,7 @@ class KSCREEN_EXPORT Output : public QObject
     Q_SIGNALS:
         void outputChanged();
         void posChanged();
-        void currentModeChanged();
+        void currentModeIdChanged();
         void rotationChanged();
         void isConnectedChanged();
         void isEnabledChanged();

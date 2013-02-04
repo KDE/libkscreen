@@ -69,8 +69,8 @@ void testScreenConfig::singleOutput()
     QCOMPARE(output->type(), QString("LVDS"));
     QCOMPARE(output->modes().count(), 3);
     QCOMPARE(output->pos(), QPoint(0, 0));
-    QCOMPARE(output->currentMode(), 3);
-    QCOMPARE(output->preferredMode(), 3);
+    QCOMPARE(output->currentModeId(), 3);
+    QCOMPARE(output->preferredModeId(), 3);
     QCOMPARE(output->rotation(), Output::None);
     QCOMPARE(output->isConnected(), true);
     QCOMPARE(output->isEnabled(), true);
@@ -78,7 +78,7 @@ void testScreenConfig::singleOutput()
     //QCOMPARE(output->isEmbedded(), true);
     QVERIFY2(output->clones().isEmpty(), "In singleOutput is impossible to have clones");
 
-    Mode* mode = output->mode(output->currentMode());
+    Mode* mode = output->currentMode();
     QCOMPARE(mode->size(), QSize(1280, 800));
     QCOMPARE(mode->refreshRate(), (float)59.9);
 }
@@ -105,15 +105,15 @@ void testScreenConfig::multiOutput()
     QCOMPARE(output->type(), QString("HDMI"));
     QCOMPARE(output->modes().count(), 4);
     QCOMPARE(output->pos(), QPoint(0, 0));
-    QCOMPARE(output->currentMode(), 4);
-    QCOMPARE(output->preferredMode(), 4);
+    QCOMPARE(output->currentModeId(), 4);
+    QCOMPARE(output->preferredModeId(), 4);
     QCOMPARE(output->rotation(), Output::None);
     QCOMPARE(output->isConnected(), true);
     QCOMPARE(output->isEnabled(), true);
     QCOMPARE(output->isPrimary(), false);
     QVERIFY2(output->clones().isEmpty(), "This simulates extended output, no clones");
 
-    Mode* mode = output->mode(output->currentMode());
+    Mode* mode = output->currentMode();
     QCOMPARE(mode->size(), QSize(1920, 1080));
     QCOMPARE(mode->refreshRate(), (float)60.0);
 }
@@ -134,7 +134,7 @@ void testScreenConfig::clonesOutput()
     Output* one = config->outputs()[1];
     Output* two = config->outputs()[2];
 
-    QCOMPARE(one->mode(one->currentMode())->size(), two->mode(two->currentMode())->size());
+    QCOMPARE(one->currentMode()->size(), two->currentMode()->size());
     QCOMPARE(one->clones().count(), 1);
     QCOMPARE(one->clones().first(), two->id());
     QVERIFY2(two->clones().isEmpty(), "Output two should have no clones");

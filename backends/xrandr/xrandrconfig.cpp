@@ -140,7 +140,7 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
 
         neededCrtc ++;
 
-        if (output->currentMode() != currentOutput->currentMode()) {
+        if (output->currentModeId() != currentOutput->currentModeId()) {
             if (!toChange.contains(output->id())) {
                 currentCrtc.insert(output->id(), XRandR::outputCrtc(output->id()));
                 toChange.insert(output->id(), output);
@@ -161,23 +161,23 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
             }
         }
 
-        QSize size = output->mode(currentOutput->currentMode())->size();
+        QSize size = output->mode(currentOutput->currentModeId())->size();
 
         int x, y;
 
         //TODO: Move this code within libkscreen
         y = currentOutput->position().y();
-        if (currentOutput->rotation() == Output::Left || currentOutput->rotation() == Output::Right) {
-            y += size.width();
-        } else {
+        if (currentOutput->isHorizontal()) {
             y += size.height();
+        } else {
+            y += size.width();
         }
 
         x = currentOutput->position().x();
-        if (currentOutput->rotation() == Output::Left || currentOutput->rotation() == Output::Right) {
-            x += size.height();
-        } else {
+        if (currentOutput->isHorizontal()) {
             x += size.width();
+        } else {
+            x += size.height();
         }
 
         if (x > newSize.width() || y > newSize.height()) {
@@ -284,7 +284,7 @@ QSize XRandRConfig::screenSize(KScreen::Config* config) const
             continue;
         }
 
-        Mode *currentMode = output->mode(output->currentMode());
+        Mode *currentMode = output->currentMode();
         if (!currentMode) {
             kDebug(dXndr()) << "Output: " << output->name() << " has no current Mode";
             continue;
@@ -302,7 +302,7 @@ QSize XRandRConfig::screenSize(KScreen::Config* config) const
         }
 
         QPoint bottomRight;
-        if ((output->rotation() == KScreen::Output::Inverted) || (output->rotation() == KScreen::Output::None)) {
+        if (output->isHorizontal()) {
             bottomRight = QPoint(output->pos().x() + outputSize.width(),
                                  output->pos().y() + outputSize.height());
         } else {
@@ -369,7 +369,7 @@ bool XRandRConfig::enableOutput(Output* output) const
     RROutput *outputs = new RROutput[1];
     outputs[0] = output->id();
     Status s = XRRSetCrtcConfig(XRandR::display(), XRandR::screenResources(), XRandR::freeCrtc(output->id()),
-        CurrentTime, output->pos().rx(), output->pos().ry(), output->currentMode(),
+        CurrentTime, output->pos().rx(), output->pos().ry(), output->currentModeId(),
         output->rotation(), outputs, 1);
 
     kDebug(dXndr()) << "XRRSetCrtcConfig() returned" << s;
@@ -384,7 +384,7 @@ bool XRandRConfig::changeOutput(Output* output, int crtcId) const
     RROutput *outputs = new RROutput[1];
     outputs[0] = output->id();
     Status s = XRRSetCrtcConfig(XRandR::display(), XRandR::screenResources(), crtcId,
-        CurrentTime, output->pos().rx(), output->pos().ry(), output->currentMode(),
+        CurrentTime, output->pos().rx(), output->pos().ry(), output->currentModeId(),
         output->rotation(), outputs, 1);
 
     kDebug(dXndr()) << "XRRSetCrtcConfig() returned" << s;

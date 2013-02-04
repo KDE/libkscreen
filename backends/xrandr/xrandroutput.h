@@ -81,8 +81,9 @@ public:
     bool isConnected() const;
     bool isPrimary() const;
     QPoint position() const;
-    int currentMode() const;
+    int currentModeId() const;
     KScreen::Output::Rotation rotation() const;
+    inline bool isHorizontal() const { return ((m_rotation == KScreen::Output::None) || (m_rotation == KScreen::Output::Inverted)); }
     KScreen::Edid* edid() const;
 
     KScreen::Output* toKScreenOutput(KScreen::Config *parent) const;

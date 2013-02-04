@@ -155,12 +155,12 @@ void Output::setModes(ModeList modes)
     d->modeList = modes;
 }
 
-int Output::currentMode() const
+int Output::currentModeId() const
 {
     return d->currentMode;
 }
 
-void Output::setCurrentMode(int mode)
+void Output::setCurrentModeId(int mode)
 {
     if (d->currentMode == mode) {
         return;
@@ -168,7 +168,12 @@ void Output::setCurrentMode(int mode)
 
     d->currentMode = mode;
 
-    Q_EMIT currentModeChanged();
+    Q_EMIT currentModeIdChanged();
+}
+
+Mode *Output::currentMode() const
+{
+    return d->modeList.value(d->currentMode);
 }
 
 void Output::setPreferredModes(QList<int> modes)
@@ -182,7 +187,7 @@ QList<int> Output::preferredModes() const
     return d->preferredModes;
 }
 
-int Output::preferredMode() const
+int Output::preferredModeId() const
 {
     if (d->preferredMode || d->preferredModes.isEmpty()) {
         return d->preferredMode;
@@ -212,6 +217,11 @@ int Output::preferredMode() const
 
     d->preferredMode = biggest->id();
     return d->preferredMode;
+}
+
+Mode* Output::preferredMode() const
+{
+    return d->modeList.value(preferredModeId());
 }
 
 QPoint Output::pos() const

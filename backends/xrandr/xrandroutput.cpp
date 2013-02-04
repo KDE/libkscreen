@@ -77,7 +77,7 @@ QPoint XRandROutput::position() const
     return m_position;
 }
 
-int XRandROutput::currentMode() const
+int XRandROutput::currentModeId() const
 {
     return m_currentMode;
 }
@@ -251,7 +251,7 @@ void XRandROutput::updateKScreenOutput(KScreen::Output *output) const
     }
 
     if (!m_changedProperties || (m_changedProperties & PropertyCurrentMode)) {
-        output->setCurrentMode(m_currentMode);
+        output->setCurrentModeId(m_currentMode);
     }
 
     if (!m_changedProperties || (m_changedProperties & PropertyPreferredMode)) {
