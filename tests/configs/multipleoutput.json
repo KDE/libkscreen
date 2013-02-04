@@ -55,7 +55,7 @@
                 "x" : 0,
                 "y" : 0
             },
-            "currentMode" : 3,
+            "currentModeId" : 3,
             "preferredModes" : [2],
             "rotation" : 1,
             "connected" : true,
@@ -110,7 +110,7 @@
                 "x" : 1280,
                 "y" : 0
             },
-            "currentMode" : 4,
+            "currentModeId" : 4,
             "preferredModes" : [4],
             "rotation" : 1,
             "connected" : true,
