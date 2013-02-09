@@ -114,10 +114,8 @@ KScreen::Config* XRandR11::config() const
             mode->setRefreshRate((float) rates[j]);
             mode->setName(QString(QString::number(sizes[x].width) + "x" + QString::number(sizes[x].height)));
 
-            if (sizes[x].width == xcbScreen->width_in_pixels &&
-                sizes[x].height == xcbScreen->height_in_pixels &&
-                rates[j] == info->rate) {
-                output->setCurrentModeId(x);
+            if (x == info->sizeID && rates[j] == info->rate) {
+                output->setCurrentModeId(mode->id());
             }
         }
 
