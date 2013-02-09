@@ -69,7 +69,7 @@ bool BackendLoader::init()
 
     }
 
-    qWarning() << "Backend '" << backend << "' not found";
+    kWarning() << "Backend '" << backend << "' not found";
     return false;
 }
 
