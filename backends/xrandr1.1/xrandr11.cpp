@@ -130,7 +130,19 @@ KScreen::Config* XRandR11::config() const
 
 void XRandR11::setConfig(KScreen::Config* config) const
 {
+    KScreen::Output* output = config->outputs().take(1);
+    KScreen::Mode *mode = output->currentMode();
 
+    int screenId = QX11Info().screen();
+    xcb_screen_t* xcbScreen = screen_of_display(connection(), screenId);
+
+    ScreenInfo info(xcbScreen->root);
+    xcb_generic_error_t *err;
+    xcb_randr_set_screen_config_cookie_t cookie;
+    xcb_randr_set_screen_config_reply_t *result;
+    cookie = xcb_randr_set_screen_config(connection(), xcbScreen->root, CurrentTime, info->config_timestamp, mode->id(),
+                                       (short) output->rotation(), mode->refreshRate());
+    result = xcb_randr_set_screen_config_reply(connection(), cookie, &err);
 }
 
 KScreen::Edid* XRandR11::edid(int outputId) const
