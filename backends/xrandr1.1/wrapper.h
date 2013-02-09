@@ -164,3 +164,4 @@ private:
 };
 
 typedef Wrapper<xcb_randr_get_screen_size_range_reply_t, xcb_randr_get_screen_size_range_cookie_t, &xcb_randr_get_screen_size_range_reply, &xcb_randr_get_screen_size_range> ScreenSize;
+typedef Wrapper<xcb_randr_get_screen_info_reply_t, xcb_randr_get_screen_info_cookie_t, &xcb_randr_get_screen_info_reply, &xcb_randr_get_screen_info> ScreenInfo;

@@ -94,7 +94,37 @@ KScreen::Config* XRandR11::config() const
     outputs.insert(1, output);
     config->setOutputs(outputs);
 
+    KScreen::Mode *mode = 0;
+    KScreen::ModeList modes;
+    ScreenInfo info(xcbScreen->root);
 
+    int nrates;
+    uint16_t* rates;
+    xcb_randr_refresh_rates_iterator_t ite =  xcb_randr_get_screen_info_rates_iterator(info.data());
+    xcb_randr_screen_size_t* sizes = xcb_randr_get_screen_info_sizes(info.data());
+    for (int x = 0; x < info->nSizes; x++) {
+        xcb_randr_refresh_rates_next(&ite);
+        rates = xcb_randr_refresh_rates_rates(ite.data);
+        nrates = xcb_randr_refresh_rates_rates_length(ite.data);
+
+        for (int j = 0; j < nrates; j++) {
+            mode = new KScreen::Mode();
+            mode->setId(x);
+            mode->setSize(QSize(sizes[x].width, sizes[x].height));
+            mode->setRefreshRate((float) rates[j]);
+            mode->setName(QString(QString::number(sizes[x].width) + "x" + QString::number(sizes[x].height)));
+
+            if (sizes[x].width == xcbScreen->width_in_pixels &&
+                sizes[x].height == xcbScreen->height_in_pixels &&
+                rates[j] == info->rate) {
+                output->setCurrentModeId(x);
+            }
+        }
+
+        modes.insert(x, mode);
+    }
+
+    output->setModes(modes);
     return config;
 }
 
