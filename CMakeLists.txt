@@ -15,11 +15,23 @@ enable_testing()
 find_package(Qt4 REQUIRED)
 find_package(KDE4 REQUIRED)
 find_package(QJSON 0.8 REQUIRED)
-find_package(XCB)
-find_package(X11_XCB)
 include(KDE4Defaults)
 add_definitions(${KDE4_DEFINITIONS})
 include(CheckCXXCompilerFlag)
+
+macro_optional_find_package(XCB)
+set_package_properties(XCB PROPERTIES DESCRIPTION "The X protocol C-language Binding (XCB) is a replacement for Xlib"
+    URL "http://xcb.freedesktop.org/"
+    TYPE OPTIONAL
+    PURPOSE "Needed to build XRandR 1.1 backend"
+)
+
+macro_optional_find_package(X11_XCB)
+set_package_properties(X11_XCB PROPERTIES DESCRIPTION "XCB extension to work with X11"
+    URL "http://xcb.freedesktop.org/"
+    TYPE OPTIONAL
+    PURPOSE "Needed to build XRandR 1.1 backend"
+)
 
 # Required to build on Gentoo
 link_directories(${QJSON_LIBRARY_DIRS})
