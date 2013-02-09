@@ -117,9 +117,9 @@ KScreen::Config* XRandR11::config() const
             if (x == info->sizeID && rates[j] == info->rate) {
                 output->setCurrentModeId(mode->id());
             }
+            modes.insert(mode->id(), mode);
         }
 
-        modes.insert(mode->id(), mode);
     }
 
     output->setModes(modes);
