@@ -33,6 +33,7 @@ class testScreenConfig : public QObject
 private Q_SLOTS:
     void initTestCase();
     void singleOutput();
+    void singleOutputWithoutPreferred();
     void multiOutput();
     void clonesOutput();
 };
@@ -81,6 +82,19 @@ void testScreenConfig::singleOutput()
     Mode* mode = output->currentMode();
     QCOMPARE(mode->size(), QSize(1280, 800));
     QCOMPARE(mode->refreshRate(), (float)59.9);
+}
+
+void testScreenConfig::singleOutputWithoutPreferred()
+{
+    QByteArray path(TEST_DATA);
+    path.append("/singleOutputWithoutPreferred.json");
+    setenv("TEST_DATA", path, 1);
+
+    Config* config = Config::current();
+    Output* output = config->outputs().take(1);
+
+    QVERIFY(output->preferredModes().isEmpty());
+    QCOMPARE(output->preferredModeId(), 3);
 }
 
 void testScreenConfig::multiOutput()

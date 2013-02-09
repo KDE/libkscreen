@@ -39,6 +39,8 @@ class Output::Private
         edid(0)
     {}
 
+    int biggestMode(const ModeList& modes) const;
+
     int id;
     QString name;
     QString type;
@@ -57,6 +59,32 @@ class Output::Private
 
     mutable QPointer<Edid> edid;
 };
+
+int Output::Private::biggestMode(const ModeList& modes) const
+{
+    int area, total = 0;
+    KScreen::Mode* biggest = 0;
+    Q_FOREACH(KScreen::Mode* mode, modes) {
+        area = mode->size().width() * mode->size().height();
+        if (area < total) {
+            continue;
+        }
+        if (area == total && mode->refreshRate() > biggest->refreshRate()) {
+            biggest = mode;
+            continue;
+        }
+
+        total = area;
+        biggest = mode;
+    }
+
+    if (!biggest) {
+        return 0;
+    }
+
+    return biggest->id();
+}
+
 Output::Output(QObject *parent)
  : QObject(parent)
  , d(new Private())
@@ -189,8 +217,11 @@ QList<int> Output::preferredModes() const
 
 int Output::preferredModeId() const
 {
-    if (d->preferredMode || d->preferredModes.isEmpty()) {
+    if (d->preferredMode) {
         return d->preferredMode;
+    }
+    if (d->preferredModes.isEmpty()) {
+        return d->biggestMode(modes());
     }
 
     int area, total = 0;
