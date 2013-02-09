@@ -103,7 +103,6 @@ KScreen::Config* XRandR11::config() const
     xcb_randr_refresh_rates_iterator_t ite =  xcb_randr_get_screen_info_rates_iterator(info.data());
     xcb_randr_screen_size_t* sizes = xcb_randr_get_screen_info_sizes(info.data());
     for (int x = 0; x < info->nSizes; x++) {
-        xcb_randr_refresh_rates_next(&ite);
         rates = xcb_randr_refresh_rates_rates(ite.data);
         nrates = xcb_randr_refresh_rates_rates_length(ite.data);
 
@@ -120,6 +119,7 @@ KScreen::Config* XRandR11::config() const
             modes.insert(mode->id(), mode);
         }
 
+        xcb_randr_refresh_rates_next(&ite);
     }
 
     output->setModes(modes);
