@@ -80,6 +80,21 @@ KScreen::Config* XRandR11::config() const
     screen->setMinSize(QSize(size->min_width, size->min_height));
 
     config->setScreen(screen);
+
+    KScreen::OutputList outputs;
+    KScreen::Output* output = new KScreen::Output();
+    output->setId(1);
+
+    output->setConnected(true);
+    output->setEnabled(true);
+    output->setName(QLatin1String("Default"));
+    output->setPos(QPoint(0,0));
+    output->setPrimary(true);
+
+    outputs.insert(1, output);
+    config->setOutputs(outputs);
+
+
     return config;
 }
 
