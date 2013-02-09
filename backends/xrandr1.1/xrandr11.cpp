@@ -19,15 +19,15 @@
 #include "xrandr11.h"
 #include "wrapper.h"
 
+#include "config.h"
+#include "edid.h"
+
 #include <xcb/xcb.h>
 #include <xcb/randr.h>
 
 #include <QtCore/QString>
 #include <QtCore/QDebug>
 #include <QtCore/qplugin.h>
-
-#include <kscreen/config.h>
-#include <kscreen/edid.h>
 
 Q_EXPORT_PLUGIN2(XRandR11, XRandR11)
 
