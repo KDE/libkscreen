@@ -66,6 +66,8 @@ bool XRandR11::isValid() const
 
 KScreen::Config* XRandR11::config() const
 {
+    KScreen::Config* config = new KScreen::Config();
+
     int screenId = QX11Info().screen();
     xcb_screen_t* xcbScreen = screen_of_display(connection(), screenId);
 
@@ -77,10 +79,7 @@ KScreen::Config* XRandR11::config() const
     screen->setMaxSize(QSize(size->max_width, size->max_height));
     screen->setMinSize(QSize(size->min_width, size->min_height));
 
-    KScreen::Config* config = new KScreen::Config();
     config->setScreen(screen);
-
-
     return config;
 }
 
