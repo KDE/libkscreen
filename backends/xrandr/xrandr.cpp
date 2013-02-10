@@ -104,7 +104,7 @@ QString XRandR::name() const
 void XRandR::updateConfig()
 {
     s_internalConfig->update();
-    KScreen::ConfigMonitor::instance()->notifyUpdate();;
+    KScreen::ConfigMonitor::instance()->notifyUpdate();
 }
 
 void XRandR::updateOutput(RROutput output)
