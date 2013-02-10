@@ -68,6 +68,9 @@ QString Output::Private::biggestMode(const ModeList& modes) const
         if (area < total) {
             continue;
         }
+        if (area == total && mode->refreshRate() < biggest->refreshRate()) {
+            continue;
+        }
         if (area == total && mode->refreshRate() > biggest->refreshRate()) {
             biggest = mode;
             continue;
@@ -230,6 +233,9 @@ QString Output::preferredModeId() const
         candidateMode = mode(modeId);
         area = candidateMode->size().width() * candidateMode->size().height();
         if (area < total) {
+            continue;
+        }
+        if (area == total && candidateMode->refreshRate() < biggest->refreshRate()) {
             continue;
         }
         if (area == total && biggest && candidateMode->refreshRate() > biggest->refreshRate()) {
