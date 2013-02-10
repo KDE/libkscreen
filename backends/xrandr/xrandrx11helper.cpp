@@ -20,24 +20,30 @@
 #include "xrandr.h"
 #include "xlibandxrandr.h"
 
+#include <QX11Info>
+
 #include <KSystemEventFilter>
 #include <kdebug.h>
 
 XRandRX11Helper::XRandRX11Helper():
     QWidget()
 {
-    XRRQueryVersion (XRandR::display(), &m_versionMajor, &m_versionMinor);
+    XRRQueryVersion (QX11Info::display(), &m_versionMajor, &m_versionMinor);
 
     kDebug(dXndr()).nospace() << "Detected XRandR " << m_versionMajor << "." << m_versionMinor;
 
-    XRRQueryExtension(XRandR::display(), &m_randrBase, &m_randrError);
+    XRRQueryExtension(QX11Info::display(), &m_randrBase, &m_randrError);
 
     kDebug(dXndr()) << "Event Base: " << m_randrBase;
     kDebug(dXndr()) << "Event Error: "<< m_randrError;
 
 
-    m_window = XCreateSimpleWindow(XRandR::display(), XRandR::rootWindow(), 0, 0, 1, 1, 0, 0, 0 );
-    XRRSelectInput(XRandR::display(), m_window,
+
+    m_window = XCreateSimpleWindow(QX11Info::display(),
+                                   XRootWindow(QX11Info::display(), DefaultScreen(QX11Info::display()))
+                                   , 0, 0, 1, 1, 0, 0, 0 );
+
+    XRRSelectInput(QX11Info::display(), m_window,
                    RRScreenChangeNotifyMask | RRCrtcChangeNotifyMask |
                    RROutputChangeNotifyMask | RROutputPropertyNotifyMask);
 
@@ -47,7 +53,7 @@ XRandRX11Helper::XRandRX11Helper():
 XRandRX11Helper::~XRandRX11Helper()
 {
     KSystemEventFilter::removeEventFilter(this);
-    XDestroyWindow(XRandR::display(), m_window);
+    XDestroyWindow(QX11Info::display(), m_window);
 }
 
 QString XRandRX11Helper::rotationToString(Rotation rotation)
@@ -136,11 +142,11 @@ bool XRandRX11Helper::x11Event(XEvent *event)
         } else if (e2->subtype == RRNotify_OutputProperty) {
             XRROutputPropertyNotifyEvent* e2 = reinterpret_cast< XRROutputPropertyNotifyEvent* >(event);
 
-            char *atom_name = XGetAtomName(XRandR::display(), e2->property);
+            char *atom_name = XGetAtomName(QX11Info::display(), e2->property);
             KDebug::Block changeProperty("RRNotify_Property", dXndr());
             kDebug(dXndr()) << "Timestamp: " << e2->timestamp;
             kDebug(dXndr()) << "Output: " << e2->output;
-            kDebug(dXndr()) << "Property: " << XGetAtomName(XRandR::display(), e2->property);
+            kDebug(dXndr()) << "Property: " << XGetAtomName(QX11Info::display(), e2->property);
             kDebug(dXndr()) << "State (newValue, Deleted): " << e2->state;
             XFree(atom_name);
         }
