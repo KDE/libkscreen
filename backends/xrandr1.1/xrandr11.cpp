@@ -162,6 +162,7 @@ void XRandR11::setConfig(KScreen::Config* config) const
 
 KScreen::Edid* XRandR11::edid(int outputId) const
 {
+    Q_UNUSED(outputId)
     return new KScreen::Edid();
 }
 
