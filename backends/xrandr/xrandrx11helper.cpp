@@ -88,7 +88,6 @@ bool XRandRX11Helper::x11Event(XEvent *event)
     if (m_versionMajor >= 1 && m_versionMinor <= 1) {
         if (event->xany.type == m_randrBase + RRScreenChangeNotify) {
             KDebug::Block changeNotify("RRScreenChangeNotify", dXndr());
-            Q_EMIT outputsChanged();
 
             XRRScreenChangeNotifyEvent* e2 = reinterpret_cast< XRRScreenChangeNotifyEvent* >(event);
 
@@ -100,6 +99,8 @@ bool XRandRX11Helper::x11Event(XEvent *event)
             kDebug(dXndr()) << "Rotation: " << rotationToString(e2->rotation);
             kDebug(dXndr()) << "Size: " << e2->width << e2->height;
             kDebug(dXndr()) << "SizeMM: " << e2->mwidth << e2->mheight;
+
+            Q_EMIT outputsChanged();
         }
 
         return false;
