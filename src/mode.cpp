@@ -45,7 +45,7 @@ Mode::~Mode()
     delete d;
 }
 
-QString Mode::id() const
+const QString Mode::id() const
 {
     return d->id;
 }

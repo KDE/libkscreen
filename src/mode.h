@@ -40,7 +40,7 @@ class KSCREEN_EXPORT Mode : public QObject
         explicit Mode(QObject *parent = 0);
         virtual ~Mode();
 
-        QString id() const;
+        const QString id() const;
         void setId(const QString &id);
 
         QString name() const;
