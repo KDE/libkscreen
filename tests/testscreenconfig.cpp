@@ -70,8 +70,8 @@ void testScreenConfig::singleOutput()
     QCOMPARE(output->type(), QString("LVDS"));
     QCOMPARE(output->modes().count(), 3);
     QCOMPARE(output->pos(), QPoint(0, 0));
-    QCOMPARE(output->currentModeId(), 3);
-    QCOMPARE(output->preferredModeId(), 3);
+    QCOMPARE(output->currentModeId(), QLatin1String("3"));
+    QCOMPARE(output->preferredModeId(), QLatin1String("3"));
     QCOMPARE(output->rotation(), Output::None);
     QCOMPARE(output->isConnected(), true);
     QCOMPARE(output->isEnabled(), true);
@@ -94,7 +94,7 @@ void testScreenConfig::singleOutputWithoutPreferred()
     Output* output = config->outputs().take(1);
 
     QVERIFY(output->preferredModes().isEmpty());
-    QCOMPARE(output->preferredModeId(), 3);
+    QCOMPARE(output->preferredModeId(), QLatin1String("3"));
 }
 
 void testScreenConfig::multiOutput()
@@ -119,8 +119,8 @@ void testScreenConfig::multiOutput()
     QCOMPARE(output->type(), QString("HDMI"));
     QCOMPARE(output->modes().count(), 4);
     QCOMPARE(output->pos(), QPoint(0, 0));
-    QCOMPARE(output->currentModeId(), 4);
-    QCOMPARE(output->preferredModeId(), 4);
+    QCOMPARE(output->currentModeId(), QLatin1String("4"));
+    QCOMPARE(output->preferredModeId(), QLatin1String("4"));
     QCOMPARE(output->rotation(), Output::None);
     QCOMPARE(output->isConnected(), true);
     QCOMPARE(output->isEnabled(), true);

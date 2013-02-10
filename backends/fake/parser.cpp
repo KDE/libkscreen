@@ -78,10 +78,10 @@ Output* Parser::outputFromJson(const QVariant& data)
     Output *output = new Output;
     output->setId(map["id"].toInt());
 
-    QList<int> preferredModes;
+    QStringList preferredModes;
     QVariantList modes = map["preferredModes"].toList();
     Q_FOREACH(const QVariant &mode, modes) {
-        preferredModes.append(mode.toInt());
+        preferredModes.append(mode.toString());
     }
     output->setPreferredModes(preferredModes);
 
@@ -111,7 +111,7 @@ Mode* Parser::modeFromJson(const QVariant& data)
 {
     QVariantMap map = data.toMap();
     Mode *mode = new Mode;
-    mode->setId(map["id"].toInt());
+    mode->setId(map["id"].toString());
     QJson::QObjectHelper::qvariant2qobject(map, mode);
 
     mode->setSize(Parser::sizeFromJson(map["size"].toMap()));

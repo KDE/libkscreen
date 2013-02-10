@@ -34,7 +34,6 @@ XRandROutput::XRandROutput(int id, bool primary, XRandRConfig *config)
     , m_id(id)
     , m_type("unknown")
     , m_rotation(KScreen::Output::None)
-    , m_currentMode(0)
     , m_edid(0)
     , m_changedProperties(0)
 {
@@ -77,7 +76,7 @@ QPoint XRandROutput::position() const
     return m_position;
 }
 
-int XRandROutput::currentModeId() const
+QString XRandROutput::currentModeId() const
 {
     return m_currentMode;
 }
@@ -159,8 +158,8 @@ void XRandROutput::updateOutput(const XRROutputInfo *outputInfo)
         }
 
         if (crtcInfo->mode) {
-            if (m_currentMode != (int) crtcInfo->mode) {
-                m_currentMode = crtcInfo->mode;
+            if (m_currentMode != QString::number((int) crtcInfo->mode)) {
+                m_currentMode = QString::number(crtcInfo->mode);
                 m_changedProperties |= PropertyCurrentMode;
             }
 
@@ -209,7 +208,7 @@ void XRandROutput::updateModes(const XRROutputInfo *outputInfo)
             m_modes.insert(modeInfo->id, mode);
 
             if (i < outputInfo->npreferred) {
-                m_preferredModes.append((int) modeInfo->id);
+                m_preferredModes.append(QString::number(modeInfo->id));
             }
         }
     }
@@ -284,7 +283,7 @@ void XRandROutput::updateKScreenOutput(KScreen::Output *output) const
         for (iter = m_modes.constBegin(); iter != m_modes.constEnd(); ++iter) {
             XRandRMode *mode = iter.value();
             KScreen::Mode *kscreenMode = mode->toKScreenMode(output);
-            kscreenModes.insert(iter.key(), kscreenMode);
+            kscreenModes.insert(QString::number(iter.key()), kscreenMode);
         }
         output->setModes(kscreenModes);
     }

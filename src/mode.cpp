@@ -24,11 +24,10 @@ class Mode::Private
 {
   public:
     Private():
-      id(0),
       rate(0)
     { }
 
-    int id;
+    QString id;
     QString name;
     QSize size;
     float rate;
@@ -46,12 +45,12 @@ Mode::~Mode()
     delete d;
 }
 
-int Mode::id() const
+QString Mode::id() const
 {
     return d->id;
 }
 
-void Mode::setId(int id)
+void Mode::setId(const QString& id)
 {
     if (d->id == id) {
         return;

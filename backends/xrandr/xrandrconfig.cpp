@@ -369,7 +369,7 @@ bool XRandRConfig::enableOutput(Output* output) const
     RROutput *outputs = new RROutput[1];
     outputs[0] = output->id();
     Status s = XRRSetCrtcConfig(XRandR::display(), XRandR::screenResources(), XRandR::freeCrtc(output->id()),
-        CurrentTime, output->pos().rx(), output->pos().ry(), output->currentModeId(),
+        CurrentTime, output->pos().rx(), output->pos().ry(), output->currentModeId().toInt(),
         output->rotation(), outputs, 1);
 
     kDebug(dXndr()) << "XRRSetCrtcConfig() returned" << s;
@@ -384,7 +384,7 @@ bool XRandRConfig::changeOutput(Output* output, int crtcId) const
     RROutput *outputs = new RROutput[1];
     outputs[0] = output->id();
     Status s = XRRSetCrtcConfig(XRandR::display(), XRandR::screenResources(), crtcId,
-        CurrentTime, output->pos().rx(), output->pos().ry(), output->currentModeId(),
+        CurrentTime, output->pos().rx(), output->pos().ry(), output->currentModeId().toInt(),
         output->rotation(), outputs, 1);
 
     kDebug(dXndr()) << "XRRSetCrtcConfig() returned" << s;

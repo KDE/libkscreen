@@ -81,7 +81,7 @@ public:
     bool isConnected() const;
     bool isPrimary() const;
     QPoint position() const;
-    int currentModeId() const;
+    QString currentModeId() const;
     KScreen::Output::Rotation rotation() const;
     inline bool isHorizontal() const { return ((m_rotation == KScreen::Output::None) || (m_rotation == KScreen::Output::Inverted)); }
     KScreen::Edid* edid() const;
@@ -99,8 +99,8 @@ private:
     XRandRMode::Map m_modes;
     QPoint m_position;
     KScreen::Output::Rotation m_rotation;
-    int m_currentMode;
-    QList<int> m_preferredModes;
+    QString m_currentMode;
+    QStringList m_preferredModes;
     int m_connected : 1;
     int m_enabled : 1;
     int m_primary : 1;

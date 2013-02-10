@@ -31,7 +31,7 @@ namespace KScreen {
 class KSCREEN_EXPORT Mode : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int id READ id NOTIFY modeChanged)
+    Q_PROPERTY(QString id READ id NOTIFY modeChanged)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY modeChanged)
     Q_PROPERTY(QSize size READ size WRITE setSize NOTIFY modeChanged)
     Q_PROPERTY(float refreshRate READ refreshRate WRITE setRefreshRate NOTIFY modeChanged)
@@ -40,8 +40,8 @@ class KSCREEN_EXPORT Mode : public QObject
         explicit Mode(QObject *parent = 0);
         virtual ~Mode();
 
-        int id() const;
-        void setId(int id);
+        QString id() const;
+        void setId(const QString &id);
 
         QString name() const;
         void setName(const QString& name);
@@ -60,7 +60,7 @@ class KSCREEN_EXPORT Mode : public QObject
         Private * const d;
 };
 
-typedef QHash<int, Mode*> ModeList;
+typedef QHash<QString, Mode*> ModeList;
 
 } //KSCreen namespace
 

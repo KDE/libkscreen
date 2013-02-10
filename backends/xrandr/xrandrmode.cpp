@@ -40,7 +40,7 @@ KScreen::Mode *XRandRMode::toKScreenMode(KScreen::Output *parent)
 {
     KScreen::Mode *kscreenMode = new KScreen::Mode(parent);
 
-    kscreenMode->setId(m_id);
+    kscreenMode->setId(QString::number(m_id));
     kscreenMode->setName(m_name);
     kscreenMode->setSize(m_size);
     kscreenMode->setRefreshRate(m_refreshRate);

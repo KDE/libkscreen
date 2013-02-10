@@ -31,7 +31,6 @@ class Output::Private
   public:
     Private():
         id(0),
-        currentMode(0),
         rotation(None),
         connected(false),
         enabled(false),
@@ -39,7 +38,7 @@ class Output::Private
         edid(0)
     {}
 
-    int biggestMode(const ModeList& modes) const;
+    QString biggestMode(const ModeList& modes) const;
 
     int id;
     QString name;
@@ -47,9 +46,9 @@ class Output::Private
     QString icon;
     ModeList modeList;
     QList<int> clones;
-    int currentMode;
-    mutable int preferredMode;
-    QList<int> preferredModes;
+    QString currentMode;
+    QString preferredMode;
+    QStringList preferredModes;
     QSize size;
     QPoint pos;
     Rotation rotation;
@@ -60,7 +59,7 @@ class Output::Private
     mutable QPointer<Edid> edid;
 };
 
-int Output::Private::biggestMode(const ModeList& modes) const
+QString Output::Private::biggestMode(const ModeList& modes) const
 {
     int area, total = 0;
     KScreen::Mode* biggest = 0;
@@ -161,7 +160,7 @@ void Output::setIcon(const QString& icon)
     Q_EMIT outputChanged();
 }
 
-Mode* Output::mode(int id) const
+Mode* Output::mode(const QString& id) const
 {
     if (!d->modeList.contains(id)) {
         return 0;
@@ -170,7 +169,7 @@ Mode* Output::mode(int id) const
     return d->modeList[id];
 }
 
-QHash< int, Mode* > Output::modes() const
+QHash< QString, Mode* > Output::modes() const
 {
     return d->modeList;
 }
@@ -183,12 +182,12 @@ void Output::setModes(ModeList modes)
     d->modeList = modes;
 }
 
-int Output::currentModeId() const
+QString Output::currentModeId() const
 {
     return d->currentMode;
 }
 
-void Output::setCurrentModeId(int mode)
+void Output::setCurrentModeId(const QString& mode)
 {
     if (d->currentMode == mode) {
         return;
@@ -204,20 +203,20 @@ Mode *Output::currentMode() const
     return d->modeList.value(d->currentMode);
 }
 
-void Output::setPreferredModes(QList<int> modes)
+void Output::setPreferredModes(const QStringList &modes)
 {
-    d->preferredMode = 0;
+    d->preferredMode = QString();
     d->preferredModes = modes;
 }
 
-QList<int> Output::preferredModes() const
+QStringList Output::preferredModes() const
 {
     return d->preferredModes;
 }
 
-int Output::preferredModeId() const
+QString Output::preferredModeId() const
 {
-    if (d->preferredMode) {
+    if (!d->preferredMode.isEmpty()) {
         return d->preferredMode;
     }
     if (d->preferredModes.isEmpty()) {
@@ -227,7 +226,7 @@ int Output::preferredModeId() const
     int area, total = 0;
     KScreen::Mode* biggest = 0;
     KScreen::Mode* candidateMode = 0;
-    Q_FOREACH(int modeId, d->preferredModes) {
+    Q_FOREACH(const QString &modeId, d->preferredModes) {
         candidateMode = mode(modeId);
         area = candidateMode->size().width() * candidateMode->size().height();
         if (area < total) {

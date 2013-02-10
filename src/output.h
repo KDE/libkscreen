@@ -27,6 +27,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QMetaType>
 #include <QtCore/QPointer>
+#include <QtCore/QStringList>
 
 namespace KScreen {
 
@@ -45,8 +46,8 @@ class KSCREEN_EXPORT Output : public QObject
         Q_PROPERTY(ModeList modes READ modes CONSTANT)
         Q_PROPERTY(QPoint pos READ pos WRITE setPos NOTIFY posChanged)
         Q_PROPERTY(Rotation rotation READ rotation WRITE setRotation NOTIFY rotationChanged)
-        Q_PROPERTY(int currentModeId READ currentModeId WRITE setCurrentModeId NOTIFY currentModeIdChanged)
-        Q_PROPERTY(int preferredModeId READ preferredModeId CONSTANT)
+        Q_PROPERTY(QString currentModeId READ currentModeId WRITE setCurrentModeId NOTIFY currentModeIdChanged)
+        Q_PROPERTY(QString preferredModeId READ preferredModeId CONSTANT)
         Q_PROPERTY(bool connected READ isConnected WRITE setConnected NOTIFY isConnectedChanged)
         Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled NOTIFY isEnabledChanged)
         Q_PROPERTY(bool primary READ isPrimary WRITE setPrimary NOTIFY isPrimaryChanged)
@@ -75,20 +76,20 @@ class KSCREEN_EXPORT Output : public QObject
         QString icon() const;
         void setIcon(const QString& icon);
 
-        Q_INVOKABLE Mode* mode(int id) const;
-        QHash<int, Mode*> modes() const;
+        Q_INVOKABLE Mode* mode(const QString &id) const;
+        QHash<QString, Mode*> modes() const;
         void setModes(ModeList modes);
 
-        int currentModeId() const;
-        void setCurrentModeId(int mode);
+        QString currentModeId() const;
+        void setCurrentModeId(const QString& mode);
         Q_INVOKABLE Mode* currentMode() const;
 
-        void setPreferredModes(QList<int> modes);
-        QList<int> preferredModes() const;
+        void setPreferredModes(const QStringList &modes);
+        QStringList preferredModes() const;
         /**
          * Returns the preferred mode with higer resolution and refresh
          */
-        Q_INVOKABLE int preferredModeId() const;
+        Q_INVOKABLE QString preferredModeId() const;
         /**
          * Returns KScreen::Mode associated with preferredModeId()
          */
