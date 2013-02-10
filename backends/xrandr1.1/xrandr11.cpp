@@ -108,7 +108,7 @@ KScreen::Config* XRandR11::config() const
 
         for (int j = 0; j < nrates; j++) {
             mode = new KScreen::Mode();
-            mode->setId(QString::number(x));
+            mode->setId(QString::number(x) + "-" + QString::number(j));
             mode->setSize(QSize(sizes[x].width, sizes[x].height));
             mode->setRefreshRate((float) rates[j]);
             mode->setName(QString(QString::number(sizes[x].width) + "x" + QString::number(sizes[x].height)));
@@ -138,6 +138,7 @@ void XRandR11::setConfig(KScreen::Config* config) const
     xcb_generic_error_t *err;
     xcb_randr_set_screen_config_cookie_t cookie;
     xcb_randr_set_screen_config_reply_t *result;
+    int sizeId = mode->id().split("-").first().toInt();
     cookie = xcb_randr_set_screen_config(connection(), xcbScreen->root, CurrentTime, info->config_timestamp, mode->id().toInt(),
                                        (short) output->rotation(), mode->refreshRate());
     result = xcb_randr_set_screen_config_reply(connection(), cookie, &err);
