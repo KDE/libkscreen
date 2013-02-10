@@ -36,6 +36,11 @@ class Config::Private
     OutputList outputs;
 };
 
+bool Config::loadBackend()
+{
+    return BackendLoader::init();
+}
+
 Config* Config::current()
 {
     if (!BackendLoader::init()) {

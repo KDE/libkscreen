@@ -36,6 +36,7 @@ class KSCREEN_EXPORT Config : public QObject
     Q_PROPERTY(OutputList outputs READ outputs)
 
     public:
+        static bool loadBackend();
         static Config* current();
         static bool setConfig(Config* config);
 
