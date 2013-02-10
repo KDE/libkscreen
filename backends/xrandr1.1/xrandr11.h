@@ -23,6 +23,8 @@
 #include "../abstractbackend.h"
 #include <QtCore/QObject>
 
+class XRandRX11Helper;
+
 class XRandR11 : public QObject, public AbstractBackend
 {
     Q_OBJECT
@@ -39,8 +41,15 @@ public:
     virtual KScreen::Edid *edid(int outputId) const;
     virtual void updateConfig(KScreen::Config *config) const;
 
+private Q_SLOTS:
+    void updateConfig();
+
 private:
     bool m_valild;
+    XRandRX11Helper* m_x11Helper;
+    KScreen::Config* m_currentConfig;
+    xcb_timestamp_t m_currentTimestamp;
 };
 
+extern int dXndr();
 #endif //FAKE_BACKEND_H

@@ -18,9 +18,11 @@
 
 #include "xrandr11.h"
 #include "wrapper.h"
+#include "../xrandr/xrandrx11helper.h"
 
 #include "config.h"
 #include "edid.h"
+#include "configmonitor.h"
 
 #include <xcb/xcb.h>
 #include <xcb/randr.h>
@@ -29,11 +31,16 @@
 #include <QtCore/QDebug>
 #include <QtCore/qplugin.h>
 
+#include <KDebug>
+
 Q_EXPORT_PLUGIN2(XRandR11, XRandR11)
 
 XRandR11::XRandR11(QObject* parent)
  : QObject(parent)
  , m_valild(false)
+ , m_x11Helper(new XRandRX11Helper())
+ , m_currentConfig(0)
+ , m_currentTimestamp(0)
 {
     xcb_randr_query_version_reply_t* version;
     version = xcb_randr_query_version_reply(connection(), xcb_randr_query_version(connection(), XCB_RANDR_MAJOR_VERSION, XCB_RANDR_MINOR_VERSION), 0);
@@ -46,12 +53,15 @@ XRandR11::XRandR11(QObject* parent)
 //         return;
     }
 
+    connect(m_x11Helper, SIGNAL(outputsChanged()), SLOT(updateConfig()));
+
     m_valild = true;
 }
 
 XRandR11::~XRandR11()
 {
-
+    delete m_currentConfig;
+    delete m_x11Helper;
 }
 
 QString XRandR11::name() const
@@ -70,8 +80,12 @@ KScreen::Config* XRandR11::config() const
 
     int screenId = QX11Info().screen();
     xcb_screen_t* xcbScreen = screen_of_display(connection(), screenId);
-
+    ScreenInfo info(xcbScreen->root);
     ScreenSize size(xcbScreen->root);
+
+    if (info->config_timestamp == m_currentTimestamp) {
+        return m_currentConfig;
+    }
 
     KScreen::Screen* screen = new KScreen::Screen();
     screen->setId(screenId);
@@ -96,7 +110,6 @@ KScreen::Config* XRandR11::config() const
 
     KScreen::Mode *mode = 0;
     KScreen::ModeList modes;
-    ScreenInfo info(xcbScreen->root);
 
     int nrates;
     uint16_t* rates;
@@ -151,7 +164,18 @@ KScreen::Edid* XRandR11::edid(int outputId) const
 
 void XRandR11::updateConfig(KScreen::Config* config) const
 {
-
+    KScreen::Output* output = config->output(1);
+    KScreen::Output *current = m_currentConfig->output(1);
+    output->setCurrentModeId(current->currentModeId());
+    output->setRotation(current->rotation());
 }
 
+void XRandR11::updateConfig()
+{
+    delete m_currentConfig;
+    m_currentConfig = config();
+    KScreen::ConfigMonitor::instance()->notifyUpdate();
+}
+
+extern int dXndr() { static int s_area = KDebug::registerArea("KSRandr11", false); return s_area; }
 #include "xrandr11.moc"
