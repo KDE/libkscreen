@@ -156,6 +156,8 @@ void XRandR11::setConfig(KScreen::Config* config) const
     cookie = xcb_randr_set_screen_config(connection(), xcbScreen->root, CurrentTime, info->config_timestamp, sizeId,
                                        (short) output->rotation(), mode->refreshRate());
     result = xcb_randr_set_screen_config_reply(connection(), cookie, &err);
+
+    delete result;
 }
 
 KScreen::Edid* XRandR11::edid(int outputId) const
