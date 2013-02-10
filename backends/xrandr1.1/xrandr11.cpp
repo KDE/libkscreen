@@ -104,6 +104,7 @@ KScreen::Config* XRandR11::config() const
     output->setName(QLatin1String("Default"));
     output->setPos(QPoint(0,0));
     output->setPrimary(true);
+    output->setRotation(info->rotation);
 
     outputs.insert(1, output);
     config->setOutputs(outputs);
