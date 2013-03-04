@@ -39,6 +39,7 @@ class KSCREEN_EXPORT Config : public QObject
         static bool loadBackend();
         static Config* current();
         static bool setConfig(Config* config);
+        static bool canBeApplied(Config* config);
 
         explicit Config(QObject *parent = 0);
         virtual ~Config();

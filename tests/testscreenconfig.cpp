@@ -36,6 +36,7 @@ private Q_SLOTS:
     void singleOutputWithoutPreferred();
     void multiOutput();
     void clonesOutput();
+    void configCanBeApplied();
 };
 
 void testScreenConfig::initTestCase()
@@ -154,6 +155,33 @@ void testScreenConfig::clonesOutput()
     QVERIFY2(two->clones().isEmpty(), "Output two should have no clones");
 }
 
+void testScreenConfig::configCanBeApplied()
+{
+    QByteArray path(TEST_DATA);
+    path.append("/singleoutputBroken.json");
+    setenv("TEST_DATA", path, 1);
+    Config* brokenConfig = Config::current();
+
+    path = TEST_DATA;
+    path.append("/singleoutput.json");
+    setenv("TEST_DATA", path, 1);
+    Config* currentConfig = Config::current();
+
+    Output* primaryBroken = brokenConfig->outputs()[2];
+    Output* currentPrimary = currentConfig->outputs()[1];
+
+    QVERIFY(!Config::canBeApplied(brokenConfig));
+    primaryBroken->setId(currentPrimary->id());
+    QVERIFY(!Config::canBeApplied(brokenConfig));
+    primaryBroken->setConnected(currentPrimary->isConnected());
+    QVERIFY(!Config::canBeApplied(brokenConfig));
+    primaryBroken->setCurrentModeId(QLatin1String("42"));
+    QVERIFY(!Config::canBeApplied(brokenConfig));
+    primaryBroken->setCurrentModeId(currentPrimary->currentModeId());
+    QVERIFY(!Config::canBeApplied(brokenConfig));
+    primaryBroken->mode(QLatin1String("3"))->setSize(QSize(1280, 800));
+    QVERIFY(Config::canBeApplied(brokenConfig));
+}
 
 QTEST_MAIN(testScreenConfig)
 

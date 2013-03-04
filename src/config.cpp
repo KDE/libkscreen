@@ -21,6 +21,9 @@
 #include "backendloader.h"
 #include "backends/abstractbackend.h"
 
+#include <QtCore/QDebug>
+#include <QtCore/QRect>
+
 namespace KScreen {
 
 class Config::Private
@@ -56,7 +59,84 @@ bool Config::setConfig(Config* config)
         return false;
     }
 
+    if (!Config::canBeApplied(config)) {
+        return false;
+    }
+
     BackendLoader::backend()->setConfig(config);
+    return true;
+}
+
+bool Config::canBeApplied(Config* config)
+{
+    Config* currentConfig = BackendLoader::backend()->config();
+    QRect rect;
+    QSize outputSize;
+    Output* currentOutput = 0;
+    OutputList outputs = config->outputs();
+    Q_FOREACH(Output *output, outputs) {
+        currentOutput = currentConfig->output(output->id());
+        //If there is no such output
+        if (!currentOutput) {
+            qWarning() << "The output:" << output->id() << "does not exists";
+            return false;
+        }
+        //If the output is not connected
+        if (!currentOutput->isConnected()) {
+            qWarning() << "The output:" << output->id() << "is not connected";
+            return false;
+        }
+        //if there is no currentMode
+        if (output->currentModeId().isEmpty()) {
+            qWarning() << "The output:" << output->id() << "has no currentModeId";
+            return false;
+        }
+        //If the mode is not found in the current output
+        if (!currentOutput->mode(output->currentModeId())) {
+            qWarning() << "The output:" << output->id() << "has no mode:" << output->currentModeId();
+            return false;
+        }
+
+
+        Mode *currentMode = output->currentMode();
+
+        QSize outputSize = currentMode->size();
+
+        if (output->pos().x() < rect.x()) {
+            rect.setX(output->pos().x());
+        }
+
+        if (output->pos().y() < rect.y()) {
+            rect.setY(output->pos().y());
+        }
+
+        QPoint bottomRight;
+        if (output->isHorizontal()) {
+            bottomRight = QPoint(output->pos().x() + outputSize.width(),
+                                    output->pos().y() + outputSize.height());
+        } else {
+            bottomRight = QPoint(output->pos().x() + outputSize.height(),
+                                    output->pos().y() + outputSize.width());
+        }
+
+        if (bottomRight.x() > rect.width()) {
+            rect.setWidth(bottomRight.x());
+        }
+
+        if (bottomRight.y() > rect.height()) {
+            rect.setHeight(bottomRight.y());
+        }
+    }
+
+    if (rect.width() > config->screen()->maxSize().width()) {
+        qWarning() << "The configuration has too much width:" << rect.width();
+        return false;
+    }
+    if (rect.height() > config->screen()->maxSize().height()) {
+        qWarning() << "The configuration has too much height:" << rect.height();
+        return false;
+    }
+
     return true;
 }
 
