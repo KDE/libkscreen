@@ -75,6 +75,10 @@ bool Config::canBeApplied(Config* config)
     Output* currentOutput = 0;
     OutputList outputs = config->outputs();
     Q_FOREACH(Output *output, outputs) {
+        if (!output->isEnabled()) {
+            continue;
+        }
+
         currentOutput = currentConfig->output(output->id());
         //If there is no such output
         if (!currentOutput) {
