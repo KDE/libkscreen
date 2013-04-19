@@ -219,7 +219,9 @@ bool Edid::Private::parse(const quint8 *data, size_t length)
 
     /* check header */
     if (length < 128) {
-        kWarning() << "EDID length is too small";
+        if (length > 0) {
+            kWarning() << "Invalid EDID length (" << length << " bytes)";
+        }
         valid = false;
         return valid;
     }
