@@ -45,7 +45,7 @@ private Q_SLOTS:
     void updateConfig();
 
 private:
-    bool m_valild;
+    bool m_valid;
     XRandRX11Helper* m_x11Helper;
     KScreen::Config* m_currentConfig;
     xcb_timestamp_t m_currentTimestamp;

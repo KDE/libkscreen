@@ -37,7 +37,7 @@ Q_EXPORT_PLUGIN2(XRandR11, XRandR11)
 
 XRandR11::XRandR11(QObject* parent)
  : QObject(parent)
- , m_valild(false)
+ , m_valid(false)
  , m_x11Helper(new XRandRX11Helper())
  , m_currentConfig(0)
  , m_currentTimestamp(0)
@@ -55,7 +55,7 @@ XRandR11::XRandR11(QObject* parent)
 
     connect(m_x11Helper, SIGNAL(outputsChanged()), SLOT(updateConfig()));
 
-    m_valild = true;
+    m_valid = true;
 }
 
 XRandR11::~XRandR11()
@@ -71,7 +71,7 @@ QString XRandR11::name() const
 
 bool XRandR11::isValid() const
 {
-    return m_valild;
+    return m_valid;
 }
 
 KScreen::Config* XRandR11::config() const
