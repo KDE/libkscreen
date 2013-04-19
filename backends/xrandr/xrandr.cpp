@@ -66,10 +66,10 @@ XRandR::XRandR(QObject* parent)
     int majorVersion = 0, minorVersion = 0;
     XRRQueryVersion(s_display, &majorVersion, &minorVersion);
 
-    if ((majorVersion >= 1) && (minorVersion >= 0)) {
+    if ((majorVersion >= 1) && (minorVersion >= 2)) {
         m_isValid = true;
     } else {
-        kDebug() << "XRandR eXtension not available or unsupported version";
+        kDebug() << "XRandR extension not available or unsupported version";
         return;
     }
 
