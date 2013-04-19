@@ -22,6 +22,7 @@
 #include <QtCore/QStringList>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QPluginLoader>
+#include <QDir>
 #include <kdebug.h>
 
 AbstractBackend* BackendLoader::s_backend = 0;
@@ -35,41 +36,46 @@ bool BackendLoader::init()
 
     KDebug::Block block("Loading backend");
 
-    QStringList paths = QCoreApplication::libraryPaths();
-    QString backend = qgetenv("KSCREEN_BACKEND").constData();
-    if (backend.isEmpty()) {
-        kWarning() << "No KScreen backend set!";
-        return false;
-    }
+    const QString backend = qgetenv("KSCREEN_BACKEND").constData();
+    const QString backendFilter = QString::fromLatin1("KSC_%1*").arg(backend);
 
-    kDebug() << "Backend to load: " << backend;
-    QPluginLoader loader;
-    QObject *instance;
-    Q_FOREACH(const QString& path, paths) {
-        loader.setFileName(path + "/kscreen/KSC_" + backend + ".so");
-        loader.load();
-        instance = loader.instance();
-        if (!instance) {
-            continue;
-        }
-
-        s_backend = qobject_cast< AbstractBackend* >(instance);
-        if (s_backend) {
-            if (!s_backend->isValid()) {
-                kDebug() << "Backend is not available";
-                delete s_backend;
-                s_backend = 0;
-
-                return false;
+    const QStringList paths = QCoreApplication::libraryPaths();
+    Q_FOREACH (const QString &path, paths) {
+        const QDir dir(path + QDir::separator() + QLatin1String("kscreen"),
+                       backendFilter,
+                       QDir::SortFlags(QDir::QDir::NoSort),
+                       QDir::NoDotAndDotDot | QDir::Files);
+        const QFileInfoList finfos = dir.entryInfoList();
+        Q_FOREACH (const QFileInfo &finfo, finfos) {
+            // Skip "Fake" backend unless explicitly specified via KSCREEN_BACKEND
+            if (backend.isEmpty() && finfo.fileName().contains(QLatin1String("KSC_Fake"))) {
+                continue;
             }
 
-            kDebug() << "Backend Loaded";
-            return true;
-        }
+            QPluginLoader loader(finfo.filePath());
+            loader.load();
+            QObject *instance = loader.instance();
+            if (!instance) {
+                loader.unload();
+                continue;
+            }
 
+            s_backend = qobject_cast< AbstractBackend* >(instance);
+            if (s_backend) {
+                if (!s_backend->isValid()) {
+                    kDebug() << "Skipping" << s_backend->name() << "backend";
+                    delete s_backend;
+                    s_backend = 0;
+                    loader.unload();
+                    continue;
+                }
+                kDebug() << "Loading" << s_backend->name() << "backend";
+                return true;
+            }
+        }
     }
 
-    kWarning() << "Backend '" << backend << "' not found";
+    kDebug() << "No backend found!";
     return false;
 }
 
