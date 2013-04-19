@@ -50,7 +50,7 @@ XRandR11::XRandR11(QObject* parent)
     }
     if (version->minor_version > 1) {
         qWarning() << "This backend is only for XRandR 1.1, your version is: " << version->major_version << "." << version->minor_version;
-//         return;
+        return;
     }
 
     connect(m_x11Helper, SIGNAL(outputsChanged()), SLOT(updateConfig()));
