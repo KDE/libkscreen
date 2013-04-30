@@ -45,6 +45,7 @@ XRandROutput::XRandROutput(int id, bool primary, XRandRConfig *config)
     XRROutputInfo *outputInfo = XRandR::XRROutput(m_id);
     updateOutput(outputInfo);
     updateModes(outputInfo);
+    fetchType();
     m_primary = primary;
 
     XRRFreeOutputInfo(outputInfo);
@@ -326,6 +327,7 @@ KScreen::Output *XRandROutput::toKScreenOutput(KScreen::Config *parent) const
 
     m_changedProperties = 0;
     kscreenOutput->setId(m_id);
+    kscreenOutput->setType(m_type);
     updateKScreenOutput(kscreenOutput);
 
     return kscreenOutput;
