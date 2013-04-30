@@ -49,18 +49,17 @@ public:
         PropertyNone            = 1 << 0,
         PropertyId              = 1 << 1,
         PropertyName            = 1 << 2,
-        PropertyType            = 1 << 3,
-        PropertyIcon            = 1 << 4,
-        PropertyModes           = 1 << 5,
-        PropertyPos             = 1 << 6,
-        PropertyRotation        = 1 << 7,
-        PropertyCurrentMode     = 1 << 8,
-        PropertyConnected       = 1 << 9,
-        PropertyEnabled         = 1 << 10,
-        PropertyPrimary         = 1 << 11,
-        PropertyClones          = 1 << 12,
-        PropertyEdid            = 1 << 13,
-        PropertyPreferredMode   = 1 << 14
+        PropertyIcon            = 1 << 3,
+        PropertyModes           = 1 << 4,
+        PropertyPos             = 1 << 5,
+        PropertyRotation        = 1 << 6,
+        PropertyCurrentMode     = 1 << 7,
+        PropertyConnected       = 1 << 8,
+        PropertyEnabled         = 1 << 9,
+        PropertyPrimary         = 1 << 10,
+        PropertyClones          = 1 << 11,
+        PropertyEdid            = 1 << 12,
+        PropertyPreferredMode   = 1 << 13
     };
 
     enum PrimaryChange {

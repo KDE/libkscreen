@@ -236,10 +236,6 @@ void XRandROutput::updateKScreenOutput(KScreen::Output *output) const
         output->setName(m_name);
     }
 
-    if (!m_changedProperties || (m_changedProperties & PropertyType)) {
-        output->setType(m_type);
-    }
-
     if (!m_changedProperties || (m_changedProperties & PropertyIcon)) {
         output->setIcon(m_icon);
     }
