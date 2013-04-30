@@ -90,10 +90,13 @@ public:
 private:
     void updateOutput(const XRROutputInfo *outputInfo);
     void updateModes(const XRROutputInfo *outputInfo);
+    void fetchType();
+    KScreen::Output::Type typeFromName();
+    QByteArray typeFromProperty() const;
 
     int m_id;
     QString m_name;
-    QString m_type;
+    KScreen::Output::Type m_type;
     QString m_icon;
     XRandRMode::Map m_modes;
     QPoint m_position;

@@ -27,12 +27,14 @@
 
 #include <QRect>
 
+#include <KDebug>
+
 Q_DECLARE_METATYPE(QList<int>)
 
 XRandROutput::XRandROutput(int id, bool primary, XRandRConfig *config)
     : QObject(config)
     , m_id(id)
-    , m_type("unknown")
+    , m_type(KScreen::Output::Unknown)
     , m_rotation(KScreen::Output::None)
     , m_connected(0)
     , m_enabled(0)
@@ -218,6 +220,105 @@ void XRandROutput::updateModes(const XRROutputInfo *outputInfo)
     XRRFreeScreenResources(resources);
 }
 
+void XRandROutput::fetchType()
+{
+    QByteArray type = typeFromProperty();
+    if (type.isEmpty()) {
+        m_type = typeFromName();
+        return;
+    }
+
+    if (type.contains("VGA")) {
+        m_type = KScreen::Output::VGA;
+    } else if (type.contains("DVI")) {
+        m_type = KScreen::Output::DVI;
+    } else if (type.contains("DVI-I")) {
+        m_type = KScreen::Output::DVII;
+    } else if (type.contains("DVI-A")) {
+        m_type = KScreen::Output::DVIA;
+    } else if (type.contains("DVI-D")) {
+        m_type = KScreen::Output::DVID;
+    } else if (type.contains("HDMI")) {
+        m_type = KScreen::Output::HDMI;
+    } else if (type.contains("Panel")) {
+        m_type = KScreen::Output::Panel;
+    } else if (type.contains("TV")) {
+        m_type = KScreen::Output::TV;
+    } else if (type.contains("TV-Composite")) {
+        m_type = KScreen::Output::TVComposite;
+    } else if (type.contains("TV-SVideo")) {
+        m_type = KScreen::Output::TVSVideo;
+    } else if (type.contains("TV-Component")) {
+        m_type = KScreen::Output::TVComponent;
+    } else if (type.contains("TV-SCART")) {
+        m_type = KScreen::Output::TVSCART;
+    } else if (type.contains("TV-C4")) {
+        m_type = KScreen::Output::TVC4;
+    } else if (type.contains("DisplayPort")) {
+        m_type = KScreen::Output::DisplayPort;
+    } else if (type.contains("unknown")) {
+        m_type = KScreen::Output::Unknown;
+    } else {
+//         kDebug() << "Output Type not translated:" << type;
+    }
+
+}
+
+KScreen::Output::Type XRandROutput::typeFromName()
+{
+    QStringList embedded;
+    embedded << "LVDS";
+    embedded << "IDP";
+    embedded << "EDP";
+    embedded << "LCD";
+
+    Q_FOREACH(const QString &pre, embedded) {
+        if (m_name.toUpper().startsWith(pre)) {
+            return KScreen::Output::Panel;
+        }
+    }
+
+    return KScreen::Output::Unknown;
+}
+
+QByteArray XRandROutput::typeFromProperty() const
+{
+    QByteArray type;
+
+    Atom atomType = XInternAtom (XRandR::display(), RR_PROPERTY_CONNECTOR_TYPE, True);
+    if (atomType == None) {
+        return type;
+    }
+
+    char *result;
+    unsigned char *prop;
+    int actualFormat;
+    unsigned long nitems, bytes_after;
+    Atom actualType;
+    char *connectorType;
+
+    if (XRRGetOutputProperty (XRandR::display(), m_id, atomType, 0, 100, False,
+            False, AnyPropertyType, &actualType, &actualFormat, &nitems,
+            &bytes_after, &prop) != Success) {
+
+        return type;
+    }
+
+    if (!(actualType == XA_ATOM && actualFormat == 32 && nitems == 1)) {
+        return type;
+    }
+
+    connectorType = XGetAtomName (XRandR::display(), *((Atom *) prop));
+    if (!connectorType) {
+        return type;
+    }
+
+    type = connectorType;
+    XFree (connectorType);
+
+
+    return type;
+}
 
 KScreen::Output *XRandROutput::toKScreenOutput(KScreen::Config *parent) const
 {
