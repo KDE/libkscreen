@@ -21,6 +21,7 @@
 #include <config.h>
 
 #include <QtCore/QFile>
+#include <KDebug>
 
 #include <qjson/parser.h>
 #include <qjson/qobjecthelper.h>
@@ -103,6 +104,43 @@ Output* Parser::outputFromJson(const QVariant& data)
         }
 
         output->setClones(clones);
+    }
+
+    QString type = map["type"].toByteArray().toUpper();
+    if (type.contains("LVDS") || type.contains("EDP") || type.contains("IDP")) {
+        output->setType(Output::Panel);
+    } else if (type.contains("VGA")) {
+        output->setType(Output::VGA);
+    } else if (type.contains("DVI")) {
+        output->setType(Output::DVI);
+    } else if (type.contains("DVI-I")) {
+        output->setType(Output::DVII);
+    } else if (type.contains("DVI-A")) {
+        output->setType(Output::DVIA);
+    } else if (type.contains("DVI-D")) {
+        output->setType(Output::DVID);
+    } else if (type.contains("HDMI")) {
+        output->setType(Output::HDMI);
+    } else if (type.contains("Panel")) {
+        output->setType(Output::Panel);
+    } else if (type.contains("TV")) {
+        output->setType(Output::TV);
+    } else if (type.contains("TV-Composite")) {
+        output->setType(Output::TVComposite);
+    } else if (type.contains("TV-SVideo")) {
+        output->setType(Output::TVSVideo);
+    } else if (type.contains("TV-Component")) {
+        output->setType(Output::TVComponent);
+    } else if (type.contains("TV-SCART")) {
+        output->setType(Output::TVSCART);
+    } else if (type.contains("TV-C4")) {
+        output->setType(Output::TVC4);
+    } else if (type.contains("DisplayPort")) {
+        output->setType(Output::DisplayPort);
+    } else if (type.contains("Unknown")) {
+        output->setType(Output::Unknown);
+    } else {
+        kDebug() << "Output Type not translated:" << type;
     }
     return output;
 }

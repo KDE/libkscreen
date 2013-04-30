@@ -68,7 +68,7 @@ void testScreenConfig::singleOutput()
     Output *output = config->outputs().take(1);
 
     QCOMPARE(output->name(), QString("LVDS1"));
-    QCOMPARE(output->type(), QString("LVDS"));
+    QCOMPARE(output->type(), Output::Panel);
     QCOMPARE(output->modes().count(), 3);
     QCOMPARE(output->pos(), QPoint(0, 0));
     QCOMPARE(output->currentModeId(), QLatin1String("3"));
@@ -117,7 +117,7 @@ void testScreenConfig::multiOutput()
     Output *output = config->outputs().take(2);
 
     QCOMPARE(output->name(), QString("HDMI1"));
-    QCOMPARE(output->type(), QString("HDMI"));
+    QCOMPARE(output->type(), Output::HDMI);
     QCOMPARE(output->modes().count(), 4);
     QCOMPARE(output->pos(), QPoint(0, 0));
     QCOMPARE(output->currentModeId(), QLatin1String("4"));

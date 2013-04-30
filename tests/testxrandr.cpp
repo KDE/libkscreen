@@ -56,7 +56,7 @@ void testXRandR::singleOutput()
     Output *output = config->outputs().take(327);
 
     QCOMPARE(output->name(), QString("default"));
-    QCOMPARE(output->type(), QString("unknown"));
+    QCOMPARE(output->type(), Output::Unknown);
     QCOMPARE(output->modes().count(), 15);
     QCOMPARE(output->pos(), QPoint(0, 0));
     QCOMPARE(output->currentModeId(), QLatin1String("338"));

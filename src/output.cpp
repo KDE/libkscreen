@@ -42,7 +42,7 @@ class Output::Private
 
     int id;
     QString name;
-    QString type;
+    Type type;
     QString icon;
     ModeList modeList;
     QList<int> clones;
@@ -131,12 +131,12 @@ void Output::setName(const QString& name)
     Q_EMIT outputChanged();
 }
 
-QString Output::type() const
+Output::Type Output::type() const
 {
     return d->type;
 }
 
-void Output::setType(const QString& type)
+void Output::setType(Type type)
 {
     if (d->type == type) {
         return;

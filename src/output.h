@@ -39,9 +39,10 @@ class KSCREEN_EXPORT Output : public QObject
 
     public:
         Q_ENUMS(Rotation)
+        Q_ENUMS(Type)
         Q_PROPERTY(int id READ id NOTIFY outputChanged)
         Q_PROPERTY(QString name READ name WRITE setName NOTIFY outputChanged)
-        Q_PROPERTY(QString type READ type WRITE setType NOTIFY outputChanged)
+        Q_PROPERTY(Type type READ type WRITE setType NOTIFY outputChanged)
         Q_PROPERTY(QString icon READ icon WRITE setIcon NOTIFY outputChanged)
         Q_PROPERTY(ModeList modes READ modes CONSTANT)
         Q_PROPERTY(QPoint pos READ pos WRITE setPos NOTIFY posChanged)
@@ -53,6 +54,24 @@ class KSCREEN_EXPORT Output : public QObject
         Q_PROPERTY(bool primary READ isPrimary WRITE setPrimary NOTIFY isPrimaryChanged)
         Q_PROPERTY(QList<int> clones READ clones WRITE setClones NOTIFY clonesChanged)
         Q_PROPERTY(KScreen::Edid* edid READ edid CONSTANT)
+
+        enum Type {
+            Unknown,
+            VGA,
+            DVI,
+            DVII,
+            DVIA,
+            DVID,
+            HDMI,
+            Panel,
+            TV,
+            TVComposite,
+            TVSVideo,
+            TVComponent,
+            TVSCART,
+            TVC4,
+            DisplayPort
+        };
 
         enum Rotation {
             None = 1,
@@ -70,8 +89,8 @@ class KSCREEN_EXPORT Output : public QObject
         QString name() const;
         void setName(const QString& name);
 
-        QString type() const;
-        void setType(const QString& type);
+        Type type() const;
+        void setType(Type type);
 
         QString icon() const;
         void setIcon(const QString& icon);
@@ -146,5 +165,6 @@ typedef QHash<int, Output*> OutputList;
 
 Q_DECLARE_METATYPE(KScreen::OutputList)
 Q_DECLARE_METATYPE(KScreen::Output::Rotation)
+Q_DECLARE_METATYPE(KScreen::Output::Type)
 
 #endif //OUTPUT_H
