@@ -24,6 +24,7 @@
 #include "xrandroutput.h"
 #include "config.h"
 #include "output.h"
+#include "kwineffect.h"
 
 #include <QX11Info>
 #include <QRect>
@@ -34,7 +35,9 @@ using namespace KScreen;
 
 XRandRConfig::XRandRConfig()
     : QObject()
+    , m_configToBeApplied(0)
     , m_screen(new XRandRScreen(this))
+    , m_effect(new KWinEffect())
 {
     XRRScreenResources* resources = XRandR::screenResources();
 
@@ -51,10 +54,17 @@ XRandRConfig::XRandRConfig()
     }
 
     XRRFreeScreenResources(resources);
+
+    connect(m_effect, SIGNAL(stateChanged(KWinEffect::State)), SLOT(stateChanged(KWinEffect::State)));
+
+    m_timer.setSingleShot(true);
+    m_timer.setInterval(1000);
+    connect(&m_timer, SIGNAL(timeout()), m_effect, SLOT(stop()));
 }
 
 XRandRConfig::~XRandRConfig()
 {
+    delete m_effect;
 }
 
 void XRandRConfig::update()
@@ -111,6 +121,21 @@ void XRandRConfig::updateKScreenConfig(Config *config) const
 void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
 {
     KDebug::Block apply("Applying KScreen Config", dXndr());
+    if (m_effect->isValid()) {
+        m_time.start();
+        kDebug() << "Start: " << m_time.elapsed();
+        m_effect->start();
+        kDebug() << "Effect triggered: " << m_time.elapsed();
+        m_configToBeApplied = config;
+        return;
+    }
+
+    realApplyKScreenConfig(config);
+}
+
+void XRandRConfig::realApplyKScreenConfig(Config* config)
+{
+    kDebug() << "Real Apply Config: " << m_time.elapsed();
     KScreen::OutputList outputs = config->outputs();
     QSize newSize = screenSize(config);
 
@@ -272,6 +297,19 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
     }
 }
 
+void XRandRConfig::stateChanged(KWinEffect::State state)
+{
+    if (!m_configToBeApplied || state != KWinEffect::Faded) {
+        return;
+    }
+
+    kDebug() << "Stopping: " << m_time.elapsed();
+    kDebug() << state;
+    realApplyKScreenConfig(m_configToBeApplied);
+    m_configToBeApplied = 0;
+    m_effect->stop();
+//     m_timer.start();
+}
 
 QSize XRandRConfig::screenSize(KScreen::Config* config) const
 {

@@ -1,5 +1,5 @@
 /*************************************************************************************
- *  Copyright (C) 2012 by Dan Vr√°til <dvratil@redhat.com>                            *
+ *  Copyright (C) 2013 ¿lex Fiestas <afiestas@kde.org>                               *
  *                                                                                   *
  *  This program is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU General Public License                      *
@@ -16,57 +16,45 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA   *
  *************************************************************************************/
 
-#ifndef XRANDRCONFIG_H
-#define XRANDRCONFIG_H
+#ifndef KWIN_EFFECT_H
+#define KWIN_EFFECT_H
 
-#include <QObject>
+#include "xlibandxrandr.h"
+
+#include <QWidget>
 #include <QtCore/QTimer>
-#include <QtCore/QTime>
 
-#include "xrandr.h"
-#include "xrandroutput.h"
-#include "kwineffect.h"
-
-class KWinEffect;
-class XRandRScreen;
-namespace KScreen {
-class Config;
-}
-
-class XRandRConfig : public QObject
+class KWinEffect : public QWidget
 {
     Q_OBJECT
 
-public:
-    explicit XRandRConfig();
-    virtual ~XRandRConfig();
+    public:
+        enum State {
+            Nonthing,
+            FadeIn,
+            Faded,
+            FadeOut,
+            Done
+        };
 
-    void update();
+        KWinEffect();
+        virtual ~KWinEffect();
 
-    XRandROutput::Map outputs() const;
+        void start();
+        bool isValid() const;
+    public Q_SLOTS:
+        void stop();
 
-    KScreen::Config *toKScreenConfig() const;
-    void updateKScreenConfig(KScreen::Config *config) const;
-    void applyKScreenConfig(KScreen::Config *config);
-    void realApplyKScreenConfig(KScreen::Config *config);
+    Q_SIGNALS:
+        void stateChanged(KWinEffect::State state);
 
-private Q_SLOTS:
-    void stateChanged(KWinEffect::State state);
+    protected:
+        virtual bool x11Event(XEvent *event);
 
-private:
-    QSize screenSize(KScreen::Config* config) const;
-    bool setScreenSize(const QSize& size) const;
-    void setPrimaryOutput(int outputId) const;
-    bool disableOutput(KScreen::Output* output) const;
-    bool enableOutput(KScreen::Output* output) const;
-    bool changeOutput(KScreen::Output* output, int crtcId) const;
-
-    KScreen::Config* m_configToBeApplied;
-    XRandROutput::Map m_outputs;
-    XRandRScreen *m_screen;
-    KWinEffect *m_effect;
-    QTime m_time;
-    QTimer m_timer;
+        State m_state;
+        bool m_isValid;
+        Atom m_kwinEffect;
+        Window m_rootWindow;
 };
 
-#endif // XRANDRCONFIG_H
+#endif // KWIN_EFFECT_H

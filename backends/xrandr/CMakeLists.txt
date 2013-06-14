@@ -7,6 +7,7 @@ set(xrandr_SRCS
     xrandroutput.cpp
     xrandrmode.cpp
     xrandrscreen.cpp
+    kwineffect.cpp
 )
 
 automoc4_add_library(KSC_XRandR MODULE ${xrandr_SRCS})
