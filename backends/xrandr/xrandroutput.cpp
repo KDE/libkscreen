@@ -291,7 +291,6 @@ QByteArray XRandROutput::typeFromProperty() const
         return type;
     }
 
-    char *result;
     unsigned char *prop;
     int actualFormat;
     unsigned long nitems, bytes_after;
