@@ -28,7 +28,6 @@
 #include "config.h"
 #include "kscreen_export.h"
 
-class AbstractBackend;
 
 namespace KScreen
 {
