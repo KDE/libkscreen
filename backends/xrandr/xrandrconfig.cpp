@@ -161,7 +161,10 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
             }
         }
 
-        QSize size = currentOutput->currentMode()->size();
+        XRandRMode* currentMode = currentOutput->currentMode();
+        Q_ASSERT_X(currentMode, "applyKScreenConfig", "currentOutput has returned a null XRandRMode*");
+
+        QSize size = currentMode->size();
 
         int x, y;
 
