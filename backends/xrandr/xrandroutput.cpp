@@ -87,6 +87,16 @@ QString XRandROutput::currentModeId() const
     return m_currentMode;
 }
 
+XRandRMode* XRandROutput::currentMode() const
+{
+    int modeId = m_currentMode.toInt();
+    if (!m_modes.contains(modeId)) {
+        return 0;
+    }
+
+    return m_modes[modeId];
+}
+
 KScreen::Output::Rotation XRandROutput::rotation() const
 {
     return m_rotation;

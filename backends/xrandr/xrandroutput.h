@@ -81,6 +81,7 @@ public:
     bool isPrimary() const;
     QPoint position() const;
     QString currentModeId() const;
+    XRandRMode* currentMode() const;
     KScreen::Output::Rotation rotation() const;
     inline bool isHorizontal() const { return ((m_rotation == KScreen::Output::None) || (m_rotation == KScreen::Output::Inverted)); }
     KScreen::Edid* edid() const;

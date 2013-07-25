@@ -45,6 +45,7 @@ public:
 
     KScreen::Mode* toKScreenMode(KScreen::Output *parent);
 
+    QSize size() const;
 private:
     int m_id;
     QString m_name;

@@ -48,4 +48,9 @@ KScreen::Mode *XRandRMode::toKScreenMode(KScreen::Output *parent)
     return kscreenMode;
 }
 
+QSize XRandRMode::size() const
+{
+    return m_size;
+}
+
 #include "xrandrmode.moc"
