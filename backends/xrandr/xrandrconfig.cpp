@@ -122,7 +122,8 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
         XRandROutput *currentOutput = m_outputs.value(output->id());
         currentOutput->update(currentOutput->isPrimary() ? XRandROutput::SetPrimary : XRandROutput::UnsetPrimary);
 
-        if (output->isPrimary()) {
+        //Only set the output as primary if it is enabled.
+        if (output->isPrimary() && output->isEnabled()) {
             primaryOutput = currentOutput->id();
         }
 
