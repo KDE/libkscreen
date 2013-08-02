@@ -54,6 +54,7 @@ class KSCREEN_EXPORT Output : public QObject
         Q_PROPERTY(bool primary READ isPrimary WRITE setPrimary NOTIFY isPrimaryChanged)
         Q_PROPERTY(QList<int> clones READ clones WRITE setClones NOTIFY clonesChanged)
         Q_PROPERTY(KScreen::Edid* edid READ edid CONSTANT)
+        Q_PROPERTY(QSize sizeMm READ sizeMm CONSTANT)
 
         enum Type {
             Unknown,
@@ -141,6 +142,8 @@ class KSCREEN_EXPORT Output : public QObject
 
         Edid* edid() const;
 
+        QSize sizeMm() const;
+        void setSizeMm(const QSize &size);
     Q_SIGNALS:
         void outputChanged();
         void posChanged();

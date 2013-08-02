@@ -109,6 +109,8 @@ private:
     int m_primary : 1;
     QList<int> m_clones;
     mutable QPointer<KScreen::Edid> m_edid;
+    unsigned int m_widthMm;
+    unsigned int m_heightMm;
 
     mutable int m_changedProperties;
 };

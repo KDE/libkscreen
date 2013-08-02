@@ -50,6 +50,7 @@ class Output::Private
     QString preferredMode;
     QStringList preferredModes;
     QSize size;
+    QSize sizeMm;
     QPoint pos;
     Rotation rotation;
     bool connected;
@@ -364,6 +365,16 @@ Edid *Output::edid() const
     }
 
     return d->edid;
+}
+
+QSize Output::sizeMm() const
+{
+    return d->sizeMm;
+}
+
+void Output::setSizeMm(const QSize &size)
+{
+    d->sizeMm = size;
 }
 
 

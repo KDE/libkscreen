@@ -105,6 +105,7 @@ KScreen::Config* XRandR11::config() const
     output->setPos(QPoint(0,0));
     output->setPrimary(true);
     output->setRotation((KScreen::Output::Rotation) info->rotation);
+    output->setSizeMm(QSize(xcbScreen->width_in_millimeters, xcbScreen->height_in_millimeters));
 
     outputs.insert(1, output);
     config->setOutputs(outputs);
