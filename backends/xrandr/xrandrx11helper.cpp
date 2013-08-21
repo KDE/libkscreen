@@ -58,7 +58,9 @@ XRandRX11Helper::XRandRX11Helper():
 XRandRX11Helper::~XRandRX11Helper()
 {
     KSystemEventFilter::removeEventFilter(this);
-    XDestroyWindow(QX11Info::display(), m_window);
+    if (m_window) {
+        XDestroyWindow(QX11Info::display(), m_window);
+    }
 }
 
 QString XRandRX11Helper::rotationToString(Rotation rotation)
@@ -96,7 +98,7 @@ QString XRandRX11Helper::connectionToString(Connection connection)
 bool XRandRX11Helper::x11Event(XEvent *event)
 {
     /* XRandR <= 1.1 */
-    if (m_versionMajor >= 1 && m_versionMinor <= 1) {
+    if (m_versionMajor == 1 && m_versionMinor <= 1) {
         if (event->xany.type == m_randrBase + RRScreenChangeNotify) {
             KDebug::Block changeNotify("RRScreenChangeNotify", dXndr());
 
