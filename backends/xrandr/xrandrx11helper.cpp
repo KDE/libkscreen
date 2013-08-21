@@ -26,7 +26,12 @@
 #include <kdebug.h>
 
 XRandRX11Helper::XRandRX11Helper():
-    QWidget()
+    QWidget(),
+    m_versionMajor(0),
+    m_versionMinor(0),
+    m_randrBase(0),
+    m_randrError(0),
+    m_window(0)
 {
     XRRQueryVersion (QX11Info::display(), &m_versionMajor, &m_versionMinor);
 

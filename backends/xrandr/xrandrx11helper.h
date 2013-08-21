@@ -51,7 +51,6 @@ class XRandRX11Helper : public QWidget
         int m_versionMajor;
         int m_versionMinor;
 
-        bool m_debugMode;
         Window m_window;
 };
 
