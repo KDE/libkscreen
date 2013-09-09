@@ -104,9 +104,9 @@ private:
     KScreen::Output::Rotation m_rotation;
     QString m_currentMode;
     QStringList m_preferredModes;
-    int m_connected : 1;
-    int m_enabled : 1;
-    int m_primary : 1;
+    bool m_connected;
+    bool m_enabled;
+    bool m_primary;
     QList<int> m_clones;
     mutable QPointer<KScreen::Edid> m_edid;
     unsigned int m_widthMm;
