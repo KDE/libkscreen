@@ -81,6 +81,7 @@ public:
     bool isPrimary() const;
     QPoint position() const;
     QString currentModeId() const;
+    XRandRMode::Map modes() const;
     XRandRMode* currentMode() const;
     KScreen::Output::Rotation rotation() const;
     inline bool isHorizontal() const { return ((m_rotation == KScreen::Output::None) || (m_rotation == KScreen::Output::Inverted)); }
@@ -88,9 +89,10 @@ public:
 
     KScreen::Output* toKScreenOutput(KScreen::Config *parent) const;
     void updateKScreenOutput(KScreen::Output *output) const;
+
+    void updateModes(const XRROutputInfo *outputInfo);
 private:
     void updateOutput(const XRROutputInfo *outputInfo);
-    void updateModes(const XRROutputInfo *outputInfo);
     void fetchType();
     KScreen::Output::Type typeFromName();
     QByteArray typeFromProperty() const;

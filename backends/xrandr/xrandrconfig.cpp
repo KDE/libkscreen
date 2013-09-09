@@ -163,31 +163,54 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
         }
 
         XRandRMode* currentMode = currentOutput->currentMode();
-        Q_ASSERT_X(currentMode, "applyKScreenConfig", "currentOutput has returned a null XRandRMode*");
 
-        QSize size = currentMode->size();
-
-        int x, y;
-
-        //TODO: Move this code within libkscreen
-        y = currentOutput->position().y();
-        if (currentOutput->isHorizontal()) {
-            y += size.height();
-        } else {
-            y += size.width();
+        // Current output mode can be unlisted - when output size changes to a
+        // resolution that is not listed by xrandr, in some cases the driver will
+        // dynamically create a new mode, so we just need to update the list
+        // of modes and try to get a mode matching currentModeId again.
+        // In some cases however re-reading modes from xrandr won't help - in that
+        // case we fallback to doing nothing
+        if (!currentMode) {
+            XRROutputInfo *outputInfo = XRandR::XRROutput(currentOutput->id());
+            currentOutput->updateModes(outputInfo);
+            XRRFreeOutputInfo(outputInfo);
+            currentMode = currentOutput->currentMode();
         }
 
-        x = currentOutput->position().x();
-        if (currentOutput->isHorizontal()) {
-            x += size.width();
-        } else {
-            x += size.height();
-        }
+        if (currentMode) {
+            const QSize size = currentMode->size();
+            int x, y;
 
-        if (x > newSize.width() || y > newSize.height()) {
-            if (!toDisable.contains(output->id())) {
-                kDebug(dXndr()) << "Output doesn't fit: " << x << "x" << y << newSize;
-                toDisable.insert(output->id(), output);
+            //TODO: Move this code within libkscreen
+            y = currentOutput->position().y();
+            if (currentOutput->isHorizontal()) {
+                y += size.height();
+            } else {
+                y += size.width();
+            }
+
+            x = currentOutput->position().x();
+            if (currentOutput->isHorizontal()) {
+                x += size.width();
+            } else {
+                x += size.height();
+            }
+
+            if (x > newSize.width() || y > newSize.height()) {
+                if (!toDisable.contains(output->id())) {
+                    kDebug(dXndr()) << "Output doesn't fit: " << x << "x" << y << newSize;
+                    toDisable.insert(output->id(), output);
+                }
+            }
+        } else {
+            // Don't update the output
+            toChange.remove(currentOutput->id());
+
+            kWarning() << "Output" << currentOutput->id() << ": Failed to get currentMode";
+            kDebug(dXndr()) << "CurrentModeId:" << currentOutput->currentModeId();
+            kDebug(dXndr()) << "Available modes:";
+            Q_FOREACH (XRandRMode *mode, currentOutput->modes()) {
+                kDebug(dXndr()) << "\t" << mode->id() << mode->size() << mode->refreshRate() << mode->name();
             }
         }
     }//Q_FOREACH(KScreen::Output *output, outputs)

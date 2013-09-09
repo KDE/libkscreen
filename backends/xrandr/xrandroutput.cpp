@@ -84,6 +84,11 @@ QPoint XRandROutput::position() const
     return m_position;
 }
 
+XRandRMode::Map XRandROutput::modes() const
+{
+    return m_modes;
+}
+
 QString XRandROutput::currentModeId() const
 {
     return m_currentMode;
