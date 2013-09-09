@@ -14,7 +14,7 @@ qt4_automoc(${libkscreen_SRCS})
 
 add_library(kscreen SHARED ${libkscreen_SRCS})
 
-target_link_libraries(kscreen ${QT_QTCORE_LIBRARY} ${QT_QTDBUS_LIBRARY} ${KDE4_KDECORE_LIBS} ${QJSON_LIBRARIES})
+target_link_libraries(kscreen ${QT_QTCORE_LIBRARY} ${KDE4_KDECORE_LIBS} ${QJSON_LIBRARIES})
 
 set_target_properties(kscreen PROPERTIES
     VERSION ${libkscreen_VERSION}
