@@ -28,6 +28,7 @@
 #include <QtCore/QMetaType>
 #include <QtCore/QPointer>
 #include <QtCore/QStringList>
+#include <QtCore/QDebug>
 
 namespace KScreen {
 
@@ -165,6 +166,8 @@ class KSCREEN_EXPORT Output : public QObject
 typedef QHash<int, Output*> OutputList;
 
 } //KScreen namespace
+
+KSCREEN_EXPORT QDebug operator<<(QDebug dbg, const KScreen::Output *output);
 
 Q_DECLARE_METATYPE(KScreen::OutputList)
 Q_DECLARE_METATYPE(KScreen::Output::Rotation)

@@ -377,7 +377,12 @@ void Output::setSizeMm(const QSize &size)
     d->sizeMm = size;
 }
 
-
 } //KScreen namespace
+
+QDebug operator<<(QDebug dbg, const KScreen::Output *output)
+{
+    dbg << "KScreen::Output(Id:" << output->id() <<", Name:" << output->name() << ")";
+    return dbg;
+}
 
 #include "output.moc"

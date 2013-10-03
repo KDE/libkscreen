@@ -112,4 +112,11 @@ void Mode::setRefreshRate(float refresh)
 
 } //KScreen namespace
 
+QDebug operator<<(QDebug dbg, const KScreen::Mode *mode)
+{
+    dbg << "KScreen::Mode(Id:" << mode->id() << ", Size:" << mode->size() << ")";
+    return dbg;
+}
+
+
 #include "mode.moc"
