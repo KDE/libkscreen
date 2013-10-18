@@ -251,10 +251,7 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
         kDebug(dXndr()) << "\t\t" << toEnable.keys();
     }
 
-
-    if (primaryOutput) {
-        setPrimaryOutput(primaryOutput);
-    }
+    setPrimaryOutput(primaryOutput);
 
     //If there is nothing to do, not even bother
     if (toDisable.isEmpty() && toEnable.isEmpty() && toChange.isEmpty()) {
