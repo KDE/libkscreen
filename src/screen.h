@@ -39,6 +39,8 @@ class KSCREEN_EXPORT Screen : public QObject
         explicit Screen(QObject *parent = 0);
         virtual ~Screen();
 
+        Screen* clone() const;
+
         int id() const;
         void setId(int id);
 
@@ -59,6 +61,8 @@ class KSCREEN_EXPORT Screen : public QObject
 
         class Private;
         Private * const d;
+
+        Screen(Private *dd);
 };
 
 } //KScreen namespace

@@ -48,10 +48,12 @@ class KSCREEN_EXPORT Edid: public QObject
     Q_PROPERTY(QQuaternion blue READ blue CONSTANT)
     Q_PROPERTY(QQuaternion white READ white CONSTANT)
 
-public:
+  public:
     explicit Edid();
     explicit Edid(const quint8 *data, size_t length, QObject *parent = 0);
     virtual ~Edid();
+
+    Edid* clone() const;
 
     bool isValid() const;
 
@@ -70,9 +72,13 @@ public:
     QQuaternion blue() const;
     QQuaternion white() const;
 
-private:
+  private:
+    Q_DISABLE_COPY(Edid);
+
     class Private;
     Private * const d;
+
+    Edid(Private *dd);
 };
 
 }

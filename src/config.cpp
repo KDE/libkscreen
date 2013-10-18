@@ -34,6 +34,15 @@ class Config::Private
       screen(0)
     { }
 
+    Private(const Private &other):
+      valid(other.valid)
+    {
+      screen = other.screen->clone();
+      Q_FOREACH (Output *otherOutput, other.outputs) {
+          outputs.insert(otherOutput->id(), otherOutput->clone());
+      }
+    }
+
     bool valid;
     Screen* screen;
     OutputList outputs;
@@ -148,13 +157,32 @@ Config::Config(QObject* parent)
  : QObject(parent)
  , d(new Private())
 {
-
 }
+
+Config::Config(Config::Private *dd)
+  : QObject()
+  , d(dd)
+{
+}
+
 
 Config::~Config()
 {
     delete d;
 }
+
+Config *Config::clone() const
+{
+    Config *config = new Config(new Private(*d));
+    // Set parent of the newly copied items
+    config->d->screen->setParent(config);
+    Q_FOREACH (Output *output, config->d->outputs) {
+        output->setParent(config);
+    }
+
+    return config;
+}
+
 
 Screen* Config::screen() const
 {

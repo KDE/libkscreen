@@ -85,6 +85,8 @@ class KSCREEN_EXPORT Output : public QObject
         explicit Output(QObject *parent = 0);
         virtual ~Output();
 
+        Output* clone() const;
+
         int id() const;
         void setId(int id);
 
@@ -160,6 +162,8 @@ class KSCREEN_EXPORT Output : public QObject
 
         class Private;
         Private * const d;
+
+        Output(Private *dd);
 
 };
 

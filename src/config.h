@@ -35,32 +35,36 @@ class KSCREEN_EXPORT Config : public QObject
     Q_PROPERTY(Screen* screen READ screen)
     Q_PROPERTY(OutputList outputs READ outputs)
 
-    public:
-        static bool loadBackend();
-        static Config* current();
-        static bool setConfig(Config* config);
-        static bool canBeApplied(Config* config);
+  public:
+    static bool loadBackend();
+    static Config* current();
+    static bool setConfig(Config* config);
+    static bool canBeApplied(Config* config);
 
-        explicit Config(QObject *parent = 0);
-        virtual ~Config();
+    explicit Config(QObject *parent = 0);
+    virtual ~Config();
 
-        Screen* screen() const;
-        void setScreen(Screen* screen);
+    Config* clone() const;
 
-        Output* output(int outputId) const;
-        QHash<int, Output*> outputs() const;
-        QHash<int, Output*> connectedOutputs() const;
-        Output* primaryOutput() const;
-        void setOutputs(OutputList outputs);
+    Screen* screen() const;
+    void setScreen(Screen* screen);
 
-        bool isValid() const;
-        void setValid(bool valid);
+    Output* output(int outputId) const;
+    QHash<int, Output*> outputs() const;
+    QHash<int, Output*> connectedOutputs() const;
+    Output* primaryOutput() const;
+    void setOutputs(OutputList outputs);
 
-    private:
-        Q_DISABLE_COPY(Config)
+    bool isValid() const;
+    void setValid(bool valid);
 
-        class Private;
-        Private * const d;
+  private:
+    Q_DISABLE_COPY(Config)
+
+    class Private;
+    Private * const d;
+
+    Config(Private *dd);
 };
 
 } //KScreen namespace

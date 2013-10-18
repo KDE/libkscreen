@@ -57,6 +57,24 @@ class Edid::Private
       gamma(0)
     { }
 
+    Private(const Private &other):
+      valid(other.valid),
+      monitorName(other.monitorName),
+      vendorName(other.vendorName),
+      serialNumber(other.serialNumber),
+      eisaId(other.eisaId),
+      checksum(other.checksum),
+      pnpId(other.pnpId),
+      width(other.width),
+      height(other.height),
+      gamma(other.gamma),
+      red(other.red),
+      green(other.green),
+      blue(other.blue),
+      white(other.white)
+    {
+    }
+
     bool parse(const quint8 *data, size_t length);
     int edidGetBit(int in, int bit) const;
     int edidGetBits(int in, int begin, int end) const;
@@ -93,9 +111,20 @@ Edid::Edid(const quint8 *data, size_t length, QObject *parent)
     d->parse(data, length);
 }
 
+Edid::Edid(Edid::Private *dd)
+  : QObject()
+  , d(dd)
+{
+}
+
 Edid::~Edid()
 {
     delete d;
+}
+
+Edid *Edid::clone() const
+{
+    return new Edid(new Private(*d));
 }
 
 bool Edid::isValid() const

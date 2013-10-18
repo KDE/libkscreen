@@ -41,6 +41,8 @@ class KSCREEN_EXPORT Mode : public QObject
         explicit Mode(QObject *parent = 0);
         virtual ~Mode();
 
+        Mode* clone() const;
+
         const QString id() const;
         void setId(const QString &id);
 
@@ -59,6 +61,8 @@ class KSCREEN_EXPORT Mode : public QObject
     private:
         class Private;
         Private * const d;
+
+        Mode(Private *dd);
 };
 
 typedef QHash<QString, Mode*> ModeList;

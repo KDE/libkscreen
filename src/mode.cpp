@@ -27,6 +27,14 @@ class Mode::Private
       rate(0)
     { }
 
+    Private(const Private &other):
+        id(other.id),
+        name(other.name),
+        size(other.size),
+        rate(other.rate)
+    {
+    }
+
     QString id;
     QString name;
     QSize size;
@@ -40,9 +48,20 @@ Mode::Mode(QObject *parent)
 
 }
 
+Mode::Mode(Mode::Private *dd)
+  : QObject()
+  , d(dd)
+{
+}
+
 Mode::~Mode()
 {
     delete d;
+}
+
+Mode *Mode::clone() const
+{
+    return new Mode(new Private(*d));
 }
 
 const QString Mode::id() const

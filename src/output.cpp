@@ -38,6 +38,31 @@ class Output::Private
         edid(0)
     {}
 
+    Private(const Private &other):
+        id(other.id),
+        name(other.name),
+        type(other.type),
+        icon(other.icon),
+        clones(other.clones),
+        currentMode(other.currentMode),
+        preferredMode(other.preferredMode),
+        preferredModes(other.preferredModes),
+        size(other.size),
+        sizeMm(other.sizeMm),
+        pos(other.pos),
+        rotation(other.rotation),
+        connected(other.connected),
+        enabled(other.enabled),
+        primary(other.primary)
+    {
+        Q_FOREACH (Mode *otherMode, other.modeList) {
+            modeList.insert(otherMode->id(), otherMode->clone());
+        }
+        if (other.edid) {
+            edid = other.edid->clone();
+        }
+    }
+
     QString biggestMode(const ModeList& modes) const;
 
     int id;
@@ -95,9 +120,29 @@ Output::Output(QObject *parent)
 
 }
 
+Output::Output(Output::Private *dd)
+ : QObject()
+ , d(dd)
+{
+}
+
 Output::~Output()
 {
     delete d;
+}
+
+Output *Output::clone() const
+{
+    Output *output = new Output(new Private(*d));
+    // Make sure the new output takes ownership of the cloned modes
+    Q_FOREACH (Mode *mode, output->d->modeList) {
+        mode->setParent(output);
+    }
+    if (output->d->edid) {
+        output->d->edid->setParent(output);
+    }
+
+    return output;
 }
 
 int Output::id() const

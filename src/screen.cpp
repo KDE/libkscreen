@@ -27,6 +27,14 @@ class Screen::Private
       id(0)
     { }
 
+    Private(const Private &other):
+        id(other.id),
+        currentSize(other.currentSize),
+        minSize(other.minSize),
+        maxSize(other.maxSize)
+    {
+    }
+
     int id;
     QSize currentSize;
     QSize minSize;
@@ -39,10 +47,23 @@ Screen::Screen(QObject *parent)
 {
 }
 
+Screen::Screen(Screen::Private *dd)
+ : QObject()
+ , d(dd)
+{
+}
+
+
 Screen::~Screen()
 {
     delete d;
 }
+
+Screen *Screen::clone() const
+{
+    return new Screen(new Private(*d));
+}
+
 
 int Screen::id() const
 {
