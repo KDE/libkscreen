@@ -52,7 +52,7 @@ XRandR11::XRandR11(QObject* parent)
         return;
     }
     if (version->minor_version > 1) {
-        qDebug << "This backend is only for XRandR 1.1, your version is: " << version->major_version << "." << version->minor_version;
+        qDebug() << "This backend is only for XRandR 1.1, your version is: " << version->major_version << "." << version->minor_version;
         return;
     }
 
