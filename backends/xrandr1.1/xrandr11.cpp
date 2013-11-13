@@ -42,9 +42,12 @@ XRandR11::XRandR11(QObject* parent)
  , m_currentConfig(0)
  , m_currentTimestamp(0)
 {
+    xcb_generic_error_t *error = 0;
     xcb_randr_query_version_reply_t* version;
-    version = xcb_randr_query_version_reply(connection(), xcb_randr_query_version(connection(), XCB_RANDR_MAJOR_VERSION, XCB_RANDR_MINOR_VERSION), 0);
-    if (!version) {
+    version = xcb_randr_query_version_reply(connection(), xcb_randr_query_version(connection(), XCB_RANDR_MAJOR_VERSION, XCB_RANDR_MINOR_VERSION), &error);
+
+    if (!version || error) {
+        free(error);
         qDebug() << "Can't get XRandR version";
         return;
     }
