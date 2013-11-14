@@ -281,7 +281,7 @@ QString Output::preferredModeId() const
         if (area < total) {
             continue;
         }
-        if (area == total && candidateMode->refreshRate() < biggest->refreshRate()) {
+        if (area == total && biggest && candidateMode->refreshRate() < biggest->refreshRate()) {
             continue;
         }
         if (area == total && biggest && candidateMode->refreshRate() > biggest->refreshRate()) {
