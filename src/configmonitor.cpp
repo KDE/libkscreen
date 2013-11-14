@@ -34,14 +34,14 @@ class ConfigMonitor::Private
     void updateConfigs();
     void _k_configurationDestroyed(QObject* removedConfig);
 
-    QList< QPointer<KScreen::Config> >  watchedConfigs;
+    QList< KScreen::Config* >  watchedConfigs;
     AbstractBackend* backend;
     ConfigMonitor *m_q;
 };
 
 void ConfigMonitor::Private::updateConfigs()
 {
-    Q_FOREACH(QPointer<Config> config, watchedConfigs) {
+    Q_FOREACH( Config *config, watchedConfigs) {
         if (config) {
             backend->updateConfig(config);
         }
@@ -50,13 +50,7 @@ void ConfigMonitor::Private::updateConfigs()
 
 void ConfigMonitor::Private::_k_configurationDestroyed(QObject *removedConfig)
 {
-    Config *config = qobject_cast<Config*>(removedConfig);
-    if (!config) {
-        qWarning() << "_k_configurationDestroyed from a non Config object";
-        return;
-    }
-
-    m_q->removeConfig(config);
+    m_q->removeConfig(static_cast<Config*>(removedConfig));
 }
 
 ConfigMonitor *ConfigMonitor::instance()
@@ -83,17 +77,17 @@ ConfigMonitor::~ConfigMonitor()
 
 void ConfigMonitor::addConfig(Config *config)
 {
-    if (!d->watchedConfigs.contains(QPointer<Config>(config))) {
+    if (!d->watchedConfigs.contains(config)) {
         connect(config, SIGNAL(destroyed(QObject*)), SLOT(_k_configurationDestroyed(QObject*)));
-        d->watchedConfigs << QPointer<Config>(config);
+        d->watchedConfigs << config;
     }
 }
 
 void ConfigMonitor::removeConfig(Config *config)
 {
-    if (d->watchedConfigs.contains(QPointer<Config>(config))) {
+    if (d->watchedConfigs.contains(config)) {
         disconnect(config, SIGNAL(destroyed(QObject*)), this, SLOT(_k_configurationDestroyed(QObject*)));
-        d->watchedConfigs.removeAll(QPointer<Config>(config));
+        d->watchedConfigs.removeAll(config);
     }
 }
 
