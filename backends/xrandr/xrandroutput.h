@@ -90,6 +90,7 @@ public:
     void updateKScreenOutput(KScreen::Output *output) const;
 
     void updateModes(const XRROutputInfo *outputInfo);
+    void addNewOutput(const RROutput output);
 private:
     void updateOutput(const XRROutputInfo *outputInfo);
     void fetchType();

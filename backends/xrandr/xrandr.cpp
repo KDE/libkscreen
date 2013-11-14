@@ -110,9 +110,13 @@ void XRandR::updateConfig()
 void XRandR::updateOutput(RROutput output)
 {
     XRandROutput *xOutput = s_internalConfig->outputs().value(output);
-    RROutput primary = XRRGetOutputPrimary(XRandR::display(), XRandR::rootWindow());
+    if (!xOutput) {
+        s_internalConfig->addNewOutput(output);
+    } else {
+        RROutput primary = XRRGetOutputPrimary(XRandR::display(), XRandR::rootWindow());
+        xOutput->update((output == primary) ? XRandROutput::SetPrimary : XRandROutput::UnsetPrimary);
+    }
 
-    xOutput->update((output == primary) ? XRandROutput::SetPrimary : XRandROutput::UnsetPrimary);
     KScreen::ConfigMonitor::instance()->notifyUpdate();
 }
 

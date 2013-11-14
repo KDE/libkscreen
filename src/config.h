@@ -53,11 +53,14 @@ class KSCREEN_EXPORT Config : public QObject
     QHash<int, Output*> outputs() const;
     QHash<int, Output*> connectedOutputs() const;
     Output* primaryOutput() const;
+    void addOutput(Output *output);
     void setOutputs(OutputList outputs);
 
     bool isValid() const;
     void setValid(bool valid);
 
+  Q_SIGNALS:
+      void outputAdded(Output *output);
   private:
     Q_DISABLE_COPY(Config)
 

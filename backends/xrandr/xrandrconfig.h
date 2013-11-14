@@ -40,6 +40,7 @@ public:
     void update();
 
     XRandROutput::Map outputs() const;
+    void addNewOutput(const RROutput id);
 
     KScreen::Config *toKScreenConfig() const;
     void updateKScreenConfig(KScreen::Config *config) const;

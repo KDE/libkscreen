@@ -231,6 +231,13 @@ Output* Config::primaryOutput() const
     return 0;
 }
 
+void Config::addOutput(Output* output)
+{
+    d->outputs.insert(output->id(), output);
+
+    Q_EMIT outputAdded(output);
+}
+
 void Config::setOutputs(OutputList outputs)
 {
     d->outputs = outputs;

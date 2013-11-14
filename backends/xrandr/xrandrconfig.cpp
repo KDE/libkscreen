@@ -75,6 +75,14 @@ XRandROutput::Map XRandRConfig::outputs() const
     return m_outputs;
 }
 
+void XRandRConfig::addNewOutput(const RROutput id)
+{
+    RROutput primary;
+    primary = XRRGetOutputPrimary(XRandR::display(), XRandR::rootWindow());
+    XRandROutput *output = new XRandROutput(id, (id == primary), this);
+    m_outputs.insert(id, output);
+}
+
 KScreen::Config *XRandRConfig::toKScreenConfig() const
 {
     KScreen::Config *config = new KScreen::Config();
@@ -104,6 +112,11 @@ void XRandRConfig::updateKScreenConfig(Config *config) const
     for (iter = m_outputs.constBegin(); iter != m_outputs.constEnd(); ++iter) {
         XRandROutput *output = iter.value();
         KScreen::Output *kscreenOutput = config->output(output->id());
+
+        if (!kscreenOutput) {
+            config->addOutput(output->toKScreenOutput(config));
+            continue;
+        }
         output->updateKScreenOutput(kscreenOutput);
     }
 }
