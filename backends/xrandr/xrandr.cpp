@@ -277,12 +277,21 @@ XRRScreenResources* XRandR::screenResources()
 
 XRROutputInfo* XRandR::XRROutput(int outputId)
 {
-    return XRRGetOutputInfo(s_display, screenResources(), outputId);
+    XRRScreenResources *resources = screenResources();
+    XRROutputInfo *info = XRRGetOutputInfo(s_display, resources, outputId);
+    XRRFreeScreenResources(resources);
+
+    return info;
 }
 
 XRRCrtcInfo* XRandR::XRRCrtc(int crtcId)
 {
-    return XRRGetCrtcInfo(s_display, screenResources(), crtcId);
+    XRRScreenResources *resources = screenResources();
+    XRRCrtcInfo *info = XRRGetCrtcInfo(s_display, resources, crtcId);
+    XRRFreeScreenResources(resources);
+
+    return info;
+
 }
 
 Display *XRandR::display()
