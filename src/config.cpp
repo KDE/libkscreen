@@ -240,7 +240,10 @@ void Config::addOutput(Output* output)
 
 void Config::removeOutput(int outputId)
 {
-    d->outputs.remove(outputId);
+    Output *output = d->outputs.take(outputId);
+    if (output) {
+        output->deleteLater();
+    }
 
     Q_EMIT outputRemoved(outputId);
 }
