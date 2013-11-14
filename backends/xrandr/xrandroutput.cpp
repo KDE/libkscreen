@@ -222,6 +222,8 @@ void XRandROutput::updateModes(const XRROutputInfo *outputInfo)
     XRRScreenResources *resources = XRandR::screenResources();
 
     m_preferredModes.clear();
+    qDeleteAll(m_modes);
+    m_modes.clear();
     for (int i = 0; i < outputInfo->nmode; ++i)
     {
         /* Resources->modes contains all possible modes, we are only interested
