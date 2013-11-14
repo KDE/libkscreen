@@ -53,6 +53,7 @@ class KSCREEN_EXPORT ConfigMonitor : public QObject
 
     class Private;
     Private * const d;
+    Q_PRIVATE_SLOT(d, void _k_configurationDestroyed(QObject *))
 };
 
 } /* namespace KScreen */
