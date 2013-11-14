@@ -181,7 +181,7 @@ void XRandROutput::updateOutput(const XRROutputInfo *outputInfo)
         }
 
         if (crtcInfo->mode) {
-            if (m_currentMode != QString::number((int) crtcInfo->mode)) {
+            if (m_currentMode != QString::number(crtcInfo->mode)) {
                 m_currentMode = QString::number(crtcInfo->mode);
                 m_changedProperties |= PropertyCurrentMode;
             }
