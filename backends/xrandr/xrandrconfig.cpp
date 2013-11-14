@@ -46,7 +46,7 @@ XRandRConfig::XRandRConfig()
     {
         id = resources->outputs[i];
 
-        XRandROutput *output = new XRandROutput(id, (id == primary), this);
+        XRandROutput *output = createNewOutput(id, (id == primary));
         m_outputs.insert(id, output);
     }
 
@@ -79,8 +79,22 @@ void XRandRConfig::addNewOutput(const RROutput id)
 {
     RROutput primary;
     primary = XRRGetOutputPrimary(XRandR::display(), XRandR::rootWindow());
-    XRandROutput *output = new XRandROutput(id, (id == primary), this);
+    XRandROutput *output = createNewOutput(id, (id == primary));
     m_outputs.insert(id, output);
+}
+
+XRandROutput* XRandRConfig::createNewOutput(RROutput id, bool primary)
+{
+    XRandROutput *xOutput = new XRandROutput(id, (id == primary), this);
+    connect(xOutput, SIGNAL(outputRemoved(int)), SLOT(outputRemovedSlot(int)));
+
+    return xOutput;
+}
+
+void XRandRConfig::outputRemovedSlot(int id)
+{
+    m_outputs.remove(id);
+    Q_EMIT outputRemoved(id);
 }
 
 KScreen::Config *XRandRConfig::toKScreenConfig() const
@@ -107,6 +121,14 @@ void XRandRConfig::updateKScreenConfig(Config *config) const
 {
     KScreen::Screen *kscreenScreen = config->screen();
     m_screen->updateKScreenScreen(kscreenScreen);
+
+    //Removing removed outputs
+    KScreen::OutputList outputs = config->outputs();
+    Q_FOREACH(KScreen::Output *output, outputs) {
+        if (!m_outputs.contains(output->id())) {
+            config->removeOutput(output->id());
+        }
+    }
 
     XRandROutput::Map::ConstIterator iter;
     for (iter = m_outputs.constBegin(); iter != m_outputs.constEnd(); ++iter) {

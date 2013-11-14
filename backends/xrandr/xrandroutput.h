@@ -91,6 +91,10 @@ public:
 
     void updateModes(const XRROutputInfo *outputInfo);
     void addNewOutput(const RROutput output);
+
+Q_SIGNALS:
+    void outputRemoved(int id);
+
 private:
     void updateOutput(const XRROutputInfo *outputInfo);
     void fetchType();

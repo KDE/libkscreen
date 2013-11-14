@@ -87,6 +87,9 @@ XRandR::XRandR(QObject* parent)
         /* XRandR >= 1.2 */
         connect(m_x11Helper, SIGNAL(outputChanged(RROutput)), SLOT(updateOutput(RROutput)));
         connect(m_x11Helper, SIGNAL(crtcChanged(RRCrtc)), SLOT(updateCrtc(RRCrtc)));
+        connect(s_internalConfig, SIGNAL(outputRemoved(int)),
+            KScreen::ConfigMonitor::instance(), SLOT(notifyUpdate()));
+
         s_monitorInitialized = true;
     }
 }

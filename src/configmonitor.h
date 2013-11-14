@@ -39,6 +39,7 @@ class KSCREEN_EXPORT ConfigMonitor : public QObject
     void addConfig(KScreen::Config *config);
     void removeConfig(KScreen::Config *config);
 
+  public Q_SLOTS:
     void notifyUpdate();
 
   Q_SIGNALS:

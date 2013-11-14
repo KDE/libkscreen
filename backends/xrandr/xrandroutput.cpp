@@ -128,6 +128,11 @@ KScreen::Edid *XRandROutput::edid() const
 void XRandROutput::update(PrimaryChange primary)
 {
     XRROutputInfo *outputInfo = XRandR::XRROutput(m_id);
+    if (!outputInfo) {
+        Q_EMIT outputRemoved(m_id);
+        deleteLater();
+        return;
+    }
 
     m_changedProperties = 0;
     updateOutput(outputInfo);

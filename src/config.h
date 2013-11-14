@@ -54,6 +54,7 @@ class KSCREEN_EXPORT Config : public QObject
     QHash<int, Output*> connectedOutputs() const;
     Output* primaryOutput() const;
     void addOutput(Output *output);
+    void removeOutput(int outputId);
     void setOutputs(OutputList outputs);
 
     bool isValid() const;
@@ -61,6 +62,7 @@ class KSCREEN_EXPORT Config : public QObject
 
   Q_SIGNALS:
       void outputAdded(Output *output);
+      void outputRemoved(int outputId);
   private:
     Q_DISABLE_COPY(Config)
 

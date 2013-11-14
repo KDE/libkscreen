@@ -53,9 +53,15 @@ private:
     bool disableOutput(KScreen::Output* output) const;
     bool enableOutput(KScreen::Output* output) const;
     bool changeOutput(KScreen::Output* output, int crtcId) const;
-
+    XRandROutput* createNewOutput(RROutput id, bool primary);
     XRandROutput::Map m_outputs;
     XRandRScreen *m_screen;
+
+Q_SIGNALS:
+    void outputRemoved(int id);
+
+private Q_SLOTS:
+    void outputRemovedSlot(int id);
 };
 
 #endif // XRANDRCONFIG_H

@@ -238,6 +238,13 @@ void Config::addOutput(Output* output)
     Q_EMIT outputAdded(output);
 }
 
+void Config::removeOutput(int outputId)
+{
+    d->outputs.remove(outputId);
+
+    Q_EMIT outputRemoved(outputId);
+}
+
 void Config::setOutputs(OutputList outputs)
 {
     d->outputs = outputs;
