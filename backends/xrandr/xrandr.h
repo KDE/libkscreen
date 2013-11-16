@@ -59,6 +59,7 @@ class XRandR : public QObject, public AbstractBackend
 
     private Q_SLOTS:
         void updateConfig();
+        void outputRemovedSlot();
 
         void updateOutput(RROutput output);
         void updateCrtc(RRCrtc crtc);
