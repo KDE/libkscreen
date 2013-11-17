@@ -328,7 +328,7 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
 
 void XRandRConfig::printConfig(Config* config) const
 {
-    kDebug() << "KScreen version: 1.0.2";
+    kDebug() << "KScreen version:" << LIBKSCREEN_VERSION;
 
     if (!config) {
         kDebug() << "Config is invalid";

@@ -3,6 +3,7 @@ set(libkscreen_VERSION_MAJOR 1)
 set(libkscreen_VERSION_MINOR 0)
 set(libkscreen_VERSION_RELEASE 1)
 set(libkscreen_VERSION "${libkscreen_VERSION_MAJOR}.${libkscreen_VERSION_MINOR}.${libkscreen_VERSION_RELEASE}")
+add_definitions("-DLIBKSCREEN_VERSION=\\\"${libkscreen_VERSION}\\\"")
 
 cmake_minimum_required(VERSION 2.8.0)
 
