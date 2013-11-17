@@ -24,6 +24,7 @@
 #include "xrandroutput.h"
 #include "config.h"
 #include "output.h"
+#include "edid.h"
 
 #include <QX11Info>
 #include <QRect>
@@ -199,53 +200,44 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
 
         XRandRMode* currentMode = currentOutput->currentMode();
 
-        // Current output mode can be unlisted - when output size changes to a
-        // resolution that is not listed by xrandr, in some cases the driver will
-        // dynamically create a new mode, so we just need to update the list
-        // of modes and try to get a mode matching currentModeId again.
-        // In some cases however re-reading modes from xrandr won't help - in that
-        // case we fallback to doing nothing
+        // For some reason, in some environments currentMode is null
+        // which doesn't make sense because it is the *current* mode...
+        // Since we haven't been able to figure out the reason why
+        // this happens, we are adding this debug code to try to
+        // figure out how this happened.
         if (!currentMode) {
-            XRROutputInfo *outputInfo = XRandR::XRROutput(currentOutput->id());
-            currentOutput->updateModes(outputInfo);
-            XRRFreeOutputInfo(outputInfo);
-            currentMode = currentOutput->currentMode();
+            kWarning() << "Current mode is null:"
+            << "ModeId:" << currentOutput->currentModeId()
+            << "Mode: " << currentOutput->currentMode()
+            << "Output: " << currentOutput->id();
+            kDebug() << kRealBacktrace(256);
+            printConfig(config);
+            printInternalCond();
+            return;
         }
 
-        if (currentMode) {
-            const QSize size = currentMode->size();
-            int x, y;
+        const QSize size = currentMode->size();
+        int x, y;
 
-            //TODO: Move this code within libkscreen
-            y = currentOutput->position().y();
-            if (currentOutput->isHorizontal()) {
-                y += size.height();
-            } else {
-                y += size.width();
-            }
-
-            x = currentOutput->position().x();
-            if (currentOutput->isHorizontal()) {
-                x += size.width();
-            } else {
-                x += size.height();
-            }
-
-            if (x > newSize.width() || y > newSize.height()) {
-                if (!toDisable.contains(output->id())) {
-                    kDebug(dXndr()) << "Output doesn't fit: " << x << "x" << y << newSize;
-                    toDisable.insert(output->id(), output);
-                }
-            }
+        //TODO: Move this code within libkscreen
+        y = currentOutput->position().y();
+        if (currentOutput->isHorizontal()) {
+            y += size.height();
         } else {
-            // Don't update the output
-            toChange.remove(currentOutput->id());
+            y += size.width();
+        }
 
-            kWarning() << "Output" << currentOutput->id() << ": Failed to get currentMode";
-            kDebug(dXndr()) << "CurrentModeId:" << currentOutput->currentModeId();
-            kDebug(dXndr()) << "Available modes:";
-            Q_FOREACH (XRandRMode *mode, currentOutput->modes()) {
-                kDebug(dXndr()) << "\t" << mode->id() << mode->size() << mode->refreshRate() << mode->name();
+        x = currentOutput->position().x();
+        if (currentOutput->isHorizontal()) {
+            x += size.width();
+        } else {
+            x += size.height();
+        }
+
+        if (x > newSize.width() || y > newSize.height()) {
+            if (!toDisable.contains(output->id())) {
+                kDebug(dXndr()) << "Output doesn't fit: " << x << "x" << y << newSize;
+                toDisable.insert(output->id(), output);
             }
         }
     }//Q_FOREACH(KScreen::Output *output, outputs)
@@ -334,6 +326,100 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
     }
 }
 
+void XRandRConfig::printConfig(Config* config) const
+{
+    kDebug() << "KScreen version: 1.0.2";
+
+    if (!config) {
+        kDebug() << "Config is invalid";
+        return;
+    }
+    if (!config->screen()) {
+        kDebug() << "No screen in the configuration, broken backend";
+        return;
+    }
+
+    kDebug() << "Screen:";
+    kDebug() << "\tmaxSize:" << config->screen()->maxSize();
+    kDebug() << "\tminSize:" << config->screen()->minSize();
+    kDebug() << "\tcurrentSize:" << config->screen()->currentSize();
+
+    OutputList outputs = config->outputs();
+    Q_FOREACH(Output *output, outputs) {
+        kDebug() << "\n-----------------------------------------------------\n";
+        kDebug() << "Id: " << output->id();
+        kDebug() << "Name: " << output->name();
+        kDebug() << "Type: " << output->type();
+        kDebug() << "Connected: " << output->isConnected();
+        if (!output->isConnected()) {
+            continue;
+        }
+        kDebug() << "Enabled: " << output->isEnabled();
+        kDebug() << "Primary: " << output->isPrimary();
+        kDebug() << "Rotation: " << output->rotation();
+        kDebug() << "Pos: " << output->pos();
+        kDebug() << "MMSize: " << output->sizeMm();
+        if (output->currentMode()) {
+            kDebug() << "Size: " << output->currentMode()->size();
+        }
+        if (output->clones().isEmpty()) {
+            kDebug() << "Clones: " << "None";
+        } else {
+            kDebug() << "Clones: " << output->clones().count();
+        }
+        kDebug() << "Mode: " << output->currentModeId();
+        kDebug() << "Preferred Mode: " << output->preferredModeId();
+        kDebug() << "Preferred modes: " << output->preferredModes();
+        kDebug() << "Modes: ";
+
+        ModeList modes = output->modes();
+        Q_FOREACH(Mode* mode, modes) {
+            kDebug() << "\t" << mode->id() << "  " << mode->name() << " " << mode->size() << " " << mode->refreshRate();
+        }
+
+        Edid* edid = output->edid();
+        kDebug() << "EDID Info: ";
+        if (edid && edid->isValid()) {
+            kDebug() << "\tDevice ID: " << edid->deviceId();
+            kDebug() << "\tName: " << edid->name();
+            kDebug() << "\tVendor: " << edid->vendor();
+            kDebug() << "\tSerial: " << edid->serial();
+            kDebug() << "\tEISA ID: " << edid->eisaId();
+            kDebug() << "\tHash: " << edid->hash();
+            kDebug() << "\tWidth: " << edid->width();
+            kDebug() << "\tHeight: " << edid->height();
+            kDebug() << "\tGamma: " << edid->gamma();
+            kDebug() << "\tRed: " << edid->red();
+            kDebug() << "\tGreen: " << edid->green();
+            kDebug() << "\tBlue: " << edid->blue();
+            kDebug() << "\tWhite: " << edid->white();
+        } else {
+            kDebug() << "\tUnavailable";
+        }
+    }
+}
+
+void XRandRConfig::printInternalCond() const
+{
+    kDebug() << "Internal config in xrandr";
+    Q_FOREACH(XRandROutput *output, m_outputs) {
+        kDebug() << "Id: " << output->id();
+        kDebug() << "Current Mode: " << output->currentMode();
+        kDebug() << "Current mode id: " << output->currentModeId();
+        kDebug() << "Connected: " << output->isConnected();
+        kDebug() << "Enabled: " << output->isEnabled();
+        kDebug() << "Primary: " << output->isPrimary();
+        if (!output->isEnabled()) {
+            continue;
+        }
+        XRandRMode::Map modes = output->modes();
+        Q_FOREACH(XRandRMode *mode, modes) {
+            kDebug() << "\t" << mode->id();
+            kDebug() << "\t" << mode->name();
+            kDebug() << "\t" << mode->size() << mode->refreshRate();
+        }
+    }
+}
 
 QSize XRandRConfig::screenSize(KScreen::Config* config) const
 {
@@ -452,6 +538,5 @@ bool XRandRConfig::changeOutput(Output* output, int crtcId) const
     kDebug(dXndr()) << "XRRSetCrtcConfig() returned" << s;
     return (s == RRSetConfigSuccess);
 }
-
 
 #include "xrandrconfig.moc"

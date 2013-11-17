@@ -47,6 +47,12 @@ public:
     void applyKScreenConfig(KScreen::Config *config);
 
 private:
+    /**
+     * We need to print stuff to discover the damn bug
+     * where currentMode is null
+     */
+    void printConfig(KScreen::Config* config) const;
+    void printInternalCond() const;
     QSize screenSize(KScreen::Config* config) const;
     bool setScreenSize(const QSize& size) const;
     void setPrimaryOutput(int outputId) const;
