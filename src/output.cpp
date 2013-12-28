@@ -31,6 +31,7 @@ class Output::Private
   public:
     Private():
         id(0),
+        type(Unknown),
         rotation(None),
         connected(false),
         enabled(false),
