@@ -116,7 +116,7 @@ KScreen::Edid *XRandROutput::edid() const
         quint8 *data = XRandR::outputEdid(m_id, len);
         if (data) {
             m_edid = new KScreen::Edid(data, len, 0);
-            delete data;
+            delete[] data;
         } else {
             m_edid = new KScreen::Edid(0, 0, 0);
         }

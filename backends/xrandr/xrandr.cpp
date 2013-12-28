@@ -224,7 +224,7 @@ quint8 *XRandR::outputEdid(int outputId, size_t &len)
             return result;
         } else {
             len = 0;
-            delete result;
+            delete[] result;
         }
     }
 
