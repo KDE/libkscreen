@@ -30,7 +30,7 @@ install(FILES kscreen_export.h
             screen.h
             config.h
             configmonitor.h
-            DESTINATION include/kscreen)
+            DESTINATION ${INCLUDE_INSTALL_DIR}/kscreen)
 
 if(NOT WIN32)
    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/kscreen.pc.in ${CMAKE_CURRENT_BINARY_DIR}/kscreen.pc @ONLY)
