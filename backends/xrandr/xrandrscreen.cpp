@@ -60,6 +60,7 @@ KScreen::Screen *XRandRScreen::toKScreenScreen(KScreen::Config *parent) const
     kscreenScreen->setMaxSize(m_maxSize);
     kscreenScreen->setMinSize(m_minSize);
     kscreenScreen->setCurrentSize(m_currentSize);
+    kscreenScreen->setMaxActiveOutputsCount(XRandR::screenResources()->ncrtc);
 
     return kscreenScreen;
 }

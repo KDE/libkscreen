@@ -11,10 +11,10 @@
             "height" : 200
         },
         "currentSize" : {
-            "width" : 1024,
-            "height" : 768
+            "width" : 3200,
+            "height" : 1880
         },
-        "maxActiveOutputsCount": 2
+        "maxActiveOutputsCount": 1
     },
     "outputs" :
     [
@@ -32,33 +32,14 @@
                         "width" : 1280,
                         "height" : 800
                     }
-                },
-                {
-                    "id" : 2,
-                    "name" : "1024x768",
-                    "refreshRate" : 59.9,
-                    "size" : {
-                        "width" : 1024,
-                        "height" : 768
-                    }
-                },
-                {
-                    "id" : 1,
-                    "name" : "800x600",
-                    "refreshRate" : 60,
-                    "size" : {
-                        "width" : 800,
-                        "height" : 600
-                    }
                 }
             ],
             "pos" : {
                 "x" : 0,
                 "y" : 0
             },
-            "clones" : [2],
-            "currentModeId" : 2,
-            "preferredModes" : [2],
+            "currentModeId" : 3,
+            "preferredModes" : [3],
             "rotation" : 1,
             "connected" : true,
             "enabled" : true,
@@ -79,41 +60,14 @@
                         "width" : 1920,
                         "height" : 1080
                     }
-                },
-                {
-                    "id" : 3,
-                    "name" : "1600x1200",
-                    "refreshRate" : 60,
-                    "size" : {
-                        "width" : 1600,
-                        "height" : 1200
-                    }
-                },
-                {
-                    "id" : 2,
-                    "name" : "1024x768",
-                    "refreshRate" : 59.9,
-                    "size" : {
-                        "width" : 1024,
-                        "height" : 768
-                    }
-                },
-                {
-                    "id" : 1,
-                    "name" : "800x600",
-                    "refreshRate" : 59.9,
-                    "size" : {
-                        "width" : 800,
-                        "height" : 600
-                    }
                 }
             ],
             "pos" : {
                 "x" : 1280,
                 "y" : 0
             },
-            "currentModeId" : 2,
-            "preferredModes" : [2],
+            "currentModeId" : 4,
+            "preferredModes" : [4],
             "rotation" : 1,
             "connected" : true,
             "enabled" : true,

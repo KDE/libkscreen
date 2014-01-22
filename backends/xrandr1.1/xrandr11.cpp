@@ -95,6 +95,7 @@ KScreen::Config* XRandR11::config() const
     screen->setCurrentSize(QSize(xcbScreen->width_in_pixels, xcbScreen->height_in_pixels));
     screen->setMaxSize(QSize(size->max_width, size->max_height));
     screen->setMinSize(QSize(size->min_width, size->min_height));
+    screen->setMaxActiveOutputsCount(1);
 
     config->setScreen(screen);
 

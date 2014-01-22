@@ -69,6 +69,7 @@ Screen* Parser::screenFromJson(const QMap< QString, QVariant >& data)
     screen->setMinSize(Parser::sizeFromJson(data["minSize"].toMap()));
     screen->setMaxSize(Parser::sizeFromJson(data["maxSize"].toMap()));
     screen->setCurrentSize(Parser::sizeFromJson(data["currentSize"].toMap()));
+    screen->setMaxActiveOutputsCount(data["maxActiveOutputsCount"].toInt());
 
     return screen;
 }

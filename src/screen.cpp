@@ -24,11 +24,13 @@ class Screen::Private
 {
   public:
     Private():
-      id(0)
+      id(0),
+      maxActiveOutputsCount(0)
     { }
 
     Private(const Private &other):
         id(other.id),
+        maxActiveOutputsCount(other.maxActiveOutputsCount),
         currentSize(other.currentSize),
         minSize(other.minSize),
         maxSize(other.maxSize)
@@ -36,6 +38,7 @@ class Screen::Private
     }
 
     int id;
+    int maxActiveOutputsCount;
     QSize currentSize;
     QSize minSize;
     QSize maxSize;
@@ -109,6 +112,16 @@ QSize Screen::minSize() const
 void Screen::setMinSize(const QSize& minSize)
 {
     d->minSize = minSize;
+}
+
+int Screen::maxActiveOutputsCount() const
+{
+    return d->maxActiveOutputsCount;
+}
+
+void Screen::setMaxActiveOutputsCount(int maxActiveOutputsCount)
+{
+    d->maxActiveOutputsCount = maxActiveOutputsCount;
 }
 
 } //KScreen namespace

@@ -83,10 +83,13 @@ bool Config::canBeApplied(Config* config)
     QSize outputSize;
     Output* currentOutput = 0;
     OutputList outputs = config->outputs();
+    int enabledOutputsCount = 0;
     Q_FOREACH(Output *output, outputs) {
         if (!output->isEnabled()) {
             continue;
         }
+
+        ++enabledOutputsCount;
 
         currentOutput = currentConfig->output(output->id());
         //If there is no such output
@@ -139,6 +142,12 @@ bool Config::canBeApplied(Config* config)
         if (bottomRight.y() > rect.height()) {
             rect.setHeight(bottomRight.y());
         }
+    }
+
+    const int maxEnabledOutputsCount = config->screen()->maxActiveOutputsCount();
+    if (enabledOutputsCount > maxEnabledOutputsCount) {
+        qDebug() << "Too many active screens. Requested: " << enabledOutputsCount << ", Max: " << maxEnabledOutputsCount;
+        return false;
     }
 
     if (rect.width() > config->screen()->maxSize().width()) {

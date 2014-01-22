@@ -181,6 +181,21 @@ void testScreenConfig::configCanBeApplied()
     QVERIFY(!Config::canBeApplied(brokenConfig));
     primaryBroken->mode(QLatin1String("3"))->setSize(QSize(1280, 800));
     QVERIFY(Config::canBeApplied(brokenConfig));
+
+
+    path = TEST_DATA;
+    path.append("/tooManyOutputs.json");
+    setenv("TEST_DATA", path, 1);
+    brokenConfig = Config::current();
+
+    int enabledOutputsCount = 0;
+    Q_FOREACH (Output *output, brokenConfig->outputs()) {
+        if (output->isEnabled()) {
+            ++enabledOutputsCount;
+        }
+    }
+    QVERIFY(brokenConfig->screen()->maxActiveOutputsCount() < enabledOutputsCount);
+    QVERIFY(!Config::canBeApplied(brokenConfig));
 }
 
 QTEST_MAIN(testScreenConfig)
