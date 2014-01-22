@@ -94,22 +94,22 @@ bool Config::canBeApplied(Config* config)
         currentOutput = currentConfig->output(output->id());
         //If there is no such output
         if (!currentOutput) {
-            qWarning() << "The output:" << output->id() << "does not exists";
+            qDebug() << "The output:" << output->id() << "does not exists";
             return false;
         }
         //If the output is not connected
         if (!currentOutput->isConnected()) {
-            qWarning() << "The output:" << output->id() << "is not connected";
+            qDebug() << "The output:" << output->id() << "is not connected";
             return false;
         }
         //if there is no currentMode
         if (output->currentModeId().isEmpty()) {
-            qWarning() << "The output:" << output->id() << "has no currentModeId";
+            qDebug() << "The output:" << output->id() << "has no currentModeId";
             return false;
         }
         //If the mode is not found in the current output
         if (!currentOutput->mode(output->currentModeId())) {
-            qWarning() << "The output:" << output->id() << "has no mode:" << output->currentModeId();
+            qDebug() << "The output:" << output->id() << "has no mode:" << output->currentModeId();
             return false;
         }
 
@@ -151,11 +151,11 @@ bool Config::canBeApplied(Config* config)
     }
 
     if (rect.width() > config->screen()->maxSize().width()) {
-        qWarning() << "The configuration has too much width:" << rect.width();
+        qDebug() << "The configuration has too much width:" << rect.width();
         return false;
     }
     if (rect.height() > config->screen()->maxSize().height()) {
-        qWarning() << "The configuration has too much height:" << rect.height();
+        qDebug() << "The configuration has too much height:" << rect.height();
         return false;
     }
 
