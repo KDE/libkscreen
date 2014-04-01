@@ -507,6 +507,12 @@ bool XRandRConfig::disableOutput(Output* output) const
                  0, 0, None, RR_Rotate_0, NULL, 0);
 
     kDebug(dXndr()) << "XRRSetCrtcConfig() returned" << s;
+
+    // Update the cached output now, otherwise we get RRNotify_CrtcChange notification
+    // for an outdated output, which can lead to a crash.
+    if (s == RRSetConfigSuccess) {
+        m_outputs.value(output->id())->update();
+    }
     return (s == RRSetConfigSuccess);
 }
 
