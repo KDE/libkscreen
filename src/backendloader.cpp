@@ -17,13 +17,13 @@
  *************************************************************************************/
 
 #include "backendloader.h"
+#include "debug_p.h"
 #include "backends/abstractbackend.h"
 
 #include <QtCore/QStringList>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QPluginLoader>
 #include <QDir>
-#include <kdebug.h>
 
 AbstractBackend* BackendLoader::s_backend = 0;
 
@@ -34,7 +34,7 @@ bool BackendLoader::init()
         return true;
     }
 
-    KDebug::Block block("Loading backend");
+    qCDebug(KSCREEN) << "Loading backend";
 
     const QString backend = qgetenv("KSCREEN_BACKEND").constData();
     const QString backendFilter = QString::fromLatin1("KSC_%1*").arg(backend);
@@ -63,19 +63,19 @@ bool BackendLoader::init()
             s_backend = qobject_cast< AbstractBackend* >(instance);
             if (s_backend) {
                 if (!s_backend->isValid()) {
-                    kDebug() << "Skipping" << s_backend->name() << "backend";
+                    qCDebug(KSCREEN) << "Skipping" << s_backend->name() << "backend";
                     delete s_backend;
                     s_backend = 0;
                     loader.unload();
                     continue;
                 }
-                kDebug() << "Loading" << s_backend->name() << "backend";
+                qCDebug(KSCREEN) << "Loading" << s_backend->name() << "backend";
                 return true;
             }
         }
     }
 
-    kDebug() << "No backend found!";
+    qCDebug(KSCREEN) << "No backend found!";
     return false;
 }
 

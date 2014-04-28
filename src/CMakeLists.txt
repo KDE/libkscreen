@@ -8,6 +8,7 @@ set(libkscreen_SRCS
     output.cpp
     edid.cpp
     mode.cpp
+    debug_p.cpp
 )
 
 add_library(kscreen SHARED ${libkscreen_SRCS})

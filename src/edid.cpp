@@ -18,6 +18,7 @@
  *************************************************************************************/
 
 #include "edid.h"
+#include "debug_p.h"
 
 #include <math.h>
 
@@ -25,8 +26,6 @@
 #include <QFile>
 #include <QStringList>
 #include <QStringBuilder>
-
-#include <kdebug.h>
 
 #define GCM_EDID_OFFSET_PNPID                           0x08
 #define GCM_EDID_OFFSET_SERIAL                          0x0c
@@ -248,13 +247,13 @@ bool Edid::Private::parse(const quint8 *data, size_t length)
     /* check header */
     if (length < 128) {
         if (length > 0) {
-            kWarning() << "Invalid EDID length (" << length << " bytes)";
+            qCWarning(KSCREEN_EDID) << "Invalid EDID length (" << length << " bytes)";
         }
         valid = false;
         return valid;
     }
     if (data[0] != 0x00 || data[1] != 0xff) {
-        kWarning() << "Failed to parse EDID header";
+        qCWarning(KSCREEN_EDID) << "Failed to parse EDID header";
         valid = false;
         return valid;
     }
@@ -351,7 +350,7 @@ bool Edid::Private::parse(const quint8 *data, size_t length)
                 serialNumber = tmp;
             }
         } else if (data[i+3] == GCM_DESCRIPTOR_COLOR_MANAGEMENT_DATA) {
-            kWarning() << "failing to parse color management data";
+            qCWarning(KSCREEN_EDID) << "failing to parse color management data";
         } else if (data[i+3] == GCM_DESCRIPTOR_ALPHANUMERIC_DATA_STRING) {
             QString tmp = edidParseString(&data[i+5]);
             if (!tmp.isEmpty()) {
