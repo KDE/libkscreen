@@ -99,4 +99,4 @@ void ConfigMonitor::notifyUpdate()
 }
 
 
-#include "configmonitor.moc"
+#include "moc_configmonitor.cpp"
