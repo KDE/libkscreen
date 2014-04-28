@@ -23,21 +23,21 @@
 #include <QtCore/QFile>
 #include <KDebug>
 
-#include <qjson/parser.h>
-#include <qjson/qobjecthelper.h>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
 
 using namespace KScreen;
 
 Config* Parser::fromJson(const QByteArray& data)
 {
     Config *config =  new Config();
-    QJson::Parser parser;
 
-    QVariantMap json = parser.parse(data).toMap();
+    QJsonObject json = QJsonDocument::fromJson(data).object();
 
-    Screen* screen = Parser::screenFromJson(json["screen"].toMap());
+    Screen* screen = Parser::screenFromJson(json["screen"].toObject().toVariantMap());
 
-    QList <QVariant> outputs = json["outputs"].toList();
+    QVariantList outputs = json["outputs"].toArray().toVariantList();
     if (outputs.isEmpty()) {
         return config;
     }
@@ -45,7 +45,7 @@ Config* Parser::fromJson(const QByteArray& data)
     Output *output;
     OutputList outputList;
     Q_FOREACH(const QVariant &value, outputs) {
-        output = Parser::outputFromJson(value);
+        output = Parser::outputFromJson(value.toMap());
         outputList.insert(output->id(), output);
     }
 
@@ -62,7 +62,7 @@ Config* Parser::fromJson(const QString& path)
     return Parser::fromJson(file.readAll());
 }
 
-Screen* Parser::screenFromJson(const QMap< QString, QVariant >& data)
+Screen* Parser::screenFromJson(const QVariantMap &data)
 {
     Screen* screen = new Screen;
     screen->setId(data["id"].toInt());
@@ -74,9 +74,28 @@ Screen* Parser::screenFromJson(const QMap< QString, QVariant >& data)
     return screen;
 }
 
-Output* Parser::outputFromJson(const QVariant& data)
+void Parser::qvariant2qobject(const QVariantMap& variant, QObject* object)
 {
-    QVariantMap map = data.toMap();
+    for ( QVariantMap::const_iterator iter = variant.begin(); iter != variant.end(); ++iter )
+    {
+        QVariant property = object->property( iter.key().toLatin1() );
+        Q_ASSERT( property.isValid() );
+        if ( property.isValid() )
+        {
+            QVariant value = iter.value();
+            if ( value.canConvert( property.type() ) )
+            {
+                value.convert( property.type() );
+                object->setProperty( iter.key().toLatin1(), value );
+            } else if ( QString( QLatin1String("QVariant") ).compare( QLatin1String( property.typeName() ) ) == 0) {
+                object->setProperty( iter.key().toLatin1(), value );
+            }
+        }
+    }
+}
+
+Output* Parser::outputFromJson(const QVariantMap &map)
+{
     Output *output = new Output;
     output->setId(map["id"].toInt());
 
@@ -87,7 +106,7 @@ Output* Parser::outputFromJson(const QVariant& data)
     }
     output->setPreferredModes(preferredModes);
 
-    QJson::QObjectHelper::qvariant2qobject(map, output);
+    Parser::qvariant2qobject(map, output);
 
     Mode *mode;
     ModeList modelist;
@@ -151,7 +170,7 @@ Mode* Parser::modeFromJson(const QVariant& data)
     QVariantMap map = data.toMap();
     Mode *mode = new Mode;
     mode->setId(map["id"].toString());
-    QJson::QObjectHelper::qvariant2qobject(map, mode);
+    Parser::qvariant2qobject(map, mode);
 
     mode->setSize(Parser::sizeFromJson(map["size"].toMap()));
 

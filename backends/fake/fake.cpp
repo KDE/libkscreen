@@ -27,7 +27,9 @@
 #include <QtCore/QFile>
 #include <QtCore/qplugin.h>
 
-#include <qjson/parser.h>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 
 Q_EXPORT_PLUGIN2(Fake, Fake)
 
@@ -69,12 +71,12 @@ Edid *Fake::edid(int outputId) const
     QFile file(QString(qgetenv("TEST_DATA")));
     file.open(QIODevice::ReadOnly);
 
-    QJson::Parser parser;
-    QVariantMap json = parser.parse(file.readAll()).toMap();
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
+    QJsonObject json = jsonDoc.object();
 
-    QList <QVariant> outputs = json["outputs"].toList();
-    Q_FOREACH(const QVariant &value, outputs) {
-        QMap <QString, QVariant > output = value.toMap();
+    QJsonArray outputs = json["outputs"].toArray();
+    Q_FOREACH(const QJsonValue &value, outputs) {
+        QVariantMap output = value.toObject().toVariantMap();
         if (output["id"].toInt() != outputId) {
             continue;
         }

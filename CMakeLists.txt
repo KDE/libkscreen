@@ -52,7 +52,7 @@ endif (_HAVE_VISIBILITY AND NOT WIN32)
 # include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
 add_subdirectory(src)
-# add_subdirectory(backends)
+add_subdirectory(backends)
 # add_subdirectory(tests)
 
 set(CMAKECONFIG_INSTALL_DIR "${CMAKECONFIG_INSTALL_PREFIX}/KF5KScreen")
