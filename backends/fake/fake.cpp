@@ -31,8 +31,6 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
-Q_EXPORT_PLUGIN2(Fake, Fake)
-
 using namespace KScreen;
 
 Fake::Fake(QObject* parent): QObject(parent)

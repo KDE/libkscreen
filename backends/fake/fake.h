@@ -26,6 +26,7 @@ class Fake : public QObject, public AbstractBackend
 {
     Q_OBJECT
     Q_INTERFACES(AbstractBackend)
+    Q_PLUGIN_METADATA(IID "org.kf5.kscreen.backends.fake")
 
     public:
         explicit Fake(QObject* parent = 0);
