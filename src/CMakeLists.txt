@@ -20,7 +20,7 @@ set_target_properties(kscreen PROPERTIES
     SOVERSION ${libkscreen_VERSION_MAJOR}
 )
 
-install(TARGETS kscreen EXPORT kscreenLibraryTargets  ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS kscreen EXPORT KF5ScreenTargets ${INSTALL_TARGETS_DEFAULT_ARGS})
 
 install(FILES kscreen_export.h
             mode.h

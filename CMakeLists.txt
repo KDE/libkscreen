@@ -37,7 +37,7 @@ set_package_properties(X11 PROPERTIES DESCRIPTION "X11 libraries"
 set(KF5_VERSION "2.0.0") #When we are happy with the api, we can sync with frameworks
 ecm_setup_version(${KF5_VERSION} VARIABLE_PREFIX KSCREEN
                         VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/kscreen_version.h"
-                        PACKAGE_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/KF5KScreenConfigVersion.cmake"
+                        PACKAGE_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/KF5ScreenConfigVersion.cmake"
                         SOVERSION 5)
 
 check_cxx_compiler_flag(-fvisibility=hidden _HAVE_VISIBILITY)
@@ -57,10 +57,31 @@ add_subdirectory(backends)
 add_subdirectory(autotests)
 add_subdirectory(tests)
 
-set(CMAKECONFIG_INSTALL_DIR "${CMAKECONFIG_INSTALL_PREFIX}/KF5KScreen")
-ecm_configure_package_config_file("${CMAKE_CURRENT_SOURCE_DIR}/KF5KScreenConfig.cmake.in"
-                              "${CMAKE_CURRENT_BINARY_DIR}/KF5KScreenConfig.cmake"
-                              INSTALL_DESTINATION  ${CMAKECONFIG_INSTALL_DIR}
+set(CMAKECONFIG_INSTALL_DIR "${CMAKECONFIG_INSTALL_PREFIX}/KF5Screen")
+ecm_configure_package_config_file("${CMAKE_CURRENT_SOURCE_DIR}/KF5ScreenConfig.cmake.in"
+                              "${CMAKE_CURRENT_BINARY_DIR}/KF5ScreenConfig.cmake"
+                              INSTALL_DESTINATION ${CMAKECONFIG_INSTALL_DIR}
+)
+
+install(FILES
+  "${CMAKE_CURRENT_BINARY_DIR}/KF5ScreenConfig.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/KF5ScreenConfigVersion.cmake"
+  DESTINATION "${CMAKECONFIG_INSTALL_DIR}"
+  COMPONENT Devel
+)
+
+install(EXPORT
+  KF5ScreenTargets
+  DESTINATION "${CMAKECONFIG_INSTALL_DIR}"
+  FILE KF5ScreenTargets.cmake
+  NAMESPACE KF5::
+  COMPONENT Devel
+)
+
+install(FILES
+  "${CMAKE_CURRENT_BINARY_DIR}/kscreen_version.h"
+  DESTINATION "${KF5_INCLUDE_INSTALL_DIR}"
+  COMPONENT Devel
 )
 
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
