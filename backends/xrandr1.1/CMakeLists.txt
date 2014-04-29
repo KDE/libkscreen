@@ -20,9 +20,7 @@ target_link_libraries(KSC_XRandR11 Qt5::Core
                                    Qt5::X11Extras
                                    ${X11_LIBRARIES}
                                    ${X11_Xrandr_LIB}
-                                   ${XCB_XCB_LIBRARIES}
-                                   ${X11_XCB_LIBRARIES}
-                                   ${XCB_RANDR_LIBRARIES}
+                                   ${XCB_LIBRARIES}
                                    kscreen
 )
 

@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "xlibandxcb.h"
 
 #include <xcb/randr.h>
-
 #include <QX11Info>
 
 Display* display()
@@ -31,7 +30,7 @@ Display* display()
 
 xcb_connection_t *connection()
 {
-    return XGetXCBConnection(display());
+    return QX11Info::connection();
 }
 
 xcb_screen_t *screen_of_display (xcb_connection_t *c, int screen)

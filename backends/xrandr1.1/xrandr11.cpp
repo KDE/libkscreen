@@ -81,7 +81,7 @@ KScreen::Config* XRandR11::config() const
 {
     KScreen::Config* config = new KScreen::Config();
 
-    int screenId = QX11Info().screen();
+    int screenId = QX11Info::appScreen();
     xcb_screen_t* xcbScreen = screen_of_display(connection(), screenId);
     ScreenInfo info(xcbScreen->root);
     ScreenSize size(xcbScreen->root);
@@ -150,7 +150,7 @@ void XRandR11::setConfig(KScreen::Config* config) const
     KScreen::Output* output = config->outputs().take(1);
     KScreen::Mode *mode = output->currentMode();
 
-    int screenId = QX11Info().screen();
+    int screenId = QX11Info::appScreen();
     xcb_screen_t* xcbScreen = screen_of_display(connection(), screenId);
 
     ScreenInfo info(xcbScreen->root);
