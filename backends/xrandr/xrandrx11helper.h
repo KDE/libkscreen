@@ -20,6 +20,7 @@
 #define XRANDRX11HELPER_H
 
 #include <QWidget>
+#include <QLoggingCategory>
 #include "xlibandxrandr.h"
 
 class XRandRX11Helper : public QWidget
@@ -54,4 +55,5 @@ class XRandRX11Helper : public QWidget
         Window m_window;
 };
 
+Q_DECLARE_LOGGING_CATEGORY(KSCREEN_XCB_HELPER)
 #endif // XRANDRX11HELPER_H

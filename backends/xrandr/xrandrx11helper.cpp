@@ -23,8 +23,8 @@
 #include <QX11Info>
 
 #include <KSystemEventFilter>
-#include <kdebug.h>
 
+Q_LOGGING_CATEGORY(KSCREEN_XCB_HELPER, "kscreen.xcb.helper")
 XRandRX11Helper::XRandRX11Helper():
     QWidget(),
     m_randrBase(0),
@@ -33,14 +33,15 @@ XRandRX11Helper::XRandRX11Helper():
     m_versionMinor(0),
     m_window(0)
 {
+    QLoggingCategory::setFilterRules(QStringLiteral("kscreen.xcb.helper = true"));
     XRRQueryVersion (QX11Info::display(), &m_versionMajor, &m_versionMinor);
 
-    kDebug(dXndr()).nospace() << "Detected XRandR " << m_versionMajor << "." << m_versionMinor;
+    qCDebug(KSCREEN_XCB_HELPER).nospace() << "Detected XRandR " << m_versionMajor << "." << m_versionMinor;
 
     XRRQueryExtension(QX11Info::display(), &m_randrBase, &m_randrError);
 
-    kDebug(dXndr()) << "Event Base: " << m_randrBase;
-    kDebug(dXndr()) << "Event Error: "<< m_randrError;
+    qCDebug(KSCREEN_XCB_HELPER) << "Event Base: " << m_randrBase;
+    qCDebug(KSCREEN_XCB_HELPER) << "Event Error: "<< m_randrError;
 
 
 
@@ -104,14 +105,14 @@ bool XRandRX11Helper::x11Event(XEvent *event)
 
             XRRScreenChangeNotifyEvent* e2 = reinterpret_cast< XRRScreenChangeNotifyEvent* >(event);
 
-            kDebug(dXndr()) << "Timestamp: " << e2->timestamp;
-            kDebug(dXndr()) << "Window: " << e2->window;
-            kDebug(dXndr()) << "Root: "<< e2->root;
-            kDebug(dXndr()) << "Size Index: " << e2->size_index;
-            kDebug(dXndr()) << "Subpixel Order:" << e2->subpixel_order;
-            kDebug(dXndr()) << "Rotation: " << rotationToString(e2->rotation);
-            kDebug(dXndr()) << "Size: " << e2->width << e2->height;
-            kDebug(dXndr()) << "SizeMM: " << e2->mwidth << e2->mheight;
+            qCDebug(KSCREEN_XCB_HELPER) << "Timestamp: " << e2->timestamp;
+            qCDebug(KSCREEN_XCB_HELPER) << "Window: " << e2->window;
+            qCDebug(KSCREEN_XCB_HELPER) << "Root: "<< e2->root;
+            qCDebug(KSCREEN_XCB_HELPER) << "Size Index: " << e2->size_index;
+            qCDebug(KSCREEN_XCB_HELPER) << "Subpixel Order:" << e2->subpixel_order;
+            qCDebug(KSCREEN_XCB_HELPER) << "Rotation: " << rotationToString(e2->rotation);
+            qCDebug(KSCREEN_XCB_HELPER) << "Size: " << e2->width << e2->height;
+            qCDebug(KSCREEN_XCB_HELPER) << "SizeMM: " << e2->mwidth << e2->mheight;
 
             Q_EMIT outputsChanged();
         }
@@ -126,10 +127,10 @@ bool XRandRX11Helper::x11Event(XEvent *event)
             XRRCrtcChangeNotifyEvent* e2 = reinterpret_cast< XRRCrtcChangeNotifyEvent* >(event);
 
             KDebug::Block crtcChange("RRNotify_CrtcChange", dXndr());
-            kDebug(dXndr()) << "CRTC: " << e2->crtc;
-            kDebug(dXndr()) << "Mode: " << e2->mode;
-            kDebug(dXndr()) << "Rotation: " << rotationToString(e2->rotation);
-            kDebug(dXndr()) << "Geometry: " << e2->x << e2->y << e2->width << e2->height;
+            qCDebug(KSCREEN_XCB_HELPER) << "CRTC: " << e2->crtc;
+            qCDebug(KSCREEN_XCB_HELPER) << "Mode: " << e2->mode;
+            qCDebug(KSCREEN_XCB_HELPER) << "Rotation: " << rotationToString(e2->rotation);
+            qCDebug(KSCREEN_XCB_HELPER) << "Geometry: " << e2->x << e2->y << e2->width << e2->height;
 
             Q_EMIT crtcChanged(e2->crtc);
 
@@ -137,12 +138,12 @@ bool XRandRX11Helper::x11Event(XEvent *event)
             XRROutputChangeNotifyEvent* e2 = reinterpret_cast< XRROutputChangeNotifyEvent* >(event);
 
             KDebug::Block outputChange("RRNotify_OutputChange", dXndr());
-            kDebug(dXndr()) << "Output: " << e2->output;
-            kDebug(dXndr()) << "CRTC: " << e2->crtc;
-            kDebug(dXndr()) << "Mode: " << e2->mode;
-            kDebug(dXndr()) << "Rotation: " << rotationToString(e2->rotation);
-            kDebug(dXndr()) << "Connection: " << connectionToString(e2->connection);
-            kDebug(dXndr()) << "Subpixel Order: " << e2->subpixel_order;
+            qCDebug(KSCREEN_XCB_HELPER) << "Output: " << e2->output;
+            qCDebug(KSCREEN_XCB_HELPER) << "CRTC: " << e2->crtc;
+            qCDebug(KSCREEN_XCB_HELPER) << "Mode: " << e2->mode;
+            qCDebug(KSCREEN_XCB_HELPER) << "Rotation: " << rotationToString(e2->rotation);
+            qCDebug(KSCREEN_XCB_HELPER) << "Connection: " << connectionToString(e2->connection);
+            qCDebug(KSCREEN_XCB_HELPER) << "Subpixel Order: " << e2->subpixel_order;
 
             Q_EMIT outputChanged(e2->output);
 
@@ -151,10 +152,10 @@ bool XRandRX11Helper::x11Event(XEvent *event)
 
             char *atom_name = XGetAtomName(QX11Info::display(), e2->property);
             KDebug::Block changeProperty("RRNotify_Property", dXndr());
-            kDebug(dXndr()) << "Timestamp: " << e2->timestamp;
-            kDebug(dXndr()) << "Output: " << e2->output;
-            kDebug(dXndr()) << "Property: " << XGetAtomName(QX11Info::display(), e2->property);
-            kDebug(dXndr()) << "State (newValue, Deleted): " << e2->state;
+            qCDebug(KSCREEN_XCB_HELPER) << "Timestamp: " << e2->timestamp;
+            qCDebug(KSCREEN_XCB_HELPER) << "Output: " << e2->output;
+            qCDebug(KSCREEN_XCB_HELPER) << "Property: " << XGetAtomName(QX11Info::display(), e2->property);
+            qCDebug(KSCREEN_XCB_HELPER) << "State (newValue, Deleted): " << e2->state;
             XFree(atom_name);
         }
     }
