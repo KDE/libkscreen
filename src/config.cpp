@@ -31,11 +31,13 @@ class Config::Private
   public:
     Private():
       valid(true),
-      screen(0)
+      screen(0),
+      primaryOutput(0)
     { }
 
     Private(const Private &other):
-      valid(other.valid)
+      valid(other.valid),
+      primaryOutput(other.primaryOutput)
     {
       screen = other.screen->clone();
       Q_FOREACH (Output *otherOutput, other.outputs) {
@@ -45,6 +47,7 @@ class Config::Private
 
     bool valid;
     Screen* screen;
+    Output* primaryOutput;
     OutputList outputs;
 };
 
@@ -232,12 +235,25 @@ QHash< int, Output* > Config::connectedOutputs() const
 
 Output* Config::primaryOutput() const
 {
+    if (d->primaryOutput) {
+        return d->primaryOutput;
+    }
+
     Q_FOREACH(Output* output, d->outputs) {
         if (output->isPrimary()) {
-            return output;
+            d->primaryOutput = output;
+            return d->primaryOutput;
         }
     }
+
     return 0;
+}
+
+void Config::setPrimaryOutput(Output* output)
+{
+    d->primaryOutput = output;
+
+    Q_EMIT primaryOutputChanged(output);
 }
 
 void Config::addOutput(Output* output)
