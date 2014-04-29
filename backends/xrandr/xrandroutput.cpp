@@ -27,8 +27,6 @@
 
 #include <QRect>
 
-#include <KDebug>
-
 Q_DECLARE_METATYPE(QList<int>)
 
 XRandROutput::XRandROutput(int id, bool primary, XRandRConfig *config)
@@ -284,7 +282,7 @@ void XRandROutput::fetchType()
     } else if (type.contains("unknown")) {
         m_type = KScreen::Output::Unknown;
     } else {
-//         kDebug() << "Output Type not translated:" << type;
+//         qCDebug(KSCREEN_XRANDR) << "Output Type not translated:" << type;
     }
 
 }

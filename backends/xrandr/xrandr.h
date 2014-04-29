@@ -24,6 +24,7 @@
 #include "../abstractbackend.h"
 
 #include <QtCore/QSize>
+#include <QLoggingCategory>
 
 class XRandRXCBHelper;
 class XRandRConfig;
@@ -82,5 +83,5 @@ class XRandR : public QObject, public AbstractBackend
         bool m_isValid;
 };
 
-extern int dXndr();
+Q_DECLARE_LOGGING_CATEGORY(KSCREEN_XRANDR)
 #endif //XRandR_BACKEND_H

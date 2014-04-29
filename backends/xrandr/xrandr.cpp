@@ -34,8 +34,6 @@
 #include <QX11Info>
 #include <QGuiApplication>
 
-#include <kdebug.h>
-
 Display* XRandR::s_display = 0;
 int XRandR::s_screen = 0;
 Window XRandR::s_rootWindow = 0;
@@ -48,11 +46,15 @@ bool XRandR::s_xorgCacheInitialized = false;
 
 using namespace KScreen;
 
+Q_LOGGING_CATEGORY(KSCREEN_XRANDR, "kscreen.xrandr");
+
 XRandR::XRandR(QObject* parent)
     : QObject(parent)
     , m_x11Helper(0)
     , m_isValid(false)
 {
+    QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.xrandr.debug = true"));
+
     if (s_display == 0) {
         s_display = QX11Info::display();
         s_screen = DefaultScreen(s_display);
@@ -67,7 +69,7 @@ XRandR::XRandR(QObject* parent)
     if ((majorVersion > 1) || ((majorVersion == 1) && (minorVersion >= 2))) {
         m_isValid = true;
     } else {
-        kDebug() << "XRandR extension not available or unsupported version";
+        qCWarning(KSCREEN_XRANDR) << "XRandR extension not available or unsupported version";
         return;
     }
 
@@ -233,7 +235,7 @@ RRCrtc XRandR::outputCrtc(int outputId)
 {
     RRCrtc crtcId;
     XRROutputInfo* outputInfo = XRROutput(outputId);
-    kDebug(dXndr()) << "Output" << outputId << "has CRTC" << outputInfo->crtc;
+    qCDebug(KSCREEN_XRANDR) << "Output" << outputId << "has CRTC" << outputInfo->crtc;
 
     crtcId = outputInfo->crtc;
     XRRFreeOutputInfo(outputInfo);
@@ -251,14 +253,14 @@ RRCrtc XRandR::freeCrtc(int outputId)
         RRCrtc crtcId = outputInfo->crtcs[i];
        crtc = XRRCrtc(crtcId);
        if (!crtc->noutput) {
-           kDebug(dXndr()) << "Found free CRTC" << crtcId;
+           qCDebug(KSCREEN_XRANDR) << "Found free CRTC" << crtcId;
            XRRFreeCrtcInfo(crtc);
            return crtcId;
        }
        XRRFreeCrtcInfo(crtc);
     }
 
-    kDebug(dXndr()) << "No free CRTC found!";
+    qCDebug(KSCREEN_XRANDR) << "No free CRTC found!";
     return 0;
 }
 
@@ -317,7 +319,5 @@ int XRandR::screen()
 {
     return s_screen;
 }
-
-extern int dXndr() { static int s_area = KDebug::registerArea("KSRandr", false); return s_area; }
 
 #include "xrandr.moc"
