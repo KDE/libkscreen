@@ -31,9 +31,8 @@
 #include <QtCore/QDebug>
 #include <QtCore/qplugin.h>
 
-Q_EXPORT_PLUGIN2(XRandR11, XRandR11)
-
 Q_LOGGING_CATEGORY(KSCREEN_XRANDR11, "kscreen.xrandr11")
+
 XRandR11::XRandR11(QObject* parent)
  : QObject(parent)
  , m_valid(false)
