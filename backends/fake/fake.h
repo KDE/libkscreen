@@ -21,6 +21,7 @@
 
 #include "../abstractbackend.h"
 #include <QtCore/QObject>
+#include <QLoggingCategory>
 
 class Fake : public QObject, public AbstractBackend
 {
@@ -39,5 +40,5 @@ class Fake : public QObject, public AbstractBackend
         virtual KScreen::Edid *edid(int outputId) const;
         virtual void updateConfig(KScreen::Config *config) const;
 };
-
+Q_DECLARE_LOGGING_CATEGORY(KSCREEN_FAKE)
 #endif //FAKE_BACKEND_H

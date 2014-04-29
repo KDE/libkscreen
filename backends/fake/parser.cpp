@@ -21,8 +21,7 @@
 #include <config.h>
 
 #include <QtCore/QFile>
-#include <KDebug>
-
+#include <QLoggingCategory>
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
@@ -160,7 +159,7 @@ Output* Parser::outputFromJson(const QVariantMap &map)
     } else if (type.contains("Unknown")) {
         output->setType(Output::Unknown);
     } else {
-        kDebug() << "Output Type not translated:" << type;
+        qCWarning(KSCREEN_FAKE) << "Output Type not translated:" << type;
     }
     return output;
 }

@@ -33,9 +33,11 @@
 
 using namespace KScreen;
 
+Q_LOGGING_CATEGORY(KSCREEN_FAKE, "kscreen.fake")
+
 Fake::Fake(QObject* parent): QObject(parent)
 {
-
+    QLoggingCategory::setFilterRules(QStringLiteral("kscreen.fake.debug = true"));
 }
 
 Fake::~Fake()
