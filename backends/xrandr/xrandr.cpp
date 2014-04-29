@@ -36,8 +36,6 @@
 
 #include <kdebug.h>
 
-Q_EXPORT_PLUGIN2(XRandR, XRandR)
-
 Display* XRandR::s_display = 0;
 int XRandR::s_screen = 0;
 Window XRandR::s_rootWindow = 0;

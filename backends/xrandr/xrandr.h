@@ -35,6 +35,7 @@ class XRandR : public QObject, public AbstractBackend
 {
     Q_OBJECT
     Q_INTERFACES(AbstractBackend)
+    Q_PLUGIN_METADATA(IID "org.kf5.kscreen.backends.xrandr")
 
     public:
         explicit XRandR(QObject* parent = 0);
