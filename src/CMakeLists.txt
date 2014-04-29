@@ -16,8 +16,8 @@ add_library(kscreen SHARED ${libkscreen_SRCS})
 target_link_libraries(kscreen Qt5::Core)
 
 set_target_properties(kscreen PROPERTIES
-    VERSION ${libkscreen_VERSION}
-    SOVERSION ${libkscreen_VERSION_MAJOR}
+    VERSION "${KSCREEN_VERSION_STRING}"
+    SOVERSION "${KSCREEN_SOVERSION}"
 )
 
 install(TARGETS kscreen EXPORT KF5ScreenTargets ${INSTALL_TARGETS_DEFAULT_ARGS})
