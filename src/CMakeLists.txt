@@ -48,3 +48,7 @@ if(NOT WIN32)
    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/kscreen.pc.in ${CMAKE_CURRENT_BINARY_DIR}/kscreen.pc @ONLY)
    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/kscreen.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
 endif(NOT WIN32)
+
+include(ECMGeneratePriFile)
+ecm_generate_pri_file(BASE_NAME KScreen LIB_NAME KF5Screen DEPS "core" FILENAME_VAR PRI_FILENAME)
+install(FILES ${PRI_FILENAME} DESTINATION ${ECM_MKSPECS_INSTALL_DIR})
