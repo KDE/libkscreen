@@ -19,6 +19,7 @@
 #ifndef XRANDRX11HELPER_H
 #define XRANDRX11HELPER_H
 
+#include <xcb/xcb.h>
 #include <QObject>
 #include <QLoggingCategory>
 #include <QAbstractNativeEventFilter>
@@ -46,16 +47,34 @@ class XRandRXCBHelper : public QObject, public QAbstractNativeEventFilter
     private:
         QString rotationToString(Rotation rotation);
         QString connectionToString(Connection connection);
+        void handleScreenChange(xcb_generic_event_t *e);
+        void handleXRandRNotify(xcb_generic_event_t *e);
+        inline xcb_window_t rootWindow(xcb_connection_t *c, int screen)
+        {
+            xcb_screen_iterator_t iter = xcb_setup_roots_iterator(xcb_get_setup(c));
+            for (xcb_screen_iterator_t it = xcb_setup_roots_iterator(xcb_get_setup(c));
+                    it.rem;
+                    --screen, xcb_screen_next(&it)) {
+                if (screen == 0) {
+                    return iter.data->root;
+                }
+            }
+            return XCB_WINDOW_NONE;
+        }
 
     protected:
         virtual bool x11Event(XEvent *);
 
+        bool m_isRandrPresent;
+        bool m_event11;
         int m_randrBase;
-        int m_randrError;
+        int m_randrErrorBase;
+        int m_majorOpcode;
+        int m_eventType;
         int m_versionMajor;
         int m_versionMinor;
 
-        Window m_window;
+        uint32_t m_window;
 };
 
 Q_DECLARE_LOGGING_CATEGORY(KSCREEN_XCB_HELPER)
