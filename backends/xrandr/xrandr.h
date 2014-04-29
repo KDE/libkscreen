@@ -25,7 +25,7 @@
 
 #include <QtCore/QSize>
 
-class XRandRX11Helper;
+class XRandRXCBHelper;
 class XRandRConfig;
 namespace KScreen {
     class Output;
@@ -77,7 +77,7 @@ class XRandR : public QObject, public AbstractBackend
         static bool s_has_1_3;
         static bool s_xorgCacheInitialized;
 
-        XRandRX11Helper *m_x11Helper;
+        XRandRXCBHelper *m_x11Helper;
         bool m_isValid;
 };
 

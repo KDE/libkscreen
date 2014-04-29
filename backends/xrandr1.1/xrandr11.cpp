@@ -18,7 +18,7 @@
 
 #include "xrandr11.h"
 #include "wrapper.h"
-#include "../xrandr/xrandrx11helper.h"
+#include "../xrandr/xrandrxcbhelper.h"
 
 #include "config.h"
 #include "edid.h"
@@ -36,7 +36,7 @@ Q_LOGGING_CATEGORY(KSCREEN_XRANDR11, "kscreen.xrandr11")
 XRandR11::XRandR11(QObject* parent)
  : QObject(parent)
  , m_valid(false)
- , m_x11Helper(new XRandRX11Helper())
+ , m_x11Helper(new XRandRXCBHelper())
  , m_currentConfig(0)
  , m_currentTimestamp(0)
 {

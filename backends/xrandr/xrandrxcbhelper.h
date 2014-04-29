@@ -19,18 +19,21 @@
 #ifndef XRANDRX11HELPER_H
 #define XRANDRX11HELPER_H
 
-#include <QWidget>
+#include <QObject>
 #include <QLoggingCategory>
+#include <QAbstractNativeEventFilter>
+
 #include "xlibandxrandr.h"
 
-class XRandRX11Helper : public QWidget
+class XRandRXCBHelper : public QObject, public QAbstractNativeEventFilter
 {
     Q_OBJECT
 
     public:
-        XRandRX11Helper();
-        virtual ~XRandRX11Helper();
+        XRandRXCBHelper();
+        virtual ~XRandRXCBHelper();
 
+        virtual bool nativeEventFilter(const QByteArray& eventType, void* message, long int* result) Q_DECL_OVERRIDE;
     Q_SIGNALS:
         /* Emitted when only XRandR 1.1 or older is available */
         void outputsChanged();

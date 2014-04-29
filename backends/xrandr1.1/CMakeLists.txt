@@ -9,7 +9,7 @@ include_directories(${CMAKE_SOURCE_DIR}/src
 
 set(xrandr11_SRCS
     xrandr11.cpp
-    ../xrandr/xrandrx11helper.cpp
+    ../xrandr/xrandrxcbhelper.cpp
 )
 
 add_library(KSC_XRandR11 MODULE ${xrandr11_SRCS})

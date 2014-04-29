@@ -80,7 +80,7 @@ XRandR::XRandR(QObject* parent)
     }
 
     if (!s_monitorInitialized) {
-        m_x11Helper = new XRandRX11Helper();
+        m_x11Helper = new XRandRXCBHelper();
         /* In case of XRandR 1.0 or 1.1 */
         connect(m_x11Helper, SIGNAL(outputsChanged()), SLOT(updateConfig()));
 

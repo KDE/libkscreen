@@ -16,17 +16,15 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
-#include "xrandrx11helper.h"
+#include "xrandrxcbhelper.h"
 #include "xrandr.h"
 #include "xlibandxrandr.h"
 
 #include <QX11Info>
 
-#include <KSystemEventFilter>
-
 Q_LOGGING_CATEGORY(KSCREEN_XCB_HELPER, "kscreen.xcb.helper")
-XRandRX11Helper::XRandRX11Helper():
-    QWidget(),
+XRandRXCBHelper::XRandRXCBHelper():
+    QObject(),
     m_randrBase(0),
     m_randrError(0),
     m_versionMajor(0),
@@ -52,19 +50,16 @@ XRandRX11Helper::XRandRX11Helper():
     XRRSelectInput(QX11Info::display(), m_window,
                    RRScreenChangeNotifyMask | RRCrtcChangeNotifyMask |
                    RROutputChangeNotifyMask | RROutputPropertyNotifyMask);
-
-    KSystemEventFilter::installEventFilter(this);
 }
 
-XRandRX11Helper::~XRandRX11Helper()
+XRandRXCBHelper::~XRandRXCBHelper()
 {
-    KSystemEventFilter::removeEventFilter(this);
     if (m_window) {
         XDestroyWindow(QX11Info::display(), m_window);
     }
 }
 
-QString XRandRX11Helper::rotationToString(Rotation rotation)
+QString XRandRXCBHelper::rotationToString(Rotation rotation)
 {
     switch (rotation) {
         case RR_Rotate_0:
@@ -80,7 +75,7 @@ QString XRandRX11Helper::rotationToString(Rotation rotation)
     return QString("invalid value (%1)").arg(rotation);
 }
 
-QString XRandRX11Helper::connectionToString(Connection connection)
+QString XRandRXCBHelper::connectionToString(Connection connection)
 {
     switch (connection) {
         case RR_Connected:
@@ -94,14 +89,16 @@ QString XRandRX11Helper::connectionToString(Connection connection)
     return QString("invalid value (%1)").arg(connection);
 }
 
+bool XRandRXCBHelper::nativeEventFilter(const QByteArray& eventType, void* message, long int* result)
+{
+    return true;
+}
 
-
-bool XRandRX11Helper::x11Event(XEvent *event)
+bool XRandRXCBHelper::x11Event(XEvent *event)
 {
     /* XRandR <= 1.1 */
     if (m_versionMajor == 1 && m_versionMinor <= 1) {
         if (event->xany.type == m_randrBase + RRScreenChangeNotify) {
-            KDebug::Block changeNotify("RRScreenChangeNotify", dXndr());
 
             XRRScreenChangeNotifyEvent* e2 = reinterpret_cast< XRRScreenChangeNotifyEvent* >(event);
 
@@ -126,7 +123,6 @@ bool XRandRX11Helper::x11Event(XEvent *event)
         if (e2->subtype == RRNotify_CrtcChange) {
             XRRCrtcChangeNotifyEvent* e2 = reinterpret_cast< XRRCrtcChangeNotifyEvent* >(event);
 
-            KDebug::Block crtcChange("RRNotify_CrtcChange", dXndr());
             qCDebug(KSCREEN_XCB_HELPER) << "CRTC: " << e2->crtc;
             qCDebug(KSCREEN_XCB_HELPER) << "Mode: " << e2->mode;
             qCDebug(KSCREEN_XCB_HELPER) << "Rotation: " << rotationToString(e2->rotation);
@@ -137,7 +133,6 @@ bool XRandRX11Helper::x11Event(XEvent *event)
         } else if (e2->subtype == RRNotify_OutputChange) {
             XRROutputChangeNotifyEvent* e2 = reinterpret_cast< XRROutputChangeNotifyEvent* >(event);
 
-            KDebug::Block outputChange("RRNotify_OutputChange", dXndr());
             qCDebug(KSCREEN_XCB_HELPER) << "Output: " << e2->output;
             qCDebug(KSCREEN_XCB_HELPER) << "CRTC: " << e2->crtc;
             qCDebug(KSCREEN_XCB_HELPER) << "Mode: " << e2->mode;
@@ -151,7 +146,6 @@ bool XRandRX11Helper::x11Event(XEvent *event)
             XRROutputPropertyNotifyEvent* e2 = reinterpret_cast< XRROutputPropertyNotifyEvent* >(event);
 
             char *atom_name = XGetAtomName(QX11Info::display(), e2->property);
-            KDebug::Block changeProperty("RRNotify_Property", dXndr());
             qCDebug(KSCREEN_XCB_HELPER) << "Timestamp: " << e2->timestamp;
             qCDebug(KSCREEN_XCB_HELPER) << "Output: " << e2->output;
             qCDebug(KSCREEN_XCB_HELPER) << "Property: " << XGetAtomName(QX11Info::display(), e2->property);
@@ -163,4 +157,4 @@ bool XRandRX11Helper::x11Event(XEvent *event)
     return false;
 }
 
-#include "xrandrx11helper.moc"
+#include "xrandrxcbhelper.moc"

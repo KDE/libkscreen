@@ -24,7 +24,7 @@
 #include <QtCore/QObject>
 #include <QLoggingCategory>
 
-class XRandRX11Helper;
+class XRandRXCBHelper;
 
 class XRandR11 : public QObject, public AbstractBackend
 {
@@ -48,7 +48,7 @@ private Q_SLOTS:
 
 private:
     bool m_valid;
-    XRandRX11Helper* m_x11Helper;
+    XRandRXCBHelper* m_x11Helper;
     KScreen::Config* m_currentConfig;
     xcb_timestamp_t m_currentTimestamp;
 };
