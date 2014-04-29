@@ -12,13 +12,12 @@ set(xrandr11_SRCS
     ../xrandr/xrandrx11helper.cpp
 )
 
-automoc4_add_library(KSC_XRandR11 MODULE ${xrandr11_SRCS})
+add_library(KSC_XRandR11 MODULE ${xrandr11_SRCS})
 
 set_target_properties(KSC_XRandR11 PROPERTIES PREFIX "")
-target_link_libraries(KSC_XRandR11 ${QT_QTCORE_LIBRARY}
-                                   ${QT_QTGUI_LIBRARY} # XRandrX11Helper is a QWidget
-                                   ${KDE4_KDECORE_LIBS}
-                                   ${KDE4_KDEUI_LIBS}
+target_link_libraries(KSC_XRandR11 Qt5::Core
+                                   Qt5::Gui
+                                   Qt5::X11Extras
                                    ${X11_LIBRARIES}
                                    ${X11_Xrandr_LIB}
                                    ${XCB_XCB_LIBRARIES}
@@ -27,4 +26,4 @@ target_link_libraries(KSC_XRandR11 ${QT_QTCORE_LIBRARY}
                                    kscreen
 )
 
-install(TARGETS KSC_XRandR11 DESTINATION ${PLUGIN_INSTALL_DIR}/plugins/kscreen/)
+install(TARGETS KSC_XRandR11 DESTINATION ${PLUGIN_INSTALL_DIR}/kf5/kscreen/)

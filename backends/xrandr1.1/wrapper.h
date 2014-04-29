@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <xcb/randr.h>
 
-#include <QtGui/QX11Info>
+#include <QX11Info>
 
 Display* display()
 {
