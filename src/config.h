@@ -53,6 +53,7 @@ class KSCREEN_EXPORT Config : public QObject
     QHash<int, Output*> outputs() const;
     QHash<int, Output*> connectedOutputs() const;
     Output* primaryOutput() const;
+    void setPrimaryOutput(Output *output);
     void addOutput(Output *output);
     void removeOutput(int outputId);
     void setOutputs(OutputList outputs);
@@ -63,6 +64,7 @@ class KSCREEN_EXPORT Config : public QObject
   Q_SIGNALS:
       void outputAdded(Output *output);
       void outputRemoved(int outputId);
+      void primaryOutputChanged(KScreen::Output *output);
   private:
     Q_DISABLE_COPY(Config)
 

@@ -33,6 +33,7 @@ using namespace KScreen;
 
 XRandRConfig::XRandRConfig()
     : QObject()
+    , m_primaryOutput(-1)
     , m_screen(new XRandRScreen(this))
 {
     XRRScreenResources* resources = XRandR::screenResources();
@@ -47,6 +48,9 @@ XRandRConfig::XRandRConfig()
 
         XRandROutput *output = createNewOutput(id, (id == primary));
         m_outputs.insert(id, output);
+        if (id == primary) {
+            m_primaryOutput = output->id();
+        }
     }
 
     XRRFreeScreenResources(resources);
@@ -62,10 +66,14 @@ void XRandRConfig::update()
 
     RROutput primary = XRRGetOutputPrimary(XRandR::display(), XRandR::rootWindow());
 
+    m_primaryOutput = -1;
     XRandROutput::Map::Iterator iter;
     for (iter = m_outputs.begin(); iter != m_outputs.end(); ++iter) {
         XRandROutput *output = iter.value();
         output->update((iter.key() == (int) primary) ? XRandROutput::SetPrimary : XRandROutput::UnsetPrimary);
+        if (iter.key() == (int) primary) {
+            m_primaryOutput = output->id();
+        }
     }
 }
 
@@ -80,11 +88,14 @@ void XRandRConfig::addNewOutput(const RROutput id)
     primary = XRRGetOutputPrimary(XRandR::display(), XRandR::rootWindow());
     XRandROutput *output = createNewOutput(id, (id == primary));
     m_outputs.insert(id, output);
+    if (id == primary) {
+        m_primaryOutput = id;
+    }
 }
 
 XRandROutput* XRandRConfig::createNewOutput(RROutput id, bool primary)
 {
-    XRandROutput *xOutput = new XRandROutput(id, (id == primary), this);
+    XRandROutput *xOutput = new XRandROutput(id, primary, this);
     connect(xOutput, SIGNAL(outputRemoved(int)), SLOT(outputRemovedSlot(int)));
 
     return xOutput;
@@ -112,6 +123,9 @@ KScreen::Config *XRandRConfig::toKScreenConfig() const
 
     config->setOutputs(kscreenOutputs);
     config->setScreen(m_screen->toKScreenScreen(config));
+    if (m_primaryOutput != -1 && config->primaryOutput()->id() != m_primaryOutput) {
+        config->setPrimaryOutput(kscreenOutputs.value(m_primaryOutput));
+    }
 
     return config;
 }
@@ -139,6 +153,10 @@ void XRandRConfig::updateKScreenConfig(Config *config) const
             continue;
         }
         output->updateKScreenOutput(kscreenOutput);
+    }
+
+    if (config->primaryOutput()->id() != m_primaryOutput) {
+        config->setPrimaryOutput(config->output(m_primaryOutput));
     }
 }
 

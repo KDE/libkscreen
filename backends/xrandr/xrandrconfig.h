@@ -46,6 +46,7 @@ public:
     void updateKScreenConfig(KScreen::Config *config) const;
     void applyKScreenConfig(KScreen::Config *config);
 
+    int m_primaryOutput;
 private:
     /**
      * We need to print stuff to discover the damn bug

@@ -122,6 +122,9 @@ void XRandR::updateOutput(RROutput output)
     } else {
         RROutput primary = XRRGetOutputPrimary(XRandR::display(), XRandR::rootWindow());
         xOutput->update((output == primary) ? XRandROutput::SetPrimary : XRandROutput::UnsetPrimary);
+        if (output == primary) {
+            s_internalConfig->m_primaryOutput = output;
+        }
     }
 
     KScreen::ConfigMonitor::instance()->notifyUpdate();
