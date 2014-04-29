@@ -17,6 +17,7 @@
  *************************************************************************************/
 
 #include "parser.h"
+#include "fake.h"
 
 #include <config.h>
 
@@ -93,7 +94,7 @@ void Parser::qvariant2qobject(const QVariantMap& variant, QObject* object)
     }
 }
 
-Output* Parser::outputFromJson(const QVariantMap &map)
+Output* Parser::outputFromJson(QMap< QString, QVariant > map)
 {
     Output *output = new Output;
     output->setId(map["id"].toInt());
@@ -104,8 +105,7 @@ Output* Parser::outputFromJson(const QVariantMap &map)
         preferredModes.append(mode.toString());
     }
     output->setPreferredModes(preferredModes);
-
-    Parser::qvariant2qobject(map, output);
+    map.remove(QLatin1Literal("preferredModes"));
 
     Mode *mode;
     ModeList modelist;
@@ -115,6 +115,7 @@ Output* Parser::outputFromJson(const QVariantMap &map)
         modelist.insert(mode->id(), mode);
     }
     output->setModes(modelist);
+    map.remove(QLatin1Literal("modes"));
 
     if(map.contains("clones")) {
         QList<int> clones;
@@ -123,6 +124,7 @@ Output* Parser::outputFromJson(const QVariantMap &map)
         }
 
         output->setClones(clones);
+        map.remove(QLatin1Literal("clones"));
     }
 
     QString type = map["type"].toByteArray().toUpper();
@@ -161,6 +163,12 @@ Output* Parser::outputFromJson(const QVariantMap &map)
     } else {
         qCWarning(KSCREEN_FAKE) << "Output Type not translated:" << type;
     }
+    map.remove(QLatin1Literal("type"));
+
+    //Remove some extra properties that we do not want or need special treatment
+    map.remove(QLatin1Literal("edid"));
+
+    Parser::qvariant2qobject(map, output);
     return output;
 }
 
@@ -168,7 +176,6 @@ Mode* Parser::modeFromJson(const QVariant& data)
 {
     QVariantMap map = data.toMap();
     Mode *mode = new Mode;
-    mode->setId(map["id"].toString());
     Parser::qvariant2qobject(map, mode);
 
     mode->setSize(Parser::sizeFromJson(map["size"].toMap()));
