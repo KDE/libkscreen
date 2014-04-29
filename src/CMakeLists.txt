@@ -34,6 +34,7 @@ ecm_generate_headers(KScreen_HEADERS
         Screen
         Config
         ConfigMonitor
+    PREFIX KScreen
     REQUIRED_HEADERS KScreen_REQ_HEADERS
 )
 
@@ -42,7 +43,7 @@ install(FILES ${KScreen_HEADERS}
         COMPONENT Devel)
 install(FILES kscreen_export.h
             ${KScreen_REQ_HEADERS}
-    DESTINATION ${KF5_INCLUDE_INSTALL_DIR}/kscreen)
+    DESTINATION ${KF5_INCLUDE_INSTALL_DIR}/KScreen/kscreen)
 
 if(NOT WIN32)
    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/kscreen.pc.in ${CMAKE_CURRENT_BINARY_DIR}/kscreen.pc @ONLY)
