@@ -31,6 +31,6 @@ extern "C"
 #include <X11/extensions/Xrandr.h>
 }
 
-#include <fixx11h.h>
+#include "../xrandr1.1/fixx11h.h"
 
 #endif // XLIBANDXRANDR

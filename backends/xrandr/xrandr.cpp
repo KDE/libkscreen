@@ -19,7 +19,7 @@
 
 #include "xrandr.h"
 #include "xrandrconfig.h"
-#include "xrandrx11helper.h"
+#include "xrandrxcbhelper.h"
 
 #include "config.h"
 #include "output.h"
@@ -31,8 +31,8 @@
 #include <QtCore/QRect>
 #include <QAbstractEventDispatcher>
 
-#include <QtGui/QX11Info>
-#include <QApplication>
+#include <QX11Info>
+#include <QGuiApplication>
 
 #include <kdebug.h>
 
