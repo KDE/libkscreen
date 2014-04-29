@@ -21,7 +21,7 @@ target_link_libraries(KSC_XRandR11 Qt5::Core
                                    ${X11_LIBRARIES}
                                    ${X11_Xrandr_LIB}
                                    ${XCB_LIBRARIES}
-                                   kscreen
+                                   KF5::Screen
 )
 
 install(TARGETS KSC_XRandR11 DESTINATION ${PLUGIN_INSTALL_DIR}/kf5/kscreen/)

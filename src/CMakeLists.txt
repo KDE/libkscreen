@@ -11,16 +11,18 @@ set(libkscreen_SRCS
     debug_p.cpp
 )
 
-add_library(kscreen SHARED ${libkscreen_SRCS})
+add_library(KF5Screen SHARED ${libkscreen_SRCS})
 
-target_link_libraries(kscreen Qt5::Core)
+target_link_libraries(KF5Screen PUBLIC Qt5::Core)
 
-set_target_properties(kscreen PROPERTIES
+set_target_properties(KF5Screen PROPERTIES
     VERSION "${KSCREEN_VERSION_STRING}"
     SOVERSION "${KSCREEN_SOVERSION}"
+    EXPORT_NAME Screen
 )
 
-install(TARGETS kscreen EXPORT KF5ScreenTargets ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS KF5Screen EXPORT KF5ScreenTargets ${INSTALL_TARGETS_DEFAULT_ARGS})
+add_library(KF5::Screen ALIAS KF5Screen)
 
 install(FILES kscreen_export.h
             mode.h

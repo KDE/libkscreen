@@ -23,7 +23,7 @@ target_link_libraries(KSC_XRandR ${QT_QTCORE_LIBRARY}
                                  ${KDE4_KDEUI_LIBS}
                                  ${X11_Xrandr_LIB}
                                  ${X11_LIBRARIES}
-                                 kscreen
+                                 KF5::Screen
 )
 
 install(TARGETS KSC_XRandR DESTINATION ${PLUGIN_INSTALL_DIR}/plugins/kscreen/)
