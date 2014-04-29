@@ -14,6 +14,6 @@ target_link_libraries(KSC_Fake Qt5::Core
                                kscreen
 )
 
-install(TARGETS KSC_Fake DESTINATION ${PLUGIN_INSTALL_DIR}/plugins/kscreen/)
+install(TARGETS KSC_Fake DESTINATION ${PLUGIN_INSTALL_DIR}/kf5/kscreen/)
 
 
