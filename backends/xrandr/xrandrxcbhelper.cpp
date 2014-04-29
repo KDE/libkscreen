@@ -144,8 +144,6 @@ bool XRandRXCBHelper::nativeEventFilter(const QByteArray& eventType, void* messa
     const uint8_t xEventType = e->response_type & ~0x80;
 
     //If this event is not xcb_randr_notify, we don't want it
-    m_event11 = true;
-    qDebug() << xEventType << "--" <<  m_eventType;
     if (xEventType == m_randrBase + XCB_RANDR_SCREEN_CHANGE_NOTIFY && m_event11) {
         handleScreenChange(e);
     }
