@@ -10,6 +10,7 @@ include(KDECMakeSettings)
 include(ECMSetupVersion)
 include(ECMPackageConfigHelpers)
 include(ECMMarkAsTest)
+include(ECMGenerateHeaders)
 include(FeatureSummary)
 include(CheckCXXCompilerFlag)
 

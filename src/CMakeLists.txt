@@ -21,17 +21,28 @@ set_target_properties(KF5Screen PROPERTIES
     EXPORT_NAME Screen
 )
 
+target_include_directories(KF5Screen PUBLIC "$<INSTALL_INTERFACE:${KF5_INCLUDE_INSTALL_DIR}/KScreen>")
+
 install(TARGETS KF5Screen EXPORT KF5ScreenTargets ${INSTALL_TARGETS_DEFAULT_ARGS})
 add_library(KF5::Screen ALIAS KF5Screen)
 
+ecm_generate_headers(KScreen_HEADERS
+    HEADER_NAMES
+        Mode
+        Output
+        EDID
+        Screen
+        Config
+        ConfigMonitor
+    REQUIRED_HEADERS KScreen_REQ_HEADERS
+)
+
+install(FILES ${KScreen_HEADERS}
+        DESTINATION ${KF5_INCLUDE_INSTALL_DIR}/KScreen/KScreen
+        COMPONENT Devel)
 install(FILES kscreen_export.h
-            mode.h
-            output.h
-            edid.h
-            screen.h
-            config.h
-            configmonitor.h
-            DESTINATION ${INCLUDE_INSTALL_DIR}/kscreen)
+            ${KScreen_REQ_HEADERS}
+    DESTINATION ${KF5_INCLUDE_INSTALL_DIR}/kscreen)
 
 if(NOT WIN32)
    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/kscreen.pc.in ${CMAKE_CURRENT_BINARY_DIR}/kscreen.pc @ONLY)
