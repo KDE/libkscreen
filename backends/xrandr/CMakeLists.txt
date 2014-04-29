@@ -1,26 +1,23 @@
 include_directories(${CMAKE_SOURCE_DIR}/src
-                    ${KDE4_INCLUDES}
                     ${CMAKE_BUILD_DIR}
-                    ${QT_INCLUDES}
                     ${X11_Xrandr_INCLUDE_PATH}
 )
 
 set(xrandr_SRCS
     xrandr.cpp
-    xrandrx11helper.cpp
+    xrandrxcbhelper.cpp
     xrandrconfig.cpp
     xrandroutput.cpp
     xrandrmode.cpp
     xrandrscreen.cpp
 )
 
-automoc4_add_library(KSC_XRandR MODULE ${xrandr_SRCS})
+add_library(KSC_XRandR MODULE ${xrandr_SRCS})
 
 set_target_properties(KSC_XRandR PROPERTIES PREFIX "")
-target_link_libraries(KSC_XRandR ${QT_QTCORE_LIBRARY}
-                                 ${QT_QTGUI_LIBRARY}  #XrandrX11Helper is a QWidget
-                                 ${KDE4_KDECORE_LIBS}
-                                 ${KDE4_KDEUI_LIBS}
+target_link_libraries(KSC_XRandR Qt5::Core
+                                 Qt5::Gui
+                                 Qt5::X11Extras
                                  ${X11_Xrandr_LIB}
                                  ${X11_LIBRARIES}
                                  KF5::Screen
