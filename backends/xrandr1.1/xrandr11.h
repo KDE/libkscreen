@@ -22,6 +22,7 @@
 #include "xlibandxcb.h"
 #include "../abstractbackend.h"
 #include <QtCore/QObject>
+#include <QLoggingCategory>
 
 class XRandRX11Helper;
 
@@ -51,5 +52,5 @@ private:
     xcb_timestamp_t m_currentTimestamp;
 };
 
-extern int dXndr();
+Q_DECLARE_LOGGING_CATEGORY(KSCREEN_XRANDR11)
 #endif //FAKE_BACKEND_H

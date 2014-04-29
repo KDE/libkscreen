@@ -31,10 +31,9 @@
 #include <QtCore/QDebug>
 #include <QtCore/qplugin.h>
 
-#include <KDebug>
-
 Q_EXPORT_PLUGIN2(XRandR11, XRandR11)
 
+Q_LOGGING_CATEGORY(KSCREEN_XRANDR11, "kscreen.xrandr11")
 XRandR11::XRandR11(QObject* parent)
  : QObject(parent)
  , m_valid(false)
@@ -42,17 +41,19 @@ XRandR11::XRandR11(QObject* parent)
  , m_currentConfig(0)
  , m_currentTimestamp(0)
 {
+    QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.xrandr11.debug = true"));
+
     xcb_generic_error_t *error = 0;
     xcb_randr_query_version_reply_t* version;
     version = xcb_randr_query_version_reply(connection(), xcb_randr_query_version(connection(), XCB_RANDR_MAJOR_VERSION, XCB_RANDR_MINOR_VERSION), &error);
 
     if (!version || error) {
         free(error);
-        qDebug() << "Can't get XRandR version";
+        qCDebug(KSCREEN_XRANDR11) << "Can't get XRandR version";
         return;
     }
     if (version->minor_version > 1) {
-        qDebug() << "This backend is only for XRandR 1.1, your version is: " << version->major_version << "." << version->minor_version;
+        qCDebug(KSCREEN_XRANDR11) << "This backend is only for XRandR 1.1, your version is: " << version->major_version << "." << version->minor_version;
         return;
     }
 
@@ -186,5 +187,4 @@ void XRandR11::updateConfig()
     KScreen::ConfigMonitor::instance()->notifyUpdate();
 }
 
-extern int dXndr() { static int s_area = KDebug::registerArea("KSRandr11", false); return s_area; }
 #include "xrandr11.moc"
