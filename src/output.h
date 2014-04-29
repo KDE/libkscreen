@@ -41,7 +41,7 @@ class KSCREEN_EXPORT Output : public QObject
     public:
         Q_ENUMS(Rotation)
         Q_ENUMS(Type)
-        Q_PROPERTY(int id READ id NOTIFY outputChanged)
+        Q_PROPERTY(int id READ id WRITE setId NOTIFY outputChanged)
         Q_PROPERTY(QString name READ name WRITE setName NOTIFY outputChanged)
         Q_PROPERTY(Type type READ type WRITE setType NOTIFY outputChanged)
         Q_PROPERTY(QString icon READ icon WRITE setIcon NOTIFY outputChanged)

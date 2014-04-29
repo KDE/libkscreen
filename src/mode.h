@@ -32,7 +32,7 @@ namespace KScreen {
 class KSCREEN_EXPORT Mode : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString id READ id NOTIFY modeChanged)
+    Q_PROPERTY(QString id READ id WRITE setId NOTIFY modeChanged)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY modeChanged)
     Q_PROPERTY(QSize size READ size WRITE setSize NOTIFY modeChanged)
     Q_PROPERTY(float refreshRate READ refreshRate WRITE setRefreshRate NOTIFY modeChanged)
