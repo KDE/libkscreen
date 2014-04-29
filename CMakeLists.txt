@@ -14,11 +14,12 @@ include(KDECompilerSettings)
 include(KDECMakeSettings)
 include(ECMSetupVersion)
 include(ECMPackageConfigHelpers)
+include(ECMMarkAsTest)
 include(FeatureSummary)
 include(CheckCXXCompilerFlag)
 
 set(REQUIRED_QT_VERSION 5.2.0)
-find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Core)
+find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Core Gui Test)
 
 find_package(XCB COMPONENTS XCB RANDR)
 set_package_properties(XCB PROPERTIES
@@ -53,7 +54,7 @@ endif (_HAVE_VISIBILITY AND NOT WIN32)
 
 add_subdirectory(src)
 add_subdirectory(backends)
-# add_subdirectory(tests)
+add_subdirectory(tests)
 
 set(CMAKECONFIG_INSTALL_DIR "${CMAKECONFIG_INSTALL_PREFIX}/KF5KScreen")
 ecm_configure_package_config_file("${CMAKE_CURRENT_SOURCE_DIR}/KF5KScreenConfig.cmake.in"
