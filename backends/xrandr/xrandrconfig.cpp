@@ -86,7 +86,7 @@ void XRandRConfig::addNewOutput(const RROutput id)
 
 XRandROutput* XRandRConfig::createNewOutput(RROutput id, bool primary)
 {
-    XRandROutput *xOutput = new XRandROutput(id, (id == primary), this);
+    XRandROutput *xOutput = new XRandROutput(id, primary, this);
     connect(xOutput, SIGNAL(outputRemoved(int)), SLOT(outputRemovedSlot(int)));
 
     return xOutput;
