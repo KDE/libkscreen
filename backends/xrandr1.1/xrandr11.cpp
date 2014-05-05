@@ -56,7 +56,7 @@ XRandR11::XRandR11(QObject* parent)
         return;
     }
 
-    m_x11Helper = new XRandRX11Helper();
+    m_x11Helper = new XRandRXCBHelper();
 
     connect(m_x11Helper, SIGNAL(outputsChanged()), SLOT(updateConfig()));
 
