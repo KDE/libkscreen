@@ -36,7 +36,7 @@ Q_LOGGING_CATEGORY(KSCREEN_XRANDR11, "kscreen.xrandr11")
 XRandR11::XRandR11(QObject* parent)
  : QObject(parent)
  , m_valid(false)
- , m_x11Helper(new XRandRXCBHelper())
+ , m_x11Helper(0)
  , m_currentConfig(0)
  , m_currentTimestamp(0)
 {
@@ -55,6 +55,8 @@ XRandR11::XRandR11(QObject* parent)
         qCDebug(KSCREEN_XRANDR11) << "This backend is only for XRandR 1.1, your version is: " << version->major_version << "." << version->minor_version;
         return;
     }
+
+    m_x11Helper = new XRandRX11Helper();
 
     connect(m_x11Helper, SIGNAL(outputsChanged()), SLOT(updateConfig()));
 

@@ -155,7 +155,7 @@ void XRandRConfig::updateKScreenConfig(Config *config) const
         output->updateKScreenOutput(kscreenOutput);
     }
 
-    if (config->primaryOutput()->id() != m_primaryOutput) {
+    if (!config->primaryOutput() || config->primaryOutput()->id() != m_primaryOutput) {
         config->setPrimaryOutput(config->output(m_primaryOutput));
     }
 }
