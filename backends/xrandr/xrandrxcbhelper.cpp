@@ -97,7 +97,7 @@ XRandRXCBHelper::XRandRXCBHelper():
 
 XRandRXCBHelper::~XRandRXCBHelper()
 {
-    if (m_window) {
+    if (m_window && QX11Info::connection()) {
         xcb_destroy_window(QX11Info::connection(), m_window);
     }
 }
