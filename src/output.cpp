@@ -425,7 +425,11 @@ void Output::setSizeMm(const QSize &size)
 
 QDebug operator<<(QDebug dbg, const KScreen::Output *output)
 {
-    dbg << "KScreen::Output(Id:" << output->id() <<", Name:" << output->name() << ")";
+    if(output) {
+        dbg << "KScreen::Output(Id:" << output->id() <<", Name:" << output->name() << ")";
+    } else {
+        dbg << "KScreen::Output(NULL)";
+    }
     return dbg;
 }
 
