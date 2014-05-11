@@ -1,7 +1,7 @@
 project(libkscreen)
 set(libkscreen_VERSION_MAJOR 1)
 set(libkscreen_VERSION_MINOR 0)
-set(libkscreen_VERSION_RELEASE 2)
+set(libkscreen_VERSION_RELEASE 4)
 set(libkscreen_VERSION "${libkscreen_VERSION_MAJOR}.${libkscreen_VERSION_MINOR}.${libkscreen_VERSION_RELEASE}")
 add_definitions("-DLIBKSCREEN_VERSION=\\\"${libkscreen_VERSION}\\\"")
 
