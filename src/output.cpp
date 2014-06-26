@@ -23,6 +23,7 @@
 #include <backends/abstractbackend.h>
 
 #include <QtCore/QStringList>
+#include <QRect>
 
 namespace KScreen {
 
@@ -419,6 +420,11 @@ QSize Output::sizeMm() const
 void Output::setSizeMm(const QSize &size)
 {
     d->sizeMm = size;
+}
+
+QRect Output::geometry() const
+{
+    return QRect(pos(), currentMode()->size());
 }
 
 } //KScreen namespace

@@ -147,6 +147,12 @@ class KSCREEN_EXPORT Output : public QObject
 
         QSize sizeMm() const;
         void setSizeMm(const QSize &size);
+
+        /**
+         * @returns a rectangle containing the current output position and size.
+         */
+        QRect geometry() const;
+
     Q_SIGNALS:
         void outputChanged();
         void posChanged();
