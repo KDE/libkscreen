@@ -29,6 +29,18 @@
 
 namespace KScreen {
 
+/**
+ * Represents a (or the) screen configuration.
+ *
+ * This is the main class of KScreen, with it you can use
+ * the static methods current() to get the systems config and
+ * setConfig() to apply a config to the system.
+ *
+ * Also, you can instance an empty Config, this is usualy done
+ * to create a config (with the objective of setting it) from scratch
+ * and for example unserialize a saved config to it.
+ *
+ */
 class KSCREEN_EXPORT Config : public QObject
 {
     Q_OBJECT
@@ -36,14 +48,64 @@ class KSCREEN_EXPORT Config : public QObject
     Q_PROPERTY(OutputList outputs READ outputs)
 
   public:
+    /**
+    * Tries to load a backend (it might be already loaded)
+    *
+    * @return true if there is a working backend, false if none are found or work
+    */
     static bool loadBackend();
+
+    /**
+     * Gets the current system configuration
+     *
+     * The returned config is a representation of the current system setup, for
+     * example if your screens a currently cloned, it will show that.
+     *
+     * @return the current system config, or null on error
+     */
     static Config* current();
+
+    /**
+     * Sets the given config to the system
+     *
+     * The config will first be validated via canBeApplied(), then
+     * it will be applied to the system.
+     *
+     * @arg config to be applied
+     * @return true if everything went well, false if something failed
+     */
     static bool setConfig(Config* config);
+
+    /**
+     * Validates that a config can be applied in the current system
+     *
+     * Each system has different constrains, this method will test
+     * the given config with those constrains to see if it
+     * can be applied.
+     *
+     * @arg config to be checked
+     * @return true if the configuration can be applied, false if not.
+     */
     static bool canBeApplied(Config* config);
 
+    /**
+     * Instance an empty config
+     *
+     * Usually you never want to use this constructor since there are some
+     * values that make no sense to set (for example you want the Screen of
+     * the current systme).
+     *
+     * So usually what you do is call current() and then modify
+     * whatever you need.
+     */
     explicit Config(QObject *parent = 0);
     virtual ~Config();
 
+    /**
+     * Duplicates the config
+     *
+     * @return a new Config instance with same property values
+     */
     Config* clone() const;
 
     Screen* screen() const;
