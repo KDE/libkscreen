@@ -71,6 +71,7 @@ void testScreenConfig::singleOutput()
     QCOMPARE(output->type(), Output::Panel);
     QCOMPARE(output->modes().count(), 3);
     QCOMPARE(output->pos(), QPoint(0, 0));
+    QCOMPARE(output->geometry(), QRect(0,0, 1280, 800));
     QCOMPARE(output->currentModeId(), QLatin1String("3"));
     QCOMPARE(output->preferredModeId(), QLatin1String("3"));
     QCOMPARE(output->rotation(), Output::None);
@@ -120,6 +121,7 @@ void testScreenConfig::multiOutput()
     QCOMPARE(output->type(), Output::HDMI);
     QCOMPARE(output->modes().count(), 4);
     QCOMPARE(output->pos(), QPoint(0, 0));
+    QCOMPARE(output->geometry(), QRect(0,0, 1920, 1080));
     QCOMPARE(output->currentModeId(), QLatin1String("4"));
     QCOMPARE(output->preferredModeId(), QLatin1String("4"));
     QCOMPARE(output->rotation(), Output::None);
