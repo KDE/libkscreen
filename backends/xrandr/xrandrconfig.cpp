@@ -123,7 +123,7 @@ KScreen::Config *XRandRConfig::toKScreenConfig() const
 
     config->setOutputs(kscreenOutputs);
     config->setScreen(m_screen->toKScreenScreen(config));
-    if (m_primaryOutput != -1 && config->primaryOutput()->id() != m_primaryOutput) {
+    if (m_primaryOutput != -1 && (!config->primaryOutput() || config->primaryOutput()->id() != m_primaryOutput)) {
         config->setPrimaryOutput(kscreenOutputs.value(m_primaryOutput));
     }
 
