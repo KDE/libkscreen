@@ -268,6 +268,9 @@ void Config::removeOutput(int outputId)
     Output *output = d->outputs.take(outputId);
     if (output) {
         output->deleteLater();
+        if (d->primaryOutput == output) {
+            setPrimaryOutput(0);
+        }
     }
 
     Q_EMIT outputRemoved(outputId);
