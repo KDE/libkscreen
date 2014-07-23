@@ -34,7 +34,7 @@ using namespace KScreen;
 
 Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.qscreen");
 
-QScreen::QScreen(QObject* parent)
+QScreenBackend::QScreenBackend(QObject* parent)
     : QObject(parent)
     , m_isValid(false)
 {
@@ -43,34 +43,34 @@ QScreen::QScreen(QObject* parent)
     m_isValid = true; // We're cheating for now.
 }
 
-QScreen::~QScreen()
+QScreenBackend::~QScreenBackend()
 {
 
 
 }
 
-QString QScreen::name() const
+QString QScreenBackend::name() const
 {
     return QString("qscreen");
 }
 
-void QScreen::updateConfig()
+void QScreenBackend::updateConfig()
 {
     //s_internalConfig->update();
     KScreen::ConfigMonitor::instance()->notifyUpdate();
 }
 
-void QScreen::outputRemovedSlot()
+void QScreenBackend::outputRemovedSlot()
 {
     KScreen::ConfigMonitor::instance()->notifyUpdate();
 }
 
-Config* QScreen::config() const
+Config* QScreenBackend::config() const
 {
     return 0;
 }
 
-void QScreen::setConfig(Config* config) const
+void QScreenBackend::setConfig(Config* config) const
 {
     if (!config) {
         return;
@@ -78,18 +78,18 @@ void QScreen::setConfig(Config* config) const
 
 }
 
-Edid *QScreen::edid(int outputId) const
+Edid *QScreenBackend::edid(int outputId) const
 {
     return 0;
     //return output->edid();
 }
 
-bool QScreen::isValid() const
+bool QScreenBackend::isValid() const
 {
     return m_isValid;
 }
 
-void QScreen::updateConfig(Config *config) const
+void QScreenBackend::updateConfig(Config *config) const
 {
     //Q_ASSERT(config != 0);
 

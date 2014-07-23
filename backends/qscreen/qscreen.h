@@ -30,15 +30,15 @@ namespace KScreen {
     class Output;
 }
 
-class QScreen : public QObject, public AbstractBackend
+class QScreenBackend : public QObject, public AbstractBackend
 {
     Q_OBJECT
     Q_INTERFACES(AbstractBackend)
     Q_PLUGIN_METADATA(IID "org.kf5.kscreen.backends.qscreen")
 
     public:
-        explicit QScreen(QObject* parent = 0);
-        virtual ~QScreen();
+        explicit QScreenBackend(QObject* parent = 0);
+        virtual ~QScreenBackend();
 
         virtual QString name() const;
         virtual KScreen::Config* config() const;
