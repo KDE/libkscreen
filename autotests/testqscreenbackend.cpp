@@ -36,7 +36,7 @@ class testQScreenBackend : public QObject
 
 private Q_SLOTS:
     void initTestCase();
-    void outputCount();
+    void verifyOutputs();
 
 private:
     QProcess m_process;
@@ -44,18 +44,36 @@ private:
 
 void testQScreenBackend::initTestCase()
 {
+    setenv("KSCREEN_BACKEND", "qscreen", 1);
+//     setenv("KSCREEN_BACKEND", "xrandr", 1);
 }
 
-void testQScreenBackend::outputCount()
+void testQScreenBackend::verifyOutputs()
 {
-    setenv("KSCREEN_BACKEND", "qscreen", 1);
     Config *config = Config::current();
     if (!config) {
         QSKIP("QScreenbackend invalid", SkipAll);
     }
 
-    QCOMPARE(QGuiApplication::screens().count(), config->outputs().count());
+    //QCOMPARE(QGuiApplication::screens().count(), config->outputs().count());
 
+
+    bool primaryFound = false;
+    foreach (const KScreen::Output* op, config->outputs()) {
+        if (op->isPrimary()) {
+            primaryFound = true;
+        }
+    }
+    qDebug() << "Primary found? " << primaryFound;
+    QVERIFY(primaryFound);
+    QVERIFY(config->screen()->maxActiveOutputsCount() > 0);
+
+    KScreen::Output *primary = config->primaryOutput();
+    qDebug() << "ppp" << primary;
+    QVERIFY(primary->isEnabled());
+    //qDebug() << "Primary geometry? " << primary->geometry();
+    qDebug() << " prim modes: " << primary->modes();
+    //QVERIFY(primary->geometry() != QRectF(1,1,1,1));
 //     Output *output = config->outputs().take(327);
 //
 //     QCOMPARE(output->name(), QString("default"));
