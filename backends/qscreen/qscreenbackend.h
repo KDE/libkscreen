@@ -23,6 +23,7 @@
 
 #include "../abstractbackend.h"
 
+#include <QScreen>
 #include <QtCore/QSize>
 #include <QLoggingCategory>
 
@@ -53,6 +54,7 @@ class QScreenBackend : public QObject, public AbstractBackend
 
 
     private:
+        void qScreenToOutput(const QScreen *qscreen, KScreen::Output* output) const;
         bool m_isValid;
         KScreen::Config* m_config;
 };
