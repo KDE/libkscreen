@@ -17,7 +17,7 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
-#include "qscreen.h"
+#include "qscreenbackend.h"
 #include <configmonitor.h>
 
 #include <QtCore/QFile>
@@ -27,6 +27,7 @@
 
 #include <QX11Info>
 #include <QGuiApplication>
+#include <QScreen>
 
 
 
@@ -41,6 +42,26 @@ QScreenBackend::QScreenBackend(QObject* parent)
     QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.xrandr.debug = true"));
 
     m_isValid = true; // We're cheating for now.
+   m_config =  new Config();
+
+
+//     Screen* screen = new Screen;
+//     screen->setId(0001);
+// //     screen->setMinSize();
+// //     screen->setMaxSize();
+// //     screen->setCurrentSize();
+// //     screen->setMaxActiveOutputsCount();
+//
+//
+// //    Output *output;
+//     OutputList outputList;
+// //     Q_FOREACH(const QVariant &value, outputs) {
+// //         output = Parser::outputFromJson(value.toMap());
+// //         outputList.insert(output->id(), output);
+// //     }
+//
+//     m_config->setScreen(screen);
+//     m_config->setOutputs(outputList);
 }
 
 QScreenBackend::~QScreenBackend()
@@ -67,7 +88,35 @@ void QScreenBackend::outputRemovedSlot()
 
 Config* QScreenBackend::config() const
 {
-    return 0;
+   Config* config =  new Config();
+
+
+    Screen* screen = new Screen;
+    screen->setId(0001);
+// //     screen->setMinSize();
+// //     screen->setMaxSize();
+// //     screen->setCurrentSize();
+// //     screen->setMaxActiveOutputsCount();
+//
+//
+    OutputList outputList;
+// //     Q_FOREACH(const QVariant &value, outputs) {
+// //         output = Parser::outputFromJson(value.toMap());
+// //         outputList.insert(output->id(), output);
+// //     }
+//
+    foreach (const QScreen *qscreen, QGuiApplication::screens()) {
+        qCDebug(KSCREEN_QSCREEN) << "New Output: " << qscreen->name();
+        Output *output = new Output;
+        output->setId(120);
+        outputList.insert(output->id(), output);
+        config->setPrimaryOutput(output);
+    }
+
+
+    config->setScreen(screen);
+    config->setOutputs(outputList);
+    return config;
 }
 
 void QScreenBackend::setConfig(Config* config) const
@@ -96,4 +145,4 @@ void QScreenBackend::updateConfig(Config *config) const
 }
 
 
-#include "qscreen.moc"
+#include "qscreenbackend.moc"

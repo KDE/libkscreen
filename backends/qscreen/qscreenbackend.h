@@ -54,6 +54,7 @@ class QScreenBackend : public QObject, public AbstractBackend
 
     private:
         bool m_isValid;
+        KScreen::Config* m_config;
 };
 
 Q_DECLARE_LOGGING_CATEGORY(KSCREEN_QSCREEN)
