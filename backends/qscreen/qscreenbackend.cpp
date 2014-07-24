@@ -19,6 +19,7 @@
 
 #include "qscreenbackend.h"
 #include <configmonitor.h>
+#include <mode.h>
 
 #include <QtCore/QFile>
 #include <QtCore/qplugin.h>
@@ -34,6 +35,15 @@
 using namespace KScreen;
 
 Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.qscreen");
+
+static int s_screenIds = -1;
+
+int getId()
+{
+    s_screenIds++;
+    return s_screenIds;
+}
+
 
 QScreenBackend::QScreenBackend(QObject* parent)
     : QObject(parent)
@@ -88,15 +98,17 @@ void QScreenBackend::outputRemovedSlot()
 
 Config* QScreenBackend::config() const
 {
-   Config* config =  new Config();
+    Config* config =  new Config();
 
 
     Screen* screen = new Screen;
     screen->setId(0001);
-// //     screen->setMinSize();
-// //     screen->setMaxSize();
-// //     screen->setCurrentSize();
-// //     screen->setMaxActiveOutputsCount();
+
+    QSize _s = QGuiApplication::primaryScreen()->size();
+    screen->setMinSize(_s);
+    screen->setMaxSize(_s);
+    screen->setCurrentSize(_s);
+    screen->setMaxActiveOutputsCount(QGuiApplication::screens().count());
 //
 //
     OutputList outputList;
@@ -105,12 +117,20 @@ Config* QScreenBackend::config() const
 // //         outputList.insert(output->id(), output);
 // //     }
 //
+
     foreach (const QScreen *qscreen, QGuiApplication::screens()) {
+
         qCDebug(KSCREEN_QSCREEN) << "New Output: " << qscreen->name();
+
         Output *output = new Output;
-        output->setId(120);
+        qScreenToOutput(qscreen, output);
+
+
+        if (output->isPrimary()) {
+            config->setPrimaryOutput(output);
+        }
+
         outputList.insert(output->id(), output);
-        config->setPrimaryOutput(output);
     }
 
 
@@ -118,6 +138,36 @@ Config* QScreenBackend::config() const
     config->setOutputs(outputList);
     return config;
 }
+
+void QScreenBackend::qScreenToOutput(const QScreen *qscreen, Output* output) const
+{
+
+    output->setId(getId());
+    output->setName(qscreen->name());
+    output->setSizeMm(qscreen->size());
+    output->setEnabled(true);
+    output->setPrimary(QGuiApplication::primaryScreen() == qscreen);
+
+    Mode* mode = new Mode;
+    const QString modeid = QStringLiteral("14");
+    mode->setId(modeid);
+    mode->setRefreshRate(qscreen->refreshRate());
+    mode->setSize(qscreen->size());
+
+    output->setCurrentModeId(modeid);
+
+    const QString modename = QString::number(qscreen->size().width()) + QStringLiteral("x") + QString::number(qscreen->size().height()) + QStringLiteral("@") + QString::number(qscreen->refreshRate());
+    mode->setName(modename);
+
+    ModeList modes;
+    modes[modeid] = mode;
+    output->setModes(modes);
+
+
+    qCDebug(KSCREEN_QSCREEN) << "   Output.setCurrentSize: " << output->sizeMm() << modename;
+
+}
+
 
 void QScreenBackend::setConfig(Config* config) const
 {
@@ -145,4 +195,18 @@ void QScreenBackend::updateConfig(Config *config) const
 }
 
 
+
 #include "qscreenbackend.moc"
+
+
+
+
+
+
+
+
+
+
+
+
+
