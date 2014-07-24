@@ -10,6 +10,7 @@ macro(KSCREEN_TESTS)
 endmacro(KSCREEN_TESTS)
 
 KSCREEN_TESTS(testscreenconfig )
+KSCREEN_TESTS(testqscreenbackend )
 
 if (ENABLE_XRANDR_TESTS)
     KSCREEN_TESTS(testxrandr )
