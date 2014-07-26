@@ -120,8 +120,8 @@ void testScreenConfig::multiOutput()
     QCOMPARE(output->name(), QString("HDMI1"));
     QCOMPARE(output->type(), Output::HDMI);
     QCOMPARE(output->modes().count(), 4);
-    QCOMPARE(output->pos(), QPoint(0, 0));
-    QCOMPARE(output->geometry(), QRect(0,0, 1920, 1080));
+    QCOMPARE(output->pos(), QPoint(1280, 0));
+    QCOMPARE(output->geometry(), QRect(1280, 0, 1920, 1080));
     QCOMPARE(output->currentModeId(), QLatin1String("4"));
     QCOMPARE(output->preferredModeId(), QLatin1String("4"));
     QCOMPARE(output->rotation(), Output::None);

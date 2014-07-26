@@ -165,6 +165,11 @@ Output* Parser::outputFromJson(QMap< QString, QVariant > map)
     }
     map.remove(QLatin1Literal("type"));
 
+    if (map.contains("pos")) {
+        output->setPos(Parser::pointFromJson(map["pos"].toMap()));
+        map.remove(QLatin1Literal("pos"));
+    }
+
     //Remove some extra properties that we do not want or need special treatment
     map.remove(QLatin1Literal("edid"));
 
