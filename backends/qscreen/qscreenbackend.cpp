@@ -142,11 +142,15 @@ Config* QScreenBackend::config() const
 void QScreenBackend::qScreenToOutput(const QScreen *qscreen, Output* output) const
 {
 
+    // Initialize primary output
     output->setId(getId());
     output->setName(qscreen->name());
     output->setSizeMm(qscreen->size());
     output->setEnabled(true);
+    output->setConnected(true);
     output->setPrimary(QGuiApplication::primaryScreen() == qscreen);
+
+    // Rotation
 
     Mode* mode = new Mode;
     const QString modeid = QStringLiteral("14");
