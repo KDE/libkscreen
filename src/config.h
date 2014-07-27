@@ -124,7 +124,7 @@ class KSCREEN_EXPORT Config : public QObject
     void setValid(bool valid);
 
   Q_SIGNALS:
-      void outputAdded(Output *output);
+      void outputAdded(KScreen::Output *output);
       void outputRemoved(int outputId);
       void primaryOutputChanged(KScreen::Output *output);
   private:
