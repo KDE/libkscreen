@@ -45,7 +45,7 @@ private:
 
 void testQScreenBackend::initTestCase()
 {
-    setenv("KSCREEN_BACKEND", "qscreen", 1);
+//    setenv("KSCREEN_BACKEND", "qscreen", 1);
 //     setenv("KSCREEN_BACKEND", "xrandr", 1);
 }
 
@@ -55,9 +55,6 @@ void testQScreenBackend::verifyOutputs()
     if (!config) {
         QSKIP("QScreenbackend invalid", SkipAll);
     }
-
-    //QCOMPARE(QGuiApplication::screens().count(), config->outputs().count());
-
 
     bool primaryFound = false;
     foreach (const KScreen::Output* op, config->outputs()) {
@@ -78,15 +75,19 @@ void testQScreenBackend::verifyOutputs()
     qDebug() << " prim modes: " << primary->modes();
 
 
-    Output *output = config->outputs().take(0);
-    qDebug() << "   output name: " << primary->name();
-    qDebug() << "   output modes: " << output->modes().count() << output->modes();
-    qDebug() << "   output enabled: " << output->isEnabled();
-    qDebug() << "   output connect: " << output->isConnected();
-
-    QVERIFY(output->isConnected());
-    QVERIFY(output->isEnabled());
-    //QVERIFY(primary->geometry() != QRectF(1,1,1,1));
+    foreach (auto output, config->outputs()) {
+        qDebug() << " _____________________ Output: " << output;
+        qDebug() << "   output name: " << output->name();
+        qDebug() << "   output modes: " << output->modes().count() << output->modes();
+        qDebug() << "   output enabled: " << output->isEnabled();
+        qDebug() << "   output connect: " << output->isConnected();
+        QVERIFY(!output->name().isEmpty());
+        QVERIFY(!output->id() > -1);
+        QVERIFY(output->isConnected());
+        QVERIFY(output->isEnabled());
+        QVERIFY(output->geometry() != QRectF(1,1,1,1));
+        QVERIFY(output->geometry() != QRectF());
+    }
 //     Output *output = config->outputs().take(327);
 //
 //     QCOMPARE(output->name(), QString("default"));
@@ -114,6 +115,7 @@ void testQScreenBackend::verifyModes()
 
     foreach (auto output, config->outputs()) {
         foreach (auto mode, output->modes()) {
+            qDebug() << " ____ MODE: " << mode;
             qDebug() << "   Mode   : " << mode->name();
             qDebug() << "          : " << mode->size();
             qDebug() << "          : " << mode->refreshRate();
