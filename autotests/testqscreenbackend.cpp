@@ -37,6 +37,7 @@ class testQScreenBackend : public QObject
 private Q_SLOTS:
     void initTestCase();
     void verifyOutputs();
+    void verifyModes();
 
 private:
     QProcess m_process;
@@ -67,12 +68,24 @@ void testQScreenBackend::verifyOutputs()
     qDebug() << "Primary found? " << primaryFound;
     QVERIFY(primaryFound);
     QVERIFY(config->screen()->maxActiveOutputsCount() > 0);
+    QCOMPARE(config->outputs().count(), QGuiApplication::screens().count());
 
     KScreen::Output *primary = config->primaryOutput();
     qDebug() << "ppp" << primary;
     QVERIFY(primary->isEnabled());
+    QVERIFY(primary->isConnected());
     //qDebug() << "Primary geometry? " << primary->geometry();
     qDebug() << " prim modes: " << primary->modes();
+
+
+    Output *output = config->outputs().take(0);
+    qDebug() << "   output name: " << primary->name();
+    qDebug() << "   output modes: " << output->modes().count() << output->modes();
+    qDebug() << "   output enabled: " << output->isEnabled();
+    qDebug() << "   output connect: " << output->isConnected();
+
+    QVERIFY(output->isConnected());
+    QVERIFY(output->isEnabled());
     //QVERIFY(primary->geometry() != QRectF(1,1,1,1));
 //     Output *output = config->outputs().take(327);
 //
@@ -87,6 +100,29 @@ void testQScreenBackend::verifyOutputs()
 //     QCOMPARE(output->isPrimary(), false);
 //     QVERIFY2(output->clones().isEmpty(), "In singleOutput is impossible to have clones");
 }
+
+void testQScreenBackend::verifyModes()
+{
+    Config *config = Config::current();
+    if (!config) {
+        QSKIP("QScreenbackend invalid", SkipAll);
+    }
+
+    KScreen::Output *primary = config->primaryOutput();
+    QVERIFY(primary);
+    QVERIFY(primary->modes().count() > 0);
+
+    foreach (auto mode, primary->modes()) {
+        qDebug() << "   Mode   : " << mode->name();
+        qDebug() << "          : " << mode->size();
+        qDebug() << "          : " << mode->refreshRate();
+        QVERIFY(!mode->name().isEmpty());
+        QVERIFY(mode->refreshRate() > 0);
+        QVERIFY(mode->size() != QSize());
+    }
+
+}
+
 
 QTEST_MAIN(testQScreenBackend)
 
