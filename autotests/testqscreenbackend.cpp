@@ -112,15 +112,16 @@ void testQScreenBackend::verifyModes()
     QVERIFY(primary);
     QVERIFY(primary->modes().count() > 0);
 
-    foreach (auto mode, primary->modes()) {
-        qDebug() << "   Mode   : " << mode->name();
-        qDebug() << "          : " << mode->size();
-        qDebug() << "          : " << mode->refreshRate();
-        QVERIFY(!mode->name().isEmpty());
-        QVERIFY(mode->refreshRate() > 0);
-        QVERIFY(mode->size() != QSize());
+    foreach (auto output, config->outputs()) {
+        foreach (auto mode, output->modes()) {
+            qDebug() << "   Mode   : " << mode->name();
+            qDebug() << "          : " << mode->size();
+            qDebug() << "          : " << mode->refreshRate();
+            QVERIFY(!mode->name().isEmpty());
+            QVERIFY(mode->refreshRate() > 0);
+            QVERIFY(mode->size() != QSize());
+        }
     }
-
 }
 
 
