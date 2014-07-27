@@ -52,7 +52,6 @@ class QScreenBackend : public QObject, public AbstractBackend
         void updateConfig();
         void outputRemovedSlot();
 
-
     private:
         void qScreenToOutput(const QScreen *qscreen, KScreen::Output* output) const;
         bool m_isValid;
