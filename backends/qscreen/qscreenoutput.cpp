@@ -42,7 +42,7 @@ QScreenOutput::QScreenOutput(const QScreen *qscreen, QObject* parent)
     , m_qscreen(qscreen)
 
 {
-    updateFromQScreen(qscreen);
+    updateFromQScreen(m_qscreen);
 }
 
 QScreenOutput::~QScreenOutput()
@@ -84,16 +84,3 @@ void QScreenOutput::updateFromQScreen(const QScreen *qscreen)
 
 
 #include "qscreenoutput.moc"
-
-
-
-
-
-
-
-
-
-
-
-
-
