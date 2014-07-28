@@ -23,6 +23,7 @@
 #include <QtCore/QStringList>
 #include <QtCore/QCoreApplication>
 #include <QtCore/QPluginLoader>
+#include <QX11Info>
 #include <QDir>
 
 AbstractBackend* BackendLoader::s_backend = 0;
@@ -49,6 +50,22 @@ bool BackendLoader::init()
         Q_FOREACH (const QFileInfo &finfo, finfos) {
             // Skip "Fake" backend unless explicitly specified via KSCREEN_BACKEND
             if (backend.isEmpty() && finfo.fileName().contains(QLatin1String("KSC_Fake"))) {
+                continue;
+            }
+
+            // When on X11, skip the QScreen backend, instead use the XRandR backend,
+            // if not specified in KSCREEN_BACKEND
+            if (backend.isEmpty() &&
+                    finfo.fileName().contains(QLatin1String("KSC_QScreen")) &&
+                    QX11Info::isPlatformX11()) {
+                continue;
+            }
+
+            // When not on X11, skip the XRandR backend, and fall back to QSCreen
+            // if not specified in KSCREEN_BACKEND
+            if (backend.isEmpty() &&
+                    finfo.fileName().contains(QLatin1String("KSC_XRandR")) &&
+                    !QX11Info::isPlatformX11()) {
                 continue;
             }
 
