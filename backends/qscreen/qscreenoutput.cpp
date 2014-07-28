@@ -16,78 +16,74 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
-#include "qscreenconfig.h"
 #include "qscreenoutput.h"
-
-#include <configmonitor.h>
 #include <mode.h>
 
-#include <QtCore/QFile>
-#include <QtCore/qplugin.h>
 #include <QtCore/QRect>
-#include <QAbstractEventDispatcher>
 
-#include <QX11Info>
 #include <QGuiApplication>
 #include <QScreen>
 
 
+
 using namespace KScreen;
 
-static int s_kscreenqscreenbackendScreenId = -1;
+static int s_kscreenqscreenbackendOutputId = -1;
 
-int getId()
+int getOutputId()
 {
-    s_kscreenqscreenbackendScreenId++;
-    return s_kscreenqscreenbackendScreenId;
+    s_kscreenqscreenbackendOutputId++;
+    return s_kscreenqscreenbackendOutputId;
 }
 
 
-QScreenConfig::QScreenConfig(QObject* parent)
-    : Config(parent)
+QScreenOutput::QScreenOutput(const QScreen *qscreen, QObject* parent)
+    : Output(parent)
+    , m_qscreen(qscreen)
 
 {
-    QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.xrandr.debug = true"));
-    updateConfig();
+    updateFromQScreen(qscreen);
 }
 
-QScreenConfig::~QScreenConfig()
+QScreenOutput::~QScreenOutput()
 {
 }
 
-void QScreenConfig::updateConfig()
+void QScreenOutput::updateFromQScreen(const QScreen *qscreen)
 {
-    Screen* screen = new Screen(this);
-    screen->setId(0001); // FIXME
 
-    auto primary = QGuiApplication::primaryScreen();
-    QSize _s = primary->availableVirtualGeometry().size();
-    screen->setMinSize(_s);
-    screen->setMaxSize(_s);
-    screen->setCurrentSize(_s);
-    screen->setMaxActiveOutputsCount(QGuiApplication::screens().count());
+    // Initialize primary output
+    setId(getOutputId());
+    setName(qscreen->name());
+    setSizeMm(qscreen->size());
+    setEnabled(true);
+    setConnected(true);
+    setPrimary(QGuiApplication::primaryScreen() == qscreen);
 
-    OutputList outputList;
+    // Rotation
 
-    foreach (const QScreen *qscreen, QGuiApplication::screens()) {
+    Mode* mode = new Mode(this);
+    const QString modeid = QStringLiteral("14");
+    mode->setId(modeid);
+    mode->setRefreshRate(qscreen->refreshRate());
+    mode->setSize(qscreen->size());
 
-        qCDebug(KSCREEN_QSCREEN) << "New Output: " << qscreen->name();
+    setCurrentModeId(modeid);
 
-        Output *output = new QScreenOutput(qscreen);
+    const QString modename = QString::number(qscreen->size().width()) + QStringLiteral("x") + QString::number(qscreen->size().height()) + QStringLiteral("@") + QString::number(qscreen->refreshRate());
+    mode->setName(modename);
 
-        if (output->isPrimary()) {
-            setPrimaryOutput(output);
-        }
+    ModeList modes;
+    modes[modeid] = mode;
+    setModes(modes);
 
-        outputList.insert(output->id(), output);
-    }
 
-    setScreen(screen);
-    setOutputs(outputList);
+    qCDebug(KSCREEN_QSCREEN) << "   Output.setCurrentSize: " << sizeMm() << modename;
+
 }
 
 
-#include "qscreenconfig.moc"
+#include "qscreenoutput.moc"
 
 
 

@@ -1,6 +1,4 @@
 /*************************************************************************************
- *  Copyright (C) 2012 by Alejandro Fiestas Olivares <afiestas@kde.org>              *
- *  Copyright (C) 2012, 2013 by Daniel VrÃ¡til <dvratil@redhat.com>                   *
  *  Copyright 2014 Sebastian Kügler <sebas@kde.org>                                  *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
@@ -21,8 +19,11 @@
 #ifndef QSCREEN_CONFIG_H
 #define QSCREEN_CONFIG_H
 
+
+
 #include "../abstractbackend.h"
 #include "config.h"
+
 #include <QScreen>
 #include <QtCore/QSize>
 #include <QLoggingCategory>
@@ -41,12 +42,11 @@ class QScreenConfig : public Config
     private Q_SLOTS:
         void updateConfig();
 
-    private:
-        void qScreenToOutput(const QScreen *qscreen, KScreen::Output* output) const;
 };
 
 
 } // namespace
 
 Q_DECLARE_LOGGING_CATEGORY(KSCREEN_QSCREEN)
-#endif //XRandR_BACKEND_H
+
+#endif // QSCREEN_CONFIG_H

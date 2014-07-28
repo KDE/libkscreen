@@ -16,88 +16,35 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
+#ifndef QSCREEN_OUTPUT_H
+#define QSCREEN_OUTPUT_H
+
+#include "../abstractbackend.h"
 #include "qscreenconfig.h"
-#include "qscreenoutput.h"
 
-#include <configmonitor.h>
-#include <mode.h>
+#include "config.h"
+#include "output.h"
 
-#include <QtCore/QFile>
-#include <QtCore/qplugin.h>
-#include <QtCore/QRect>
-#include <QAbstractEventDispatcher>
-
-#include <QX11Info>
-#include <QGuiApplication>
 #include <QScreen>
+#include <QtCore/QSize>
+#include <QLoggingCategory>
 
+namespace KScreen {
 
-using namespace KScreen;
-
-static int s_kscreenqscreenbackendScreenId = -1;
-
-int getId()
+class QScreenOutput : public Output
 {
-    s_kscreenqscreenbackendScreenId++;
-    return s_kscreenqscreenbackendScreenId;
-}
+    Q_OBJECT
+
+    public:
+        explicit QScreenOutput(const QScreen* qscreen, QObject* parent = 0);
+        virtual ~QScreenOutput();
+
+    private:
+        void updateFromQScreen(const QScreen *qscreen);
+        const QScreen *m_qscreen;
+};
 
 
-QScreenConfig::QScreenConfig(QObject* parent)
-    : Config(parent)
+} // namespace
 
-{
-    QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.xrandr.debug = true"));
-    updateConfig();
-}
-
-QScreenConfig::~QScreenConfig()
-{
-}
-
-void QScreenConfig::updateConfig()
-{
-    Screen* screen = new Screen(this);
-    screen->setId(0001); // FIXME
-
-    auto primary = QGuiApplication::primaryScreen();
-    QSize _s = primary->availableVirtualGeometry().size();
-    screen->setMinSize(_s);
-    screen->setMaxSize(_s);
-    screen->setCurrentSize(_s);
-    screen->setMaxActiveOutputsCount(QGuiApplication::screens().count());
-
-    OutputList outputList;
-
-    foreach (const QScreen *qscreen, QGuiApplication::screens()) {
-
-        qCDebug(KSCREEN_QSCREEN) << "New Output: " << qscreen->name();
-
-        Output *output = new QScreenOutput(qscreen);
-
-        if (output->isPrimary()) {
-            setPrimaryOutput(output);
-        }
-
-        outputList.insert(output->id(), output);
-    }
-
-    setScreen(screen);
-    setOutputs(outputList);
-}
-
-
-#include "qscreenconfig.moc"
-
-
-
-
-
-
-
-
-
-
-
-
-
+#endif
