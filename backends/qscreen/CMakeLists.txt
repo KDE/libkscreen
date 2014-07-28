@@ -5,6 +5,7 @@ include_directories(${CMAKE_SOURCE_DIR}/src
 set(qscreen_SRCS
     qscreenbackend.cpp
     qscreenconfig.cpp
+    qscreenoutput.cpp
 )
 
 add_library(KSC_qscreen MODULE ${qscreen_SRCS})

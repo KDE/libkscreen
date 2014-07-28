@@ -138,4 +138,5 @@ class KSCREEN_EXPORT Config : public QObject
 
 } //KScreen namespace
 
+
 #endif //KSCREEN_CONFIG_H
