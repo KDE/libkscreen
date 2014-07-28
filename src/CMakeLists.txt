@@ -13,7 +13,7 @@ set(libkscreen_SRCS
 
 add_library(KF5Screen SHARED ${libkscreen_SRCS})
 
-target_link_libraries(KF5Screen PUBLIC Qt5::Core)
+target_link_libraries(KF5Screen PUBLIC Qt5::Core PRIVATE Qt5::X11Extras)
 
 set_target_properties(KF5Screen PROPERTIES
     VERSION "${KSCREEN_VERSION_STRING}"
