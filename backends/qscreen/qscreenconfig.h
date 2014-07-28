@@ -1,6 +1,7 @@
 /*************************************************************************************
  *  Copyright (C) 2012 by Alejandro Fiestas Olivares <afiestas@kde.org>              *
  *  Copyright (C) 2012, 2013 by Daniel VrÃ¡til <dvratil@redhat.com>                   *
+ *  Copyright 2014 Sebastian Kügler <sebas@kde.org>                                  *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -17,100 +18,35 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
-#include "qscreenbackend.h"
-#include "qscreenconfig.h"
+#ifndef QSCREEN_CONFIG_H
+#define QSCREEN_CONFIG_H
 
-#include <configmonitor.h>
-#include <mode.h>
-
-#include <QtCore/QFile>
-#include <QtCore/qplugin.h>
-#include <QtCore/QRect>
-#include <QAbstractEventDispatcher>
-
-#include <QX11Info>
-#include <QGuiApplication>
+#include "../abstractbackend.h"
+#include "config.h"
 #include <QScreen>
+#include <QtCore/QSize>
+#include <QLoggingCategory>
 
+namespace KScreen {
+    class Output;
 
-
-using namespace KScreen;
-
-Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.qscreen");
-
-
-QScreenBackend::QScreenBackend(QObject* parent)
-    : QObject(parent)
-    , m_isValid(true)
+class QScreenConfig : public Config
 {
-    QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.xrandr.debug = true"));
-}
+    Q_OBJECT
 
-QScreenBackend::~QScreenBackend()
-{
+    public:
+        explicit QScreenConfig(QObject* parent = 0);
+        virtual ~QScreenConfig();
 
-}
+    private Q_SLOTS:
+        void updateConfig();
 
-QString QScreenBackend::name() const
-{
-    return QString("qscreen");
-}
-
-void QScreenBackend::updateConfig()
-{
-    //s_internalConfig->update();
-    KScreen::ConfigMonitor::instance()->notifyUpdate();
-}
-
-void QScreenBackend::outputRemovedSlot()
-{
-    KScreen::ConfigMonitor::instance()->notifyUpdate();
-}
-
-Config* QScreenBackend::config() const
-{
-    return new QScreenConfig();
-}
+    private:
+        void qScreenToOutput(const QScreen *qscreen, KScreen::Output* output) const;
+};
 
 
-void QScreenBackend::setConfig(Config* config) const
-{
-    if (!config) {
-        return;
-    }
+} // namespace
 
-}
-
-Edid *QScreenBackend::edid(int outputId) const
-{
-    return 0;
-    //return output->edid();
-}
-
-bool QScreenBackend::isValid() const
-{
-    return m_isValid;
-}
-
-void QScreenBackend::updateConfig(Config *config) const
-{
-    Q_ASSERT(config != 0);
-
-}
-
-
-
-#include "qscreenbackend.moc"
-
-
-
-
-
-
-
-
-
-
-
-
-
+Q_DECLARE_LOGGING_CATEGORY(KSCREEN_QSCREEN)
+#endif //XRandR_BACKEND_H
