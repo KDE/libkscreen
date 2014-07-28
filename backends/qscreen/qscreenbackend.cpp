@@ -54,7 +54,7 @@ QScreenBackend::~QScreenBackend()
 
 QString QScreenBackend::name() const
 {
-    return QString("qscreen");
+    return QString("QScreen");
 }
 
 void QScreenBackend::updateConfig()

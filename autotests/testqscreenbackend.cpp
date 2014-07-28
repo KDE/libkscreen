@@ -45,7 +45,7 @@ private:
 
 void testQScreenBackend::initTestCase()
 {
-//    setenv("KSCREEN_BACKEND", "qscreen", 1);
+   setenv("KSCREEN_BACKEND", "qscreen", 1);
 //     setenv("KSCREEN_BACKEND", "xrandr", 1);
 }
 
