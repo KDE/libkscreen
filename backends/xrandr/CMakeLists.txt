@@ -23,6 +23,8 @@ target_link_libraries(KSC_XRandR ${QT_QTCORE_LIBRARY}
                                  ${KDE4_KDEUI_LIBS}
                                  ${X11_Xrandr_LIB}
                                  ${X11_LIBRARIES}
+                                 ${XCB_RANDR_LIBRARIES}
+                                 ${XCB_XCB_LIBRARIES}
                                  kscreen
 )
 
