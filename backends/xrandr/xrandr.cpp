@@ -34,6 +34,8 @@
 #include <QX11Info>
 #include <QGuiApplication>
 
+#include <xcb/randr.h>
+
 Display* XRandR::s_display = 0;
 int XRandR::s_screen = 0;
 Window XRandR::s_rootWindow = 0;
@@ -55,6 +57,26 @@ XRandR::XRandR(QObject* parent)
 {
     QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.xrandr.debug = true"));
 
+    // Use our own connection to make sure that we won't mess up Qt's connection
+    // if something goes wrong on our side.
+    xcb_generic_error_t *error = 0;
+    xcb_randr_query_version_reply_t* version;
+    xcb_connection_t *connection = xcb_connect(0, 0);
+    version = xcb_randr_query_version_reply(connection, xcb_randr_query_version(connection, XCB_RANDR_MAJOR_VERSION, XCB_RANDR_MINOR_VERSION), &error);
+    xcb_disconnect(connection);
+
+    if (!version || error) {
+        free(error);
+        return;
+    }
+
+    if ((version->major_version > 1) || ((version->major_version == 1) && (version->minor_version >= 2))) {
+        m_isValid = true;
+    } else {
+        qCWarning(KSCREEN_XRANDR) << "XRandR extension not available or unsupported version";
+        return;
+    }
+
     if (s_display == 0) {
         s_display = QX11Info::display();
         s_screen = DefaultScreen(s_display);
@@ -63,17 +85,7 @@ XRandR::XRandR(QObject* parent)
         XRRQueryExtension(s_display, &s_randrBase, &s_randrError);
     }
 
-    int majorVersion = 0, minorVersion = 0;
-    XRRQueryVersion(s_display, &majorVersion, &minorVersion);
-
-    if ((majorVersion > 1) || ((majorVersion == 1) && (minorVersion >= 2))) {
-        m_isValid = true;
-    } else {
-        qCWarning(KSCREEN_XRANDR) << "XRandR extension not available or unsupported version";
-        return;
-    }
-
-    XRandR::s_has_1_3 = (majorVersion > 1 || (majorVersion == 1 && minorVersion >= 3));
+    XRandR::s_has_1_3 = (version->major_version > 1 || (version->major_version == 1 && version->minor_version >= 3));
 
     if (s_internalConfig == 0) {
         s_internalConfig = new XRandRConfig();

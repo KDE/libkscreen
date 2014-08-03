@@ -23,14 +23,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <xcb/randr.h>
 #include <QX11Info>
 
-Display* display()
-{
-    return QX11Info::display();
-}
+static xcb_connection_t *XRandR11XCBConnection = 0;
 
 xcb_connection_t *connection()
 {
-    return QX11Info::connection();
+    // Use our own connection to make sure that we won't mess up Qt's connection
+    // if something goes wrong on our side.
+    if (XRandR11XCBConnection == 0) {
+        XRandR11XCBConnection = xcb_connect(0, 0);
+    }
+    return XRandR11XCBConnection;
+}
+
+void closeConnection()
+{
+    xcb_disconnect(XRandR11XCBConnection);
+    XRandR11XCBConnection = 0;
 }
 
 xcb_screen_t *screen_of_display (xcb_connection_t *c, int screen)
