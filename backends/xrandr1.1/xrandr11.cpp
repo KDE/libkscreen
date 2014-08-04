@@ -51,7 +51,7 @@ XRandR11::XRandR11(QObject* parent)
         qCDebug(KSCREEN_XRANDR11) << "Can't get XRandR version";
         return;
     }
-    if (version->minor_version > 1) {
+    if (version->major_version != 1 || version->minor_version != 1) {
         qCDebug(KSCREEN_XRANDR11) << "This backend is only for XRandR 1.1, your version is: " << version->major_version << "." << version->minor_version;
         return;
     }
@@ -65,6 +65,7 @@ XRandR11::XRandR11(QObject* parent)
 
 XRandR11::~XRandR11()
 {
+    closeConnection();
     delete m_currentConfig;
     delete m_x11Helper;
 }
