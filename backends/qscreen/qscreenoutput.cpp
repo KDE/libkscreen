@@ -18,6 +18,7 @@
 
 #include "qscreenoutput.h"
 #include <mode.h>
+#include <edid.h>
 
 #include <QtCore/QRect>
 
@@ -40,6 +41,7 @@ int getOutputId()
 QScreenOutput::QScreenOutput(const QScreen *qscreen, QObject* parent)
     : Output(parent)
     , m_qscreen(qscreen)
+    , m_edid(0)
 
 {
     updateFromQScreen(m_qscreen);
@@ -55,15 +57,25 @@ void QScreenOutput::updateFromQScreen(const QScreen *qscreen)
     // Initialize primary output
     setId(getOutputId());
     setName(qscreen->name());
-    setSizeMm(qscreen->size());
     setEnabled(true);
     setConnected(true);
     setPrimary(QGuiApplication::primaryScreen() == qscreen);
 
-    // Rotation
+    // FIXME: Rotation
 
+    // Physical size
+    QSize mm;
+    qreal physicalWidth;
+    physicalWidth = qscreen->size().width() / (qscreen->physicalDotsPerInchX() / 25.4);
+    mm.setWidth(qRound(physicalWidth));
+    qreal physicalHeight;
+    physicalHeight = qscreen->size().height() / (qscreen->physicalDotsPerInchY() / 25.4);
+    mm.setHeight(qRound(physicalHeight));
+    setSizeMm(mm);
+
+    // Modes: we create a single default mode and go with that
     Mode* mode = new Mode(this);
-    const QString modeid = QStringLiteral("14");
+    const QString modeid = QStringLiteral("defaultmode");
     mode->setId(modeid);
     mode->setRefreshRate(qscreen->refreshRate());
     mode->setSize(qscreen->size());
@@ -76,11 +88,20 @@ void QScreenOutput::updateFromQScreen(const QScreen *qscreen)
     ModeList modes;
     modes[modeid] = mode;
     setModes(modes);
-
-
-    qCDebug(KSCREEN_QSCREEN) << "   Output.setCurrentSize: " << sizeMm() << modename;
-
 }
+
+KScreen::Edid* QScreenOutput::edid() const
+{
+    qCDebug(KSCREEN_QSCREEN) << "NEWING";
+    if (!m_edid) {
+        qCDebug(KSCREEN_QSCREEN) << "NEWING FOR REALZ";
+        m_edid = new KScreen::Edid(0, 0, 0);
+    }
+
+    return m_edid;
+}
+
+
 
 
 #include "qscreenoutput.moc"
