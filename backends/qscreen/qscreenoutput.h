@@ -39,9 +39,12 @@ class QScreenOutput : public Output
         explicit QScreenOutput(const QScreen* qscreen, QObject* parent = 0);
         virtual ~QScreenOutput();
 
+        KScreen::Edid* edid() const;
+
     private:
         void updateFromQScreen(const QScreen *qscreen);
         const QScreen *m_qscreen;
+        mutable QPointer<KScreen::Edid> m_edid;
 };
 
 
