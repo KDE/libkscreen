@@ -90,18 +90,6 @@ void testQScreenBackend::verifyOutputs()
         QCOMPARE(output->rotation(), Output::None);
         QCOMPARE(output->pos(), QPoint(0, 0));
     }
-//     Output *output = config->outputs().take(327);
-//
-//     QCOMPARE(output->name(), QString("default"));
-//     QCOMPARE(output->type(), Output::Unknown);
-//     QCOMPARE(output->modes().count(), 15);
-//     QCOMPARE(output->pos(), QPoint(0, 0));
-//     QCOMPARE(output->currentModeId(), QLatin1String("338"));
-//     QCOMPARE(output->rotation(), Output::None);
-//     QCOMPARE(output->isConnected(), true);
-//     QCOMPARE(output->isEnabled(), true);
-//     QCOMPARE(output->isPrimary(), false);
-//     QVERIFY2(output->clones().isEmpty(), "In singleOutput is impossible to have clones");
 }
 
 void testQScreenBackend::verifyModes()
