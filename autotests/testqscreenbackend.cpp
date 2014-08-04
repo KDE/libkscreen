@@ -87,6 +87,8 @@ void testQScreenBackend::verifyOutputs()
         QVERIFY(output->isEnabled());
         QVERIFY(output->geometry() != QRectF(1,1,1,1));
         QVERIFY(output->geometry() != QRectF());
+        QCOMPARE(output->rotation(), Output::None);
+        QCOMPARE(output->pos(), QPoint(0, 0));
     }
 //     Output *output = config->outputs().take(327);
 //
