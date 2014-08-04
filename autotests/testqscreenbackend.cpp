@@ -25,6 +25,7 @@
 #include "../src/config.h"
 #include "../src/output.h"
 #include "../src/mode.h"
+#include "../src/edid.h"
 
 Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.qscreen");
 
@@ -36,38 +37,48 @@ class testQScreenBackend : public QObject
 
 private Q_SLOTS:
     void initTestCase();
+    void verifyConfig();
     void verifyOutputs();
     void verifyModes();
 
 private:
     QProcess m_process;
+    Config *m_config;
 };
 
 void testQScreenBackend::initTestCase()
 {
    setenv("KSCREEN_BACKEND", "qscreen", 1);
 //     setenv("KSCREEN_BACKEND", "xrandr", 1);
+
+    m_config = Config::current();
 }
 
-void testQScreenBackend::verifyOutputs()
+void testQScreenBackend::verifyConfig()
 {
-    Config *config = Config::current();
-    if (!config) {
+    QVERIFY(m_config != 0);
+    if (!m_config) {
         QSKIP("QScreenbackend invalid", SkipAll);
     }
 
+}
+
+
+void testQScreenBackend::verifyOutputs()
+{
+
     bool primaryFound = false;
-    foreach (const KScreen::Output* op, config->outputs()) {
+    foreach (const KScreen::Output* op, m_config->outputs()) {
         if (op->isPrimary()) {
             primaryFound = true;
         }
     }
     qDebug() << "Primary found? " << primaryFound;
     QVERIFY(primaryFound);
-    QVERIFY(config->screen()->maxActiveOutputsCount() > 0);
-    QCOMPARE(config->outputs().count(), QGuiApplication::screens().count());
+    QVERIFY(m_config->screen()->maxActiveOutputsCount() > 0);
+    QCOMPARE(m_config->outputs().count(), QGuiApplication::screens().count());
 
-    KScreen::Output *primary = config->primaryOutput();
+    KScreen::Output *primary = m_config->primaryOutput();
     qDebug() << "ppp" << primary;
     QVERIFY(primary->isEnabled());
     QVERIFY(primary->isConnected());
@@ -75,35 +86,35 @@ void testQScreenBackend::verifyOutputs()
     qDebug() << " prim modes: " << primary->modes();
 
 
-    foreach (auto output, config->outputs()) {
+    foreach (auto output, m_config->outputs()) {
         qDebug() << " _____________________ Output: " << output;
         qDebug() << "   output name: " << output->name();
         qDebug() << "   output modes: " << output->modes().count() << output->modes();
         qDebug() << "   output enabled: " << output->isEnabled();
         qDebug() << "   output connect: " << output->isConnected();
+        qDebug() << "   output sizeMm : " << output->sizeMm();
         QVERIFY(!output->name().isEmpty());
         QVERIFY(!output->id() > -1);
         QVERIFY(output->isConnected());
         QVERIFY(output->isEnabled());
         QVERIFY(output->geometry() != QRectF(1,1,1,1));
         QVERIFY(output->geometry() != QRectF());
+        QVERIFY(output->sizeMm() != QSize());
         QCOMPARE(output->rotation(), Output::None);
         QCOMPARE(output->pos(), QPoint(0, 0));
+        //qDebug() << "________________________________________________________" << output->edid();
+        //qDebug() << output->edid()->isValid();
+        //QVERIFY(!output->edid()->isValid());
     }
 }
 
 void testQScreenBackend::verifyModes()
 {
-    Config *config = Config::current();
-    if (!config) {
-        QSKIP("QScreenbackend invalid", SkipAll);
-    }
-
-    KScreen::Output *primary = config->primaryOutput();
+    KScreen::Output *primary = m_config->primaryOutput();
     QVERIFY(primary);
     QVERIFY(primary->modes().count() > 0);
 
-    foreach (auto output, config->outputs()) {
+    foreach (auto output, m_config->outputs()) {
         foreach (auto mode, output->modes()) {
             qDebug() << "   Mode   : " << mode->name();
             QVERIFY(!mode->name().isEmpty());
