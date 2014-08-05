@@ -37,8 +37,6 @@ class QScreenOutput : public Output
     Q_OBJECT
 
 public:
-    typedef QMap<int, QScreenOutput *> Map;
-
     explicit QScreenOutput(const QScreen *qscreen, QObject *parent = 0);
     virtual ~QScreenOutput();
 
@@ -46,7 +44,6 @@ public:
      *  creating the EDID per output, anyway, so a drop-in solution will "just work".
      */
     KScreen::Edid *fakeEdid();
-    KScreen::QScreenOutput::Map *outputMap() const;
 
 private:
     void updateFromQScreen(const QScreen *qscreen);
@@ -55,7 +52,5 @@ private:
 };
 
 } // namespace
-
-Q_DECLARE_METATYPE(KScreen::QScreenOutput::Map)
 
 #endif
