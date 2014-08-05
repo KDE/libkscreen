@@ -26,7 +26,6 @@
 #include <QScreen>
 
 
-
 using namespace KScreen;
 
 static int s_kscreenqscreenbackendOutputId = -1;
@@ -90,12 +89,12 @@ void QScreenOutput::updateFromQScreen(const QScreen *qscreen)
     setModes(modes);
 }
 
-KScreen::Edid* QScreenOutput::edid() const
+KScreen::Edid* QScreenOutput::fakeEdid()
 {
     qCDebug(KSCREEN_QSCREEN) << "NEWING";
     if (!m_edid) {
         qCDebug(KSCREEN_QSCREEN) << "NEWING FOR REALZ";
-        m_edid = new KScreen::Edid(0, 0, 0);
+        m_edid = new KScreen::Edid(0, 0, this);
     }
 
     return m_edid;

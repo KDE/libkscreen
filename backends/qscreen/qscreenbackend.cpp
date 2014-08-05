@@ -20,6 +20,7 @@
 
 #include "qscreenbackend.h"
 #include "qscreenconfig.h"
+#include "qscreenoutput.h"
 
 #include <configmonitor.h>
 #include <mode.h>
@@ -43,8 +44,10 @@ Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.qscreen");
 QScreenBackend::QScreenBackend(QObject* parent)
     : QObject(parent)
     , m_isValid(true)
+    , m_config(0)
 {
     QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.xrandr.debug = true"));
+    m_config =  new QScreenConfig(this);
 }
 
 QScreenBackend::~QScreenBackend()
@@ -70,7 +73,7 @@ void QScreenBackend::outputRemovedSlot()
 
 Config* QScreenBackend::config() const
 {
-    return new QScreenConfig();
+    return m_config;
 }
 
 
@@ -80,12 +83,18 @@ void QScreenBackend::setConfig(Config* config) const
         return;
     }
 
+    qWarning() << "The QScreen backend for libkscreen is read-only,";
+    qWarning() << "setting a configuration is not supported.";
+    qWarning() << "You can force another backend using the KSCREEN_BACKEND env var.";
 }
 
 Edid *QScreenBackend::edid(int outputId) const
 {
-    return 0;
-    //return output->edid();
+    QScreenOutput *output = m_config->outputMap().value(outputId);
+    if (!output) {
+        return 0;
+    }
+    return output->fakeEdid();
 }
 
 bool QScreenBackend::isValid() const
@@ -98,7 +107,6 @@ void QScreenBackend::updateConfig(Config *config) const
     Q_ASSERT(config != 0);
 
 }
-
 
 
 #include "qscreenbackend.moc"

@@ -29,6 +29,7 @@
 
 namespace KScreen {
     class Output;
+    class QScreenConfig;
 }
 
 class QScreenBackend : public QObject, public AbstractBackend
@@ -53,9 +54,8 @@ class QScreenBackend : public QObject, public AbstractBackend
         void outputRemovedSlot();
 
     private:
-        void qScreenToOutput(const QScreen *qscreen, KScreen::Output* output) const;
         bool m_isValid;
-        KScreen::Config* m_config;
+        KScreen::QScreenConfig* m_config;
 };
 
 Q_DECLARE_LOGGING_CATEGORY(KSCREEN_QSCREEN)
