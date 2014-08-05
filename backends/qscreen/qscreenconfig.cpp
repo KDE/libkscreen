@@ -73,17 +73,25 @@ void QScreenConfig::updateConfig()
 
         qCDebug(KSCREEN_QSCREEN) << "New Output: " << qscreen->name();
 
-        Output *output = new QScreenOutput(qscreen);
+        QScreenOutput *output = new QScreenOutput(qscreen);
 
         if (output->isPrimary()) {
             setPrimaryOutput(output);
         }
 
         outputList.insert(output->id(), output);
+        m_outputMap.insert(output->id(), output);
     }
+
 
     setScreen(screen);
     setOutputs(outputList);
+}
+
+
+QMap< int, QScreenOutput* > QScreenConfig::outputMap() const
+{
+    return m_outputMap;
 }
 
 

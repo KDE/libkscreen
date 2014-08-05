@@ -30,6 +30,7 @@
 
 namespace KScreen {
     class Output;
+    class QScreenOutput;
 
 class QScreenConfig : public Config
 {
@@ -39,8 +40,13 @@ class QScreenConfig : public Config
         explicit QScreenConfig(QObject* parent = 0);
         virtual ~QScreenConfig();
 
-    private Q_SLOTS:
+        QMap<int, QScreenOutput*> outputMap() const;
+
+private Q_SLOTS:
         void updateConfig();
+
+    private:
+        QMap<int, QScreenOutput*> m_outputMap;
 
 };
 
