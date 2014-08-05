@@ -100,11 +100,9 @@ void testQScreenBackend::verifyOutputs()
         QVERIFY(output->geometry() != QRectF(1,1,1,1));
         QVERIFY(output->geometry() != QRectF());
         QVERIFY(output->sizeMm() != QSize());
+        QVERIFY(output->edid() != 0);
         QCOMPARE(output->rotation(), Output::None);
         QCOMPARE(output->pos(), QPoint(0, 0));
-        //qDebug() << "________________________________________________________" << output->edid();
-        //qDebug() << output->edid()->isValid();
-        //QVERIFY(!output->edid()->isValid());
     }
 }
 
