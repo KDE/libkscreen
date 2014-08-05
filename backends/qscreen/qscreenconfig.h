@@ -51,6 +51,4 @@ private:
 
 } // namespace
 
-Q_DECLARE_LOGGING_CATEGORY(KSCREEN_QSCREEN)
-
 #endif // QSCREEN_CONFIG_H
