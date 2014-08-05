@@ -44,7 +44,6 @@ QScreenBackend::QScreenBackend(QObject *parent)
     , m_config(0)
 {
     QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.qscreen.debug = true"));
-    m_config =  new QScreenConfig(this);
 }
 
 QScreenBackend::~QScreenBackend()
@@ -70,7 +69,7 @@ void QScreenBackend::outputRemovedSlot()
 
 Config *QScreenBackend::config() const
 {
-    return m_config;
+    return new QScreenConfig();
 }
 
 void QScreenBackend::setConfig(Config *config) const
