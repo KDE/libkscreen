@@ -26,7 +26,14 @@ namespace KScreen {
     class Config;
     class Edid;
 }
-
+/** Abstract class for backends.
+ *
+ * The returned objects are expected to be memory-managed by the users. After creation,
+ * the backend assumes no ownership of the backends.
+ *
+ * This means that we can not keep track of objects after we returned them, as the user
+ * might have deleted the object.
+ */
 class AbstractBackend
 {
     public:
