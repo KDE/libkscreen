@@ -5,6 +5,7 @@ include_directories(${CMAKE_SOURCE_DIR}/src
 set(qscreen_SRCS
     qscreenbackend.cpp
     qscreenconfig.cpp
+    qscreenscreen.cpp
     qscreenoutput.cpp
 )
 
