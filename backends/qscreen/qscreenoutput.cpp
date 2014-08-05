@@ -69,6 +69,8 @@ void QScreenOutput::updateFromQScreen(const QScreen *qscreen)
     physicalHeight = qscreen->size().height() / (qscreen->physicalDotsPerInchY() / 25.4);
     mm.setHeight(qRound(physicalHeight));
     setSizeMm(mm);
+    qCDebug(KSCREEN_QSCREEN) << "  ####### availableGeometry: " << qscreen->availableGeometry();
+    setPos(qscreen->availableGeometry().topLeft());
 
     // Modes: we create a single default mode and go with that
     Mode *mode = new Mode(this);
@@ -76,6 +78,7 @@ void QScreenOutput::updateFromQScreen(const QScreen *qscreen)
     mode->setId(modeid);
     mode->setRefreshRate(qscreen->refreshRate());
     mode->setSize(qscreen->size());
+
 
     setCurrentModeId(modeid);
 

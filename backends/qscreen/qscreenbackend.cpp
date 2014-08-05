@@ -43,7 +43,7 @@ QScreenBackend::QScreenBackend(QObject *parent)
     , m_isValid(true)
     , m_config(0)
 {
-    QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.xrandr.debug = true"));
+    QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.qscreen.debug = true"));
     m_config =  new QScreenConfig(this);
 }
 

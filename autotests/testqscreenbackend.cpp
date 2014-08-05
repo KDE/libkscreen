@@ -60,9 +60,7 @@ void testQScreenBackend::verifyConfig()
     if (!m_config) {
         QSKIP("QScreenbackend invalid", SkipAll);
     }
-
 }
-
 
 void testQScreenBackend::verifyOutputs()
 {
