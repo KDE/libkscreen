@@ -31,7 +31,6 @@
 #include <QGuiApplication>
 #include <QScreen>
 
-
 using namespace KScreen;
 
 static int s_kscreenqscreenbackendScreenId = -1;
@@ -42,8 +41,7 @@ int getId()
     return s_kscreenqscreenbackendScreenId;
 }
 
-
-QScreenConfig::QScreenConfig(QObject* parent)
+QScreenConfig::QScreenConfig(QObject *parent)
     : Config(parent)
 
 {
@@ -57,7 +55,7 @@ QScreenConfig::~QScreenConfig()
 
 void QScreenConfig::updateConfig()
 {
-    Screen* screen = new Screen(this);
+    Screen *screen = new Screen(this);
     screen->setId(0001); // FIXME
 
     auto primary = QGuiApplication::primaryScreen();
@@ -69,7 +67,7 @@ void QScreenConfig::updateConfig()
 
     OutputList outputList;
 
-    foreach (const QScreen *qscreen, QGuiApplication::screens()) {
+    foreach(const QScreen * qscreen, QGuiApplication::screens()) {
 
         qCDebug(KSCREEN_QSCREEN) << "New Output: " << qscreen->name();
 
@@ -83,29 +81,14 @@ void QScreenConfig::updateConfig()
         m_outputMap.insert(output->id(), output);
     }
 
-
     setScreen(screen);
     setOutputs(outputList);
 }
 
-
-QMap< int, QScreenOutput* > QScreenConfig::outputMap() const
+QMap< int, QScreenOutput * > QScreenConfig::outputMap() const
 {
     return m_outputMap;
 }
 
-
 #include "qscreenconfig.moc"
-
-
-
-
-
-
-
-
-
-
-
-
 

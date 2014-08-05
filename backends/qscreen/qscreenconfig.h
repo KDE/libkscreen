@@ -19,8 +19,6 @@
 #ifndef QSCREEN_CONFIG_H
 #define QSCREEN_CONFIG_H
 
-
-
 #include "../abstractbackend.h"
 #include "config.h"
 
@@ -28,28 +26,28 @@
 #include <QtCore/QSize>
 #include <QLoggingCategory>
 
-namespace KScreen {
-    class Output;
-    class QScreenOutput;
+namespace KScreen
+{
+class Output;
+class QScreenOutput;
 
 class QScreenConfig : public Config
 {
     Q_OBJECT
 
-    public:
-        explicit QScreenConfig(QObject* parent = 0);
-        virtual ~QScreenConfig();
+public:
+    explicit QScreenConfig(QObject *parent = 0);
+    virtual ~QScreenConfig();
 
-        QMap<int, QScreenOutput*> outputMap() const;
+    QMap<int, QScreenOutput *> outputMap() const;
 
 private Q_SLOTS:
-        void updateConfig();
+    void updateConfig();
 
-    private:
-        QMap<int, QScreenOutput*> m_outputMap;
+private:
+    QMap<int, QScreenOutput *> m_outputMap;
 
 };
-
 
 } // namespace
 
