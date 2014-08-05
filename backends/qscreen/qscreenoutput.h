@@ -29,31 +29,30 @@
 #include <QtCore/QSize>
 #include <QLoggingCategory>
 
-namespace KScreen {
+namespace KScreen
+{
 
 class QScreenOutput : public Output
 {
     Q_OBJECT
 
-    public:
-        typedef QMap<int, QScreenOutput*> Map;
+public:
+    typedef QMap<int, QScreenOutput *> Map;
 
-        explicit QScreenOutput(const QScreen* qscreen, QObject* parent = 0);
-        virtual ~QScreenOutput();
+    explicit QScreenOutput(const QScreen *qscreen, QObject *parent = 0);
+    virtual ~QScreenOutput();
 
-        /** QScreen doesn't support querying for the EDID, this function centralizes
-         *  creating the EDID per output, anyway, so a drop-in solution will "just work".
-         */
-        KScreen::Edid* fakeEdid();
-        KScreen::QScreenOutput::Map* outputMap() const;
+    /** QScreen doesn't support querying for the EDID, this function centralizes
+     *  creating the EDID per output, anyway, so a drop-in solution will "just work".
+     */
+    KScreen::Edid *fakeEdid();
+    KScreen::QScreenOutput::Map *outputMap() const;
 
-    private:
-        void updateFromQScreen(const QScreen *qscreen);
-        const QScreen *m_qscreen;
-        mutable QPointer<KScreen::Edid> m_edid;
+private:
+    void updateFromQScreen(const QScreen *qscreen);
+    const QScreen *m_qscreen;
+    mutable QPointer<KScreen::Edid> m_edid;
 };
-
-
 
 } // namespace
 

@@ -34,14 +34,11 @@
 #include <QGuiApplication>
 #include <QScreen>
 
-
-
 using namespace KScreen;
 
 Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.qscreen");
 
-
-QScreenBackend::QScreenBackend(QObject* parent)
+QScreenBackend::QScreenBackend(QObject *parent)
     : QObject(parent)
     , m_isValid(true)
     , m_config(0)
@@ -71,13 +68,12 @@ void QScreenBackend::outputRemovedSlot()
     KScreen::ConfigMonitor::instance()->notifyUpdate();
 }
 
-Config* QScreenBackend::config() const
+Config *QScreenBackend::config() const
 {
     return m_config;
 }
 
-
-void QScreenBackend::setConfig(Config* config) const
+void QScreenBackend::setConfig(Config *config) const
 {
     if (!config) {
         return;
@@ -107,7 +103,6 @@ void QScreenBackend::updateConfig(Config *config) const
     Q_ASSERT(config != 0);
 
 }
-
 
 #include "qscreenbackend.moc"
 

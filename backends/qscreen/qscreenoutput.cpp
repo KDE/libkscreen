@@ -25,7 +25,6 @@
 #include <QGuiApplication>
 #include <QScreen>
 
-
 using namespace KScreen;
 
 static int s_kscreenqscreenbackendOutputId = -1;
@@ -36,8 +35,7 @@ int getOutputId()
     return s_kscreenqscreenbackendOutputId;
 }
 
-
-QScreenOutput::QScreenOutput(const QScreen *qscreen, QObject* parent)
+QScreenOutput::QScreenOutput(const QScreen *qscreen, QObject *parent)
     : Output(parent)
     , m_qscreen(qscreen)
     , m_edid(0)
@@ -73,7 +71,7 @@ void QScreenOutput::updateFromQScreen(const QScreen *qscreen)
     setSizeMm(mm);
 
     // Modes: we create a single default mode and go with that
-    Mode* mode = new Mode(this);
+    Mode *mode = new Mode(this);
     const QString modeid = QStringLiteral("defaultmode");
     mode->setId(modeid);
     mode->setRefreshRate(qscreen->refreshRate());
@@ -89,7 +87,7 @@ void QScreenOutput::updateFromQScreen(const QScreen *qscreen)
     setModes(modes);
 }
 
-KScreen::Edid* QScreenOutput::fakeEdid()
+KScreen::Edid *QScreenOutput::fakeEdid()
 {
     qCDebug(KSCREEN_QSCREEN) << "NEWING";
     if (!m_edid) {
@@ -99,8 +97,5 @@ KScreen::Edid* QScreenOutput::fakeEdid()
 
     return m_edid;
 }
-
-
-
 
 #include "qscreenoutput.moc"

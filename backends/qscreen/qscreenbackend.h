@@ -27,9 +27,10 @@
 #include <QtCore/QSize>
 #include <QLoggingCategory>
 
-namespace KScreen {
-    class Output;
-    class QScreenConfig;
+namespace KScreen
+{
+class Output;
+class QScreenConfig;
 }
 
 class QScreenBackend : public QObject, public AbstractBackend
@@ -38,24 +39,24 @@ class QScreenBackend : public QObject, public AbstractBackend
     Q_INTERFACES(AbstractBackend)
     Q_PLUGIN_METADATA(IID "org.kf5.kscreen.backends.qscreen")
 
-    public:
-        explicit QScreenBackend(QObject* parent = 0);
-        virtual ~QScreenBackend();
+public:
+    explicit QScreenBackend(QObject *parent = 0);
+    virtual ~QScreenBackend();
 
-        virtual QString name() const;
-        virtual KScreen::Config* config() const;
-        virtual void setConfig(KScreen::Config* config) const;
-        virtual bool isValid() const;
-        virtual KScreen::Edid *edid(int outputId) const;
-        virtual void updateConfig(KScreen::Config *config) const;
+    virtual QString name() const;
+    virtual KScreen::Config *config() const;
+    virtual void setConfig(KScreen::Config *config) const;
+    virtual bool isValid() const;
+    virtual KScreen::Edid *edid(int outputId) const;
+    virtual void updateConfig(KScreen::Config *config) const;
 
-    private Q_SLOTS:
-        void updateConfig();
-        void outputRemovedSlot();
+private Q_SLOTS:
+    void updateConfig();
+    void outputRemovedSlot();
 
-    private:
-        bool m_isValid;
-        KScreen::QScreenConfig* m_config;
+private:
+    bool m_isValid;
+    KScreen::QScreenConfig *m_config;
 };
 
 Q_DECLARE_LOGGING_CATEGORY(KSCREEN_QSCREEN)
