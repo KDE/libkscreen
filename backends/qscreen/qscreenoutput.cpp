@@ -17,6 +17,8 @@
  *************************************************************************************/
 
 #include "qscreenoutput.h"
+#include "qscreenbackend.h"
+
 #include <mode.h>
 #include <edid.h>
 
@@ -69,6 +71,7 @@ void QScreenOutput::updateFromQScreen(const QScreen *qscreen)
     physicalHeight = qscreen->size().height() / (qscreen->physicalDotsPerInchY() / 25.4);
     mm.setHeight(qRound(physicalHeight));
     setSizeMm(mm);
+    qCDebug(KSCREEN_QSCREEN) << "  ####### setSizeMm: " << mm;
     qCDebug(KSCREEN_QSCREEN) << "  ####### availableGeometry: " << qscreen->availableGeometry();
     setPos(qscreen->availableGeometry().topLeft());
 
@@ -78,7 +81,6 @@ void QScreenOutput::updateFromQScreen(const QScreen *qscreen)
     mode->setId(modeid);
     mode->setRefreshRate(qscreen->refreshRate());
     mode->setSize(qscreen->size());
-
 
     setCurrentModeId(modeid);
 

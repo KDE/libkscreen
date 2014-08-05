@@ -16,6 +16,7 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
+#include "qscreenbackend.h"
 #include "qscreenscreen.h"
 #include "qscreenoutput.h"
 
@@ -46,7 +47,6 @@ QScreenScreen::QScreenScreen(Config *config)
     , m_config(config)
 
 {
-    QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.xrandr.debug = true"));
     updateConfig();
     connect(qApp, &QGuiApplication::screenAdded, this, &QScreenScreen::screenAdded);
 }
