@@ -111,15 +111,3 @@ void QScreenBackend::updateConfig(Config *config) const
 
 #include "qscreenbackend.moc"
 
-
-
-
-
-
-
-
-
-
-
-
-
