@@ -45,6 +45,8 @@ public:
      */
     KScreen::Edid *fakeEdid();
 
+    const QScreen* qscreen() const;
+
 private:
     void updateFromQScreen(const QScreen *qscreen);
     const QScreen *m_qscreen;

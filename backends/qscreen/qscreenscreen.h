@@ -16,11 +16,12 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
-#ifndef QSCREEN_CONFIG_H
-#define QSCREEN_CONFIG_H
+#ifndef QSCREEN_SCREEN_H
+#define QSCREEN_SCREEN_H
 
 #include "../abstractbackend.h"
 #include "config.h"
+#include "screen.h"
 
 #include <QScreen>
 #include <QtCore/QSize>
@@ -30,23 +31,25 @@ namespace KScreen
 {
 class Output;
 class QScreenOutput;
-class QScreenScreen;
 
-class QScreenConfig : public Config
+class QScreenScreen : public Screen
 {
     Q_OBJECT
 
 public:
-    explicit QScreenConfig(QObject *parent = 0);
-    virtual ~QScreenConfig();
+    explicit QScreenScreen(Config *config);
+    virtual ~QScreenScreen();
 
-    QMap<int, QScreenOutput *> outputMap() const;
+    QMap< int, QScreenOutput * > outputMap() const;
 
 private Q_SLOTS:
     void updateConfig();
+    void screenAdded(QScreen *qscreen);
 
 private:
-    QScreenScreen *m_screen;
+    QMap<int, QScreenOutput *> m_outputMap;
+    Config *m_config;
+
 };
 
 } // namespace

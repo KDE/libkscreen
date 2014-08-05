@@ -98,4 +98,10 @@ KScreen::Edid *QScreenOutput::fakeEdid()
     return m_edid;
 }
 
+const QScreen* QScreenOutput::qscreen() const
+{
+    return m_qscreen;
+}
+
+
 #include "qscreenoutput.moc"
