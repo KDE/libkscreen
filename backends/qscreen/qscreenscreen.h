@@ -32,16 +32,17 @@ namespace KScreen
 class Output;
 class QScreenOutput;
 
-class QScreenScreen : public Screen
+class QScreenScreen : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit QScreenScreen(Config *config);
+    explicit QScreenScreen(QScreenConfig *config);
     virtual ~QScreenScreen();
 
     KScreen::Screen *toKScreenScreen(KScreen::Config *parent) const;
     void updateKScreenScreen(KScreen::Screen *screen) const;
+
     QMap< int, QScreenOutput * > outputMap() const;
 
 private Q_SLOTS:
@@ -50,7 +51,7 @@ private Q_SLOTS:
 
 private:
     QMap<int, QScreenOutput *> m_outputMap;
-    Config *m_config;
+    QScreenConfig *m_config;
 
 };
 

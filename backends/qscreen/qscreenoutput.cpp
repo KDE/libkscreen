@@ -44,12 +44,15 @@ int getOutputId(const QScreen *qscreen)
 
 
 QScreenOutput::QScreenOutput(const QScreen *qscreen, QObject *parent)
-    : Output(parent)
+    : QObject(parent)
     , m_qscreen(qscreen)
     , m_edid(0)
+    , m_id(getOutputId(qscreen))
 
 {
-    updateFromQScreen(m_qscreen);
+//    updateFromQScreen(m_qscreen);
+    //getOutputId(m_qscreen);
+
 }
 
 QScreenOutput::~QScreenOutput()
@@ -58,8 +61,13 @@ QScreenOutput::~QScreenOutput()
 
 void QScreenOutput::updateFromQScreen(const QScreen *qscreen)
 {
-
 }
+
+int QScreenOutput::id() const
+{
+    return m_id;
+}
+
 
 KScreen::Edid *QScreenOutput::fakeEdid()
 {
@@ -80,7 +88,7 @@ const QScreen* QScreenOutput::qscreen() const
 Output* QScreenOutput::toKScreenOutput(Config* parent) const
 {
     Output *output = new Output(parent);
-    output->setId(getOutputId(m_qscreen));
+    output->setId(m_id);
     output->setName(m_qscreen->name());
     updateKScreenOutput(output);
     return output;

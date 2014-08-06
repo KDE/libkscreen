@@ -19,6 +19,7 @@
 #include "qscreenconfig.h"
 #include "qscreenoutput.h"
 #include "qscreenscreen.h"
+#include "qscreenbackend.h"
 
 #include <configmonitor.h>
 #include <mode.h>
@@ -35,12 +36,11 @@
 using namespace KScreen;
 
 QScreenConfig::QScreenConfig(QObject *parent)
-    : Config(parent)
+    : QObject(parent)
     , m_screen(new QScreenScreen(this))
 
 {
-    QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.qscreen.debug = true"));
-    //updateConfig();
+    updateOutputsInternal();
 }
 
 QScreenConfig::~QScreenConfig()
@@ -51,21 +51,53 @@ Config* QScreenConfig::toKScreenConfig() const
 {
     Config *config = new Config();
     // FIXME: set outputs
+    updateKScreenConfig(config);
     config->setScreen(m_screen->toKScreenScreen(config));
     // FIXME: set primary
     return config;
 }
 
-void QScreenConfig::updateKScreenConfig(Config* config) const
+void QScreenConfig::updateOutputsInternal()
 {
+    foreach (auto output, m_outputMap.values()) {
+        delete output;
+    }
+    m_outputMap.clear();
+
+    OutputList outputList;
+    foreach(const QScreen * qscreen, QGuiApplication::screens()) {
+
+        qCDebug(KSCREEN_QSCREEN) << "New Output: " << qscreen->name();
+
+        QScreenOutput *qscreenoutput = new QScreenOutput(qscreen, this);
+        m_outputMap.insert(qscreenoutput->id(), qscreenoutput);
+    }
 
 }
 
 
-void QScreenConfig::updateConfig()
+void QScreenConfig::updateKScreenConfig(Config* config) const
 {
-    m_screen = new QScreenScreen(this);
-    setScreen(m_screen);
+//     foreach (auto output, m_outputMap.values()) {
+//         delete output;
+//     }
+//     m_outputMap.clear();
+
+    OutputList outputList;
+    foreach(auto qscreenoutput, m_outputMap.values()) {
+
+        //qCDebug(KSCREEN_QSCREEN) << "New Output: " << qscreen->name();
+
+        Output *output = qscreenoutput->toKScreenOutput(config);
+
+        if (QGuiApplication::primaryScreen() == qscreenoutput->qscreen()) {
+            config->setPrimaryOutput(output);
+
+        }
+
+        outputList.insert(output->id(), output);
+    }
+    config->setOutputs(outputList);
 }
 
 QMap< int, QScreenOutput * > QScreenConfig::outputMap() const

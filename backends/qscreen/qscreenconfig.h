@@ -32,7 +32,7 @@ class Output;
 class QScreenOutput;
 class QScreenScreen;
 
-class QScreenConfig : public Config
+class QScreenConfig : public QObject
 {
     Q_OBJECT
 
@@ -44,10 +44,9 @@ public:
     void updateKScreenConfig(KScreen::Config *config) const;
     QMap<int, QScreenOutput *> outputMap() const;
 
-private Q_SLOTS:
-    void updateConfig();
-
 private:
+    void updateOutputsInternal();
+    QMap<int, QScreenOutput *> m_outputMap;
     QScreenScreen *m_screen;
 };
 
