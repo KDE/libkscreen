@@ -56,7 +56,8 @@ private Q_SLOTS:
 
 private:
     bool m_isValid;
-    KScreen::QScreenConfig *m_config;
+    KScreen::QScreenConfig *m_config; // FIXME: remove
+    static KScreen::QScreenConfig *s_internalConfig;
 };
 
 Q_DECLARE_LOGGING_CATEGORY(KSCREEN_QSCREEN)

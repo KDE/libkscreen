@@ -58,45 +58,66 @@ QScreenScreen::~QScreenScreen()
 void QScreenScreen::screenAdded(QScreen* qscreen)
 {
     qCDebug(KSCREEN_QSCREEN) << "Screen added!!! Updating config..";
-    updateConfig(); // FIXME: We want to be a bit smarter here.
+//     updateConfig(); // FIXME: We want to be a bit smarter here.
 }
 
 
 void QScreenScreen::updateConfig()
 {
-    setId(getId());
-
-    auto primary = QGuiApplication::primaryScreen();
-    QSize _s = primary->availableVirtualGeometry().size();
-    setMinSize(_s);
-    setMaxSize(_s);
-    setCurrentSize(_s);
-    setMaxActiveOutputsCount(QGuiApplication::screens().count());
-
-    OutputList outputList;
-
-    foreach(const QScreen * qscreen, QGuiApplication::screens()) {
-
-        qCDebug(KSCREEN_QSCREEN) << "New Output: " << qscreen->name();
-
-        QScreenOutput *output = new QScreenOutput(qscreen);
-
-        if (output->isPrimary()) {
-            m_config->setPrimaryOutput(output);
-
-        }
-
-        outputList.insert(output->id(), output);
-        m_outputMap.insert(output->id(), output);
-    }
-
-    m_config->setOutputs(outputList);
+//     setId(getId());
+//
+//     auto primary = QGuiApplication::primaryScreen();
+//     QSize _s = primary->availableVirtualGeometry().size();
+//     setMinSize(_s);
+//     setMaxSize(_s);
+//     setCurrentSize(_s);
+//     setMaxActiveOutputsCount(QGuiApplication::screens().count());
+//
+//     OutputList outputList;
+//
+//     foreach(const QScreen * qscreen, QGuiApplication::screens()) {
+//
+//         qCDebug(KSCREEN_QSCREEN) << "New Output: " << qscreen->name();
+//
+//         QScreenOutput *output = new QScreenOutput(qscreen);
+//
+//         if (output->isPrimary()) {
+//             m_config->setPrimaryOutput(output);
+//
+//         }
+//
+//         outputList.insert(output->id(), output);
+//         m_outputMap.insert(output->id(), output);
+//     }
+//
+//     m_config->setOutputs(outputList);
 }
 
 QMap< int, QScreenOutput * > QScreenScreen::outputMap() const
 {
     return m_outputMap;
 }
+
+Screen* QScreenScreen::toKScreenScreen(Config* parent) const
+{
+    KScreen::Screen *kscreenScreen = new KScreen::Screen(parent);
+    updateKScreenScreen(kscreenScreen);
+    return kscreenScreen;
+}
+
+void QScreenScreen::updateKScreenScreen(Screen* screen) const
+{
+    auto primary = QGuiApplication::primaryScreen();
+    QSize _s = primary->availableVirtualGeometry().size();
+
+    screen->setCurrentSize(_s);
+    screen->setId(1);
+    screen->setMaxSize(_s);
+    screen->setMinSize(_s);
+    screen->setCurrentSize(_s);
+    screen->setMaxActiveOutputsCount(QGuiApplication::screens().count());
+}
+
 
 #include "qscreenscreen.moc"
 

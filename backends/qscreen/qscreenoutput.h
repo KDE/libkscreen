@@ -40,10 +40,14 @@ public:
     explicit QScreenOutput(const QScreen *qscreen, QObject *parent = 0);
     virtual ~QScreenOutput();
 
+    KScreen::Output* toKScreenOutput(KScreen::Config *parent) const;
+    void updateKScreenOutput(KScreen::Output *output) const;
+
     /** QScreen doesn't support querying for the EDID, this function centralizes
      *  creating the EDID per output, anyway, so a drop-in solution will "just work".
      */
     KScreen::Edid *fakeEdid();
+
 
     const QScreen* qscreen() const;
 

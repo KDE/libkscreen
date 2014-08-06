@@ -40,6 +40,8 @@ public:
     explicit QScreenScreen(Config *config);
     virtual ~QScreenScreen();
 
+    KScreen::Screen *toKScreenScreen(KScreen::Config *parent) const;
+    void updateKScreenScreen(KScreen::Screen *screen) const;
     QMap< int, QScreenOutput * > outputMap() const;
 
 private Q_SLOTS:

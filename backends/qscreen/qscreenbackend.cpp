@@ -38,12 +38,21 @@ using namespace KScreen;
 
 Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.qscreen");
 
+QScreenConfig* QScreenBackend::s_internalConfig = 0;
+
 QScreenBackend::QScreenBackend(QObject *parent)
     : QObject(parent)
     , m_isValid(true)
     , m_config(0)
 {
     QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.qscreen.debug = true"));
+<<<<<<< HEAD
+=======
+
+    if (s_internalConfig == 0) {
+        s_internalConfig = new QScreenConfig();
+    }
+>>>>>>> First part of re-jigging the memory management
 }
 
 QScreenBackend::~QScreenBackend()
@@ -69,7 +78,7 @@ void QScreenBackend::outputRemovedSlot()
 
 Config *QScreenBackend::config() const
 {
-    return new QScreenConfig();
+    return s_internalConfig->toKScreenConfig();
 }
 
 void QScreenBackend::setConfig(Config *config) const
