@@ -38,6 +38,7 @@ class testQScreenBackend : public QObject
 private Q_SLOTS:
     void initTestCase();
     void verifyConfig();
+    void verifyScreen();
     void verifyOutputs();
     void verifyModes();
     void commonUsagePattern();
@@ -66,6 +67,22 @@ void testQScreenBackend::verifyConfig()
     }
 }
 
+void testQScreenBackend::verifyScreen()
+{
+    Screen *screen = m_config->screen();
+
+    QVERIFY(screen->minSize().width() <= screen->maxSize().width());
+    QVERIFY(screen->minSize().height() <= screen->maxSize().height());
+
+    QVERIFY(screen->minSize().width() <= screen->currentSize().width());
+    QVERIFY(screen->minSize().height() <= screen->currentSize().height());
+
+    QVERIFY(screen->maxSize().width() >= screen->currentSize().width());
+    QVERIFY(screen->maxSize().height() >= screen->currentSize().height());
+    QVERIFY(m_config->screen()->maxActiveOutputsCount() > 0);
+}
+
+
 void testQScreenBackend::verifyOutputs()
 {
 
@@ -77,7 +94,6 @@ void testQScreenBackend::verifyOutputs()
     }
     qDebug() << "Primary found? " << primaryFound;
     QVERIFY(primaryFound);
-    QVERIFY(m_config->screen()->maxActiveOutputsCount() > 0);
     if (m_backend == QStringLiteral("screen")) {
         QCOMPARE(m_config->outputs().count(), QGuiApplication::screens().count());
     }
