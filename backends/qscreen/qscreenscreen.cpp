@@ -34,14 +34,6 @@
 
 using namespace KScreen;
 
-static int s_kscreenqscreenbackendScreenId = -1;
-
-int getId()
-{
-    s_kscreenqscreenbackendScreenId++;
-    return s_kscreenqscreenbackendScreenId;
-}
-
 QScreenScreen::QScreenScreen(QScreenConfig *config)
     : QObject(config)
 
@@ -56,6 +48,8 @@ QScreenScreen::~QScreenScreen()
 void QScreenScreen::screenAdded(QScreen* qscreen)
 {
     qCDebug(KSCREEN_QSCREEN) << "Screen added!!! Updating config..";
+    // FIXME: handle screenAdded
+    // FIXME: handle screenRemoved as well
 }
 
 Screen* QScreenScreen::toKScreenScreen(Config* parent) const

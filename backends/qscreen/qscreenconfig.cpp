@@ -53,8 +53,8 @@ QScreenConfig::~QScreenConfig()
 Config* QScreenConfig::toKScreenConfig() const
 {
     Config *config = new Config();
-    updateKScreenConfig(config);
     config->setScreen(m_screen->toKScreenScreen(config));
+    updateKScreenConfig(config);
     return config;
 }
 
@@ -75,6 +75,16 @@ void QScreenConfig::updateOutputsInternal()
 
 void QScreenConfig::updateKScreenConfig(Config* config) const
 {
+    m_screen->updateKScreenScreen(config->screen());
+
+    //Removing removed outputs
+    KScreen::OutputList outputs = config->outputs();
+    Q_FOREACH(KScreen::Output *output, outputs) {
+        if (!m_outputMap.keys().contains(output->id())) {
+            config->removeOutput(output->id());
+        }
+    }
+
     OutputList outputList;
     foreach(auto qscreenoutput, m_outputMap.values()) {
         Output *output = qscreenoutput->toKScreenOutput(config);

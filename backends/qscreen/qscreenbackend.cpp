@@ -53,7 +53,6 @@ QScreenBackend::QScreenBackend(QObject *parent)
 
 QScreenBackend::~QScreenBackend()
 {
-
 }
 
 QString QScreenBackend::name() const
@@ -106,7 +105,7 @@ bool QScreenBackend::isValid() const
 void QScreenBackend::updateConfig(Config *config) const
 {
     Q_ASSERT(config != 0);
-
+    s_internalConfig->updateKScreenConfig(config);
 }
 
 #include "qscreenbackend.moc"
