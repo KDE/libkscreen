@@ -114,7 +114,7 @@ void testQScreenBackend::verifyOutputs()
         qDebug() << "   output connect: " << output->isConnected();
         qDebug() << "   output sizeMm : " << output->sizeMm();
         QVERIFY(!output->name().isEmpty());
-        QVERIFY(!output->id() > -1);
+        QVERIFY(output->id() > -1);
         QVERIFY(output->isConnected());
         QVERIFY(output->isEnabled());
         QVERIFY(output->geometry() != QRectF(1,1,1,1));
@@ -122,7 +122,6 @@ void testQScreenBackend::verifyOutputs()
         QVERIFY(output->sizeMm() != QSize());
         QVERIFY(output->edid() != 0);
         QCOMPARE(output->rotation(), Output::None);
-        QCOMPARE(output->pos(), QPoint(0, 0));
     }
 }
 
