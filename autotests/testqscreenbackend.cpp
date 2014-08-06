@@ -44,12 +44,14 @@ private Q_SLOTS:
 private:
     QProcess m_process;
     Config *m_config;
+    QString m_backend;
 };
 
 void testQScreenBackend::initTestCase()
 {
    setenv("KSCREEN_BACKEND", "qscreen", 1);
 //     setenv("KSCREEN_BACKEND", "xrandr", 1);
+    m_backend = qgetenv("KSCREEN_BACKEND").constData();
 
     m_config = Config::current();
 }
@@ -74,7 +76,9 @@ void testQScreenBackend::verifyOutputs()
     qDebug() << "Primary found? " << primaryFound;
     QVERIFY(primaryFound);
     QVERIFY(m_config->screen()->maxActiveOutputsCount() > 0);
-    QCOMPARE(m_config->outputs().count(), QGuiApplication::screens().count());
+    if (m_backend == QStringLiteral("screen")) {
+        QCOMPARE(m_config->outputs().count(), QGuiApplication::screens().count());
+    }
 
     KScreen::Output *primary = m_config->primaryOutput();
     qDebug() << "ppp" << primary;
@@ -98,7 +102,7 @@ void testQScreenBackend::verifyOutputs()
         QVERIFY(output->geometry() != QRectF(1,1,1,1));
         QVERIFY(output->geometry() != QRectF());
         QVERIFY(output->sizeMm() != QSize());
-        QVERIFY(output->edid() != 0);
+        //QVERIFY(output->edid() != 0);
         QCOMPARE(output->rotation(), Output::None);
         QCOMPARE(output->pos(), QPoint(0, 0));
     }

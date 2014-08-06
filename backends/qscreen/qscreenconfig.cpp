@@ -36,15 +36,31 @@ using namespace KScreen;
 
 QScreenConfig::QScreenConfig(QObject *parent)
     : Config(parent)
+    , m_screen(new QScreenScreen(this))
 
 {
     QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.qscreen.debug = true"));
-    updateConfig();
+    //updateConfig();
 }
 
 QScreenConfig::~QScreenConfig()
 {
 }
+
+Config* QScreenConfig::toKScreenConfig() const
+{
+    Config *config = new Config();
+    // FIXME: set outputs
+    config->setScreen(m_screen->toKScreenScreen(config));
+    // FIXME: set primary
+    return config;
+}
+
+void QScreenConfig::updateKScreenConfig(Config* config) const
+{
+
+}
+
 
 void QScreenConfig::updateConfig()
 {

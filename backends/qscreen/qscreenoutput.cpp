@@ -29,13 +29,19 @@
 
 using namespace KScreen;
 
+// Book-keeping for ids, make sure we map the id to the right QScreen, and only once.
 static int s_kscreenqscreenbackendOutputId = -1;
+static QHash<const QScreen*, int> s_kscreenqscreenbackendOutputIdTable;
 
-int getOutputId()
+int getOutputId(const QScreen *qscreen)
 {
-    s_kscreenqscreenbackendOutputId++;
-    return s_kscreenqscreenbackendOutputId;
+    if (!s_kscreenqscreenbackendOutputIdTable.contains(qscreen)) {
+        s_kscreenqscreenbackendOutputId++;
+        s_kscreenqscreenbackendOutputIdTable.insert(qscreen, s_kscreenqscreenbackendOutputId);
+    }
+    return s_kscreenqscreenbackendOutputIdTable.value(qscreen);
 }
+
 
 QScreenOutput::QScreenOutput(const QScreen *qscreen, QObject *parent)
     : Output(parent)
@@ -53,43 +59,6 @@ QScreenOutput::~QScreenOutput()
 void QScreenOutput::updateFromQScreen(const QScreen *qscreen)
 {
 
-    // Initialize primary output
-    setId(getOutputId());
-    setName(qscreen->name());
-    setEnabled(true);
-    setConnected(true);
-    setPrimary(QGuiApplication::primaryScreen() == qscreen);
-
-    // FIXME: Rotation
-
-    // Physical size
-    QSize mm;
-    qreal physicalWidth;
-    physicalWidth = qscreen->size().width() / (qscreen->physicalDotsPerInchX() / 25.4);
-    mm.setWidth(qRound(physicalWidth));
-    qreal physicalHeight;
-    physicalHeight = qscreen->size().height() / (qscreen->physicalDotsPerInchY() / 25.4);
-    mm.setHeight(qRound(physicalHeight));
-    setSizeMm(mm);
-    qCDebug(KSCREEN_QSCREEN) << "  ####### setSizeMm: " << mm;
-    qCDebug(KSCREEN_QSCREEN) << "  ####### availableGeometry: " << qscreen->availableGeometry();
-    setPos(qscreen->availableGeometry().topLeft());
-
-    // Modes: we create a single default mode and go with that
-    Mode *mode = new Mode(this);
-    const QString modeid = QStringLiteral("defaultmode");
-    mode->setId(modeid);
-    mode->setRefreshRate(qscreen->refreshRate());
-    mode->setSize(qscreen->size());
-
-    setCurrentModeId(modeid);
-
-    const QString modename = QString::number(qscreen->size().width()) + QStringLiteral("x") + QString::number(qscreen->size().height()) + QStringLiteral("@") + QString::number(qscreen->refreshRate());
-    mode->setName(modename);
-
-    ModeList modes;
-    modes[modeid] = mode;
-    setModes(modes);
 }
 
 KScreen::Edid *QScreenOutput::fakeEdid()
@@ -106,6 +75,55 @@ KScreen::Edid *QScreenOutput::fakeEdid()
 const QScreen* QScreenOutput::qscreen() const
 {
     return m_qscreen;
+}
+
+Output* QScreenOutput::toKScreenOutput(Config* parent) const
+{
+    Output *output = new Output(parent);
+    output->setId(getOutputId(m_qscreen));
+    output->setName(m_qscreen->name());
+    updateKScreenOutput(output);
+    return output;
+}
+
+void QScreenOutput::updateKScreenOutput(Output* output) const
+{
+    // Initialize primary output
+    output->setEnabled(true);
+    output->setConnected(true);
+    output->setPrimary(QGuiApplication::primaryScreen() == m_qscreen);
+
+    // FIXME: Rotation
+
+    // Physical size
+    QSize mm;
+    qreal physicalWidth;
+    physicalWidth = m_qscreen->size().width() / (m_qscreen->physicalDotsPerInchX() / 25.4);
+    mm.setWidth(qRound(physicalWidth));
+    qreal physicalHeight;
+    physicalHeight = m_qscreen->size().height() / (m_qscreen->physicalDotsPerInchY() / 25.4);
+    mm.setHeight(qRound(physicalHeight));
+    output->setSizeMm(mm);
+    qCDebug(KSCREEN_QSCREEN) << "  ####### setSizeMm: " << mm;
+    qCDebug(KSCREEN_QSCREEN) << "  ####### availableGeometry: " << m_qscreen->availableGeometry();
+    output->setPos(m_qscreen->availableGeometry().topLeft());
+
+    // Modes: we create a single default mode and go with that
+    Mode *mode = new Mode(output);
+    const QString modeid = QStringLiteral("defaultmode");
+    mode->setId(modeid);
+    mode->setRefreshRate(m_qscreen->refreshRate());
+    mode->setSize(m_qscreen->size());
+
+
+    const QString modename = QString::number(m_qscreen->size().width()) + QStringLiteral("x") + QString::number(m_qscreen->size().height()) + QStringLiteral("@") + QString::number(m_qscreen->refreshRate());
+    mode->setName(modename);
+
+    ModeList modes;
+    modes[modeid] = mode;
+    output->setModes(modes);
+    output->setCurrentModeId(modeid);
+
 }
 
 
