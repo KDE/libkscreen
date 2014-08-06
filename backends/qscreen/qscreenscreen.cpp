@@ -42,8 +42,8 @@ int getId()
     return s_kscreenqscreenbackendScreenId;
 }
 
-QScreenScreen::QScreenScreen(Config *config)
-    : Screen(config)
+QScreenScreen::QScreenScreen(QScreenConfig *config)
+    : QObject(config)
     , m_config(config)
 
 {
@@ -117,7 +117,6 @@ void QScreenScreen::updateKScreenScreen(Screen* screen) const
     screen->setCurrentSize(_s);
     screen->setMaxActiveOutputsCount(QGuiApplication::screens().count());
 }
-
 
 #include "qscreenscreen.moc"
 

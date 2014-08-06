@@ -32,7 +32,7 @@
 namespace KScreen
 {
 
-class QScreenOutput : public Output
+class QScreenOutput : public QObject
 {
     Q_OBJECT
 
@@ -48,6 +48,8 @@ public:
      */
     KScreen::Edid *fakeEdid();
 
+    int id() const;
+
 
     const QScreen* qscreen() const;
 
@@ -55,6 +57,7 @@ private:
     void updateFromQScreen(const QScreen *qscreen);
     const QScreen *m_qscreen;
     mutable QPointer<KScreen::Edid> m_edid;
+    int m_id;
 };
 
 } // namespace
