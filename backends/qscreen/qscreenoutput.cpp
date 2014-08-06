@@ -30,6 +30,7 @@
 using namespace KScreen;
 
 // Book-keeping for ids, make sure we map the id to the right QScreen, and only once.
+// FIXME: Move book-keeping into Config singleton
 static int s_kscreenqscreenbackendOutputId = -1;
 static QHash<const QScreen*, int> s_kscreenqscreenbackendOutputIdTable;
 
