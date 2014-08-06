@@ -40,6 +40,8 @@ private Q_SLOTS:
     void verifyConfig();
     void verifyOutputs();
     void verifyModes();
+    void commonUsagePattern();
+    void cleanupTestCase();
 
 private:
     QProcess m_process;
@@ -102,7 +104,7 @@ void testQScreenBackend::verifyOutputs()
         QVERIFY(output->geometry() != QRectF(1,1,1,1));
         QVERIFY(output->geometry() != QRectF());
         QVERIFY(output->sizeMm() != QSize());
-        //QVERIFY(output->edid() != 0);
+        QVERIFY(output->edid() != 0);
         QCOMPARE(output->rotation(), Output::None);
         QCOMPARE(output->pos(), QPoint(0, 0));
     }
@@ -123,6 +125,57 @@ void testQScreenBackend::verifyModes()
         }
     }
 }
+
+void testQScreenBackend::commonUsagePattern()
+{
+    KScreen::OutputList outputs = KScreen::Config::current()->outputs();
+
+    QVariantList outputList;
+    Q_FOREACH(KScreen::Output *output, outputs) {
+        if (!output->isConnected()) {
+            continue;
+        }
+
+        QVariantMap info;
+
+        info["id"] = output->id();
+        info["primary"] = output->isPrimary();
+        info["enabled"] = output->isEnabled();
+        info["rotation"] = output->rotation();
+
+        QVariantMap pos;
+        pos["x"] = output->pos().x();
+        pos["y"] = output->pos().y();
+        info["pos"] = pos;
+
+        if (output->isEnabled()) {
+            KScreen::Mode *mode = output->currentMode();
+            if (!mode) {
+                //qWarning() << "CurrentMode is null" << output->name();
+                return;
+            }
+
+            QVariantMap modeInfo;
+            modeInfo["refresh"] = mode->refreshRate();
+
+            QVariantMap modeSize;
+            modeSize["width"] = mode->size().width();
+            modeSize["height"] = mode->size().height();
+            modeInfo["size"] = modeSize;
+
+            info["mode"] = modeInfo;
+        }
+
+        outputList.append(info);
+    }
+}
+
+void testQScreenBackend::cleanupTestCase()
+{
+    delete m_config;
+    qApp->exit(0);
+}
+
 
 
 QTEST_MAIN(testQScreenBackend)
