@@ -46,7 +46,7 @@ public:
     /** QScreen doesn't support querying for the EDID, this function centralizes
      *  creating the EDID per output, anyway, so a drop-in solution will "just work".
      */
-    KScreen::Edid *fakeEdid();
+    KScreen::Edid *edid();
 
     int id() const;
 

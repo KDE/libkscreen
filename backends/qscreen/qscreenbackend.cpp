@@ -43,7 +43,6 @@ QScreenConfig* QScreenBackend::s_internalConfig = 0;
 QScreenBackend::QScreenBackend(QObject *parent)
     : QObject(parent)
     , m_isValid(true)
-    , m_config(0)
 {
     QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.qscreen.debug = true"));
 <<<<<<< HEAD
@@ -94,11 +93,12 @@ void QScreenBackend::setConfig(Config *config) const
 
 Edid *QScreenBackend::edid(int outputId) const
 {
-    QScreenOutput *output = m_config->outputMap().value(outputId);
+    qCDebug(KSCREEN_QSCREEN) << "Asking edid of id " << outputId << s_internalConfig->outputMap();
+    QScreenOutput *output = s_internalConfig->outputMap().value(outputId);
     if (!output) {
         return 0;
     }
-    return output->fakeEdid();
+    return output->edid();
 }
 
 bool QScreenBackend::isValid() const

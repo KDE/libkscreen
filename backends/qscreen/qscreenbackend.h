@@ -56,7 +56,6 @@ private Q_SLOTS:
 
 private:
     bool m_isValid;
-    KScreen::QScreenConfig *m_config; // FIXME: remove
     static KScreen::QScreenConfig *s_internalConfig;
 };
 
