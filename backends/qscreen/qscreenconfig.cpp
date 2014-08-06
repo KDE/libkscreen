@@ -45,15 +45,16 @@ QScreenConfig::QScreenConfig(QObject *parent)
 
 QScreenConfig::~QScreenConfig()
 {
+    foreach (auto output, m_outputMap.values()) {
+        delete output;
+    }
 }
 
 Config* QScreenConfig::toKScreenConfig() const
 {
     Config *config = new Config();
-    // FIXME: set outputs
     updateKScreenConfig(config);
     config->setScreen(m_screen->toKScreenScreen(config));
-    // FIXME: set primary
     return config;
 }
 
@@ -64,37 +65,23 @@ void QScreenConfig::updateOutputsInternal()
     }
     m_outputMap.clear();
 
-    OutputList outputList;
     foreach(const QScreen * qscreen, QGuiApplication::screens()) {
-
         qCDebug(KSCREEN_QSCREEN) << "New Output: " << qscreen->name();
-
         QScreenOutput *qscreenoutput = new QScreenOutput(qscreen, this);
         m_outputMap.insert(qscreenoutput->id(), qscreenoutput);
     }
-
 }
 
 
 void QScreenConfig::updateKScreenConfig(Config* config) const
 {
-//     foreach (auto output, m_outputMap.values()) {
-//         delete output;
-//     }
-//     m_outputMap.clear();
-
     OutputList outputList;
     foreach(auto qscreenoutput, m_outputMap.values()) {
-
-        //qCDebug(KSCREEN_QSCREEN) << "New Output: " << qscreen->name();
-
         Output *output = qscreenoutput->toKScreenOutput(config);
-
+        qCDebug(KSCREEN_QSCREEN) << " PRIMARY? " << (QGuiApplication::primaryScreen() == qscreenoutput->qscreen());
         if (QGuiApplication::primaryScreen() == qscreenoutput->qscreen()) {
             config->setPrimaryOutput(output);
-
         }
-
         outputList.insert(output->id(), output);
     }
     config->setOutputs(outputList);
@@ -102,7 +89,7 @@ void QScreenConfig::updateKScreenConfig(Config* config) const
 
 QMap< int, QScreenOutput * > QScreenConfig::outputMap() const
 {
-    return m_screen->outputMap();
+    return m_outputMap;
 }
 
 #include "qscreenconfig.moc"

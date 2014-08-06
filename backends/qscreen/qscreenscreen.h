@@ -43,15 +43,9 @@ public:
     KScreen::Screen *toKScreenScreen(KScreen::Config *parent) const;
     void updateKScreenScreen(KScreen::Screen *screen) const;
 
-    QMap< int, QScreenOutput * > outputMap() const;
-
 private Q_SLOTS:
-    void updateConfig();
     void screenAdded(QScreen *qscreen);
 
-private:
-    QMap<int, QScreenOutput *> m_outputMap;
-    QScreenConfig *m_config;
 
 };
 

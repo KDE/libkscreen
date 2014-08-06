@@ -59,17 +59,12 @@ QScreenOutput::~QScreenOutput()
 {
 }
 
-void QScreenOutput::updateFromQScreen(const QScreen *qscreen)
-{
-}
-
 int QScreenOutput::id() const
 {
     return m_id;
 }
 
-
-KScreen::Edid *QScreenOutput::fakeEdid()
+KScreen::Edid *QScreenOutput::edid()
 {
     qCDebug(KSCREEN_QSCREEN) << "NEWING";
     if (!m_edid) {
@@ -131,7 +126,6 @@ void QScreenOutput::updateKScreenOutput(Output* output) const
     modes[modeid] = mode;
     output->setModes(modes);
     output->setCurrentModeId(modeid);
-
 }
 
 
