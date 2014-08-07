@@ -42,6 +42,7 @@ public:
 
     KScreen::Config *toKScreenConfig() const;
     void updateKScreenConfig(KScreen::Config *config) const;
+
     QMap<int, QScreenOutput *> outputMap() const;
     int outputId(const QScreen *qscreen);
 
@@ -50,11 +51,9 @@ private Q_SLOTS:
     void screenDestroyed(QObject *qscreen = 0);
 
 private:
-    void updateOutputsInternal();
     QMap<int, QScreenOutput *> m_outputMap;
     QScreenScreen *m_screen;
     int m_lastOutputId = -1;
-    QHash<const QScreen*, int> m_outputIdTable;
     bool m_blockSignals;
 };
 

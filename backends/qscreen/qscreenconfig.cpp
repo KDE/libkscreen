@@ -69,15 +69,6 @@ int QScreenConfig::outputId(const QScreen* qscreen)
     return m_lastOutputId;
 }
 
-void QScreenConfig::updateOutputsInternal()
-{
-//     foreach (auto output, m_outputMap.values()) {
-//         delete output;
-//     }
-//     m_outputMap.clear();
-//
-}
-
 void QScreenConfig::screenAdded(const QScreen* qscreen)
 {
     qCDebug(KSCREEN_QSCREEN) << "Screen added!!! Updating config.." << qscreen << qscreen->name();

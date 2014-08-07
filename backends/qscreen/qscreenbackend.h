@@ -50,10 +50,6 @@ public:
     virtual KScreen::Edid *edid(int outputId) const;
     virtual void updateConfig(KScreen::Config *config) const;
 
-private Q_SLOTS:
-    void updateConfig();
-    void outputRemovedSlot();
-
 private:
     bool m_isValid;
     static KScreen::QScreenConfig *s_internalConfig;
