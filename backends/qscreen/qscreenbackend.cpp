@@ -60,17 +60,6 @@ QString QScreenBackend::name() const
     return QString("QScreen");
 }
 
-void QScreenBackend::updateConfig()
-{
-    //s_internalConfig->update();
-    KScreen::ConfigMonitor::instance()->notifyUpdate();
-}
-
-void QScreenBackend::outputRemovedSlot()
-{
-    KScreen::ConfigMonitor::instance()->notifyUpdate();
-}
-
 Config *QScreenBackend::config() const
 {
     return s_internalConfig->toKScreenConfig();
@@ -89,7 +78,6 @@ void QScreenBackend::setConfig(Config *config) const
 
 Edid *QScreenBackend::edid(int outputId) const
 {
-    qCDebug(KSCREEN_QSCREEN) << "Asking edid of id " << outputId << s_internalConfig->outputMap();
     QScreenOutput *output = s_internalConfig->outputMap().value(outputId);
     if (!output) {
         return 0;
