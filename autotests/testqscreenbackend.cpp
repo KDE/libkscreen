@@ -88,6 +88,7 @@ void testQScreenBackend::verifyOutputs()
 
     bool primaryFound = false;
     foreach (const KScreen::Output* op, m_config->outputs()) {
+        qDebug() << "CHecking at all";
         if (op->isPrimary()) {
             primaryFound = true;
         }
@@ -106,6 +107,7 @@ void testQScreenBackend::verifyOutputs()
     qDebug() << " prim modes: " << primary->modes();
 
 
+    QList<int> ids;
     foreach (auto output, m_config->outputs()) {
         qDebug() << " _____________________ Output: " << output;
         qDebug() << "   output name: " << output->name();
@@ -122,6 +124,8 @@ void testQScreenBackend::verifyOutputs()
         QVERIFY(output->sizeMm() != QSize());
         QVERIFY(output->edid() != 0);
         QCOMPARE(output->rotation(), Output::None);
+        QVERIFY(!ids.contains(output->id()));
+        ids << output->id();
     }
 }
 
