@@ -38,18 +38,10 @@ QScreenScreen::QScreenScreen(QScreenConfig *config)
     : QObject(config)
 
 {
-    connect(qApp, &QGuiApplication::screenAdded, this, &QScreenScreen::screenAdded);
 }
 
 QScreenScreen::~QScreenScreen()
 {
-}
-
-void QScreenScreen::screenAdded(QScreen* qscreen)
-{
-    qCDebug(KSCREEN_QSCREEN) << "Screen added!!! Updating config..";
-    // FIXME: handle screenAdded
-    // FIXME: handle screenRemoved as well
 }
 
 Screen* QScreenScreen::toKScreenScreen(Config* parent) const

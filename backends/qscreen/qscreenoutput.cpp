@@ -29,31 +29,12 @@
 
 using namespace KScreen;
 
-// Book-keeping for ids, make sure we map the id to the right QScreen, and only once.
-// FIXME: Move book-keeping into Config singleton
-static int s_kscreenqscreenbackendOutputId = -1;
-static QHash<const QScreen*, int> s_kscreenqscreenbackendOutputIdTable;
-
-int getOutputId(const QScreen *qscreen)
-{
-    if (!s_kscreenqscreenbackendOutputIdTable.contains(qscreen)) {
-        s_kscreenqscreenbackendOutputId++;
-        s_kscreenqscreenbackendOutputIdTable.insert(qscreen, s_kscreenqscreenbackendOutputId);
-    }
-    return s_kscreenqscreenbackendOutputIdTable.value(qscreen);
-}
-
-
 QScreenOutput::QScreenOutput(const QScreen *qscreen, QObject *parent)
     : QObject(parent)
     , m_qscreen(qscreen)
     , m_edid(0)
-    , m_id(getOutputId(qscreen))
-
+    , m_id(-1)
 {
-//    updateFromQScreen(m_qscreen);
-    //getOutputId(m_qscreen);
-
 }
 
 QScreenOutput::~QScreenOutput()
@@ -65,14 +46,16 @@ int QScreenOutput::id() const
     return m_id;
 }
 
+void QScreenOutput::setId(const int newId)
+{
+    m_id = newId;
+}
+
 KScreen::Edid *QScreenOutput::edid()
 {
-    qCDebug(KSCREEN_QSCREEN) << "NEWING";
     if (!m_edid) {
-        qCDebug(KSCREEN_QSCREEN) << "NEWING FOR REALZ";
         m_edid = new KScreen::Edid(0, 0, this);
     }
-
     return m_edid;
 }
 
@@ -96,7 +79,7 @@ void QScreenOutput::updateKScreenOutput(Output* output) const
     output->setEnabled(true);
     output->setConnected(true);
     output->setPrimary(QGuiApplication::primaryScreen() == m_qscreen);
-
+    qCDebug(KSCREEN_QSCREEN) << " OUTPUT Primary? " <<  (QGuiApplication::primaryScreen() == m_qscreen);
     // FIXME: Rotation
 
     // Physical size
@@ -108,8 +91,8 @@ void QScreenOutput::updateKScreenOutput(Output* output) const
     physicalHeight = m_qscreen->size().height() / (m_qscreen->physicalDotsPerInchY() / 25.4);
     mm.setHeight(qRound(physicalHeight));
     output->setSizeMm(mm);
-    qCDebug(KSCREEN_QSCREEN) << "  ####### setSizeMm: " << mm;
-    qCDebug(KSCREEN_QSCREEN) << "  ####### availableGeometry: " << m_qscreen->availableGeometry();
+//     qCDebug(KSCREEN_QSCREEN) << "  ####### setSizeMm: " << mm;
+//     qCDebug(KSCREEN_QSCREEN) << "  ####### availableGeometry: " << m_qscreen->availableGeometry();
     output->setPos(m_qscreen->availableGeometry().topLeft());
 
     // Modes: we create a single default mode and go with that

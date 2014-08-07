@@ -42,11 +42,6 @@ public:
 
     KScreen::Screen *toKScreenScreen(KScreen::Config *parent) const;
     void updateKScreenScreen(KScreen::Screen *screen) const;
-
-private Q_SLOTS:
-    void screenAdded(QScreen *qscreen);
-
-
 };
 
 } // namespace
