@@ -39,10 +39,41 @@ class AbstractBackend
     public:
         virtual ~AbstractBackend() {}
         virtual QString name() const = 0;
+
+        /** Returns a new Config object, holding Screen, Output objects, etc..
+         *
+         * The receiver of the Config* object is expected to manage its lifetime, and
+         * the lifetime of its outputs.
+         *
+         * @return Config object for the system.
+         */
         virtual KScreen::Config* config() const = 0;
+
+        /** Apply a config object to the system.
+         */
         virtual void setConfig(KScreen::Config* config) const = 0;
+
         virtual bool isValid() const = 0;
+
+        /** Returns an Edid object for a given output.
+         *
+         * The receiver of the Edid* object is expected to manage its lifetime.
+         *
+         * @return Edid object for an output, or zero if no output exists.
+         */
         virtual KScreen::Edid* edid(int outputId) const = 0;
+
+        /** This method is called from the ConfigMonitor instance.
+         *
+         * This is how it works:
+         * The backend notes a change, for example a screen has been added. It updates
+         * its internal data, then calls ConfigMonitor::instance()->notifyUpdate. The
+         * ConfigMonitor holds a pointer to the Config that is used and passes this into
+         * the backend's updateConfig(Config*) function (i.e. this method).
+         *
+         * Your reimplementation of this method should update the configuration's outputs,
+         * screen, etc..
+         */
         virtual void updateConfig(KScreen::Config* config) const = 0;
 };
 
