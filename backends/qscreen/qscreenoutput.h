@@ -49,7 +49,7 @@ public:
     KScreen::Edid *edid();
 
     int id() const;
-
+    void setId(const int newId);
 
     const QScreen* qscreen() const;
 
