@@ -12,6 +12,10 @@ endmacro(KSCREEN_TESTS)
 KSCREEN_TESTS(testscreenconfig )
 KSCREEN_TESTS(testqscreenbackend )
 
+if(ENABLE_WAYLAND)
+    KSCREEN_TESTS(testwaylandbackend )
+endif()
+
 if (ENABLE_XRANDR_TESTS)
     KSCREEN_TESTS(testxrandr )
 endif()

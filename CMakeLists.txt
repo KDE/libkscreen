@@ -17,6 +17,20 @@ include(CheckCXXCompilerFlag)
 set(REQUIRED_QT_VERSION 5.2.0)
 find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Core Gui Test X11Extras)
 
+find_package(Wayland 1.2 COMPONENTS Client Cursor)
+set_package_properties(Wayland PROPERTIES
+                       TYPE OPTIONAL
+                       PURPOSE "Required for building libkscreemwith Wayland support"
+                      )
+add_feature_info("Wayland-Client" Wayland_Client_FOUND "Required for building libkscreen's Wayland backend")
+
+if(Wayland_Client_FOUND)
+    set(ENABLE_WAYLAND TRUE)
+else()
+    set(ENABLE_WAYLAND FALSE)
+endif()
+                      
+                      
 find_package(XCB COMPONENTS XCB RANDR)
 set_package_properties(XCB PROPERTIES
                        TYPE OPTIONAL

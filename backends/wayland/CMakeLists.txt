@@ -1,0 +1,21 @@
+include_directories(${CMAKE_SOURCE_DIR}/src
+                    ${CMAKE_BUILD_DIR}
+)
+
+set(wayland_SRCS
+    waylandbackend.cpp
+    waylandconfig.cpp
+    waylandoutput.cpp
+)
+
+add_library(KSC_Wayland MODULE ${wayland_SRCS})
+
+set_target_properties(KSC_Wayland PROPERTIES PREFIX "")
+target_link_libraries(KSC_Wayland Qt5::Core
+                                  Qt5::Gui
+                                  Wayland::Client
+                                  Wayland::Cursor
+                                  KF5::Screen
+)
+
+install(TARGETS KSC_Wayland DESTINATION ${PLUGIN_INSTALL_DIR}/kf5/kscreen/)
