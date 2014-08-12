@@ -16,76 +16,67 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
-#ifndef WAYLAND_OUTPUT_H
-#define WAYLAND_OUTPUT_H
+#ifndef QSCREEN_CONFIG_H
+#define QSCREEN_CONFIG_H
 
 #include "../abstractbackend.h"
-//#include "qscreenconfig.h"
-
 #include "config.h"
-#include "output.h"
 
+#include <QDir>
 #include <QScreen>
 #include <QtCore/QSize>
 #include <QLoggingCategory>
+#include <QSocketNotifier>
+
+// wayland
+#include <wayland-client.h>
 
 class wl_output;
 
 namespace KScreen
 {
+class Output;
+class WaylandOutput;
+//class QScreenScreen;
 
-class WaylandOutput : public QObject
+class WaylandConfig : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit WaylandOutput(wl_output *wloutput, QObject *parent = 0);
-    virtual ~WaylandOutput();
+    explicit WaylandConfig(QObject *parent = 0);
+    virtual ~WaylandConfig();
 
-    KScreen::Output* toKScreenOutput(KScreen::Config *parent) const;
-    void updateKScreenOutput(KScreen::Output *output) const;
+    KScreen::Config *toKScreenConfig() const;
+    void updateKScreenConfig(KScreen::Config *config) const;
 
-    /** QScreen doesn't support querying for the EDID, this function centralizes
-     *  creating the EDID per output, anyway, so a drop-in solution will "just work".
-     */
-    KScreen::Edid *edid();
+    QMap<int, WaylandOutput *> outputMap() const;
+    int outputId(const QScreen *qscreen);
 
-    int id() const;
-    void setId(const int newId);
-
-    const QSize &physicalSize() const;
-    const QPoint &globalPosition() const;
-    const QString &manufacturer() const;
-    const QString &model() const;
-    const QSize &pixelSize() const;
-    QRect geometry() const;
-    int refreshRate() const;
-
-    void setPhysicalSize(const QSize &size);
-    void setGlobalPosition(const QPoint &pos);
-    void setManufacturer(const QString &manufacturer);
-    void setModel(const QString &model);
-    void setPixelSize(const QSize &size);
-    void setRefreshRate(int refreshRate);
+    void addOutput(wl_output *o);
 
 
-    const QScreen* qscreen() const;
+    wl_display *display() const;
+
+private Q_SLOTS:
+    void screenAdded(const QScreen *qscreen);
+    void screenDestroyed(QObject *qscreen = 0);
+    void readEvents();
+
 
 private:
-    void updateFromQScreen(const QScreen *qscreen);
-    const QScreen *m_qscreen;
-    mutable QPointer<KScreen::Edid> m_edid;
-    int m_id;
+    void initConnection();
+    wl_display *m_display;
+    wl_registry *m_registry;
+    QString m_socketName;
+    QDir m_runtimeDir;
 
-    wl_output *m_output;
-    QSize m_physicalSize;
-    QPoint m_globalPosition;
-    QString m_manufacturer;
-    QString m_model;
-    QSize m_pixelSize;
-    int m_refreshRate;
+    QMap<wl_output*, WaylandOutput *> m_outputMap;
+    //QScreenScreen *m_screen;
+    int m_lastOutputId = -1;
+    bool m_blockSignals;
 };
 
 } // namespace
 
-#endif
+#endif // QSCREEN_CONFIG_H

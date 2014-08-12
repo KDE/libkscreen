@@ -18,6 +18,7 @@
 
 #include "waylandoutput.h"
 #include "waylandbackend.h"
+#include "waylandconfig.h"
 
 #include <mode.h>
 #include <edid.h>
@@ -27,14 +28,81 @@
 #include <QGuiApplication>
 #include <QScreen>
 
+static void outputHandleGeometry(void *data, wl_output *output, int32_t x, int32_t y,
+                                 int32_t physicalWidth, int32_t physicalHeight, int32_t subPixel,
+                                 const char *make, const char *model, int32_t transform)
+{
+    Q_UNUSED(subPixel)
+    Q_UNUSED(transform)
+    qCDebug(KSCREEN_WAYLAND) << "wl_output::outputHandleGeometry: " << output << make << " model : " << model;
+//     Output *o = reinterpret_cast<Output*>(data);
+//     if (o->output() != output) {
+//         return;
+//     }
+//     o->setGlobalPosition(QPoint(x, y));
+//     o->setManufacturer(make);
+//     o->setModel(model);
+//     o->setPhysicalSize(QSize(physicalWidth, physicalHeight));
+//     o->emitChanged();
+}
+
+static void outputHandleMode(void *data, wl_output *output, uint32_t flags, int32_t width, int32_t height, int32_t refresh)
+{
+    Q_UNUSED(flags)
+    qCDebug(KSCREEN_WAYLAND) << "wl_output::outputHandleMode: " << output << width << height << refresh;
+//     Output *o = reinterpret_cast<Output*>(data);
+//     if (o->output() != output) {
+//         return;
+//     }
+//     o->setPixelSize(QSize(width, height));
+//     o->setRefreshRate(refresh);
+//     o->emitChanged();
+}
+
+static void outputHandleDone(void *data, wl_output *output)
+{
+    qCDebug(KSCREEN_WAYLAND) << "wl_output::outputHandleDone: " << output;
+    Q_UNUSED(data)
+    Q_UNUSED(output)
+}
+
+static void outputHandleScale(void *data, wl_output *output, int32_t scale)
+{
+    qCDebug(KSCREEN_WAYLAND) << "wl_output::outputHandleScale: " << scale;
+    Q_UNUSED(data)
+    Q_UNUSED(output)
+    Q_UNUSED(scale)
+}
+
+static const struct wl_output_listener s_outputListener = {
+    outputHandleGeometry,
+    outputHandleMode,
+    outputHandleDone,
+    outputHandleScale
+};
+
+
+
 using namespace KScreen;
 
-WaylandOutput::WaylandOutput(const QScreen *qscreen, QObject *parent)
+WaylandOutput::WaylandOutput(wl_output *wloutput, QObject *parent)
     : QObject(parent)
-    , m_qscreen(qscreen)
+    , m_output(wloutput)
     , m_edid(0)
     , m_id(-1)
 {
+    qCDebug(KSCREEN_WAYLAND) << "wl_output_add_listener";
+
+    // static_cast<wl_output*>(wl_display_bind(display_->display(), id, &wl_output_interface));
+
+//    wl_display *_display = WaylandBackend::internalConfig()->display();
+//     wl_output *_output = static_cast<wl_output*>(wl_display_bind(_display, 1, &wl_output_interface));
+
+    //wl_output *o = reinterpret_cast<wl_output *>(wl_registry_bind(registry, name, &wl_output_interface, 1))
+    wl_output_add_listener(m_output, &s_outputListener, this);
+    //wl_display_dispatch(_display);
+    qCDebug(KSCREEN_WAYLAND) << "Listening ...";
+
 }
 
 WaylandOutput::~WaylandOutput()
@@ -112,3 +180,32 @@ void WaylandOutput::updateKScreenOutput(Output* output) const
 //     output->setCurrentModeId(modeid);
 }
 
+void WaylandOutput::setGlobalPosition(const QPoint &pos)
+{
+    m_globalPosition = pos;
+}
+
+void WaylandOutput::setManufacturer(const QString &manufacturer)
+{
+    m_manufacturer = manufacturer;
+}
+
+void WaylandOutput::setModel(const QString &model)
+{
+    m_model = model;
+}
+
+void WaylandOutput::setPhysicalSize(const QSize &size)
+{
+    m_physicalSize = size;
+}
+
+void WaylandOutput::setPixelSize(const QSize& size)
+{
+    m_pixelSize = size;
+}
+
+void WaylandOutput::setRefreshRate(int refreshRate)
+{
+    m_refreshRate = refreshRate;
+}

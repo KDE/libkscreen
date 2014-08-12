@@ -27,11 +27,12 @@
 #include <QtCore/QSize>
 #include <QLoggingCategory>
 
+#include <wayland-client.h>
+
 namespace KScreen
 {
 class Output;
 class WaylandConfig;
-}
 
 class WaylandBackend : public QObject, public AbstractBackend
 {
@@ -43,6 +44,8 @@ public:
     explicit WaylandBackend(QObject *parent = 0);
     virtual ~WaylandBackend();
 
+    static WaylandConfig *internalConfig();
+
     virtual QString name() const;
     virtual KScreen::Config *config() const;
     virtual void setConfig(KScreen::Config *config) const;
@@ -52,8 +55,11 @@ public:
 
 private:
     bool m_isValid;
-    static KScreen::WaylandConfig *s_internalConfig;
+    static WaylandConfig *s_internalConfig;
 };
+
+
+} // namespace
 
 Q_DECLARE_LOGGING_CATEGORY(KSCREEN_WAYLAND)
 
