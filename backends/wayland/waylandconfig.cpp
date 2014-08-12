@@ -124,6 +124,7 @@ void WaylandConfig::initConnection()
 //    qDebug() << "Created Wayland display";
     QSocketNotifier *notifier = new QSocketNotifier(fd, QSocketNotifier::Read, this);
     connect(notifier, &QSocketNotifier::activated, this, &WaylandConfig::readEvents);
+    readEvents();
 }
 
 void WaylandConfig::readEvents()
