@@ -69,6 +69,14 @@ bool BackendLoader::init()
                 continue;
             }
 
+            // When not on X11, skip the Wayland backend, and fall back to xrandr
+            // if not specified in KSCREEN_BACKEND
+            if (backend.isEmpty() &&
+                    finfo.fileName().contains(QLatin1String("KSC_Wayland")) &&
+                    QX11Info::isPlatformX11()) {
+                continue;
+            }
+
             QPluginLoader loader(finfo.filePath());
             loader.load();
             QObject *instance = loader.instance();
