@@ -18,7 +18,7 @@
 
 #include "waylandconfig.h"
 #include "waylandoutput.h"
-//#include "qscreenscreen.h"
+#include "waylandscreen.h"
 #include "waylandbackend.h"
 
 // Wayland
@@ -56,7 +56,7 @@ static void registryHandleGlobal(void *data, struct wl_registry *registry,
 //         d->createShm(name);
     if (strcmp(interface, "wl_output") == 0) {
 //         qDebug() << "wl_output!";
-        WaylandBackend::internalConfig()->addOutput(reinterpret_cast<wl_output *>(wl_registry_bind(registry, name, &wl_output_interface, 1)));
+        WaylandBackend::internalConfig()->addOutput(name, reinterpret_cast<wl_output *>(wl_registry_bind(registry, name, &wl_output_interface, 1)));
     }
 }
 
@@ -81,7 +81,7 @@ static const struct wl_registry_listener s_registryListener = {
 
 WaylandConfig::WaylandConfig(QObject *parent)
     : QObject(parent)
-    //, m_screen(new QScreenScreen(this))
+    , m_screen(new WaylandScreen(this))
     , m_blockSignals(true)
     , m_runtimeDir(qgetenv("XDG_RUNTIME_DIR"))
 {
@@ -112,19 +112,15 @@ void WaylandConfig::initConnection()
         qWarning() << "Failed connecting to Wayland display";
         return;
     }
-//    qDebug() << "wl_display_get_registry";
     m_registry = wl_display_get_registry(m_display);
     // setup the registry
-//    qDebug() << "wl_registry_add_listener";
     wl_registry_add_listener(m_registry, &s_registryListener, this);
-//    qDebug() << "wl_display_dispatch";
     wl_display_dispatch(m_display);
-//    qDebug() << "wl_display_get_fd";
     int fd = wl_display_get_fd(m_display);
-//    qDebug() << "Created Wayland display";
     QSocketNotifier *notifier = new QSocketNotifier(fd, QSocketNotifier::Read, this);
     connect(notifier, &QSocketNotifier::activated, this, &WaylandConfig::readEvents);
-    readEvents();
+
+    readEvents(); // force-flush display command queue
 }
 
 void WaylandConfig::readEvents()
@@ -134,16 +130,16 @@ void WaylandConfig::readEvents()
     wl_display_dispatch(m_display);
 }
 
-void WaylandConfig::addOutput(wl_output* o)
+void WaylandConfig::addOutput(quint32 name, wl_output* o)
 {
-    qDebug() << "Addoutput ";
+    qDebug() << "Addoutput " << name;
 //     if (m_outputMap.keys().contains(o)) {
 //         return;
 //     }
     WaylandOutput *waylandoutput = new WaylandOutput(o, this);
     qDebug() << "WLO created";
-    //waylandoutput->setId(outputId(qscreen));
-    //m_outputMap.insert(o, waylandoutput); // FIXME: id
+    waylandoutput->setId(name); // FIXME: name is uint32 and doesn't fit in there.
+    //m_outputMap.insert(name, waylandoutput);
 
     qDebug() << "WLO inserted";
     //connect(qscreen, SIGNAL(destroyed(QObject*)), this, SLOT(screenDestroyed(QObject*)));
@@ -152,7 +148,10 @@ void WaylandConfig::addOutput(wl_output* o)
     if (!m_blockSignals) {
         //KScreen::ConfigMonitor::instance()->notifyUpdate();
     }
-
+    QList<WaylandOutput*> os;
+    //os << waylandoutput;
+    //qDebug() << "screen updated with output" << m_screen;
+    //m_screen->setOutputs(os);
 }
 
 wl_display* WaylandConfig::display() const
@@ -164,16 +163,16 @@ wl_display* WaylandConfig::display() const
 Config* WaylandConfig::toKScreenConfig() const
 {
     Config *config = new Config();
-    //config->setScreen(m_screen->toKScreenScreen(config));
+    config->setScreen(m_screen->toKScreenScreen(config));
     updateKScreenConfig(config);
     return config;
 }
 
-int WaylandConfig::outputId(const QScreen* qscreen)
+int WaylandConfig::outputId(wl_output *wlo)
 {
     QList<int> ids;
     foreach (auto output, m_outputMap.values()) {
-        if (qscreen == output->qscreen()) {
+        if (wlo == output->output()) {
             return output->id();
         }
     }

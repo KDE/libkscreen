@@ -37,7 +37,7 @@ namespace KScreen
 {
 class Output;
 class WaylandOutput;
-//class QScreenScreen;
+class WaylandScreen;
 
 class WaylandConfig : public QObject
 {
@@ -51,9 +51,9 @@ public:
     void updateKScreenConfig(KScreen::Config *config) const;
 
     QMap<int, WaylandOutput *> outputMap() const;
-    int outputId(const QScreen *qscreen);
+    int outputId(wl_output *wlo);
 
-    void addOutput(wl_output *o);
+    void addOutput(quint32 name, wl_output *o);
 
 
     wl_display *display() const;
@@ -71,8 +71,8 @@ private:
     QString m_socketName;
     QDir m_runtimeDir;
 
-    QMap<wl_output*, WaylandOutput *> m_outputMap;
-    //QScreenScreen *m_screen;
+    QMap<quint32, WaylandOutput *> m_outputMap;
+    WaylandScreen *m_screen;
     int m_lastOutputId = -1;
     bool m_blockSignals;
 };

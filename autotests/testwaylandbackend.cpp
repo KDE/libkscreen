@@ -1,5 +1,5 @@
 /*************************************************************************************
- *  Copyright 2014 by Sebastian Kügler <sebas@kde.org>                           *
+ *  Copyright 2014 by Sebastian KÃ¼gler <sebas@kde.org>                           *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -37,6 +37,7 @@ class testWaylandBackend : public QObject
 private Q_SLOTS:
     void initTestCase();
     void verifyConfig();
+    void verifyScreen();
     void cleanupTestCase();
 
 private:
@@ -60,6 +61,22 @@ void testWaylandBackend::verifyConfig()
     if (!m_config) {
         QSKIP("Wayland backend invalid", SkipAll);
     }
+}
+
+void testWaylandBackend::verifyScreen()
+{
+    Screen *screen = m_config->screen();
+    qDebug() << "SCreen: " << screen;
+    //return;
+    QVERIFY(screen->minSize().width() <= screen->maxSize().width());
+    QVERIFY(screen->minSize().height() <= screen->maxSize().height());
+
+    QVERIFY(screen->minSize().width() <= screen->currentSize().width());
+    QVERIFY(screen->minSize().height() <= screen->currentSize().height());
+
+    QVERIFY(screen->maxSize().width() >= screen->currentSize().width());
+    QVERIFY(screen->maxSize().height() >= screen->currentSize().height());
+    QVERIFY(m_config->screen()->maxActiveOutputsCount() > 0);
 }
 
 void testWaylandBackend::cleanupTestCase()

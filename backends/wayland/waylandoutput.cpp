@@ -28,6 +28,9 @@
 #include <QGuiApplication>
 #include <QScreen>
 
+using namespace KScreen;
+
+
 static void outputHandleGeometry(void *data, wl_output *output, int32_t x, int32_t y,
                                  int32_t physicalWidth, int32_t physicalHeight, int32_t subPixel,
                                  const char *make, const char *model, int32_t transform)
@@ -50,12 +53,14 @@ static void outputHandleMode(void *data, wl_output *output, uint32_t flags, int3
 {
     Q_UNUSED(flags)
     qCDebug(KSCREEN_WAYLAND) << "wl_output::outputHandleMode: " << output << width << height << refresh;
-//     Output *o = reinterpret_cast<Output*>(data);
-//     if (o->output() != output) {
-//         return;
-//     }
-//     o->setPixelSize(QSize(width, height));
-//     o->setRefreshRate(refresh);
+    WaylandOutput *o = reinterpret_cast<WaylandOutput*>(data);
+    if (o->output() != output) {
+        qCDebug(KSCREEN_WAYLAND) << "sender (data) is not a WaylandOutput";
+        return;
+    }
+    qCDebug(KSCREEN_WAYLAND) << "sender (data) to WaylandOutput cast went OK";
+    o->setPixelSize(QSize(width, height));
+    o->setRefreshRate(refresh);
 //     o->emitChanged();
 }
 
@@ -82,9 +87,6 @@ static const struct wl_output_listener s_outputListener = {
 };
 
 
-
-using namespace KScreen;
-
 WaylandOutput::WaylandOutput(wl_output *wloutput, QObject *parent)
     : QObject(parent)
     , m_output(wloutput)
@@ -109,6 +111,12 @@ WaylandOutput::~WaylandOutput()
 {
 }
 
+wl_output* WaylandOutput::output() const
+{
+    return m_output;
+}
+
+
 int WaylandOutput::id() const
 {
     return m_id;
@@ -119,17 +127,14 @@ void WaylandOutput::setId(const int newId)
     m_id = newId;
 }
 
+
+
 KScreen::Edid *WaylandOutput::edid()
 {
     if (!m_edid) {
         m_edid = new KScreen::Edid(0, 0, this);
     }
     return m_edid;
-}
-
-const QScreen* WaylandOutput::qscreen() const
-{
-    return m_qscreen;
 }
 
 Output* WaylandOutput::toKScreenOutput(Config* parent) const
@@ -185,9 +190,19 @@ void WaylandOutput::setGlobalPosition(const QPoint &pos)
     m_globalPosition = pos;
 }
 
+const QString& WaylandOutput::manufacturer() const
+{
+    return m_manufacturer;
+}
+
 void WaylandOutput::setManufacturer(const QString &manufacturer)
 {
     m_manufacturer = manufacturer;
+}
+
+const QString& WaylandOutput::model() const
+{
+    return m_model;
 }
 
 void WaylandOutput::setModel(const QString &model)
@@ -195,9 +210,19 @@ void WaylandOutput::setModel(const QString &model)
     m_model = model;
 }
 
+const QSize& WaylandOutput::physicalSize() const
+{
+    return m_physicalSize;
+}
+
 void WaylandOutput::setPhysicalSize(const QSize &size)
 {
     m_physicalSize = size;
+}
+
+const QSize& WaylandOutput::pixelSize() const
+{
+    return m_pixelSize;
 }
 
 void WaylandOutput::setPixelSize(const QSize& size)
