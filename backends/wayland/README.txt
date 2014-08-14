@@ -10,5 +10,5 @@ TODO
 - handle callback's Done signal? how to trigger?
 - update Output object
 - update Screen object
-
+- check with mgraesslin if GPL->LGPL for bits taken from wayland_backend.cpp is OK
 

@@ -33,9 +33,8 @@ using namespace KScreen;
 
 WaylandScreen::WaylandScreen(WaylandConfig *config)
     : QObject(config)
-    , m_size(1600, 900)
+    , m_size(1600, 900) // FIXME
     , m_outputCount(1) // FIXME
-
 {
 }
 

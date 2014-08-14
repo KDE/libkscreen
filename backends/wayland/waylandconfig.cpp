@@ -1,5 +1,6 @@
 /*************************************************************************************
  *  Copyright 2014 Sebastian Kügler <sebas@kde.org>                                  *
+ *  Copyright 2013 Martin Gräßlin <mgraesslin@kde.org>                               *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -24,16 +25,11 @@
 // Wayland
 #include <wayland-client-protocol.h>
 
-
 #include <configmonitor.h>
 #include <mode.h>
 
-#include <QtCore/QRect>
-#include <QGuiApplication>
-#include <QScreen>
 
 using namespace KScreen;
-
 
 
 /**
@@ -43,19 +39,9 @@ static void registryHandleGlobal(void *data, struct wl_registry *registry,
                                  uint32_t name, const char *interface, uint32_t version)
 {
     Q_UNUSED(version)
-    qDebug() << "Wayland Interface: " << interface << name << version;
-//     WaylandBackend *d = reinterpret_cast<WaylandBackend*>(data);
-//
-//     if (strcmp(interface, "wl_compositor") == 0) {
-//         d->setCompositor(reinterpret_cast<wl_compositor*>(wl_registry_bind(registry, name, &wl_compositor_interface, 1)));
-//     } else if (strcmp(interface, "wl_shell") == 0) {
-//         d->setShell(reinterpret_cast<wl_shell *>(wl_registry_bind(registry, name, &wl_shell_interface, 1)));
-//     } else if (strcmp(interface, "wl_seat") == 0) {
-//         d->createSeat(name);
-//     } else if (strcmp(interface, "wl_shm") == 0) {
-//         d->createShm(name);
     if (strcmp(interface, "wl_output") == 0) {
-//         qDebug() << "wl_output!";
+//        WaylandBackend *d = reinterpret_cast<WaylandBackend*>(data);
+        qCDebug(KSCREEN_WAYLAND) << "new Wayland Output: " << interface << name << version;
         WaylandBackend::internalConfig()->addOutput(name, reinterpret_cast<wl_output *>(wl_registry_bind(registry, name, &wl_output_interface, 1)));
     }
 }
@@ -68,6 +54,7 @@ static void registryHandleGlobalRemove(void *data, struct wl_registry *registry,
     Q_UNUSED(data)
     Q_UNUSED(registry)
     Q_UNUSED(name)
+    qCDebug(KSCREEN_WAYLAND) << "Wayland global object removed: " << name;
     // TODO: implement me
 }
 
@@ -142,16 +129,14 @@ void WaylandConfig::addOutput(quint32 name, wl_output* o)
     //m_outputMap.insert(name, waylandoutput);
 
     qDebug() << "WLO inserted";
-    //connect(qscreen, SIGNAL(destroyed(QObject*)), this, SLOT(screenDestroyed(QObject*)));
-    //connect(qscreen, &QObject::destroyed, this, &QScreenConfig::screenDestroyed);
-
-    if (!m_blockSignals) {
-        //KScreen::ConfigMonitor::instance()->notifyUpdate();
-    }
     QList<WaylandOutput*> os;
     //os << waylandoutput;
     //qDebug() << "screen updated with output" << m_screen;
     //m_screen->setOutputs(os);
+
+    if (!m_blockSignals) {
+        //KScreen::ConfigMonitor::instance()->notifyUpdate();
+    }
 }
 
 wl_display* WaylandConfig::display() const
@@ -180,26 +165,9 @@ int WaylandConfig::outputId(wl_output *wlo)
     return m_lastOutputId;
 }
 
-void WaylandConfig::screenAdded(const QScreen* qscreen)
+void WaylandConfig::removeOutput(quint32 id)
 {
-    /*
-    qCDebug(KSCREEN_WAYLAND) << "Screen added!!! Updating config.." << qscreen << qscreen->name();
-    WaylandOutput *qscreenoutput = new WaylandOutput(qscreen, this);
-    qscreenoutput->setId(outputId(qscreen));
-    m_outputMap.insert(qscreenoutput->id(), qscreenoutput);
-
-    //connect(qscreen, SIGNAL(destroyed(QObject*)), this, SLOT(screenDestroyed(QObject*)));
-    connect(qscreen, &QObject::destroyed, this, &WaylandConfig::screenDestroyed);
-
-    */
-    if (!m_blockSignals) {
-        KScreen::ConfigMonitor::instance()->notifyUpdate();
-    }
-}
-
-void WaylandConfig::screenDestroyed(QObject* qscreen)
-{
-    qCDebug(KSCREEN_WAYLAND) << "Screen Removed!!! .." << qscreen << QGuiApplication::screens().count();
+    qCDebug(KSCREEN_WAYLAND) << "output screen Removed!!! .." << id << m_outputMap[id];
     /*
     // Find output matching the QScreen object and remove it
     int removedOutputId = -1;
@@ -212,7 +180,9 @@ void WaylandConfig::screenDestroyed(QObject* qscreen)
         }
     }
     */
-    KScreen::ConfigMonitor::instance()->notifyUpdate();
+    if (!m_blockSignals) {
+        KScreen::ConfigMonitor::instance()->notifyUpdate();
+    }
 }
 
 void WaylandConfig::updateKScreenConfig(Config* config) const

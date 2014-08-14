@@ -54,13 +54,11 @@ public:
     int outputId(wl_output *wlo);
 
     void addOutput(quint32 name, wl_output *o);
-
+    void removeOutput(quint32 id);
 
     wl_display *display() const;
 
 private Q_SLOTS:
-    void screenAdded(const QScreen *qscreen);
-    void screenDestroyed(QObject *qscreen = 0);
     void readEvents();
 
 
