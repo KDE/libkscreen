@@ -144,7 +144,6 @@ wl_display* WaylandConfig::display() const
     return m_display;
 }
 
-
 Config* WaylandConfig::toKScreenConfig() const
 {
     Config *config = new Config();
