@@ -127,6 +127,7 @@ void WaylandConfig::addOutput(quint32 name, wl_output* o)
     qDebug() << "WLO created";
     waylandoutput->setId(name); // FIXME: name is uint32 and doesn't fit in there.
     //m_outputMap.insert(name, waylandoutput);
+    qDebug() << "WLO setPhysicalSize: " << waylandoutput->physicalSize();
 
     qDebug() << "WLO inserted";
     QList<WaylandOutput*> os;

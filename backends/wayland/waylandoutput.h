@@ -58,7 +58,6 @@ public:
     const QString &manufacturer() const;
     const QString &model() const;
     const QSize &pixelSize() const;
-    QRect geometry() const;
     int refreshRate() const;
 
     void setPhysicalSize(const QSize &size);
@@ -67,7 +66,10 @@ public:
     void setModel(const QString &model);
     void setPixelSize(const QSize &size);
     void setRefreshRate(int refreshRate);
-
+    /*
+     * notify users after changes have been applied.
+     */
+    void flush();
 
     wl_output* output() const;
 

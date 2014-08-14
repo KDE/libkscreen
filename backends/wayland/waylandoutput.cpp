@@ -39,14 +39,23 @@ static void outputHandleGeometry(void *data, wl_output *output, int32_t x, int32
     Q_UNUSED(subPixel)
     Q_UNUSED(transform)
     qCDebug(KSCREEN_WAYLAND) << "wl_output::outputHandleGeometry: " << output << make << " model : " << model;
+    qCDebug(KSCREEN_WAYLAND) << "                               : " << physicalWidth << physicalHeight << " subpixel / transform: " << subPixel << transform << " x y: " << x << y;
+
+    WaylandOutput *o = reinterpret_cast<WaylandOutput*>(data);
+    if (o->output() != output) {
+        qCDebug(KSCREEN_WAYLAND) << "sender (data) is not a WaylandOutput";
+        return;
+    }
+    qCDebug(KSCREEN_WAYLAND) << "sender (data) to WaylandOutput cast went OK";
+
 //     Output *o = reinterpret_cast<Output*>(data);
 //     if (o->output() != output) {
 //         return;
 //     }
-//     o->setGlobalPosition(QPoint(x, y));
-//     o->setManufacturer(make);
-//     o->setModel(model);
-//     o->setPhysicalSize(QSize(physicalWidth, physicalHeight));
+    o->setGlobalPosition(QPoint(x, y));
+    o->setManufacturer(make);
+    o->setModel(model);
+    o->setPhysicalSize(QSize(physicalWidth, physicalHeight));
 //     o->emitChanged();
 }
 
@@ -149,25 +158,19 @@ Output* WaylandOutput::toKScreenOutput(Config* parent) const
 
 void WaylandOutput::updateKScreenOutput(Output* output) const
 {
-//     // Initialize primary output
-//     output->setEnabled(true);
-//     output->setConnected(true);
+    // Initialize primary output
+    output->setEnabled(true);
+    output->setConnected(true);
+    output->setPrimary(true);
 //     output->setPrimary(QGuiApplication::primaryScreen() == m_qscreen);
 //     qCDebug(KSCREEN_WAYLAND) << " OUTPUT Primary? " <<  (QGuiApplication::primaryScreen() == m_qscreen);
 //     // FIXME: Rotation
 // 
 //     // Physical size
-//     QSize mm;
-//     qreal physicalWidth;
-//     physicalWidth = m_qscreen->size().width() / (m_qscreen->physicalDotsPerInchX() / 25.4);
-//     mm.setWidth(qRound(physicalWidth));
-//     qreal physicalHeight;
-//     physicalHeight = m_qscreen->size().height() / (m_qscreen->physicalDotsPerInchY() / 25.4);
-//     mm.setHeight(qRound(physicalHeight));
-//     output->setSizeMm(mm);
+    output->setSizeMm(physicalSize());
 // //     qCDebug(KSCREEN_WAYLAND) << "  ####### setSizeMm: " << mm;
 // //     qCDebug(KSCREEN_WAYLAND) << "  ####### availableGeometry: " << m_qscreen->availableGeometry();
-//     output->setPos(m_qscreen->availableGeometry().topLeft());
+    output->setPos(globalPosition());
 // 
 //     // Modes: we create a single default mode and go with that
 //     Mode *mode = new Mode(output);
@@ -184,6 +187,16 @@ void WaylandOutput::updateKScreenOutput(Output* output) const
 //     modes[modeid] = mode;
 //     output->setModes(modes);
 //     output->setCurrentModeId(modeid);
+}
+
+void WaylandOutput::flush()
+{
+    // TODO
+}
+
+const QPoint& WaylandOutput::globalPosition() const
+{
+    return m_globalPosition;
 }
 
 void WaylandOutput::setGlobalPosition(const QPoint &pos)
@@ -231,7 +244,13 @@ void WaylandOutput::setPixelSize(const QSize& size)
     m_pixelSize = size;
 }
 
+int WaylandOutput::refreshRate() const
+{
+    return m_refreshRate;
+}
+
 void WaylandOutput::setRefreshRate(int refreshRate)
 {
     m_refreshRate = refreshRate;
 }
+

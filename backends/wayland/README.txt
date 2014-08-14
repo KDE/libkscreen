@@ -19,7 +19,7 @@ to be deleted by the user, the backend only takes ownership of its internal
 data representation objects.
 
 Note:
-In the Wayland backends, we're using the uint32_t name parameter to us by
+In the Wayland backends, we're using the uint32_t name parameter passed by
 the callbacks as ids for output. This eases administration, while providing
 a consistent set of ids. It means that we somehow have to fit the uint32 in
 the int field of libkscreen's APIs. This seems only a potential issue, and
@@ -43,4 +43,5 @@ TODO
 - update Output object
 - update Screen object
 - check with mgraesslin if GPL->LGPL for bits taken from wayland_backend.cpp is OK
+- delete wl_* objects in destructors
 
