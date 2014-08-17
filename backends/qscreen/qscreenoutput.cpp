@@ -57,12 +57,12 @@ KScreen::Edid *QScreenOutput::edid()
     return m_edid;
 }
 
-const QScreen* QScreenOutput::qscreen() const
+const QScreen *QScreenOutput::qscreen() const
 {
     return m_qscreen;
 }
 
-Output* QScreenOutput::toKScreenOutput(Config* parent) const
+Output *QScreenOutput::toKScreenOutput(Config *parent) const
 {
     Output *output = new Output(parent);
     output->setId(m_id);
@@ -71,7 +71,7 @@ Output* QScreenOutput::toKScreenOutput(Config* parent) const
     return output;
 }
 
-void QScreenOutput::updateKScreenOutput(Output* output) const
+void QScreenOutput::updateKScreenOutput(Output *output) const
 {
     // Initialize primary output
     output->setEnabled(true);
@@ -108,9 +108,8 @@ void QScreenOutput::updateKScreenOutput(Output* output) const
     mode->setRefreshRate(m_qscreen->refreshRate());
     mode->setSize(m_qscreen->size());
 
-
     const QString modename = QString::number(m_qscreen->size().width()) + QStringLiteral("x") + QString::number(m_qscreen->size().height()) \
-                           + QStringLiteral("@") + QString::number(m_qscreen->refreshRate());
+                             + QStringLiteral("@") + QString::number(m_qscreen->refreshRate());
     mode->setName(modename);
 
     ModeList modes;
@@ -118,6 +117,5 @@ void QScreenOutput::updateKScreenOutput(Output* output) const
     output->setModes(modes);
     output->setCurrentModeId(modeid);
 }
-
 
 #include "qscreenoutput.moc"

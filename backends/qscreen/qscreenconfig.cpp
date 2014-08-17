@@ -44,12 +44,12 @@ QScreenConfig::QScreenConfig(QObject *parent)
 
 QScreenConfig::~QScreenConfig()
 {
-    foreach (auto output, m_outputMap.values()) {
+    foreach(auto output, m_outputMap.values()) {
         delete output;
     }
 }
 
-Config* QScreenConfig::toKScreenConfig() const
+Config *QScreenConfig::toKScreenConfig() const
 {
     Config *config = new Config();
     config->setScreen(m_screen->toKScreenScreen(config));
@@ -57,10 +57,10 @@ Config* QScreenConfig::toKScreenConfig() const
     return config;
 }
 
-int QScreenConfig::outputId(const QScreen* qscreen)
+int QScreenConfig::outputId(const QScreen *qscreen)
 {
     QList<int> ids;
-    foreach (auto output, m_outputMap.values()) {
+    foreach(auto output, m_outputMap.values()) {
         if (qscreen == output->qscreen()) {
             return output->id();
         }
@@ -69,7 +69,7 @@ int QScreenConfig::outputId(const QScreen* qscreen)
     return m_lastOutputId;
 }
 
-void QScreenConfig::screenAdded(const QScreen* qscreen)
+void QScreenConfig::screenAdded(const QScreen *qscreen)
 {
     qCDebug(KSCREEN_QSCREEN) << "Screen added" << qscreen << qscreen->name();
     QScreenOutput *qscreenoutput = new QScreenOutput(qscreen, this);
@@ -83,12 +83,12 @@ void QScreenConfig::screenAdded(const QScreen* qscreen)
     }
 }
 
-void QScreenConfig::screenDestroyed(QObject* qscreen)
+void QScreenConfig::screenDestroyed(QObject *qscreen)
 {
     qCDebug(KSCREEN_QSCREEN) << "Screen removed" << qscreen << QGuiApplication::screens().count();
     // Find output matching the QScreen object and remove it
     int removedOutputId = -1;
-    foreach (auto output, m_outputMap.values()) {
+    foreach(auto output, m_outputMap.values()) {
         if (output->qscreen() == qscreen) {
             removedOutputId = output->id();
             m_outputMap.remove(removedOutputId);
@@ -98,13 +98,13 @@ void QScreenConfig::screenDestroyed(QObject* qscreen)
     KScreen::ConfigMonitor::instance()->notifyUpdate();
 }
 
-void QScreenConfig::updateKScreenConfig(Config* config) const
+void QScreenConfig::updateKScreenConfig(Config *config) const
 {
     m_screen->updateKScreenScreen(config->screen());
 
     //Removing removed outputs
     KScreen::OutputList outputs = config->outputs();
-    Q_FOREACH(KScreen::Output *output, outputs) {
+    Q_FOREACH(KScreen::Output * output, outputs) {
         if (!m_outputMap.keys().contains(output->id())) {
             config->removeOutput(output->id());
         }

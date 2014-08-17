@@ -38,7 +38,7 @@ public:
     explicit QScreenOutput(const QScreen *qscreen, QObject *parent = 0);
     virtual ~QScreenOutput();
 
-    KScreen::Output* toKScreenOutput(KScreen::Config *parent) const;
+    KScreen::Output *toKScreenOutput(KScreen::Config *parent) const;
     void updateKScreenOutput(KScreen::Output *output) const;
 
     /** QScreen doesn't support querying for the EDID, this function centralizes
@@ -51,7 +51,7 @@ public:
     int id() const;
     void setId(const int newId);
 
-    const QScreen* qscreen() const;
+    const QScreen *qscreen() const;
 
 private:
     void updateFromQScreen(const QScreen *qscreen);
