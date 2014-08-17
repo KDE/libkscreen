@@ -78,11 +78,19 @@ void QScreenOutput::updateKScreenOutput(Output* output) const
     output->setConnected(true);
     output->setPrimary(QGuiApplication::primaryScreen() == m_qscreen);
 
-    qCDebug(KSCREEN_QSCREEN) << " OUTPUT Primary? " <<  (QGuiApplication::primaryScreen() == m_qscreen);
+    // Rotation - translate QScreen::primaryOrientation() to Output::rotation()
+    if (m_qscreen->primaryOrientation() == Qt::PortraitOrientation) {
+        // 90 degrees
+        output->setRotation(Output::Right);
+    } else if (m_qscreen->primaryOrientation() == Qt::InvertedLandscapeOrientation) {
+        // 180 degrees
+        output->setRotation(Output::Inverted);
+    } else if (m_qscreen->primaryOrientation() == Qt::InvertedPortraitOrientation) {
+        // 270 degrees
+        output->setRotation(Output::Left);
+    }
 
-    // FIXME: Rotation
-
-    // Physical size
+    // Physical size, geometry, etc.
     QSize mm;
     qreal physicalWidth;
     physicalWidth = m_qscreen->size().width() / (m_qscreen->physicalDotsPerInchX() / 25.4);
