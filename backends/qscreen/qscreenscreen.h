@@ -46,4 +46,4 @@ public:
 
 } // namespace
 
-#endif // QSCREEN_CONFIG_H
+#endif // QSCREEN_SCREEN_H

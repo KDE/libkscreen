@@ -22,8 +22,6 @@
 #include <mode.h>
 #include <edid.h>
 
-#include <QtCore/QRect>
-
 #include <QGuiApplication>
 #include <QScreen>
 
@@ -79,7 +77,9 @@ void QScreenOutput::updateKScreenOutput(Output* output) const
     output->setEnabled(true);
     output->setConnected(true);
     output->setPrimary(QGuiApplication::primaryScreen() == m_qscreen);
+
     qCDebug(KSCREEN_QSCREEN) << " OUTPUT Primary? " <<  (QGuiApplication::primaryScreen() == m_qscreen);
+
     // FIXME: Rotation
 
     // Physical size
@@ -91,8 +91,6 @@ void QScreenOutput::updateKScreenOutput(Output* output) const
     physicalHeight = m_qscreen->size().height() / (m_qscreen->physicalDotsPerInchY() / 25.4);
     mm.setHeight(qRound(physicalHeight));
     output->setSizeMm(mm);
-//     qCDebug(KSCREEN_QSCREEN) << "  ####### setSizeMm: " << mm;
-//     qCDebug(KSCREEN_QSCREEN) << "  ####### availableGeometry: " << m_qscreen->availableGeometry();
     output->setPos(m_qscreen->availableGeometry().topLeft());
 
     // Modes: we create a single default mode and go with that
@@ -103,7 +101,8 @@ void QScreenOutput::updateKScreenOutput(Output* output) const
     mode->setSize(m_qscreen->size());
 
 
-    const QString modename = QString::number(m_qscreen->size().width()) + QStringLiteral("x") + QString::number(m_qscreen->size().height()) + QStringLiteral("@") + QString::number(m_qscreen->refreshRate());
+    const QString modename = QString::number(m_qscreen->size().width()) + QStringLiteral("x") + QString::number(m_qscreen->size().height()) \
+                           + QStringLiteral("@") + QString::number(m_qscreen->refreshRate());
     mode->setName(modename);
 
     ModeList modes;

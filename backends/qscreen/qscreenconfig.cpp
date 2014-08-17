@@ -71,12 +71,11 @@ int QScreenConfig::outputId(const QScreen* qscreen)
 
 void QScreenConfig::screenAdded(const QScreen* qscreen)
 {
-    qCDebug(KSCREEN_QSCREEN) << "Screen added!!! Updating config.." << qscreen << qscreen->name();
+    qCDebug(KSCREEN_QSCREEN) << "Screen added" << qscreen << qscreen->name();
     QScreenOutput *qscreenoutput = new QScreenOutput(qscreen, this);
     qscreenoutput->setId(outputId(qscreen));
     m_outputMap.insert(qscreenoutput->id(), qscreenoutput);
 
-    //connect(qscreen, SIGNAL(destroyed(QObject*)), this, SLOT(screenDestroyed(QObject*)));
     connect(qscreen, &QObject::destroyed, this, &QScreenConfig::screenDestroyed);
 
     if (!m_blockSignals) {
@@ -86,12 +85,11 @@ void QScreenConfig::screenAdded(const QScreen* qscreen)
 
 void QScreenConfig::screenDestroyed(QObject* qscreen)
 {
-    qCDebug(KSCREEN_QSCREEN) << "Screen Removed!!! .." << qscreen << QGuiApplication::screens().count();
+    qCDebug(KSCREEN_QSCREEN) << "Screen removed" << qscreen << QGuiApplication::screens().count();
     // Find output matching the QScreen object and remove it
     int removedOutputId = -1;
     foreach (auto output, m_outputMap.values()) {
         if (output->qscreen() == qscreen) {
-            qDebug() << "Found output matching the qscreen " << output;
             removedOutputId = output->id();
             m_outputMap.remove(removedOutputId);
             delete output;
@@ -119,7 +117,6 @@ void QScreenConfig::updateKScreenConfig(Config* config) const
 
         if (!kscreenOutput) {
             kscreenOutput = output->toKScreenOutput(config);
-            qDebug() << "Adding output" << output->qscreen()->name();
             config->addOutput(kscreenOutput);
         }
         output->updateKScreenOutput(kscreenOutput);
@@ -135,4 +132,3 @@ QMap< int, QScreenOutput * > QScreenConfig::outputMap() const
 }
 
 #include "qscreenconfig.moc"
-
