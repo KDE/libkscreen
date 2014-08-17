@@ -22,8 +22,6 @@
 #include <mode.h>
 #include <edid.h>
 
-#include <QtCore/QRect>
-
 #include <QGuiApplication>
 #include <QScreen>
 
@@ -59,12 +57,12 @@ KScreen::Edid *QScreenOutput::edid()
     return m_edid;
 }
 
-const QScreen* QScreenOutput::qscreen() const
+const QScreen *QScreenOutput::qscreen() const
 {
     return m_qscreen;
 }
 
-Output* QScreenOutput::toKScreenOutput(Config* parent) const
+Output *QScreenOutput::toKScreenOutput(Config *parent) const
 {
     Output *output = new Output(parent);
     output->setId(m_id);
@@ -73,16 +71,26 @@ Output* QScreenOutput::toKScreenOutput(Config* parent) const
     return output;
 }
 
-void QScreenOutput::updateKScreenOutput(Output* output) const
+void QScreenOutput::updateKScreenOutput(Output *output) const
 {
     // Initialize primary output
     output->setEnabled(true);
     output->setConnected(true);
     output->setPrimary(QGuiApplication::primaryScreen() == m_qscreen);
-    qCDebug(KSCREEN_QSCREEN) << " OUTPUT Primary? " <<  (QGuiApplication::primaryScreen() == m_qscreen);
-    // FIXME: Rotation
 
-    // Physical size
+    // Rotation - translate QScreen::primaryOrientation() to Output::rotation()
+    if (m_qscreen->primaryOrientation() == Qt::PortraitOrientation) {
+        // 90 degrees
+        output->setRotation(Output::Right);
+    } else if (m_qscreen->primaryOrientation() == Qt::InvertedLandscapeOrientation) {
+        // 180 degrees
+        output->setRotation(Output::Inverted);
+    } else if (m_qscreen->primaryOrientation() == Qt::InvertedPortraitOrientation) {
+        // 270 degrees
+        output->setRotation(Output::Left);
+    }
+
+    // Physical size, geometry, etc.
     QSize mm;
     qreal physicalWidth;
     physicalWidth = m_qscreen->size().width() / (m_qscreen->physicalDotsPerInchX() / 25.4);
@@ -91,8 +99,6 @@ void QScreenOutput::updateKScreenOutput(Output* output) const
     physicalHeight = m_qscreen->size().height() / (m_qscreen->physicalDotsPerInchY() / 25.4);
     mm.setHeight(qRound(physicalHeight));
     output->setSizeMm(mm);
-//     qCDebug(KSCREEN_QSCREEN) << "  ####### setSizeMm: " << mm;
-//     qCDebug(KSCREEN_QSCREEN) << "  ####### availableGeometry: " << m_qscreen->availableGeometry();
     output->setPos(m_qscreen->availableGeometry().topLeft());
 
     // Modes: we create a single default mode and go with that
@@ -102,8 +108,8 @@ void QScreenOutput::updateKScreenOutput(Output* output) const
     mode->setRefreshRate(m_qscreen->refreshRate());
     mode->setSize(m_qscreen->size());
 
-
-    const QString modename = QString::number(m_qscreen->size().width()) + QStringLiteral("x") + QString::number(m_qscreen->size().height()) + QStringLiteral("@") + QString::number(m_qscreen->refreshRate());
+    const QString modename = QString::number(m_qscreen->size().width()) + QStringLiteral("x") + QString::number(m_qscreen->size().height()) \
+                             + QStringLiteral("@") + QString::number(m_qscreen->refreshRate());
     mode->setName(modename);
 
     ModeList modes;
@@ -111,6 +117,5 @@ void QScreenOutput::updateKScreenOutput(Output* output) const
     output->setModes(modes);
     output->setCurrentModeId(modeid);
 }
-
 
 #include "qscreenoutput.moc"

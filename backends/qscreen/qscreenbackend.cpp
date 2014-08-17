@@ -23,22 +23,12 @@
 #include "qscreenoutput.h"
 
 #include <configmonitor.h>
-#include <mode.h>
-
-#include <QtCore/QFile>
-#include <QtCore/qplugin.h>
-#include <QtCore/QRect>
-#include <QAbstractEventDispatcher>
-
-#include <QX11Info>
-#include <QGuiApplication>
-#include <QScreen>
 
 using namespace KScreen;
 
 Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.qscreen");
 
-QScreenConfig* QScreenBackend::s_internalConfig = 0;
+QScreenConfig *QScreenBackend::s_internalConfig = 0;
 
 QScreenBackend::QScreenBackend(QObject *parent)
     : QObject(parent)

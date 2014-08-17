@@ -23,12 +23,6 @@
 #include <configmonitor.h>
 #include <mode.h>
 
-#include <QtCore/QFile>
-#include <QtCore/qplugin.h>
-#include <QtCore/QRect>
-#include <QAbstractEventDispatcher>
-
-#include <QX11Info>
 #include <QGuiApplication>
 #include <QScreen>
 
@@ -36,7 +30,6 @@ using namespace KScreen;
 
 QScreenScreen::QScreenScreen(QScreenConfig *config)
     : QObject(config)
-
 {
 }
 
@@ -44,14 +37,14 @@ QScreenScreen::~QScreenScreen()
 {
 }
 
-Screen* QScreenScreen::toKScreenScreen(Config* parent) const
+Screen *QScreenScreen::toKScreenScreen(Config *parent) const
 {
     KScreen::Screen *kscreenScreen = new KScreen::Screen(parent);
     updateKScreenScreen(kscreenScreen);
     return kscreenScreen;
 }
 
-void QScreenScreen::updateKScreenScreen(Screen* screen) const
+void QScreenScreen::updateKScreenScreen(Screen *screen) const
 {
     auto primary = QGuiApplication::primaryScreen();
     QSize _s = primary->availableVirtualGeometry().size();

@@ -1,6 +1,6 @@
 /*************************************************************************************
- *  Copyright 2013 by Alejandro Fiestas Olivares <afiestas@kde.org>                  *
- *  Copyright 2014 Sebastian Kügler <sebas@kde.org>                                  *
+ *  Copyright 2013 Alejandro Fiestas Olivares <afiestas@kde.org>                  *
+ *  Copyright 2014 Sebastian KÃ¼gler <sebas@kde.org>                                  *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
