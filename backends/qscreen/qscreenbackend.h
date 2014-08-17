@@ -23,15 +23,12 @@
 
 #include "../abstractbackend.h"
 
-#include <QScreen>
-#include <QtCore/QSize>
 #include <QLoggingCategory>
 
 namespace KScreen
 {
 class Output;
 class QScreenConfig;
-}
 
 class QScreenBackend : public QObject, public AbstractBackend
 {
@@ -54,6 +51,7 @@ private:
     bool m_isValid;
     static KScreen::QScreenConfig *s_internalConfig;
 };
+} // namespace
 
 Q_DECLARE_LOGGING_CATEGORY(KSCREEN_QSCREEN)
 

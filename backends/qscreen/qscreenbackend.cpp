@@ -23,16 +23,6 @@
 #include "qscreenoutput.h"
 
 #include <configmonitor.h>
-#include <mode.h>
-
-#include <QtCore/QFile>
-#include <QtCore/qplugin.h>
-#include <QtCore/QRect>
-#include <QAbstractEventDispatcher>
-
-#include <QX11Info>
-#include <QGuiApplication>
-#include <QScreen>
 
 using namespace KScreen;
 

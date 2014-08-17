@@ -26,8 +26,6 @@
 #include "output.h"
 
 #include <QScreen>
-#include <QtCore/QSize>
-#include <QLoggingCategory>
 
 namespace KScreen
 {
@@ -45,6 +43,8 @@ public:
 
     /** QScreen doesn't support querying for the EDID, this function centralizes
      *  creating the EDID per output, anyway, so a drop-in solution will "just work".
+     *
+     * This function returns 0.
      */
     KScreen::Edid *edid();
 
