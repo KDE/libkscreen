@@ -28,7 +28,7 @@
 #include <QGuiApplication>
 #include <QRect>
 #include <QScreen>
-#include <QX11Info>
+//#include <QX11Info>
 
 using namespace KScreen;
 
@@ -69,12 +69,9 @@ QString typetoString(const Output::Type& type)
     };
 }
 
-
 TestPnp::TestPnp(QObject *parent)
     : QObject(parent)
-
 {
-    //connect(qApp, &QGuiApplication::screenAdded, this, &TestPnp::screenAdded);i
     init();
     print();
 }
@@ -100,7 +97,6 @@ void TestPnp::init()
 
 void TestPnp::print()
 {
-
     qDebug() << "Screen:";
     qDebug() << "\tmaxSize:" << m_config->screen()->maxSize();
     qDebug() << "\tminSize:" << m_config->screen()->minSize();
@@ -159,8 +155,6 @@ void TestPnp::print()
             qDebug() << "\tUnavailable";
         }
     }
-
-
 }
 
 
