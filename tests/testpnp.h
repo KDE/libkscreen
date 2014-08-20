@@ -37,15 +37,12 @@ public:
     explicit TestPnp(QObject *parent = 0);
     virtual ~TestPnp();
 
-
 private Q_SLOTS:
     void init();
     void print();
 
 private:
     Config *m_config;
-
-
 };
 
 } // namespace

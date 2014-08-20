@@ -23,7 +23,7 @@
 #include "../src/output.h"
 #include "../src/mode.h"
 #include "../src/edid.h"
-
+zxc
 #include "../src/configmonitor.h"
 using namespace KScreen;
 QString typetoString(const Output::Type& type)
