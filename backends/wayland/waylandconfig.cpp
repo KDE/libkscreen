@@ -104,6 +104,8 @@ void WaylandConfig::initConnection()
     wl_registry_add_listener(m_registry, &s_registryListener, this);
     wl_display_dispatch(m_display);
     int fd = wl_display_get_fd(m_display);
+    wl_display_flush(m_display);
+    wl_display_dispatch(m_display);
     QSocketNotifier *notifier = new QSocketNotifier(fd, QSocketNotifier::Read, this);
     connect(notifier, &QSocketNotifier::activated, this, &WaylandConfig::readEvents);
 
@@ -113,8 +115,6 @@ void WaylandConfig::initConnection()
 void WaylandConfig::readEvents()
 {
     qCDebug(KSCREEN_WAYLAND) << "readEvents...";
-    wl_display_flush(m_display);
-    wl_display_dispatch(m_display);
 }
 
 void WaylandConfig::addOutput(quint32 name, wl_output* o)
