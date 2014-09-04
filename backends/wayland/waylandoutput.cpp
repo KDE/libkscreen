@@ -77,9 +77,14 @@ static void outputHandleMode(void *data, wl_output *output, uint32_t flags, int3
     }
     qCDebug(KSCREEN_WAYLAND) << "sender (data) to WaylandOutput cast went OK";
     qCDebug(KSCREEN_WAYLAND) << "current Mode?" << true;
-    o->setPixelSize(QSize(width, height));
-    o->setRefreshRate(refresh);
-//     o->emitChanged();
+
+
+    o->addMode(width, height, refresh, current);
+
+    if (current) {
+        o->setPixelSize(QSize(width, height));
+        o->setRefreshRate(refresh);
+    }
     o->flush();
 }
 
@@ -88,6 +93,13 @@ static void outputHandleDone(void *data, wl_output *output)
     qCDebug(KSCREEN_WAYLAND) << "wl_output::outputHandleDone: " << output;
     Q_UNUSED(data)
     Q_UNUSED(output)
+
+    WaylandOutput *o = reinterpret_cast<WaylandOutput*>(data);
+    if (o->output() != output) {
+        qCDebug(KSCREEN_WAYLAND) << "sender (data) is not a WaylandOutput";
+        return;
+    }
+    o->flush();
 }
 
 static void outputHandleScale(void *data, wl_output *output, int32_t scale)
@@ -139,12 +151,12 @@ wl_output* WaylandOutput::output() const
 }
 
 
-int WaylandOutput::id() const
+quint32 WaylandOutput::id() const
 {
     return m_id;
 }
 
-void WaylandOutput::setId(const int newId)
+void WaylandOutput::setId(const quint32 newId)
 {
     m_id = newId;
 }
@@ -162,43 +174,42 @@ KScreen::Edid *WaylandOutput::edid()
 Output* WaylandOutput::toKScreenOutput(Config* parent) const
 {
     Output *output = new Output(parent);
-//     output->setId(m_id);
-//     output->setName(m_qscreen->name());
-//     updateKScreenOutput(output);
+    output->setId(m_id);
+    output->setName(QString::number(m_id));
+    updateKScreenOutput(output);
     return output;
 }
 
 void WaylandOutput::updateKScreenOutput(Output* output) const
 {
+    qCDebug(KSCREEN_WAYLAND) << "updateKScreenOutput OUTPUT";
     // Initialize primary output
     output->setEnabled(true);
     output->setConnected(true);
     output->setPrimary(true);
-//     output->setPrimary(QGuiApplication::primaryScreen() == m_qscreen);
-//     qCDebug(KSCREEN_WAYLAND) << " OUTPUT Primary? " <<  (QGuiApplication::primaryScreen() == m_qscreen);
-//     // FIXME: Rotation
-// 
-//     // Physical size
+    // FIXME: Rotation
+
+    // Physical size
     output->setSizeMm(physicalSize());
-// //     qCDebug(KSCREEN_WAYLAND) << "  ####### setSizeMm: " << mm;
-// //     qCDebug(KSCREEN_WAYLAND) << "  ####### availableGeometry: " << m_qscreen->availableGeometry();
+    qCDebug(KSCREEN_WAYLAND) << "  ####### setSizeMm: " << physicalSize();
     output->setPos(globalPosition());
-// 
-//     // Modes: we create a single default mode and go with that
-//     Mode *mode = new Mode(output);
-//     const QString modeid = QStringLiteral("defaultmode");
-//     mode->setId(modeid);
-//     mode->setRefreshRate(m_qscreen->refreshRate());
-//     mode->setSize(m_qscreen->size());
-// 
-// 
-//     const QString modename = QString::number(m_qscreen->size().width()) + QStringLiteral("x") + QString::number(m_qscreen->size().height()) + QStringLiteral("@") + QString::number(m_qscreen->refreshRate());
-//     mode->setName(modename);
-// 
-//     ModeList modes;
-//     modes[modeid] = mode;
-//     output->setModes(modes);
-//     output->setCurrentModeId(modeid);
+
+    ModeList modes;
+    Q_FOREACH (const QString &modename, m_modes.keys()) {
+        const WaylandMode &wlmode = m_modes[modename];
+        qCDebug(KSCREEN_WAYLAND) << "Creating mode: " << modename << m_modes[modename] << wlmode;
+        Mode *mode = new Mode(output);
+        mode->setId(modename);
+        mode->setRefreshRate(wlmode.at(2));
+        mode->setSize(QSize(wlmode.at(0), wlmode.at(1)));
+        mode->setName(modename);
+        if (wlmode.at(3)) {
+            output->setCurrentModeId(modename);
+        }
+        modes[modename] = mode;
+    }
+
+    output->setModes(modes);
 }
 
 void WaylandOutput::flush()
@@ -213,6 +224,7 @@ void WaylandOutput::flush()
     qCDebug(KSCREEN_WAYLAND) << "  Manufacturer   : " << manufacturer();
     qCDebug(KSCREEN_WAYLAND) << "  Model:           " << model();
     // TODO
+    emit complete();
 }
 
 const QPoint& WaylandOutput::globalPosition() const
@@ -273,5 +285,18 @@ int WaylandOutput::refreshRate() const
 void WaylandOutput::setRefreshRate(int refreshRate)
 {
     m_refreshRate = refreshRate;
+}
+
+void WaylandOutput::addMode(quint32 w, quint32 h, quint32 refresh, bool current)
+{
+    const QString modename = QString::number(w) + QStringLiteral("x") + QString::number(h) + QStringLiteral("@") + QString::number(refresh);
+
+    QList<quint32> mode;
+    if (m_modes.contains(modename)) {
+        mode = m_modes[modename];
+    } else {
+        mode << w << h << refresh << current;
+        m_modes[modename] = mode;
+    }
 }
 

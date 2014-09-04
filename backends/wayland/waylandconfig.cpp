@@ -39,6 +39,7 @@ static void registryHandleGlobal(void *data, struct wl_registry *registry,
                                  uint32_t name, const char *interface, uint32_t version)
 {
     Q_UNUSED(version)
+    Q_UNUSED(data)
     if (strcmp(interface, "wl_output") == 0) {
 //        WaylandBackend *d = reinterpret_cast<WaylandBackend*>(data);
         qCDebug(KSCREEN_WAYLAND) << "new Wayland Output: " << interface << name << version;
@@ -68,26 +69,26 @@ static const struct wl_registry_listener s_registryListener = {
 
 WaylandConfig::WaylandConfig(QObject *parent)
     : QObject(parent)
+    , m_runtimeDir(qgetenv("XDG_RUNTIME_DIR"))
     , m_screen(new WaylandScreen(this))
     , m_blockSignals(true)
-    , m_runtimeDir(qgetenv("XDG_RUNTIME_DIR"))
 {
     m_socketName = qgetenv("WAYLAND_DISPLAY");
     if (m_socketName.isEmpty()) {
         m_socketName = QStringLiteral("wayland-0");
     }
-
-    qCDebug(KSCREEN_WAYLAND) << " Config creating.";
     m_blockSignals = false;
+    qCDebug(KSCREEN_WAYLAND) << " Config creating.";
     initConnection();
     //connect(qApp, &QGuiApplication::screenAdded, this, &WaylandConfig::screenAdded);
 }
 
 WaylandConfig::~WaylandConfig()
 {
-//     foreach (auto output, m_outputMap.values()) {
-//         delete output;
-//     }
+    qDebug() << "Byebye";
+    foreach (auto output, m_outputMap.values()) {
+        delete output;
+    }
 }
 
 void WaylandConfig::initConnection()
@@ -114,6 +115,7 @@ void WaylandConfig::initConnection()
 
 void WaylandConfig::readEvents()
 {
+
     //qCDebug(KSCREEN_WAYLAND) << "readEvents...";
 }
 
@@ -124,20 +126,20 @@ void WaylandConfig::addOutput(quint32 name, wl_output* o)
 //         return;
 //     }
     WaylandOutput *waylandoutput = new WaylandOutput(o, this);
-    qDebug() << "WLO created";
-    waylandoutput->setId(name); // FIXME: name is uint32 and doesn't fit in there.
-    //m_outputMap.insert(name, waylandoutput);
-    qDebug() << "WLO setPhysicalSize: " << waylandoutput->physicalSize();
+    connect(waylandoutput, &WaylandOutput::complete, [=]{
+        qDebug() << "WLO created";
+        waylandoutput->setId(name);
+        m_outputMap.insert(name, waylandoutput);
+        qDebug() << "WLO setPhysicalSize: " << waylandoutput->physicalSize();
+        //m_outputMap[waylandoutput->id()] = waylandoutput;
+        qDebug() << "WLO inserted";
 
-    qDebug() << "WLO inserted";
-    QList<WaylandOutput*> os;
-    //os << waylandoutput;
-    //qDebug() << "screen updated with output" << m_screen;
-    //m_screen->setOutputs(os);
+        if (!m_blockSignals) {
+           KScreen::ConfigMonitor::instance()->notifyUpdate();
+        }
+        //m_blockSignals = false;
+    });
 
-    if (!m_blockSignals) {
-        //KScreen::ConfigMonitor::instance()->notifyUpdate();
-    }
 }
 
 wl_display* WaylandConfig::display() const
@@ -187,7 +189,6 @@ void WaylandConfig::removeOutput(quint32 id)
 
 void WaylandConfig::updateKScreenConfig(Config* config) const
 {
-    /*
     m_screen->updateKScreenScreen(config->screen());
 
     //Removing removed outputs
@@ -197,7 +198,6 @@ void WaylandConfig::updateKScreenConfig(Config* config) const
             config->removeOutput(output->id());
         }
     }
-
     // Add KScreen::Outputs that aren't in the list yet, handle primaryOutput
     foreach(auto output, m_outputMap.values()) {
 
@@ -205,21 +205,18 @@ void WaylandConfig::updateKScreenConfig(Config* config) const
 
         if (!kscreenOutput) {
             kscreenOutput = output->toKScreenOutput(config);
-            qDebug() << "Adding output" << output->qscreen()->name();
+            qDebug() << "Adding output" << output->id();
             config->addOutput(kscreenOutput);
         }
         output->updateKScreenOutput(kscreenOutput);
-        if (QGuiApplication::primaryScreen() == output->qscreen()) {
-            config->setPrimaryOutput(kscreenOutput);
-        }
+        // FIXME: primaryScreen?
     }
-    */
 }
 
 QMap< int, WaylandOutput * > WaylandConfig::outputMap() const
 {
-    QMap< int, WaylandOutput * > map; // FIXME
-    return map;
+    //QMap< int, WaylandOutput * > map; // FIXME
+    return outputMap();
 }
 
 

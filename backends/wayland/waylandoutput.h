@@ -34,6 +34,17 @@ class wl_output;
 namespace KScreen
 {
 
+/** @class WaylandMode
+ *  A typedef'ed list of quint32 holding:
+ *  - width
+ *  - height
+ *  - refresh rate
+ *  - whether it is the current mode (0 - it's not, 1 - it's the current mode)
+ *
+ *  This is used as internal representation of the modes of an output.
+ */
+typedef QList<quint32> WaylandMode;
+
 class WaylandOutput : public QObject
 {
     Q_OBJECT
@@ -50,8 +61,8 @@ public:
      */
     KScreen::Edid *edid();
 
-    int id() const;
-    void setId(const int newId);
+    quint32 id() const;
+    void setId(const quint32 newId);
 
     const QSize &physicalSize() const;
     const QPoint &globalPosition() const;
@@ -66,6 +77,8 @@ public:
     void setModel(const QString &model);
     void setPixelSize(const QSize &size);
     void setRefreshRate(int refreshRate);
+
+    void addMode(quint32 w, quint32 h, quint32 refresh, bool current);
     /*
      * notify users after changes have been applied.
      */
@@ -73,11 +86,13 @@ public:
 
     wl_output* output() const;
 
+Q_SIGNALS:
+    void complete();
+
 private:
     void updateFromQScreen(const QScreen *qscreen);
-    const QScreen *m_qscreen;
     mutable QPointer<KScreen::Edid> m_edid;
-    int m_id;
+    quint32 m_id;
 
     wl_output *m_output;
     QSize m_physicalSize;
@@ -86,6 +101,8 @@ private:
     QString m_model;
     QSize m_pixelSize;
     int m_refreshRate;
+
+    QHash<QString, KScreen::WaylandMode> m_modes;
 };
 
 } // namespace
