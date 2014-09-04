@@ -114,7 +114,7 @@ void WaylandConfig::initConnection()
 
 void WaylandConfig::readEvents()
 {
-    qCDebug(KSCREEN_WAYLAND) << "readEvents...";
+    //qCDebug(KSCREEN_WAYLAND) << "readEvents...";
 }
 
 void WaylandConfig::addOutput(quint32 name, wl_output* o)
