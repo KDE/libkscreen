@@ -69,7 +69,7 @@ bool BackendLoader::init()
                 continue;
             }
 
-            // When not on X11, skip the Wayland backend, and fall back to xrandr
+            // When on X11, skip the Wayland backend, and fall back to xrandr
             // if not specified in KSCREEN_BACKEND
             if (backend.isEmpty() &&
                     finfo.fileName().contains(QLatin1String("KSC_Wayland")) &&
