@@ -27,10 +27,11 @@
 #include <QScreen>
 #include <QtCore/QSize>
 #include <QLoggingCategory>
+#include <KWayland/Client/output.h>
 
 namespace KWayland {
     namespace Client {
-        class Output;
+        //class Output;
     }
 }
 
@@ -48,12 +49,12 @@ namespace KScreen
  */
 typedef QList<quint32> WaylandMode;
 
-class WaylandOutput : public QObject
+class WaylandOutput : public KWayland::Client::Output
 {
     Q_OBJECT
 
 public:
-    explicit WaylandOutput(KWayland::Client::Output *wloutput, QObject *parent = 0);
+    explicit WaylandOutput(QObject *parent = 0);
     virtual ~WaylandOutput();
 
     KScreen::Output* toKScreenOutput(KScreen::Config *parent) const;
@@ -67,28 +68,28 @@ public:
     quint32 id() const;
     void setId(const quint32 newId);
 
-    const QSize &physicalSize() const;
-    const QPoint &globalPosition() const;
-    const QString &manufacturer() const;
-    const QString &model() const;
-    const QSize &pixelSize() const;
-    int refreshRate() const;
-
-    void setPhysicalSize(const QSize &size);
-    void setGlobalPosition(const QPoint &pos);
-    void setManufacturer(const QString &manufacturer);
-    void setModel(const QString &model);
-    void setPixelSize(const QSize &size);
-    void setRefreshRate(int refreshRate);
-
-    void addMode(quint32 w, quint32 h, quint32 refresh, bool current);
+//     const QSize &physicalSize() const;
+//     const QPoint &globalPosition() const;
+//     const QString &manufacturer() const;
+//     const QString &model() const;
+//     const QSize &pixelSize() const;
+//     int refreshRate() const;
+//
+//     void setPhysicalSize(const QSize &size);
+//     void setGlobalPosition(const QPoint &pos);
+//     void setManufacturer(const QString &manufacturer);
+//     void setModel(const QString &model);
+//     void setPixelSize(const QSize &size);
+//     void setRefreshRate(int refreshRate);
+//
+//     void addMode(quint32 w, quint32 h, quint32 refresh, bool current);
     /*
      * notify users after changes have been applied.
      */
     void flush();
     void update();
 
-    KWayland::Client::Output* output() const;
+//     KWayland::Client::Output* output() const;
 
 Q_SIGNALS:
     void complete();

@@ -49,7 +49,6 @@ WaylandConfig::WaylandConfig(QObject *parent)
     if (m_socketName.isEmpty()) {
         m_socketName = QStringLiteral("wayland-0");
     }
-    m_blockSignals = false;
     qCDebug(KSCREEN_WAYLAND) << " Config creating.";
     initConnection();
 }
@@ -101,6 +100,7 @@ void WaylandConfig::setupRegistry()
 
     m_registry->create(m_connection);
     m_registry->setup();
+    //m_blockSignals = false;
 
 }
 
@@ -112,12 +112,15 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
         qDebug() << "Output already known";
         return;
     }
-    KWayland::Client::Output *o = m_registry->createOutput(name, version);
+//     KWayland::Client::Output *o = m_registry->createOutput(name, version);
+    //Output *c = new Output;
 
-    WaylandOutput *waylandoutput = new WaylandOutput(o, this);
+    WaylandOutput *waylandoutput = new WaylandOutput(this);
+    waylandoutput->setId(name);
+    waylandoutput->setup(m_registry->bindOutput(name, version));
     connect(waylandoutput, &WaylandOutput::complete, [=]{
-        qDebug() << "WLO created";
-        waylandoutput->setId(name);
+        qDebug() << "WLO created" << name << waylandoutput->isValid();
+        //waylandoutput->setId(name);
         m_outputMap.insert(name, waylandoutput);
         qDebug() << "WLO setPhysicalSize: " << waylandoutput->physicalSize();
         //m_outputMap[waylandoutput->id()] = waylandoutput;
@@ -143,7 +146,7 @@ int WaylandConfig::outputId(KWayland::Client::Output *wlo)
 {
     QList<int> ids;
     foreach (auto output, m_outputMap.values()) {
-        if (wlo == output->output()) {
+        if (wlo == output) {
             return output->id();
         }
     }
