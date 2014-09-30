@@ -24,7 +24,6 @@
 #include <mode.h>
 #include <edid.h>
 
-// KWayland
 #include <KWayland/Client/output.h>
 
 #include <QtCore/QRect>
@@ -129,14 +128,11 @@ WaylandOutput::WaylandOutput(KWayland::Client::Output *wloutput, QObject *parent
 {
     qCDebug(KSCREEN_WAYLAND) << "KWayland::Client::Output_add_listener";
 
-    // static_cast<wl_output*>(wl_display_bind(display_->display(), id, &wl_output_interface));
-
-//    wl_display *_display = WaylandBackend::internalConfig()->display();
-//     wl_output *_output = static_cast<wl_output*>(wl_display_bind(_display, 1, &wl_output_interface));
-
-    //wl_output *o = reinterpret_cast<wl_output *>(wl_registry_bind(registry, name, &wl_output_interface, 1))
-//    wl_output_add_listener(m_output, &s_outputListener, this);
-    //wl_display_dispatch(_display);
+    setGlobalPosition(wloutput->globalPosition());
+    setManufacturer(wloutput->manufacturer());
+    setModel(wloutput->model());
+    setPhysicalSize(wloutput->physicalSize());
+    flush();
     qCDebug(KSCREEN_WAYLAND) << "Listening ...";
 
 }

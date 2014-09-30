@@ -16,11 +16,10 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
-#ifndef WAYLAND_OUTPUT_H
-#define WAYLAND_OUTPUT_H
+#ifndef KSCREEN_WAYLAND_OUTPUT_H
+#define KSCREEN_WAYLAND_OUTPUT_H
 
 #include "../abstractbackend.h"
-//#include "qscreenconfig.h"
 
 #include "config.h"
 #include "output.h"
