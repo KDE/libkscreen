@@ -22,8 +22,14 @@
 #include "waylandscreen.h"
 #include "waylandbackend.h"
 
+#include <QThread>
+
 // Wayland
 #include <wayland-client-protocol.h>
+
+// KWayland
+#include <KWayland/Client/connection_thread.h>
+#include <KWayland/Client/registry.h>
 
 #include <configmonitor.h>
 #include <mode.h>
@@ -32,40 +38,40 @@
 using namespace KScreen;
 
 
-/**
- * Callback for announcing global objects in the registry
- **/
-static void registryHandleGlobal(void *data, struct wl_registry *registry,
-                                 uint32_t name, const char *interface, uint32_t version)
-{
-    Q_UNUSED(version)
-    Q_UNUSED(data)
-    if (strcmp(interface, "wl_output") == 0) {
-//        WaylandBackend *d = reinterpret_cast<WaylandBackend*>(data);
-        qCDebug(KSCREEN_WAYLAND) << "new Wayland Output: " << interface << name << version;
-        WaylandBackend::internalConfig()->addOutput(name, reinterpret_cast<wl_output *>(wl_registry_bind(registry, name, &wl_output_interface, 1)));
-    }
-}
-
-/**
- * Callback for removal of global objects in the registry
- **/
-static void registryHandleGlobalRemove(void *data, struct wl_registry *registry, uint32_t name)
-{
-    Q_UNUSED(data)
-    Q_UNUSED(registry)
-    Q_UNUSED(name)
-    qCDebug(KSCREEN_WAYLAND) << "Wayland global object removed: " << name;
-    // TODO: implement me
-}
-
-
-// handlers
-static const struct wl_registry_listener s_registryListener = {
-    registryHandleGlobal,
-    registryHandleGlobalRemove
-};
-
+// /**
+//  * Callback for announcing global objects in the registry
+//  **/
+// static void registryHandleGlobal(void *data, struct wl_registry *registry,
+//                                  uint32_t name, const char *interface, uint32_t version)
+// {
+//     Q_UNUSED(version)
+//     Q_UNUSED(data)
+//     if (strcmp(interface, "wl_output") == 0) {
+// //        WaylandBackend *d = reinterpret_cast<WaylandBackend*>(data);
+//         qCDebug(KSCREEN_WAYLAND) << "new Wayland Output: " << interface << name << version;
+//         WaylandBackend::internalConfig()->addOutput(name, reinterpret_cast<wl_output *>(wl_registry_bind(registry, name, &wl_output_interface, 1)));
+//     }
+// }
+//
+// /**
+//  * Callback for removal of global objects in the registry
+//  **/
+// static void registryHandleGlobalRemove(void *data, struct wl_registry *registry, uint32_t name)
+// {
+//     Q_UNUSED(data)
+//     Q_UNUSED(registry)
+//     Q_UNUSED(name)
+//     qCDebug(KSCREEN_WAYLAND) << "Wayland global object removed: " << name;
+//     // TODO: implement me
+// }
+//
+//
+// // handlers
+// static const struct wl_registry_listener s_registryListener = {
+//     registryHandleGlobal,
+//     registryHandleGlobalRemove
+// };
+//
 
 WaylandConfig::WaylandConfig(QObject *parent)
     : QObject(parent)
@@ -93,7 +99,25 @@ WaylandConfig::~WaylandConfig()
 
 void WaylandConfig::initConnection()
 {
-//    qDebug() << "wl_display_connect";
+    qDebug() << "wl_display_connect";
+    KWayland::Client::ConnectionThread *connection = new KWayland::Client::ConnectionThread;
+    QThread *thread = new QThread;
+    connection->moveToThread(thread);
+    thread->start();
+
+    connect(connection, &KWayland::Client::ConnectionThread::connected, [connection] {
+        qDebug() << "Successfully connected to Wayland server at socket:" << connection->socketName();
+        KWayland::Client::Registry registry;
+        registry.create(connection);
+        registry.setup();
+    });
+    connect(connection, &KWayland::Client::ConnectionThread::failed, [connection] {
+        qDebug() << "Failed to connect to Wayland server at socket:" << connection->socketName();
+    });
+    connection->initConnection();
+
+
+    return;
     m_display = wl_display_connect(nullptr);
     if (!m_display) {
         // TODO: maybe we should now really tear down
@@ -102,7 +126,7 @@ void WaylandConfig::initConnection()
     }
     m_registry = wl_display_get_registry(m_display);
     // setup the registry
-    wl_registry_add_listener(m_registry, &s_registryListener, this);
+    //wl_registry_add_listener(m_registry, &s_registryListener, this);
     wl_display_dispatch(m_display);
     int fd = wl_display_get_fd(m_display);
     wl_display_flush(m_display);
@@ -125,6 +149,9 @@ void WaylandConfig::addOutput(quint32 name, wl_output* o)
 //     if (m_outputMap.keys().contains(o)) {
 //         return;
 //     }
+
+
+    return;
     WaylandOutput *waylandoutput = new WaylandOutput(o, this);
     connect(waylandoutput, &WaylandOutput::complete, [=]{
         qDebug() << "WLO created";

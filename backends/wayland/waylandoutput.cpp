@@ -31,7 +31,7 @@
 
 using namespace KScreen;
 
-
+/*
 static void outputHandleGeometry(void *data, wl_output *output, int32_t x, int32_t y,
                                  int32_t physicalWidth, int32_t physicalHeight, int32_t subPixel,
                                  const char *make, const char *model, int32_t transform)
@@ -116,7 +116,7 @@ static const struct wl_output_listener s_outputListener = {
     outputHandleDone,
     outputHandleScale
 };
-
+*/
 
 WaylandOutput::WaylandOutput(wl_output *wloutput, QObject *parent)
     : QObject(parent)
@@ -132,7 +132,7 @@ WaylandOutput::WaylandOutput(wl_output *wloutput, QObject *parent)
 //     wl_output *_output = static_cast<wl_output*>(wl_display_bind(_display, 1, &wl_output_interface));
 
     //wl_output *o = reinterpret_cast<wl_output *>(wl_registry_bind(registry, name, &wl_output_interface, 1))
-    wl_output_add_listener(m_output, &s_outputListener, this);
+//    wl_output_add_listener(m_output, &s_outputListener, this);
     //wl_display_dispatch(_display);
     qCDebug(KSCREEN_WAYLAND) << "Listening ...";
 
