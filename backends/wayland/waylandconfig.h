@@ -31,7 +31,19 @@
 // wayland
 #include <wayland-client.h>
 
+// KWayland
+//#include <KWayland/Client/output.h>
+
 class wl_output;
+
+namespace KWayland {
+    namespace Client {
+        class ConnectionThread;
+        class EventQueue;
+        class Output;
+        class Registry;
+    }
+}
 
 namespace KScreen
 {
@@ -51,21 +63,24 @@ public:
     void updateKScreenConfig(KScreen::Config *config) const;
 
     QMap<int, WaylandOutput *> outputMap() const;
-    int outputId(wl_output *wlo);
+    int outputId(KWayland::Client::Output *wlo);
 
-    void addOutput(quint32 name, wl_output *o);
+    void addOutput(quint32 name, quint32 version);
     void removeOutput(quint32 id);
 
-    wl_display *display() const;
+//     wl_display *display() const;
 
 private Q_SLOTS:
     void readEvents();
-
+    void setupRegistry();
 
 private:
     void initConnection();
-    wl_display *m_display;
-    wl_registry *m_registry;
+    KWayland::Client::ConnectionThread *m_connection;
+    KWayland::Client::EventQueue *m_queue;
+    KWayland::Client::Registry *m_registry;
+//     wl_display *m_display;
+//     wl_registry *m_registry;
     QString m_socketName;
     QDir m_runtimeDir;
 

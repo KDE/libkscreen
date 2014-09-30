@@ -24,6 +24,9 @@
 #include <mode.h>
 #include <edid.h>
 
+// KWayland
+#include <KWayland/Client/output.h>
+
 #include <QtCore/QRect>
 
 #include <QGuiApplication>
@@ -118,13 +121,13 @@ static const struct wl_output_listener s_outputListener = {
 };
 */
 
-WaylandOutput::WaylandOutput(wl_output *wloutput, QObject *parent)
+WaylandOutput::WaylandOutput(KWayland::Client::Output *wloutput, QObject *parent)
     : QObject(parent)
     , m_output(wloutput)
     , m_edid(0)
     , m_id(-1)
 {
-    qCDebug(KSCREEN_WAYLAND) << "wl_output_add_listener";
+    qCDebug(KSCREEN_WAYLAND) << "KWayland::Client::Output_add_listener";
 
     // static_cast<wl_output*>(wl_display_bind(display_->display(), id, &wl_output_interface));
 
@@ -141,11 +144,11 @@ WaylandOutput::WaylandOutput(wl_output *wloutput, QObject *parent)
 WaylandOutput::~WaylandOutput()
 {
     if (m_output) {
-        wl_output_destroy(m_output);
+        //wl_output_destroy(m_output);
     }
 }
 
-wl_output* WaylandOutput::output() const
+KWayland::Client::Output* WaylandOutput::output() const
 {
     return m_output;
 }

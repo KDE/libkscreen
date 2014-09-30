@@ -29,6 +29,7 @@
 
 // KWayland
 #include <KWayland/Client/connection_thread.h>
+#include <KWayland/Client/event_queue.h>
 #include <KWayland/Client/registry.h>
 
 #include <configmonitor.h>
@@ -100,41 +101,37 @@ WaylandConfig::~WaylandConfig()
 void WaylandConfig::initConnection()
 {
     qDebug() << "wl_display_connect";
-    KWayland::Client::ConnectionThread *connection = new KWayland::Client::ConnectionThread;
+    m_connection = new KWayland::Client::ConnectionThread;
     QThread *thread = new QThread;
-    connection->moveToThread(thread);
+    m_connection->moveToThread(thread);
     thread->start();
 
-    connect(connection, &KWayland::Client::ConnectionThread::connected, [connection] {
-        qDebug() << "Successfully connected to Wayland server at socket:" << connection->socketName();
-        KWayland::Client::Registry registry;
-        registry.create(connection);
-        registry.setup();
-    });
-    connect(connection, &KWayland::Client::ConnectionThread::failed, [connection] {
-        qDebug() << "Failed to connect to Wayland server at socket:" << connection->socketName();
-    });
-    connection->initConnection();
+    connect(m_connection, &KWayland::Client::ConnectionThread::connected, this, &WaylandConfig::setupRegistry, Qt::QueuedConnection);
+
+//     connect(m_connection, &KWayland::Client::ConnectionThread::failed, &[] {
+//         qDebug() << "Failed to connect to Wayland server at socket:" << m_connection->socketName();
+//     });
+    m_connection->initConnection();
 
 
     return;
-    m_display = wl_display_connect(nullptr);
-    if (!m_display) {
-        // TODO: maybe we should now really tear down
-        qWarning() << "Failed connecting to Wayland display";
-        return;
-    }
-    m_registry = wl_display_get_registry(m_display);
-    // setup the registry
-    //wl_registry_add_listener(m_registry, &s_registryListener, this);
-    wl_display_dispatch(m_display);
-    int fd = wl_display_get_fd(m_display);
-    wl_display_flush(m_display);
-    wl_display_dispatch(m_display);
-    QSocketNotifier *notifier = new QSocketNotifier(fd, QSocketNotifier::Read, this);
-    connect(notifier, &QSocketNotifier::activated, this, &WaylandConfig::readEvents);
-
-    readEvents(); // force-flush display command queue
+//     m_display = wl_display_connect(nullptr);
+//     if (!m_display) {
+//         // TODO: maybe we should now really tear down
+//         qWarning() << "Failed connecting to Wayland display";
+//         return;
+//     }
+//     m_registry = wl_display_get_registry(m_display);
+//     // setup the registry
+//     //wl_registry_add_listener(m_registry, &s_registryListener, this);
+//     wl_display_dispatch(m_display);
+//     int fd = wl_display_get_fd(m_display);
+//     wl_display_flush(m_display);
+//     wl_display_dispatch(m_display);
+//     QSocketNotifier *notifier = new QSocketNotifier(fd, QSocketNotifier::Read, this);
+//     connect(notifier, &QSocketNotifier::activated, this, &WaylandConfig::readEvents);
+//
+//     readEvents(); // force-flush display command queue
 }
 
 void WaylandConfig::readEvents()
@@ -143,15 +140,32 @@ void WaylandConfig::readEvents()
     //qCDebug(KSCREEN_WAYLAND) << "readEvents...";
 }
 
-void WaylandConfig::addOutput(quint32 name, wl_output* o)
+void WaylandConfig::setupRegistry()
 {
-    qDebug() << "Addoutput " << name;
+    qDebug() << "Connected to Wayland server at socket:" << m_connection->socketName();
+
+    m_queue = new KWayland::Client::EventQueue(this);
+    m_queue->setup(m_connection);
+
+    m_registry = new KWayland::Client::Registry(this);
+    m_registry->setEventQueue(m_queue);
+
+    connect(m_registry, &KWayland::Client::Registry::outputAnnounced, this, &WaylandConfig::addOutput, Qt::QueuedConnection);
+
+    m_registry->create(m_connection);
+    m_registry->setup();
+
+}
+
+
+void WaylandConfig::addOutput(quint32 name, quint32 version)
+{
+    qDebug() << "!!! Addoutput " << name;
 //     if (m_outputMap.keys().contains(o)) {
 //         return;
 //     }
+    KWayland::Client::Output *o = m_registry->createOutput(name, version);
 
-
-    return;
     WaylandOutput *waylandoutput = new WaylandOutput(o, this);
     connect(waylandoutput, &WaylandOutput::complete, [=]{
         qDebug() << "WLO created";
@@ -162,18 +176,18 @@ void WaylandConfig::addOutput(quint32 name, wl_output* o)
         qDebug() << "WLO inserted";
 
         if (!m_blockSignals) {
-           KScreen::ConfigMonitor::instance()->notifyUpdate();
+           //KScreen::ConfigMonitor::instance()->notifyUpdate();
         }
         //m_blockSignals = false;
     });
 
 }
 
-wl_display* WaylandConfig::display() const
-{
-    return m_display;
-}
-
+// wl_display* WaylandConfig::display() const
+// {
+//     return m_display;
+// }
+//
 Config* WaylandConfig::toKScreenConfig() const
 {
     Config *config = new Config();
@@ -182,7 +196,7 @@ Config* WaylandConfig::toKScreenConfig() const
     return config;
 }
 
-int WaylandConfig::outputId(wl_output *wlo)
+int WaylandConfig::outputId(KWayland::Client::Output *wlo)
 {
     QList<int> ids;
     foreach (auto output, m_outputMap.values()) {

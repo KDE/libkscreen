@@ -29,7 +29,11 @@
 #include <QtCore/QSize>
 #include <QLoggingCategory>
 
-class wl_output;
+namespace KWayland {
+    namespace Client {
+        class Output;
+    }
+}
 
 namespace KScreen
 {
@@ -50,7 +54,7 @@ class WaylandOutput : public QObject
     Q_OBJECT
 
 public:
-    explicit WaylandOutput(wl_output *wloutput, QObject *parent = 0);
+    explicit WaylandOutput(KWayland::Client::Output *wloutput, QObject *parent = 0);
     virtual ~WaylandOutput();
 
     KScreen::Output* toKScreenOutput(KScreen::Config *parent) const;
@@ -84,7 +88,7 @@ public:
      */
     void flush();
 
-    wl_output* output() const;
+    KWayland::Client::Output* output() const;
 
 Q_SIGNALS:
     void complete();
@@ -94,7 +98,7 @@ private:
     mutable QPointer<KScreen::Edid> m_edid;
     quint32 m_id;
 
-    wl_output *m_output;
+    KWayland::Client::Output *m_output;
     QSize m_physicalSize;
     QPoint m_globalPosition;
     QString m_manufacturer;
