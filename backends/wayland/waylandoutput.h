@@ -86,6 +86,7 @@ public:
      * notify users after changes have been applied.
      */
     void flush();
+    void update();
 
     KWayland::Client::Output* output() const;
 

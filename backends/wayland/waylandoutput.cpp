@@ -33,93 +33,6 @@
 
 using namespace KScreen;
 
-/*
-static void outputHandleGeometry(void *data, wl_output *output, int32_t x, int32_t y,
-                                 int32_t physicalWidth, int32_t physicalHeight, int32_t subPixel,
-                                 const char *make, const char *model, int32_t transform)
-{
-    Q_UNUSED(subPixel)
-    Q_UNUSED(transform)
-    qCDebug(KSCREEN_WAYLAND) << "wl_output::outputHandleGeometry: " << output << make << " model : " << model;
-    qCDebug(KSCREEN_WAYLAND) << "                               : " << physicalWidth << physicalHeight << " subpixel / transform: " << subPixel << transform << " x y: " << x << y;
-
-    WaylandOutput *o = reinterpret_cast<WaylandOutput*>(data);
-    if (o->output() != output) {
-        qCDebug(KSCREEN_WAYLAND) << "sender (data) is not a WaylandOutput";
-        return;
-    }
-    qCDebug(KSCREEN_WAYLAND) << "sender (data) to WaylandOutput cast went OK";
-
-//     Output *o = reinterpret_cast<Output*>(data);
-//     if (o->output() != output) {
-//         return;
-//     }
-    o->setGlobalPosition(QPoint(x, y));
-    o->setManufacturer(make);
-    o->setModel(model);
-    o->setPhysicalSize(QSize(physicalWidth, physicalHeight));
-//     o->emitChanged();
-}
-
-static void outputHandleMode(void *data, wl_output *output, uint32_t flags, int32_t width, int32_t height, int32_t refresh)
-{
-    bool current = flags & WL_OUTPUT_MODE_CURRENT;
-    if (!(flags & WL_OUTPUT_MODE_CURRENT)) {
-        // ignore all non-current modes;
-        return;
-    }
-
-
-    Q_UNUSED(flags)
-    qCDebug(KSCREEN_WAYLAND) << "wl_output::outputHandleMode: " << output << width << height << refresh;
-    WaylandOutput *o = reinterpret_cast<WaylandOutput*>(data);
-    if (o->output() != output) {
-        qCDebug(KSCREEN_WAYLAND) << "sender (data) is not a WaylandOutput";
-        return;
-    }
-    qCDebug(KSCREEN_WAYLAND) << "sender (data) to WaylandOutput cast went OK";
-    qCDebug(KSCREEN_WAYLAND) << "current Mode?" << true;
-
-
-    o->addMode(width, height, refresh, current);
-
-    if (current) {
-        o->setPixelSize(QSize(width, height));
-        o->setRefreshRate(refresh);
-    }
-    o->flush();
-}
-
-static void outputHandleDone(void *data, wl_output *output)
-{
-    qCDebug(KSCREEN_WAYLAND) << "wl_output::outputHandleDone: " << output;
-    Q_UNUSED(data)
-    Q_UNUSED(output)
-
-    WaylandOutput *o = reinterpret_cast<WaylandOutput*>(data);
-    if (o->output() != output) {
-        qCDebug(KSCREEN_WAYLAND) << "sender (data) is not a WaylandOutput";
-        return;
-    }
-    o->flush();
-}
-
-static void outputHandleScale(void *data, wl_output *output, int32_t scale)
-{
-    qCDebug(KSCREEN_WAYLAND) << "wl_output::outputHandleScale: " << scale;
-    Q_UNUSED(data)
-    Q_UNUSED(output)
-    Q_UNUSED(scale)
-}
-
-static const struct wl_output_listener s_outputListener = {
-    outputHandleGeometry,
-    outputHandleMode,
-    outputHandleDone,
-    outputHandleScale
-};
-*/
-
 WaylandOutput::WaylandOutput(KWayland::Client::Output *wloutput, QObject *parent)
     : QObject(parent)
     , m_output(wloutput)
@@ -128,11 +41,7 @@ WaylandOutput::WaylandOutput(KWayland::Client::Output *wloutput, QObject *parent
 {
     qCDebug(KSCREEN_WAYLAND) << "KWayland::Client::Output_add_listener";
 
-    setGlobalPosition(wloutput->globalPosition());
-    setManufacturer(wloutput->manufacturer());
-    setModel(wloutput->model());
-    setPhysicalSize(wloutput->physicalSize());
-    flush();
+    connect(m_output, &KWayland::Client::Output::changed, this, &WaylandOutput::update, Qt::QueuedConnection);
     qCDebug(KSCREEN_WAYLAND) << "Listening ...";
 
 }
@@ -210,6 +119,16 @@ void WaylandOutput::updateKScreenOutput(Output* output) const
 
     output->setModes(modes);
 }
+
+void WaylandOutput::update()
+{
+    setGlobalPosition(m_output->globalPosition());
+    setManufacturer(m_output->manufacturer());
+    setModel(m_output->model());
+    setPhysicalSize(m_output->physicalSize());
+    flush();
+}
+
 
 void WaylandOutput::flush()
 {
