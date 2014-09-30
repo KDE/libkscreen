@@ -28,13 +28,6 @@
 #include <QLoggingCategory>
 #include <QSocketNotifier>
 
-// wayland
-#include <wayland-client.h>
-
-// KWayland
-//#include <KWayland/Client/output.h>
-
-class wl_output;
 
 namespace KWayland {
     namespace Client {
@@ -68,8 +61,6 @@ public:
     void addOutput(quint32 name, quint32 version);
     void removeOutput(quint32 id);
 
-//     wl_display *display() const;
-
 private Q_SLOTS:
     void readEvents();
     void setupRegistry();
@@ -79,8 +70,6 @@ private:
     KWayland::Client::ConnectionThread *m_connection;
     KWayland::Client::EventQueue *m_queue;
     KWayland::Client::Registry *m_registry;
-//     wl_display *m_display;
-//     wl_registry *m_registry;
     QString m_socketName;
     QDir m_runtimeDir;
 

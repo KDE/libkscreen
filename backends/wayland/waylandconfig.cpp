@@ -39,41 +39,6 @@
 using namespace KScreen;
 
 
-// /**
-//  * Callback for announcing global objects in the registry
-//  **/
-// static void registryHandleGlobal(void *data, struct wl_registry *registry,
-//                                  uint32_t name, const char *interface, uint32_t version)
-// {
-//     Q_UNUSED(version)
-//     Q_UNUSED(data)
-//     if (strcmp(interface, "wl_output") == 0) {
-// //        WaylandBackend *d = reinterpret_cast<WaylandBackend*>(data);
-//         qCDebug(KSCREEN_WAYLAND) << "new Wayland Output: " << interface << name << version;
-//         WaylandBackend::internalConfig()->addOutput(name, reinterpret_cast<wl_output *>(wl_registry_bind(registry, name, &wl_output_interface, 1)));
-//     }
-// }
-//
-// /**
-//  * Callback for removal of global objects in the registry
-//  **/
-// static void registryHandleGlobalRemove(void *data, struct wl_registry *registry, uint32_t name)
-// {
-//     Q_UNUSED(data)
-//     Q_UNUSED(registry)
-//     Q_UNUSED(name)
-//     qCDebug(KSCREEN_WAYLAND) << "Wayland global object removed: " << name;
-//     // TODO: implement me
-// }
-//
-//
-// // handlers
-// static const struct wl_registry_listener s_registryListener = {
-//     registryHandleGlobal,
-//     registryHandleGlobalRemove
-// };
-//
-
 WaylandConfig::WaylandConfig(QObject *parent)
     : QObject(parent)
     , m_runtimeDir(qgetenv("XDG_RUNTIME_DIR"))
@@ -87,7 +52,6 @@ WaylandConfig::WaylandConfig(QObject *parent)
     m_blockSignals = false;
     qCDebug(KSCREEN_WAYLAND) << " Config creating.";
     initConnection();
-    //connect(qApp, &QGuiApplication::screenAdded, this, &WaylandConfig::screenAdded);
 }
 
 WaylandConfig::~WaylandConfig()
@@ -115,23 +79,6 @@ void WaylandConfig::initConnection()
 
 
     return;
-//     m_display = wl_display_connect(nullptr);
-//     if (!m_display) {
-//         // TODO: maybe we should now really tear down
-//         qWarning() << "Failed connecting to Wayland display";
-//         return;
-//     }
-//     m_registry = wl_display_get_registry(m_display);
-//     // setup the registry
-//     //wl_registry_add_listener(m_registry, &s_registryListener, this);
-//     wl_display_dispatch(m_display);
-//     int fd = wl_display_get_fd(m_display);
-//     wl_display_flush(m_display);
-//     wl_display_dispatch(m_display);
-//     QSocketNotifier *notifier = new QSocketNotifier(fd, QSocketNotifier::Read, this);
-//     connect(notifier, &QSocketNotifier::activated, this, &WaylandConfig::readEvents);
-//
-//     readEvents(); // force-flush display command queue
 }
 
 void WaylandConfig::readEvents()
@@ -161,9 +108,10 @@ void WaylandConfig::setupRegistry()
 void WaylandConfig::addOutput(quint32 name, quint32 version)
 {
     qDebug() << "!!! Addoutput " << name;
-//     if (m_outputMap.keys().contains(o)) {
-//         return;
-//     }
+    if (m_outputMap.keys().contains(name)) {
+        qDebug() << "Output already known";
+        return;
+    }
     KWayland::Client::Output *o = m_registry->createOutput(name, version);
 
     WaylandOutput *waylandoutput = new WaylandOutput(o, this);
@@ -176,18 +124,13 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
         qDebug() << "WLO inserted";
 
         if (!m_blockSignals) {
-           //KScreen::ConfigMonitor::instance()->notifyUpdate();
+            KScreen::ConfigMonitor::instance()->notifyUpdate();
         }
         //m_blockSignals = false;
     });
 
 }
 
-// wl_display* WaylandConfig::display() const
-// {
-//     return m_display;
-// }
-//
 Config* WaylandConfig::toKScreenConfig() const
 {
     Config *config = new Config();
@@ -211,18 +154,16 @@ int WaylandConfig::outputId(KWayland::Client::Output *wlo)
 void WaylandConfig::removeOutput(quint32 id)
 {
     qCDebug(KSCREEN_WAYLAND) << "output screen Removed!!! .." << id << m_outputMap[id];
-    /*
     // Find output matching the QScreen object and remove it
     int removedOutputId = -1;
     foreach (auto output, m_outputMap.values()) {
-        if (output->qscreen() == qscreen) {
-            qDebug() << "Found output matching the qscreen " << output;
-            removedOutputId = output->id();
-            m_outputMap.remove(removedOutputId);
-            delete output;
-        }
+//         if (output->qscreen() == qscreen) {
+//             qDebug() << "Found output matching the qscreen " << output;
+//             removedOutputId = output->id();
+//             m_outputMap.remove(removedOutputId);
+//             delete output;
+//         }
     }
-    */
     if (!m_blockSignals) {
         KScreen::ConfigMonitor::instance()->notifyUpdate();
     }
