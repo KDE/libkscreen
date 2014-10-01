@@ -86,6 +86,7 @@ void testWaylandBackend::verifyScreen()
 
 void testWaylandBackend::verifyAsync()
 {
+    KScreen::ConfigMonitor::instance()->addConfig(m_config);
     connect(KScreen::ConfigMonitor::instance(), &KScreen::ConfigMonitor::configurationChanged,
             this, &testWaylandBackend::verifyOutputs);
     qApp->exec();
@@ -93,6 +94,8 @@ void testWaylandBackend::verifyAsync()
 
 void testWaylandBackend::verifyOutputs()
 {
+    qApp->exit(0); // stop dealing signals, results will still be checked
+
     qDebug() << "Primary found? " << m_config->outputs();
     bool primaryFound = false;
     foreach (const KScreen::Output* op, m_config->outputs()) {
@@ -142,12 +145,6 @@ void testWaylandBackend::cleanupTestCase()
 }
 
 
-
 QTEST_MAIN(testWaylandBackend)
-
-// int main(int argc, char *argv[]) {
-//     QCoreApplication a( argc, argv );
-//     a.exec();
-// }
 
 #include "testwaylandbackend.moc"
