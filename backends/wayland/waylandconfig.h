@@ -69,8 +69,6 @@ private:
     KWayland::Client::ConnectionThread *m_connection;
     KWayland::Client::EventQueue *m_queue;
     KWayland::Client::Registry *m_registry;
-    QString m_socketName;
-    QDir m_runtimeDir;
 
     QMap<quint32, WaylandOutput *> m_outputMap;
     WaylandScreen *m_screen;

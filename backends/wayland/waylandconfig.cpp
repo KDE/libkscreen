@@ -41,18 +41,12 @@ using namespace KScreen;
 
 WaylandConfig::WaylandConfig(QObject *parent)
     : QObject(parent)
-    , m_runtimeDir(qgetenv("XDG_RUNTIME_DIR"))
     , m_screen(new WaylandScreen(this))
     , m_blockSignals(true)
 {
-    m_socketName = qgetenv("WAYLAND_DISPLAY");
-    if (m_socketName.isEmpty()) {
-        m_socketName = QStringLiteral("wayland-0");
-    }
     qCDebug(KSCREEN_WAYLAND) << " Config creating.";
     initConnection();
     m_blockSignals = false;
-    qDebug() << "WLC ctor returns";
 }
 
 WaylandConfig::~WaylandConfig()
@@ -65,7 +59,6 @@ WaylandConfig::~WaylandConfig()
 
 void WaylandConfig::initConnection()
 {
-    qDebug() << "wl_display_connect";
     m_connection = new KWayland::Client::ConnectionThread;
     QThread *thread = new QThread;
     m_connection->moveToThread(thread);
@@ -77,9 +70,6 @@ void WaylandConfig::initConnection()
 //         qDebug() << "Failed to connect to Wayland server at socket:" << m_connection->socketName();
 //     });
     m_connection->initConnection();
-
-
-    return;
 }
 
 void WaylandConfig::setupRegistry()
