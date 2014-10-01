@@ -103,6 +103,7 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
     connect(waylandoutput, &WaylandOutput::complete, [=]{
         m_outputMap[waylandoutput->id()] = waylandoutput;
         if (!m_blockSignals) {
+            qCDebug(KSCREEN_WAYLAND) << "added output complete .. notifyUpdate()" << name;
             KScreen::ConfigMonitor::instance()->notifyUpdate();
         }
     });
@@ -148,6 +149,7 @@ void WaylandConfig::removeOutput(quint32 id)
 
 void WaylandConfig::updateKScreenConfig(Config* config) const
 {
+    qCDebug(KSCREEN_WAYLAND) << "===>> updateKScreenConfig";
     m_screen->updateKScreenScreen(config->screen());
 
     //Removing removed outputs
@@ -157,6 +159,8 @@ void WaylandConfig::updateKScreenConfig(Config* config) const
             config->removeOutput(output->id());
         }
     }
+    qCDebug(KSCREEN_WAYLAND) << "updateKScreenConfig" << m_outputMap.keys();
+
     // Add KScreen::Outputs that aren't in the list yet, handle primaryOutput
     Q_FOREACH (auto output, m_outputMap.values()) {
 
@@ -164,10 +168,11 @@ void WaylandConfig::updateKScreenConfig(Config* config) const
 
         if (!kscreenOutput) {
             kscreenOutput = output->toKScreenOutput(config);
-            qDebug() << "Adding output" << output->id();
             config->addOutput(kscreenOutput);
+            qDebug() << "Adding output to config" << output->id();
         }
         output->updateKScreenOutput(kscreenOutput);
+
         if (m_outputMap.count() == 1) {
             kscreenOutput->setPrimary(true);
         } else if (m_outputMap.count() > 1) {
@@ -179,10 +184,9 @@ void WaylandConfig::updateKScreenConfig(Config* config) const
     }
 }
 
-QMap< int, WaylandOutput * > WaylandConfig::outputMap() const
+QMap<quint32, WaylandOutput*> WaylandConfig::outputMap() const
 {
-    //QMap< int, WaylandOutput * > map; // FIXME
-    return outputMap();
+    return m_outputMap;
 }
 
 

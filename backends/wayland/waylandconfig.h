@@ -55,7 +55,7 @@ public:
     KScreen::Config *toKScreenConfig() const;
     void updateKScreenConfig(KScreen::Config *config) const;
 
-    QMap<int, WaylandOutput *> outputMap() const;
+    QMap<quint32, WaylandOutput *> outputMap() const;
     int outputId(KWayland::Client::Output *wlo);
 
     void addOutput(quint32 name, quint32 version);
