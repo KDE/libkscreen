@@ -62,7 +62,6 @@ public:
     void removeOutput(quint32 id);
 
 private Q_SLOTS:
-    void readEvents();
     void setupRegistry();
 
 private:

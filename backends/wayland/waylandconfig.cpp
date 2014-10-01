@@ -82,12 +82,6 @@ void WaylandConfig::initConnection()
     return;
 }
 
-void WaylandConfig::readEvents()
-{
-
-    //qCDebug(KSCREEN_WAYLAND) << "readEvents...";
-}
-
 void WaylandConfig::setupRegistry()
 {
     qDebug() << "Connected to Wayland server at socket:" << m_connection->socketName();
@@ -107,32 +101,21 @@ void WaylandConfig::setupRegistry()
 
 void WaylandConfig::addOutput(quint32 name, quint32 version)
 {
-    qDebug() << "!!! Addoutput " << name;
     if (m_outputMap.keys().contains(name)) {
         qDebug() << "Output already known";
         return;
     }
-//     KWayland::Client::Output *o = m_registry->createOutput(name, version);
-    //Output *c = new Output;
 
     WaylandOutput *waylandoutput = new WaylandOutput(this);
     waylandoutput->setId(name);
     waylandoutput->setup(m_registry->bindOutput(name, version));
 
     connect(waylandoutput, &WaylandOutput::complete, [=]{
-        qDebug() << "WLO created" << name << waylandoutput->isValid();
-        //waylandoutput->setId(name);
-        m_outputMap.insert(name, waylandoutput);
-        qDebug() << "WLO setPhysicalSize: " << waylandoutput->physicalSize();
         m_outputMap[waylandoutput->id()] = waylandoutput;
-        qDebug() << "WLO inserted";
-
         if (!m_blockSignals) {
             KScreen::ConfigMonitor::instance()->notifyUpdate();
         }
-        //m_blockSignals = false;
     });
-
 }
 
 Config* WaylandConfig::toKScreenConfig() const
@@ -195,6 +178,13 @@ void WaylandConfig::updateKScreenConfig(Config* config) const
             config->addOutput(kscreenOutput);
         }
         output->updateKScreenOutput(kscreenOutput);
+        if (m_outputMap.count() == 1) {
+            kscreenOutput->setPrimary(true);
+        } else if (m_outputMap.count() > 1) {
+            qWarning() << "Multiple outputs, but no way to figure out the primary one. :/";
+        } else {
+            qWarning() << "No outputs found. :(";
+        }
         // FIXME: primaryScreen?
     }
 }
