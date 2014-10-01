@@ -37,12 +37,8 @@ WaylandOutput::WaylandOutput(QObject *parent)
     , m_id(-1)
     , m_completed(false)
 {
-    qCDebug(KSCREEN_WAYLAND) << "KWayland::Client::Output_add_listener";
-
     connect(this, &KWayland::Client::Output::changed, this, &WaylandOutput::update, Qt::QueuedConnection);
     connect(this, &KWayland::Client::Output::modeAdded, this, &WaylandOutput::updateModes, Qt::QueuedConnection);
-    qCDebug(KSCREEN_WAYLAND) << "Output " << m_id << " is listening ...";
-
 }
 
 WaylandOutput::~WaylandOutput()
@@ -73,7 +69,7 @@ Output* WaylandOutput::toKScreenOutput(Config* parent) const
     output->setId(m_id);
     output->setName(QString::number(m_id));
     qCDebug(KSCREEN_WAYLAND) << "toKScreenOutput OUTPUT";
-    //updateKScreenOutput(output);
+    //updateKScreenOutput(output); // Doesn't seem to be needed, but verify!
     return output;
 }
 
@@ -101,11 +97,9 @@ void WaylandOutput::updateKScreenOutput(KScreen::Output* output) const
         mode->setSize(m.size);
         mode->setName(modename);
         if (m.flags.testFlag(Output::Mode::Flag::Current)) {
-            //qDebug() << "Current mode: " << modename;
             output->setCurrentModeId(modename);
         }
         modeList[modename] = mode;
-        //qCDebug(KSCREEN_WAYLAND) << "Created mode: " << modename << modeList;
     }
 
     output->setModes(modeList);
@@ -113,20 +107,17 @@ void WaylandOutput::updateKScreenOutput(KScreen::Output* output) const
 
 void WaylandOutput::update()
 {
-    qCDebug(KSCREEN_WAYLAND) << "_______________ Update! ";
     flush();
 }
 
 QString WaylandOutput::modeName(const KWayland::Client::Output::Mode &m) const
 {
     return QString::number(m.size.width()) + QLatin1Char('x') + QString::number(m.size.height()) + QLatin1Char('@') + QString::number((int)(m.refreshRate/1000));
-
 }
 
 
 void WaylandOutput::updateModes()
 {
-    qDebug() << "I've now modes: " << modes().count();
     flush();
 }
 
@@ -134,24 +125,18 @@ bool WaylandOutput::isComplete()
 {
     // FIXME: we want smarter tracking when the whole initialization storm is done and ...
     // the data structures are complete (for now).
-    if (m_id != -1 &&
-        modes().count() > 0) {
-        return true;
-    }
-    return false;
+    return (m_id != -1 &&
+            modes().count() > 0);
 }
 
 void WaylandOutput::flush()
 {
-    // TODO
-    //qDebug() << "complete?" << isComplete() << m_completed << m_id << modes().count();
     if (isComplete() && !m_completed) {
         m_completed = true;
 
         qCDebug(KSCREEN_WAYLAND) << "_______________ " << (isValid() ? "Valid" : "Invalid");
         qCDebug(KSCREEN_WAYLAND) << "Output changes... ";
         qCDebug(KSCREEN_WAYLAND) << "  id:              " << id();
-    //     qCDebug(KSCREEN_WAYLAND) << "  name:            " << name();
         qCDebug(KSCREEN_WAYLAND) << "  Pixel Size:      " << pixelSize();
         qCDebug(KSCREEN_WAYLAND) << "  Physical Size:   " << physicalSize();
         qCDebug(KSCREEN_WAYLAND) << "  Global Position: " << globalPosition();
