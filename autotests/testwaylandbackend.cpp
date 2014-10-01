@@ -18,10 +18,12 @@
 
 #define QT_GUI_LIB
 
+#include <QCoreApplication>
 #include <QtTest/QtTest>
 #include <QtCore/QObject>
 
 #include "../src/config.h"
+#include "../src/configmonitor.h"
 #include "../src/output.h"
 #include "../src/mode.h"
 #include "../src/edid.h"
@@ -37,11 +39,12 @@ class testWaylandBackend : public QObject
 private Q_SLOTS:
     void initTestCase();
     void verifyConfig();
+    void verifyAsync();
     void verifyScreen();
-    void verifyOutputs();
     void cleanupTestCase();
 
 private:
+    void verifyOutputs();
     QProcess m_process;
     Config *m_config;
     QString m_backend;
@@ -80,9 +83,17 @@ void testWaylandBackend::verifyScreen()
     QVERIFY(m_config->screen()->maxActiveOutputsCount() > 0);
 }
 
+
+void testWaylandBackend::verifyAsync()
+{
+    connect(KScreen::ConfigMonitor::instance(), &KScreen::ConfigMonitor::configurationChanged,
+            this, &testWaylandBackend::verifyOutputs);
+    QTest::qWait(5000);
+}
+
 void testWaylandBackend::verifyOutputs()
 {
-
+    qDebug() << "Primary found? " << m_config->outputs();
     bool primaryFound = false;
     foreach (const KScreen::Output* op, m_config->outputs()) {
         qDebug() << "CHecking at all";
@@ -90,7 +101,7 @@ void testWaylandBackend::verifyOutputs()
             primaryFound = true;
         }
     }
-    qDebug() << "Primary found? " << primaryFound;
+    qDebug() << "Primary found? " << primaryFound << m_config->outputs();
     QVERIFY(primaryFound);
     QVERIFY(m_config->outputs().count());
 
@@ -133,5 +144,10 @@ void testWaylandBackend::cleanupTestCase()
 
 
 QTEST_MAIN(testWaylandBackend)
+
+// int main(int argc, char *argv[]) {
+//     QCoreApplication a( argc, argv );
+//     a.exec();
+// }
 
 #include "testwaylandbackend.moc"
