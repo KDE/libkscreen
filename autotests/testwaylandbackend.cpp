@@ -88,7 +88,7 @@ void testWaylandBackend::verifyAsync()
 {
     connect(KScreen::ConfigMonitor::instance(), &KScreen::ConfigMonitor::configurationChanged,
             this, &testWaylandBackend::verifyOutputs);
-    QTest::qWait(5000);
+    qApp->exec();
 }
 
 void testWaylandBackend::verifyOutputs()
