@@ -51,12 +51,14 @@ WaylandConfig::WaylandConfig(QObject *parent)
     }
     qCDebug(KSCREEN_WAYLAND) << " Config creating.";
     initConnection();
+    m_blockSignals = false;
+    qDebug() << "WLC ctor returns";
 }
 
 WaylandConfig::~WaylandConfig()
 {
     qDebug() << "Byebye";
-    foreach (auto output, m_outputMap.values()) {
+    Q_FOREACH (auto output, m_outputMap.values()) {
         delete output;
     }
 }
@@ -100,8 +102,6 @@ void WaylandConfig::setupRegistry()
 
     m_registry->create(m_connection);
     m_registry->setup();
-    //m_blockSignals = false;
-
 }
 
 
@@ -118,12 +118,13 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
     WaylandOutput *waylandoutput = new WaylandOutput(this);
     waylandoutput->setId(name);
     waylandoutput->setup(m_registry->bindOutput(name, version));
+
     connect(waylandoutput, &WaylandOutput::complete, [=]{
         qDebug() << "WLO created" << name << waylandoutput->isValid();
         //waylandoutput->setId(name);
         m_outputMap.insert(name, waylandoutput);
         qDebug() << "WLO setPhysicalSize: " << waylandoutput->physicalSize();
-        //m_outputMap[waylandoutput->id()] = waylandoutput;
+        m_outputMap[waylandoutput->id()] = waylandoutput;
         qDebug() << "WLO inserted";
 
         if (!m_blockSignals) {
@@ -145,7 +146,7 @@ Config* WaylandConfig::toKScreenConfig() const
 int WaylandConfig::outputId(KWayland::Client::Output *wlo)
 {
     QList<int> ids;
-    foreach (auto output, m_outputMap.values()) {
+    Q_FOREACH (auto output, m_outputMap.values()) {
         if (wlo == output) {
             return output->id();
         }
@@ -159,7 +160,7 @@ void WaylandConfig::removeOutput(quint32 id)
     qCDebug(KSCREEN_WAYLAND) << "output screen Removed!!! .." << id << m_outputMap[id];
     // Find output matching the QScreen object and remove it
     int removedOutputId = -1;
-    foreach (auto output, m_outputMap.values()) {
+    Q_FOREACH (auto output, m_outputMap.values()) {
 //         if (output->qscreen() == qscreen) {
 //             qDebug() << "Found output matching the qscreen " << output;
 //             removedOutputId = output->id();
@@ -178,13 +179,13 @@ void WaylandConfig::updateKScreenConfig(Config* config) const
 
     //Removing removed outputs
     KScreen::OutputList outputs = config->outputs();
-    Q_FOREACH(KScreen::Output *output, outputs) {
+    Q_FOREACH (KScreen::Output *output, outputs) {
         if (!m_outputMap.keys().contains(output->id())) {
             config->removeOutput(output->id());
         }
     }
     // Add KScreen::Outputs that aren't in the list yet, handle primaryOutput
-    foreach(auto output, m_outputMap.values()) {
+    Q_FOREACH (auto output, m_outputMap.values()) {
 
         KScreen::Output *kscreenOutput = config->output(output->id());
 

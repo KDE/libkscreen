@@ -38,17 +38,6 @@ namespace KWayland {
 namespace KScreen
 {
 
-/** @class WaylandMode
- *  A typedef'ed list of quint32 holding:
- *  - width
- *  - height
- *  - refresh rate
- *  - whether it is the current mode (0 - it's not, 1 - it's the current mode)
- *
- *  This is used as internal representation of the modes of an output.
- */
-typedef QList<quint32> WaylandMode;
-
 class WaylandOutput : public KWayland::Client::Output
 {
     Q_OBJECT
@@ -60,54 +49,33 @@ public:
     KScreen::Output* toKScreenOutput(KScreen::Config *parent) const;
     void updateKScreenOutput(KScreen::Output *output) const;
 
-    /** QScreen doesn't support querying for the EDID, this function centralizes
-     *  creating the EDID per output, anyway, so a drop-in solution will "just work".
+    /** Access to the Output's Edid object.
      */
     KScreen::Edid *edid();
 
     quint32 id() const;
     void setId(const quint32 newId);
 
-//     const QSize &physicalSize() const;
-//     const QPoint &globalPosition() const;
-//     const QString &manufacturer() const;
-//     const QString &model() const;
-//     const QSize &pixelSize() const;
-//     int refreshRate() const;
-//
-//     void setPhysicalSize(const QSize &size);
-//     void setGlobalPosition(const QPoint &pos);
-//     void setManufacturer(const QString &manufacturer);
-//     void setModel(const QString &model);
-//     void setPixelSize(const QSize &size);
-//     void setRefreshRate(int refreshRate);
-//
-//     void addMode(quint32 w, quint32 h, quint32 refresh, bool current);
-    /*
-     * notify users after changes have been applied.
-     */
-    void flush();
-    void update();
-
-//     KWayland::Client::Output* output() const;
 
 Q_SIGNALS:
     void complete();
 
 private:
-    void updateFromQScreen(const QScreen *qscreen);
+    /*
+     * notify users after changes have been applied.
+     */
+    void flush();
+    void update();
+    void updateModes();
+    QString modeName(const KWayland::Client::Output::Mode &m) const;
+
     mutable QPointer<KScreen::Edid> m_edid;
     quint32 m_id;
 
-    KWayland::Client::Output *m_output;
-    QSize m_physicalSize;
-    QPoint m_globalPosition;
-    QString m_manufacturer;
-    QString m_model;
-    QSize m_pixelSize;
-    int m_refreshRate;
-
-    QHash<QString, KScreen::WaylandMode> m_modes;
+    /** Check if we consider this object to be complete (i.e. done initializing).*/
+    bool isComplete();
+    /** Track if we've emitted the complete() signal, as to not do it twice. */
+    bool m_completed;
 };
 
 } // namespace

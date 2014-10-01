@@ -35,11 +35,13 @@ WaylandOutput::WaylandOutput(QObject *parent)
     : KWayland::Client::Output(parent)
     , m_edid(0)
     , m_id(-1)
+    , m_completed(false)
 {
     qCDebug(KSCREEN_WAYLAND) << "KWayland::Client::Output_add_listener";
 
     connect(this, &KWayland::Client::Output::changed, this, &WaylandOutput::update, Qt::QueuedConnection);
-    qCDebug(KSCREEN_WAYLAND) << "Listening ...";
+    connect(this, &KWayland::Client::Output::modeAdded, this, &WaylandOutput::updateModes, Qt::QueuedConnection);
+    qCDebug(KSCREEN_WAYLAND) << "Output " << m_id << " is listening ...";
 
 }
 
@@ -70,7 +72,8 @@ Output* WaylandOutput::toKScreenOutput(Config* parent) const
     KScreen::Output *output = new KScreen::Output(parent);
     output->setId(m_id);
     output->setName(QString::number(m_id));
-    updateKScreenOutput(output);
+    qCDebug(KSCREEN_WAYLAND) << "toKScreenOutput OUTPUT";
+    //updateKScreenOutput(output);
     return output;
 }
 
@@ -80,30 +83,32 @@ void WaylandOutput::updateKScreenOutput(KScreen::Output* output) const
     // Initialize primary output
     output->setEnabled(true);
     output->setConnected(true);
-    output->setPrimary(true);
+    output->setPrimary(true); // FIXME
     // FIXME: Rotation
 
     // Physical size
     output->setSizeMm(physicalSize());
     //qCDebug(KSCREEN_WAYLAND) << "  ####### setSizeMm: " << physicalSize();
     output->setPos(globalPosition());
-
-    ModeList modes;
-    Q_FOREACH (const QString &modename, m_modes.keys()) {
-        const WaylandMode &wlmode = m_modes[modename];
-        qCDebug(KSCREEN_WAYLAND) << "Creating mode: " << modename << m_modes[modename] << wlmode;
+    ModeList modeList;
+    //return;
+    //QList<KWayland::Client::Output::Mode> wlModes = modes();
+    Q_FOREACH (const KWayland::Client::Output::Mode &m, modes()) {
         KScreen::Mode *mode = new KScreen::Mode(output);
+        const QString modename = modeName(m);
         mode->setId(modename);
-        mode->setRefreshRate(wlmode.at(2));
-        mode->setSize(QSize(wlmode.at(0), wlmode.at(1)));
+        mode->setRefreshRate(m.refreshRate);
+        mode->setSize(m.size);
         mode->setName(modename);
-        if (wlmode.at(3)) {
+        if (m.flags.testFlag(Output::Mode::Flag::Current)) {
+            //qDebug() << "Current mode: " << modename;
             output->setCurrentModeId(modename);
         }
-        modes[modename] = mode;
+        modeList[modename] = mode;
+        //qCDebug(KSCREEN_WAYLAND) << "Created mode: " << modename << modeList;
     }
 
-    output->setModes(modes);
+    output->setModes(modeList);
 }
 
 void WaylandOutput::update()
@@ -112,18 +117,59 @@ void WaylandOutput::update()
     flush();
 }
 
+QString WaylandOutput::modeName(const KWayland::Client::Output::Mode &m) const
+{
+    return QString::number(m.size.width()) + QLatin1Char('x') + QString::number(m.size.height()) + QLatin1Char('@') + QString::number((int)(m.refreshRate/1000));
+
+}
+
+
+void WaylandOutput::updateModes()
+{
+    qDebug() << "I've now modes: " << modes().count();
+    flush();
+}
+
+bool WaylandOutput::isComplete()
+{
+    // FIXME: we want smarter tracking when the whole initialization storm is done and ...
+    // the data structures are complete (for now).
+    if (m_id != -1 &&
+        modes().count() > 0) {
+        return true;
+    }
+    return false;
+}
 
 void WaylandOutput::flush()
 {
-    qCDebug(KSCREEN_WAYLAND) << "_______________ " << (isValid() ? "Valid" : "Invalid");
-    qCDebug(KSCREEN_WAYLAND) << "Output changes... ";
-    qCDebug(KSCREEN_WAYLAND) << "  id:              " << id();
-//     qCDebug(KSCREEN_WAYLAND) << "  name:            " << name();
-    qCDebug(KSCREEN_WAYLAND) << "  Pixel Size:      " << pixelSize();
-    qCDebug(KSCREEN_WAYLAND) << "  Physical Size:   " << physicalSize();
-    qCDebug(KSCREEN_WAYLAND) << "  Global Position: " << globalPosition();
-    qCDebug(KSCREEN_WAYLAND) << "  Manufacturer   : " << manufacturer();
-    qCDebug(KSCREEN_WAYLAND) << "  Model:           " << model();
     // TODO
-    emit complete();
+    //qDebug() << "complete?" << isComplete() << m_completed << m_id << modes().count();
+    if (isComplete() && !m_completed) {
+        m_completed = true;
+
+        qCDebug(KSCREEN_WAYLAND) << "_______________ " << (isValid() ? "Valid" : "Invalid");
+        qCDebug(KSCREEN_WAYLAND) << "Output changes... ";
+        qCDebug(KSCREEN_WAYLAND) << "  id:              " << id();
+    //     qCDebug(KSCREEN_WAYLAND) << "  name:            " << name();
+        qCDebug(KSCREEN_WAYLAND) << "  Pixel Size:      " << pixelSize();
+        qCDebug(KSCREEN_WAYLAND) << "  Physical Size:   " << physicalSize();
+        qCDebug(KSCREEN_WAYLAND) << "  Global Position: " << globalPosition();
+        qCDebug(KSCREEN_WAYLAND) << "  Manufacturer   : " << manufacturer();
+        qCDebug(KSCREEN_WAYLAND) << "  Model:           " << model();
+
+        foreach (auto m, modes()) {
+            QString modename = modeName(m);
+            if (m.flags.testFlag(Output::Mode::Flag::Current)) {
+                modename = modename + " (current)";
+            }
+            if (m.flags.testFlag(Output::Mode::Flag::Preferred)) {
+                modename = modename + " (Preferred)";
+            }
+            qCDebug(KSCREEN_WAYLAND) << "            Mode : " << modename;
+
+        }
+
+        emit complete();
+    }
 }
