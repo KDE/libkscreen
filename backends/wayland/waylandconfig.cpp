@@ -43,10 +43,15 @@ WaylandConfig::WaylandConfig(QObject *parent)
     : QObject(parent)
     , m_screen(new WaylandScreen(this))
     , m_blockSignals(true)
+    , m_registryInitialized(false)
+
 {
     qCDebug(KSCREEN_WAYLAND) << " Config creating.";
+    connect(this, &WaylandConfig::initialized, &m_syncLoop, &QEventLoop::quit);
     initConnection();
-    m_blockSignals = false;
+    m_syncLoop.exec();
+    qDebug() << "CTOR Done. Outputs:" << m_outputMap;
+//     m_blockSignals = false;
 }
 
 WaylandConfig::~WaylandConfig()
@@ -66,9 +71,9 @@ void WaylandConfig::initConnection()
 
     connect(m_connection, &KWayland::Client::ConnectionThread::connected, this, &WaylandConfig::setupRegistry, Qt::QueuedConnection);
 
-//     connect(m_connection, &KWayland::Client::ConnectionThread::failed, &[] {
-//         qDebug() << "Failed to connect to Wayland server at socket:" << m_connection->socketName();
-//     });
+    connect(m_connection, &KWayland::Client::ConnectionThread::failed, [=] {
+        qDebug() << "Failed to connect to Wayland server at socket:" << m_connection->socketName();
+    });
     m_connection->initConnection();
 }
 
@@ -82,7 +87,13 @@ void WaylandConfig::setupRegistry()
     m_registry = new KWayland::Client::Registry(this);
     m_registry->setEventQueue(m_queue);
 
-    connect(m_registry, &KWayland::Client::Registry::outputAnnounced, this, &WaylandConfig::addOutput, Qt::QueuedConnection);
+    connect(m_registry, &KWayland::Client::Registry::outputAnnounced, this, &WaylandConfig::addOutput, Qt::DirectConnection);
+
+    connect(m_registry, &KWayland::Client::Registry::sync, [=] {
+        qDebug() << "Registry::Sync arrived in Backend!:";
+        m_registryInitialized = true;
+        checkInitialized();
+    });
 
     m_registry->create(m_connection);
     m_registry->setup();
@@ -91,6 +102,10 @@ void WaylandConfig::setupRegistry()
 
 void WaylandConfig::addOutput(quint32 name, quint32 version)
 {
+    qDebug() << "Adding output" << name;
+    if (!m_blockSignals) {
+        m_initializingOutputs << name;
+    }
     if (m_outputMap.keys().contains(name)) {
         qDebug() << "Output already known";
         return;
@@ -102,12 +117,27 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
 
     connect(waylandoutput, &WaylandOutput::complete, [=]{
         m_outputMap[waylandoutput->id()] = waylandoutput;
+        m_initializingOutputs.removeAll(name);
+        checkInitialized();
         if (!m_blockSignals) {
+        } else {
             qCDebug(KSCREEN_WAYLAND) << "added output complete .. notifyUpdate()" << name;
             KScreen::ConfigMonitor::instance()->notifyUpdate();
         }
     });
 }
+
+void WaylandConfig::checkInitialized()
+{
+    qDebug() << "CHECK: " << m_registryInitialized << m_initializingOutputs.isEmpty() << m_outputMap;
+    if (m_registryInitialized && m_initializingOutputs.isEmpty() && m_outputMap.count()) {
+        qDebug() << "We're done!";
+        emit initialized();
+        m_blockSignals = false;
+        //m_syncLoop.quit();
+    };
+}
+
 
 Config* WaylandConfig::toKScreenConfig() const
 {
@@ -188,5 +218,4 @@ QMap<quint32, WaylandOutput*> WaylandConfig::outputMap() const
 {
     return m_outputMap;
 }
-
 

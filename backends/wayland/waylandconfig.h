@@ -23,6 +23,7 @@
 #include "config.h"
 
 #include <QDir>
+#include <QEventLoop>
 #include <QScreen>
 #include <QtCore/QSize>
 #include <QLoggingCategory>
@@ -61,8 +62,12 @@ public:
     void addOutput(quint32 name, quint32 version);
     void removeOutput(quint32 id);
 
+Q_SIGNALS:
+    void initialized();
+
 private Q_SLOTS:
     void setupRegistry();
+    void checkInitialized();
 
 private:
     void initConnection();
@@ -71,9 +76,12 @@ private:
     KWayland::Client::Registry *m_registry;
 
     QMap<quint32, WaylandOutput *> m_outputMap;
+    QList<quint32> m_initializingOutputs;
+    bool m_registryInitialized;
     WaylandScreen *m_screen;
     int m_lastOutputId = -1;
     bool m_blockSignals;
+    QEventLoop m_syncLoop;
 };
 
 } // namespace
