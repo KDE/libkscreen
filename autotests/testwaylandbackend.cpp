@@ -39,12 +39,12 @@ class testWaylandBackend : public QObject
 private Q_SLOTS:
     void initTestCase();
     void verifyConfig();
-    void verifyAsync();
+    void verifyOutputs();
     void verifyScreen();
     void cleanupTestCase();
 
 private:
-    void verifyOutputs();
+    void verifyAsync();
     QProcess m_process;
     Config *m_config;
     QString m_backend;
