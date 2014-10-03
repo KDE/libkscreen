@@ -45,8 +45,8 @@ WaylandBackend::WaylandBackend(QObject *parent)
 {
     QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.wayland.debug = true"));
 
-    qCDebug(KSCREEN_WAYLAND) << "Loading Wayland backend.";
     if (s_internalConfig == 0) {
+        qCDebug(KSCREEN_WAYLAND) << "Loading Wayland backend.";
         s_internalConfig = new WaylandConfig();
     }
 }
