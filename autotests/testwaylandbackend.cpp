@@ -22,6 +22,18 @@
 #include <QtTest/QtTest>
 #include <QtCore/QObject>
 
+// KWayland
+#include <KWayland/Client/connection_thread.h>
+#include <KWayland/Client/event_queue.h>
+#include <KWayland/Client/registry.h>
+
+#include <KWayland/Server/compositor_interface.h>
+#include <KWayland/Server/display.h>
+#include <KWayland/Server/output_interface.h>
+#include <KWayland/Server/seat_interface.h>
+#include <KWayland/Server/shell_interface.h>
+
+
 #include "../src/config.h"
 #include "../src/configmonitor.h"
 #include "../src/output.h"
@@ -30,13 +42,21 @@
 
 //Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.qscreen");
 
+static const QString s_socketName = QStringLiteral("libkscreen-test-wayland-backend-0");
+
 using namespace KScreen;
 
 class testWaylandBackend : public QObject
 {
     Q_OBJECT
 
+public:
+    explicit testWaylandBackend(QObject *parent = nullptr);
+
 private Q_SLOTS:
+    void init();
+    void cleanup();
+
     void initTestCase();
     void verifyConfig();
     void verifyOutputs();
@@ -48,7 +68,23 @@ private:
     QProcess m_process;
     Config *m_config;
     QString m_backend;
+
+    KWayland::Server::Display *m_display;
+    KWayland::Server::CompositorInterface *m_compositor;
+    KWayland::Server::OutputInterface *m_output;
+    KWayland::Server::SeatInterface *m_seat;
+    KWayland::Server::ShellInterface *m_shell;
 };
+
+testWaylandBackend::testWaylandBackend(QObject *parent)
+    : QObject(parent)
+    , m_display(nullptr)
+    , m_compositor(nullptr)
+    , m_output(nullptr)
+    , m_seat(nullptr)
+    , m_shell(nullptr)
+{
+}
 
 void testWaylandBackend::initTestCase()
 {
@@ -58,6 +94,30 @@ void testWaylandBackend::initTestCase()
 
     m_config = Config::current();
 }
+
+void testWaylandBackend::init()
+{
+    m_display = new KWayland::Server::Display();
+    m_display->setSocketName(s_socketName);
+    m_display->start();
+    m_display->createShm();
+    m_compositor = m_display->createCompositor();
+    m_compositor->create();
+    m_output = m_display->createOutput();
+    m_output->create();
+    m_seat = m_display->createSeat();
+    m_seat->create();
+    m_shell = m_display->createShell();
+    m_shell->create();
+
+}
+
+void testWaylandBackend::cleanup()
+{
+    delete m_display;
+    m_display = nullptr;
+}
+
 
 void testWaylandBackend::verifyConfig()
 {

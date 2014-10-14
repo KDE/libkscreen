@@ -25,7 +25,8 @@
 #include <QDir>
 #include <QEventLoop>
 #include <QScreen>
-#include <QtCore/QSize>
+#include <QSize>
+#include <QThread>
 #include <QLoggingCategory>
 #include <QSocketNotifier>
 
@@ -75,6 +76,7 @@ private:
     KWayland::Client::EventQueue *m_queue;
     KWayland::Client::Registry *m_registry;
 
+    QThread m_thread;
     QMap<quint32, WaylandOutput *> m_outputMap;
     QList<quint32> m_initializingOutputs;
     bool m_registryInitialized;

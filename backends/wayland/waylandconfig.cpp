@@ -58,20 +58,24 @@ WaylandConfig::~WaylandConfig()
     Q_FOREACH (auto output, m_outputMap.values()) {
         delete output;
     }
+//     m_thread.quit();
+//     m_thread.wait();
 }
 
 void WaylandConfig::initConnection()
 {
     m_connection = new KWayland::Client::ConnectionThread;
-    QThread *thread = new QThread;
-    m_connection->moveToThread(thread);
-    thread->start();
+    //m_connection->setSocketName("libkscreen-test-wayland-backend-0");
+    m_connection->moveToThread(&m_thread);
+    m_thread.start();
 
     connect(m_connection, &KWayland::Client::ConnectionThread::connected, this, &WaylandConfig::setupRegistry, Qt::QueuedConnection);
 
     connect(m_connection, &KWayland::Client::ConnectionThread::failed, [=] {
         qDebug() << "Failed to connect to Wayland server at socket:" << m_connection->socketName();
         m_syncLoop.quit();
+        m_thread.quit();
+        m_thread.wait();
     });
 
     m_connection->initConnection();
