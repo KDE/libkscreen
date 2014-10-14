@@ -73,6 +73,7 @@ void WaylandConfig::initConnection()
         qDebug() << "Failed to connect to Wayland server at socket:" << m_connection->socketName();
         m_syncLoop.quit();
     });
+
     m_connection->initConnection();
 }
 
@@ -88,7 +89,7 @@ void WaylandConfig::setupRegistry()
 
     connect(m_registry, &KWayland::Client::Registry::outputAnnounced, this, &WaylandConfig::addOutput, Qt::DirectConnection);
 
-    connect(m_registry, &KWayland::Client::Registry::sync, [=] {
+    connect(m_registry, &KWayland::Client::Registry::interfacesAnnounced, [=] {
         qDebug() << "Registry::Sync arrived in Backend!:";
         m_registryInitialized = true;
         checkInitialized();
