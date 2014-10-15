@@ -107,6 +107,7 @@ void WaylandOutput::updateKScreenOutput(KScreen::Output* output) const
 
 void WaylandOutput::update()
 {
+    //qDebug() << "update()";
     flush();
 }
 
@@ -118,6 +119,7 @@ QString WaylandOutput::modeName(const KWayland::Client::Output::Mode &m) const
 
 void WaylandOutput::updateModes()
 {
+    //qDebug() << "updateModes()";
     flush();
 }
 

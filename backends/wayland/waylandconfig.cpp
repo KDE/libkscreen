@@ -65,7 +65,6 @@ WaylandConfig::~WaylandConfig()
 void WaylandConfig::initConnection()
 {
     m_connection = new KWayland::Client::ConnectionThread;
-    //m_connection->setSocketName("libkscreen-test-wayland-backend-0");
     m_connection->moveToThread(&m_thread);
     m_thread.start();
 
@@ -83,8 +82,6 @@ void WaylandConfig::initConnection()
 
 void WaylandConfig::setupRegistry()
 {
-    //qDebug() << "Connected to Wayland server at socket:" << m_connection->socketName();
-
     m_queue = new KWayland::Client::EventQueue(this);
     m_queue->setup(m_connection);
 
@@ -94,10 +91,9 @@ void WaylandConfig::setupRegistry()
     connect(m_registry, &KWayland::Client::Registry::outputAnnounced, this, &WaylandConfig::addOutput, Qt::DirectConnection);
 
     connect(m_registry, &KWayland::Client::Registry::interfacesAnnounced, [=] {
-        qDebug() << "Registry::Sync arrived in Backend!:";
+        //qDebug() << "Registry::Sync arrived in Backend!:";
         m_registryInitialized = true;
         checkInitialized();
-        m_syncLoop.quit();
     });
 
     m_registry->create(m_connection);
@@ -122,11 +118,11 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
 
     connect(waylandoutput, &WaylandOutput::complete, [=]{
         m_outputMap[waylandoutput->id()] = waylandoutput;
+        qCDebug(KSCREEN_WAYLAND) << "New Output complete" << name;
         if (m_blockSignals) {
             m_initializingOutputs.removeAll(name);
             checkInitialized();
         } else {
-            qCDebug(KSCREEN_WAYLAND) << "New Output complete .. notifyUpdate()" << name;
             KScreen::ConfigMonitor::instance()->notifyUpdate();
         }
     });
