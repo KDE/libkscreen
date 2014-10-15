@@ -118,6 +118,8 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
     connect(waylandoutput, &WaylandOutput::complete, [=]{
         m_outputMap[waylandoutput->id()] = waylandoutput;
         qCDebug(KSCREEN_WAYLAND) << "New Output complete" << name;
+        m_screen->setOutputs(m_outputMap.values());
+
         if (m_blockSignals) {
             m_initializingOutputs.removeAll(name);
             checkInitialized();
