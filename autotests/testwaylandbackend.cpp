@@ -40,7 +40,7 @@
 #include "../src/mode.h"
 #include "../src/edid.h"
 
-//Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.wayland");
+Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.wayland");
 
 static const QString s_socketName = QStringLiteral("libkscreen-test-wayland-backend-0");
 // static const QString s_socketName = QStringLiteral("wayland-0");
