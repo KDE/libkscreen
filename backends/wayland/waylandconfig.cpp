@@ -83,7 +83,7 @@ void WaylandConfig::initConnection()
 
 void WaylandConfig::setupRegistry()
 {
-    qDebug() << "Connected to Wayland server at socket:" << m_connection->socketName();
+    //qDebug() << "Connected to Wayland server at socket:" << m_connection->socketName();
 
     m_queue = new KWayland::Client::EventQueue(this);
     m_queue->setup(m_connection);
@@ -97,6 +97,7 @@ void WaylandConfig::setupRegistry()
         qDebug() << "Registry::Sync arrived in Backend!:";
         m_registryInitialized = true;
         checkInitialized();
+        m_syncLoop.quit();
     });
 
     m_registry->create(m_connection);
@@ -106,7 +107,7 @@ void WaylandConfig::setupRegistry()
 
 void WaylandConfig::addOutput(quint32 name, quint32 version)
 {
-    //qDebug() << "Adding output" << name;
+    qDebug() << "Adding output" << name;
     if (!m_blockSignals) {
         m_initializingOutputs << name;
     }
