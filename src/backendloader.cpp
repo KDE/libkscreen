@@ -94,7 +94,7 @@ bool BackendLoader::init()
                     loader.unload();
                     continue;
                 }
-                qCDebug(KSCREEN) << "Loading" << s_backend->name() << "backend";
+                qCDebug(KSCREEN) << "Loaded" << s_backend->name() << "backend";
                 return true;
             }
         }
