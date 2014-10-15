@@ -40,9 +40,10 @@
 #include "../src/mode.h"
 #include "../src/edid.h"
 
-//Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.qscreen");
+//Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.wayland");
 
 static const QString s_socketName = QStringLiteral("libkscreen-test-wayland-backend-0");
+// static const QString s_socketName = QStringLiteral("wayland-0");
 
 using namespace KScreen;
 
@@ -54,16 +55,18 @@ public:
     explicit testWaylandBackend(QObject *parent = nullptr);
 
 private Q_SLOTS:
-    void init();
-    void cleanup();
-
     void initTestCase();
+
+    void loadConfig();
     void verifyConfig();
     void verifyOutputs();
     void verifyScreen();
+
     void cleanupTestCase();
 
 private:
+    void startWaylandServer();
+    void stopWaylandServer();
     void verifyAsync();
     QProcess m_process;
     Config *m_config;
@@ -78,6 +81,7 @@ private:
 
 testWaylandBackend::testWaylandBackend(QObject *parent)
     : QObject(parent)
+    , m_config(nullptr)
     , m_display(nullptr)
     , m_compositor(nullptr)
     , m_output(nullptr)
@@ -88,15 +92,16 @@ testWaylandBackend::testWaylandBackend(QObject *parent)
 
 void testWaylandBackend::initTestCase()
 {
-   setenv("KSCREEN_BACKEND", "wayland", 1);
-//     setenv("KSCREEN_BACKEND", "xrandr", 1);
+    setenv("KSCREEN_BACKEND", "wayland", 1);
     m_backend = qgetenv("KSCREEN_BACKEND").constData();
+    setenv("WAYLAND_DISPLAY", s_socketName.toLocal8Bit(), 1);
 
-    m_config = Config::current();
+    startWaylandServer();
 }
 
-void testWaylandBackend::init()
+void testWaylandBackend::startWaylandServer()
 {
+    qDebug() << "Starting Wayland Server";
     m_display = new KWayland::Server::Display();
     m_display->setSocketName(s_socketName);
     m_display->start();
@@ -110,18 +115,18 @@ void testWaylandBackend::init()
     m_shell = m_display->createShell();
     m_shell->create();
 
+    qDebug() << "Wayland server running.";
 }
 
-void testWaylandBackend::cleanup()
+void testWaylandBackend::loadConfig()
 {
-    delete m_display;
-    m_display = nullptr;
+    m_config = Config::current();
 }
 
 
 void testWaylandBackend::verifyConfig()
 {
-    QVERIFY(m_config != 0);
+    QVERIFY(m_config != nullptr);
     if (!m_config) {
         QSKIP("Wayland backend invalid", SkipAll);
     }
@@ -131,7 +136,7 @@ void testWaylandBackend::verifyScreen()
 {
     Screen *screen = m_config->screen();
     qDebug() << "Screen: " << screen;
-    //return;
+
     QVERIFY(screen->minSize().width() <= screen->maxSize().width());
     QVERIFY(screen->minSize().height() <= screen->maxSize().height());
 
@@ -198,8 +203,15 @@ void testWaylandBackend::verifyOutputs()
     }
 }
 
+void testWaylandBackend::stopWaylandServer()
+{
+    delete m_display;
+    m_display = nullptr;
+}
+
 void testWaylandBackend::cleanupTestCase()
 {
+    stopWaylandServer();
     delete m_config;
     qApp->exit(0);
 }
