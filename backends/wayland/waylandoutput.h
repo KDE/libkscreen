@@ -25,7 +25,7 @@
 #include "output.h"
 
 #include <QScreen>
-#include <QtCore/QSize>
+#include <QSize>
 #include <QLoggingCategory>
 #include <KWayland/Client/output.h>
 

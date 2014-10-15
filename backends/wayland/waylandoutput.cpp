@@ -24,10 +24,9 @@
 #include <mode.h>
 #include <edid.h>
 
-#include <QtCore/QRect>
-
+#include <QRect>
 #include <QGuiApplication>
-#include <QScreen>
+//#include <QScreen>
 
 using namespace KScreen;
 
