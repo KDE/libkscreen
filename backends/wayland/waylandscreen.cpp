@@ -33,8 +33,8 @@ using namespace KScreen;
 
 WaylandScreen::WaylandScreen(WaylandConfig *config)
     : QObject(config)
-    , m_size(1600, 900) // FIXME
-    , m_outputCount(1) // FIXME
+    , m_size(QSize())
+    , m_outputCount(0)
 {
 }
 
@@ -51,14 +51,13 @@ Screen* WaylandScreen::toKScreenScreen(Config* parent) const
 
 void WaylandScreen::setOutputs(const QList<WaylandOutput*> outputs)
 {
-    int width = 1600;
-    int height = 900;
-//     foreach (auto o, outputs) {
-//         width += o->pixelSize().width();
-//         qDebug() << "WW: " << width;
-//     }
+    m_outputCount = outputs.count();
+    QRect r;
+    Q_FOREACH (auto o, outputs) {
+        r |= QRect(o->globalPosition(), o->pixelSize());
+    }
+    m_size = r.size();
 }
-
 
 void WaylandScreen::updateKScreenScreen(Screen* screen) const
 {
