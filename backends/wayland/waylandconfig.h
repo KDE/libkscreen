@@ -46,6 +46,19 @@ class Output;
 class WaylandOutput;
 class WaylandScreen;
 
+/**
+ * @class WaylandConfig
+ *
+ * This class holds the basic skeleton of the configuration and takes care of
+ * fetching the information from the Wayland server and synchronizing the
+ * configuration out to the "clients" that receive the config from the backend.
+ * We initialize a wayland connection, using a threaded event queue when
+ * querying the wayland server for data.
+ * Initially, the creation of a WaylandConfig blocks until all data has been
+ * received, signalled by the initialized() signal. This means that the
+ * wayland client has received information about all interfaces, and that all
+ * outputs are completely initialized. From then on, we properly notifyUpdate().
+*/
 class WaylandConfig : public QObject
 {
     Q_OBJECT
