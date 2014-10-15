@@ -43,7 +43,6 @@
 Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.wayland");
 
 static const QString s_socketName = QStringLiteral("libkscreen-test-wayland-backend-0");
-// static const QString s_socketName = QStringLiteral("wayland-0");
 
 using namespace KScreen;
 
@@ -56,17 +55,19 @@ public:
 
 private Q_SLOTS:
     void initTestCase();
+    void verifyDisco();
+    void startWaylandServer();
 
     void loadConfig();
     void verifyConfig();
     void verifyOutputs();
+    void verifyModes();
     void verifyScreen();
 
+    void stopWaylandServer();
     void cleanupTestCase();
 
 private:
-    void startWaylandServer();
-    void stopWaylandServer();
     void verifyAsync();
     QProcess m_process;
     Config *m_config;
@@ -98,22 +99,22 @@ void testWaylandBackend::initTestCase()
     // This is how KWayland will pick up the right socket,
     // and thus connect to our internal test server.
     setenv("WAYLAND_DISPLAY", s_socketName.toLocal8Bit(), 1);
+}
 
-    m_config = Config::current();
-    QVERIFY(!m_config->isValid());
-    delete m_config;
+void testWaylandBackend::verifyDisco()
+{
+    //m_config = Config::current();
+    //QCOMPARE(m_config->outputs().count(), 0);
+    //delete m_config;
 
-    startWaylandServer();
 }
 
 void testWaylandBackend::startWaylandServer()
 {
     using namespace KWayland::Server;
-    qDebug() << "Starting Wayland Server";
     m_display = new KWayland::Server::Display(this);
     m_display->setSocketName(s_socketName);
     m_display->start();
-    QVERIFY(m_display->isRunning());
 
     // Enable once we actually use these things...
     //m_display->createShm();
@@ -131,12 +132,14 @@ void testWaylandBackend::startWaylandServer()
     m_output->setCurrentMode(QSize(1024, 768));
     m_output->create();
 
+    QVERIFY(m_display->isRunning());
     qDebug() << "Wayland server running.";
 }
 
 void testWaylandBackend::loadConfig()
 {
     m_config = Config::current();
+    QVERIFY(m_config->isValid());
 }
 
 void testWaylandBackend::verifyConfig()
@@ -176,7 +179,7 @@ void testWaylandBackend::verifyOutputs()
 {
     qApp->exit(0); // stop dealing signals, results will still be checked
 
-    qDebug() << "Primary found? " << m_config->outputs();
+    //qDebug() << "Outputs: " << m_config->outputs();
     bool primaryFound = false;
     foreach (const KScreen::Output* op, m_config->outputs()) {
         qDebug() << "CHecking at all";
@@ -184,17 +187,14 @@ void testWaylandBackend::verifyOutputs()
             primaryFound = true;
         }
     }
-    qDebug() << "Primary found? " << primaryFound << m_config->outputs();
+    //qDebug() << "Primary found? " << primaryFound << m_config->outputs();
     QVERIFY(primaryFound);
     QVERIFY(m_config->outputs().count());
 
     KScreen::Output *primary = m_config->primaryOutput();
-    qDebug() << "ppp" << primary;
     QVERIFY(primary->isEnabled());
     QVERIFY(primary->isConnected());
-    //qDebug() << "Primary geometry? " << primary->geometry();
     qDebug() << " prim modes: " << primary->modes();
-
 
     QList<int> ids;
     foreach (auto output, m_config->outputs()) {
@@ -218,6 +218,21 @@ void testWaylandBackend::verifyOutputs()
     }
 }
 
+void testWaylandBackend::verifyModes()
+{
+    KScreen::Output *primary = m_config->primaryOutput();
+    QVERIFY(primary);
+    QVERIFY(primary->modes().count() > 0);
+
+    foreach (auto output, m_config->outputs()) {
+        foreach (auto mode, output->modes()) {
+            QVERIFY(!mode->name().isEmpty());
+            QVERIFY(mode->refreshRate() > 0);
+            QVERIFY(mode->size() != QSize());
+        }
+    }
+}
+
 void testWaylandBackend::stopWaylandServer()
 {
     delete m_display;
@@ -226,8 +241,13 @@ void testWaylandBackend::stopWaylandServer()
 
 void testWaylandBackend::cleanupTestCase()
 {
-    stopWaylandServer();
+    //stopWaylandServer();
     delete m_config;
+
+    m_config = Config::current();
+    QCOMPARE(m_config->outputs().count(), 0);
+    delete m_config;
+
     qApp->exit(0);
 }
 
