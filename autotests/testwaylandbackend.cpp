@@ -94,26 +94,42 @@ void testWaylandBackend::initTestCase()
 {
     setenv("KSCREEN_BACKEND", "wayland", 1);
     m_backend = qgetenv("KSCREEN_BACKEND").constData();
+
+    // This is how KWayland will pick up the right socket,
+    // and thus connect to our internal test server.
     setenv("WAYLAND_DISPLAY", s_socketName.toLocal8Bit(), 1);
+
+    m_config = Config::current();
+    QVERIFY(!m_config->isValid());
+    delete m_config;
 
     startWaylandServer();
 }
 
 void testWaylandBackend::startWaylandServer()
 {
+    using namespace KWayland::Server;
     qDebug() << "Starting Wayland Server";
-    m_display = new KWayland::Server::Display();
+    m_display = new KWayland::Server::Display(this);
     m_display->setSocketName(s_socketName);
     m_display->start();
-    m_display->createShm();
-    m_compositor = m_display->createCompositor();
-    m_compositor->create();
-    m_output = m_display->createOutput();
+    QVERIFY(m_display->isRunning());
+
+    // Enable once we actually use these things...
+    //m_display->createShm();
+    //m_compositor = m_display->createCompositor();
+    //m_compositor->create();
+    //m_seat = m_display->createSeat();
+    //m_seat->create();
+    //m_shell = m_display->createShell();
+    //m_shell->create();
+
+    m_output = m_display->createOutput(this);
+    m_output->addMode(QSize(800, 600), OutputInterface::ModeFlags(OutputInterface::ModeFlag::Preferred));
+    m_output->addMode(QSize(1024, 768));
+    m_output->addMode(QSize(1280, 1024), OutputInterface::ModeFlags(), 90000);
+    m_output->setCurrentMode(QSize(1024, 768));
     m_output->create();
-    m_seat = m_display->createSeat();
-    m_seat->create();
-    m_shell = m_display->createShell();
-    m_shell->create();
 
     qDebug() << "Wayland server running.";
 }
@@ -122,7 +138,6 @@ void testWaylandBackend::loadConfig()
 {
     m_config = Config::current();
 }
-
 
 void testWaylandBackend::verifyConfig()
 {
