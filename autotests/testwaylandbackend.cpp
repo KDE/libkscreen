@@ -75,7 +75,7 @@ private:
 
     KWayland::Server::Display *m_display;
     KWayland::Server::CompositorInterface *m_compositor;
-    KWayland::Server::OutputInterface *m_output;
+    QList<KWayland::Server::OutputInterface*> m_outputs;
     KWayland::Server::SeatInterface *m_seat;
     KWayland::Server::ShellInterface *m_shell;
 };
@@ -85,7 +85,6 @@ testWaylandBackend::testWaylandBackend(QObject *parent)
     , m_config(nullptr)
     , m_display(nullptr)
     , m_compositor(nullptr)
-    , m_output(nullptr)
     , m_seat(nullptr)
     , m_shell(nullptr)
 {
@@ -125,12 +124,32 @@ void testWaylandBackend::startWaylandServer()
     //m_shell = m_display->createShell();
     //m_shell->create();
 
-    m_output = m_display->createOutput(this);
-    m_output->addMode(QSize(800, 600), OutputInterface::ModeFlags(OutputInterface::ModeFlag::Preferred));
-    m_output->addMode(QSize(1024, 768));
-    m_output->addMode(QSize(1280, 1024), OutputInterface::ModeFlags(), 90000);
-    m_output->setCurrentMode(QSize(1024, 768));
-    m_output->create();
+    {
+        OutputInterface *output = m_display->createOutput(this);
+        output->addMode(QSize(800, 600), OutputInterface::ModeFlags(OutputInterface::ModeFlag::Preferred));
+        output->addMode(QSize(1024, 768));
+        output->addMode(QSize(1280, 1024), OutputInterface::ModeFlags(), 90000);
+        output->setCurrentMode(QSize(1024, 768));
+        output->setGlobalPosition(QPoint(0, 0));
+        output->setPhysicalSize(QSize(400, 300)); // FIXME mm?
+        output->setManufacturer("Darknet Industries");
+        output->setModel("Small old monitor");
+        output->create();
+        m_outputs << output;
+    }
+    {
+        auto output = m_display->createOutput(this);
+        output->addMode(QSize(1600, 1200), OutputInterface::ModeFlags(OutputInterface::ModeFlag::Preferred));
+        output->addMode(QSize(1920, 1080));
+        output->addMode(QSize(2840, 2160), OutputInterface::ModeFlags(), 100000);
+        output->setCurrentMode(QSize(1920, 1080));
+        output->setGlobalPosition(QPoint(1024, 0));
+        output->setPhysicalSize(QSize(1600, 900)); // FIXME mm?
+        output->setManufacturer("Shiny Electrics");
+        output->setModel("XXL Television");
+        output->create();
+        m_outputs << output;
+    }
 
     QVERIFY(m_display->isRunning());
     qDebug() << "Wayland server running.";
@@ -182,7 +201,7 @@ void testWaylandBackend::verifyOutputs()
     //qDebug() << "Outputs: " << m_config->outputs();
     bool primaryFound = false;
     foreach (const KScreen::Output* op, m_config->outputs()) {
-        qDebug() << "CHecking at all";
+        //qDebug() << "CHecking at all";
         if (op->isPrimary()) {
             primaryFound = true;
         }
@@ -194,16 +213,16 @@ void testWaylandBackend::verifyOutputs()
     KScreen::Output *primary = m_config->primaryOutput();
     QVERIFY(primary->isEnabled());
     QVERIFY(primary->isConnected());
-    qDebug() << " prim modes: " << primary->modes();
+    //qDebug() << " prim modes: " << primary->modes();
 
     QList<int> ids;
     foreach (auto output, m_config->outputs()) {
-        qDebug() << " _____________________ Output: " << output;
-        qDebug() << "   output name: " << output->name();
-        qDebug() << "   output modes: " << output->modes().count() << output->modes();
-        qDebug() << "   output enabled: " << output->isEnabled();
-        qDebug() << "   output connect: " << output->isConnected();
-        qDebug() << "   output sizeMm : " << output->sizeMm();
+//         qDebug() << " _____________________ Output: " << output;
+//         qDebug() << "   output name: " << output->name();
+//         qDebug() << "   output modes: " << output->modes().count() << output->modes();
+//         qDebug() << "   output enabled: " << output->isEnabled();
+//         qDebug() << "   output connect: " << output->isConnected();
+//         qDebug() << "   output sizeMm : " << output->sizeMm();
         QVERIFY(!output->name().isEmpty());
         QVERIFY(output->id() > -1);
         QVERIFY(output->isConnected());
