@@ -136,14 +136,14 @@ void WaylandOutput::flush()
     if (isComplete() && !m_completed) {
         m_completed = true;
 
-        qCDebug(KSCREEN_WAYLAND) << "_______________ " << (isValid() ? "Valid" : "Invalid");
-        qCDebug(KSCREEN_WAYLAND) << "Output changes... ";
-        qCDebug(KSCREEN_WAYLAND) << "  id:              " << id();
-        qCDebug(KSCREEN_WAYLAND) << "  Pixel Size:      " << pixelSize();
-        qCDebug(KSCREEN_WAYLAND) << "  Physical Size:   " << physicalSize();
-        qCDebug(KSCREEN_WAYLAND) << "  Global Position: " << globalPosition();
-        qCDebug(KSCREEN_WAYLAND) << "  Manufacturer   : " << manufacturer();
-        qCDebug(KSCREEN_WAYLAND) << "  Model:           " << model();
+//         qCDebug(KSCREEN_WAYLAND) << "_______________ " << (isValid() ? "Valid" : "Invalid");
+//         qCDebug(KSCREEN_WAYLAND) << "Output changes... ";
+//         qCDebug(KSCREEN_WAYLAND) << "  id:              " << id();
+//         qCDebug(KSCREEN_WAYLAND) << "  Pixel Size:      " << pixelSize();
+//         qCDebug(KSCREEN_WAYLAND) << "  Physical Size:   " << physicalSize();
+//         qCDebug(KSCREEN_WAYLAND) << "  Global Position: " << globalPosition();
+//         qCDebug(KSCREEN_WAYLAND) << "  Manufacturer   : " << manufacturer();
+//         qCDebug(KSCREEN_WAYLAND) << "  Model:           " << model();
 
         foreach (auto m, modes()) {
             QString modename = modeName(m);
