@@ -42,16 +42,48 @@ class KSCREEN_EXPORT Screen : public QObject
 
         Screen* clone() const;
 
+        /**
+         * The id of this screen.
+         * @return Minimum screen size in pixels
+         */
         int id() const;
+        /**
+         * The identifier of this screen.
+         * @param id id of the screen
+         */
         void setId(int id);
 
+        /**
+         * The current screen size in pixels.
+         * @return Screen size in pixels
+         */
         QSize currentSize() const;
+        /**
+         * Set the current screen size in pixels.
+         * @param currentSize Screen size in pixels
+         */
         void setCurrentSize(const QSize& currentSize);
 
+        /**
+         * The minimum screen size in pixels.
+         * @return Minimum screen size in pixels
+         */
         QSize minSize() const;
+        /**
+         * Set the minimum screen size in pixels.
+         * @param minSize Minimum screen size in pixels
+         */
         void setMinSize(const QSize& minSize);
 
+        /**
+         * The maximum screen size in pixels.
+         * @return Maximum screen size in pixels
+         */
         QSize maxSize() const;
+        /**
+         * Set the maximum screen size in pixels.
+         * @param maxSize Maximum screen size in pixels
+         */
         void setMaxSize(const QSize& maxSize);
 
         int maxActiveOutputsCount() const;
