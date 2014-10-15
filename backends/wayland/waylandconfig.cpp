@@ -76,7 +76,6 @@ void WaylandConfig::initConnection()
         m_thread.quit();
         m_thread.wait();
     });
-
     m_connection->initConnection();
 }
 
@@ -179,6 +178,7 @@ void WaylandConfig::removeOutput(quint32 id)
 
 void WaylandConfig::updateKScreenConfig(Config* config) const
 {
+    config->setValid(m_connection->display());
     m_screen->updateKScreenScreen(config->screen());
 
     //Removing removed outputs
