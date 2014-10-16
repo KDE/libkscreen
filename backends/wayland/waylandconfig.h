@@ -82,6 +82,7 @@ Q_SIGNALS:
 private Q_SLOTS:
     void setupRegistry();
     void checkInitialized();
+    void disconnected();
 
 private:
     void initConnection();

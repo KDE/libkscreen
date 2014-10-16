@@ -63,7 +63,10 @@ void WaylandConfig::initConnection()
     m_connection->moveToThread(&m_thread);
     m_thread.start();
 
-    connect(m_connection, &KWayland::Client::ConnectionThread::connected, this, &WaylandConfig::setupRegistry, Qt::QueuedConnection);
+    connect(m_connection, &KWayland::Client::ConnectionThread::connected,
+            this, &WaylandConfig::setupRegistry, Qt::QueuedConnection);
+    connect(m_connection, &KWayland::Client::ConnectionThread::connectionDied,
+            this, &WaylandConfig::disconnected, Qt::QueuedConnection);
 
     connect(m_connection, &KWayland::Client::ConnectionThread::failed, [=] {
         qDebug() << "Failed to connect to Wayland server at socket:" << m_connection->socketName();
@@ -72,6 +75,25 @@ void WaylandConfig::initConnection()
         m_thread.wait();
     });
     m_connection->initConnection();
+}
+
+void WaylandConfig::disconnected()
+{
+    qDebug() << "Wayland disconnected, cleaning up.";
+    // Clean up
+    m_thread.quit();
+    m_thread.wait();
+
+    Q_FOREACH (auto o, m_outputMap.values()) {
+        qDebug() << "WLC delete output " << o->id();
+        //delete o; // FIXME: this hangs
+    }
+    m_outputMap.clear();
+    delete m_screen;
+    m_screen = new WaylandScreen(this);
+
+    qDebug() << "WLC Notifying that we're gone";
+    ConfigMonitor::instance()->notifyUpdate();
 }
 
 void WaylandConfig::setupRegistry()
@@ -175,6 +197,7 @@ void WaylandConfig::removeOutput(quint32 id)
 
 void WaylandConfig::updateKScreenConfig(Config* config) const
 {
+    qDebug() << "updateKScreenConfig!";
     config->setValid(m_connection->display());
     m_screen->updateKScreenScreen(config->screen());
 
