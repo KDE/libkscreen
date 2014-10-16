@@ -16,16 +16,15 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
-#ifndef WAYLAND_SCREEN_H
-#define WAYLAND_SCREEN_H
+#ifndef KSCREEN_WAYLAND_SCREEN_H
+#define KSCREEN_WAYLAND_SCREEN_H
 
 #include "../abstractbackend.h"
 #include "config.h"
 #include "screen.h"
 
 #include <QObject>
-#include <QtCore/QSize>
-#include <QLoggingCategory>
+#include <QSize>
 
 namespace KScreen
 {
@@ -54,4 +53,4 @@ private:
 
 } // namespace
 
-#endif // WAYLAND_CONFIG_H
+#endif // KSCREEN_WAYLAND_SCREEN_H

@@ -23,11 +23,8 @@
 
 #include "../abstractbackend.h"
 
-#include <QScreen>
-#include <QtCore/QSize>
+#include <QSize>
 #include <QLoggingCategory>
-
-#include <wayland-client.h>
 
 namespace KScreen
 {

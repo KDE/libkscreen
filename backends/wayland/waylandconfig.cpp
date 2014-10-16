@@ -22,11 +22,6 @@
 #include "waylandscreen.h"
 #include "waylandbackend.h"
 
-#include <QThread>
-
-// Wayland
-#include <wayland-client-protocol.h>
-
 // KWayland
 #include <KWayland/Client/connection_thread.h>
 #include <KWayland/Client/event_queue.h>

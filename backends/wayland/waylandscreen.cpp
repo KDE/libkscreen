@@ -16,18 +16,12 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
-#include "waylandbackend.h"
 #include "waylandconfig.h"
 #include "waylandscreen.h"
 #include "waylandoutput.h"
 
-#include <configmonitor.h>
 #include <mode.h>
 
-// #include <QtCore/QFile>
-// #include <QtCore/qplugin.h>
-// #include <QtCore/QRect>
-// #include <QAbstractEventDispatcher>
 
 using namespace KScreen;
 
@@ -61,9 +55,6 @@ void WaylandScreen::setOutputs(const QList<WaylandOutput*> outputs)
 
 void WaylandScreen::updateKScreenScreen(Screen* screen) const
 {
-//     auto primary = QGuiApplication::primaryScreen();
-//     QSize _s = primary->availableVirtualGeometry().size();
-//
 //     screen->setCurrentSize(_s);
 //     screen->setId(1);
 //     screen->setMaxSize(_s);
@@ -75,6 +66,4 @@ void WaylandScreen::updateKScreenScreen(Screen* screen) const
     screen->setCurrentSize(m_size);
     screen->setMaxActiveOutputsCount(m_outputCount); // FIXME
 }
-
-#include "waylandscreen.moc"
 

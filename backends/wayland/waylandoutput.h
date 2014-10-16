@@ -29,11 +29,6 @@
 #include <QLoggingCategory>
 #include <KWayland/Client/output.h>
 
-namespace KWayland {
-    namespace Client {
-        //class Output;
-    }
-}
 
 namespace KScreen
 {
@@ -49,7 +44,8 @@ public:
     KScreen::Output* toKScreenOutput(KScreen::Config *parent) const;
     void updateKScreenOutput(KScreen::Output *output) const;
 
-    /** Access to the Output's Edid object.
+    /**
+     * Access to the Output's Edid object.
      */
     KScreen::Edid *edid();
 
@@ -61,8 +57,8 @@ Q_SIGNALS:
     void complete();
 
 private:
-    /*
-     * notify users after changes have been applied.
+    /**
+     * Notify users after changes have been applied.
      */
     void flush();
     void update();

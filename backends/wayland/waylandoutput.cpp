@@ -1,6 +1,5 @@
 /*************************************************************************************
  *  Copyright 2014 Sebastian Kügler <sebas@kde.org>                                  *
- *  Copyright 2013 Martin Gräßlin <mgraesslin@kde.org>                               *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -26,7 +25,7 @@
 
 #include <QRect>
 #include <QGuiApplication>
-//#include <QScreen>
+
 
 using namespace KScreen;
 
@@ -36,8 +35,10 @@ WaylandOutput::WaylandOutput(QObject *parent)
     , m_id(-1)
     , m_completed(false)
 {
-    connect(this, &KWayland::Client::Output::changed, this, &WaylandOutput::update, Qt::QueuedConnection);
-    connect(this, &KWayland::Client::Output::modeAdded, this, &WaylandOutput::updateModes, Qt::QueuedConnection);
+    connect(this, &KWayland::Client::Output::changed,
+            this, &WaylandOutput::update, Qt::QueuedConnection);
+    connect(this, &KWayland::Client::Output::modeAdded,
+            this, &WaylandOutput::updateModes, Qt::QueuedConnection);
 }
 
 WaylandOutput::~WaylandOutput()
@@ -86,8 +87,6 @@ void WaylandOutput::updateKScreenOutput(KScreen::Output* output) const
     //qCDebug(KSCREEN_WAYLAND) << "  ####### setSizeMm: " << physicalSize();
     output->setPos(globalPosition());
     ModeList modeList;
-    //return;
-    //QList<KWayland::Client::Output::Mode> wlModes = modes();
     Q_FOREACH (const KWayland::Client::Output::Mode &m, modes()) {
         KScreen::Mode *mode = new KScreen::Mode(output);
         const QString modename = modeName(m);
