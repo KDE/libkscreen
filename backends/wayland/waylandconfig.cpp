@@ -53,8 +53,8 @@ WaylandConfig::~WaylandConfig()
     Q_FOREACH (auto output, m_outputMap.values()) {
         delete output;
     }
-//     m_thread.quit();
-//     m_thread.wait();
+    m_thread.quit();
+    m_thread.wait();
 }
 
 void WaylandConfig::initConnection()
