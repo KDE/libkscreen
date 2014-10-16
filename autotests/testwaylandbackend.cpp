@@ -16,11 +16,9 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
-#define QT_GUI_LIB
-
 #include <QCoreApplication>
-#include <QtTest/QtTest>
-#include <QtCore/QObject>
+#include <QtTest>
+#include <QObject>
 
 // KWayland
 #include <KWayland/Client/connection_thread.h>
@@ -68,7 +66,6 @@ private Q_SLOTS:
     void cleanupTestCase();
 
 private:
-    void verifyAsync();
     QProcess m_process;
     Config *m_config;
     QString m_backend;
@@ -185,18 +182,9 @@ void testWaylandBackend::verifyScreen()
     QVERIFY(m_config->screen()->maxActiveOutputsCount() > 0);
 }
 
-
-void testWaylandBackend::verifyAsync()
-{
-    KScreen::ConfigMonitor::instance()->addConfig(m_config);
-    connect(KScreen::ConfigMonitor::instance(), &KScreen::ConfigMonitor::configurationChanged,
-            this, &testWaylandBackend::verifyOutputs);
-    qApp->exec();
-}
-
 void testWaylandBackend::verifyOutputs()
 {
-    qApp->exit(0); // stop dealing signals, results will still be checked
+    //qApp->exit(0); // stop dealing signals, results will still be checked
 
     //qDebug() << "Outputs: " << m_config->outputs();
     bool primaryFound = false;
@@ -254,23 +242,24 @@ void testWaylandBackend::verifyModes()
 
 void testWaylandBackend::stopWaylandServer()
 {
+    KScreen::ConfigMonitor::instance()->addConfig(m_config);
+    QSignalSpy connectedSpy(ConfigMonitor::instance(), SIGNAL(configurationChanged()));
+    QVERIFY(connectedSpy.isValid());
+
+    // actually stop the Wayland server
     delete m_display;
     m_display = nullptr;
+
+    QVERIFY(connectedSpy.wait(1000));
+    QCOMPARE(connectedSpy.count(), 1);
 }
 
 void testWaylandBackend::cleanupTestCase()
 {
-    //stopWaylandServer();
-    delete m_config;
-
-    m_config = Config::current();
     QCOMPARE(m_config->outputs().count(), 0);
     delete m_config;
-
-    qApp->exit(0);
 }
 
-
-QTEST_MAIN(testWaylandBackend)
+QTEST_GUILESS_MAIN(testWaylandBackend)
 
 #include "testwaylandbackend.moc"

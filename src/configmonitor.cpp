@@ -94,6 +94,7 @@ void ConfigMonitor::removeConfig(Config *config)
 void ConfigMonitor::notifyUpdate()
 {
     d->updateConfigs();
+    qDebug() << "ConfigMonitor::configurationChanged()!";
 
     Q_EMIT configurationChanged();
 }
