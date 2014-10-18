@@ -42,7 +42,8 @@ int main(int argc, char **argv)
         qDebug() << "Creating Wayland server from " << parser.value("config");
         server.setConfig(parser.value("config"));
     } else {
-        server.setConfig(QString::fromLocal8Bit(TEST_DATA)+"/singleoutput.json");
+        server.setConfig(QString::fromLocal8Bit(TEST_DATA)+"/multipleoutput.json");
+        //    server.setConfig(QString::fromLocal8Bit(TEST_DATA)+"/singleoutput.json");
     }
     return app.exec();
 }

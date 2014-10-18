@@ -83,35 +83,57 @@ OutputInterface* WaylandTestServer::createOutput(const QVariantMap& outputConfig
     QByteArray data = QByteArray::fromBase64(outputConfig["edid"].toByteArray());
     Edid edid((quint8*)data.data(), data.length());
 
-    int currentMode = outputConfig["currentMode"].toInt();
-    QVariantList preferredModes = outputConfig["preferredModes"].toList();
-    //QJsonArray modes = outputConfig["modes"].toVariantMap();
-    Q_FOREACH(const QVariant &_mode, outputConfig["modes"].toList()) {
-        const QVariantMap &mode = _mode.toMap();
-
-        const QSize _size = sizeFromJson(mode["size"]);
-        int refresh = qRound(outputConfig["refreshRate"].toReal() * 1000);
-
-        OutputInterface::ModeFlags flags;
-        if (preferredModes.contains(mode["id"])) {
-            flags = OutputInterface::ModeFlags(OutputInterface::ModeFlag::Preferred);
-        }
-
-        output->addMode(_size, flags);
-        if (currentMode == mode["id"].toInt()) {
-            output->setCurrentMode(_size);
-        }
-        qDebug() << "Mode: " << sizeFromJson(mode["size"]);
-        //output->addMode(QSize(800, 600), OutputInterface::ModeFlags(OutputInterface::ModeFlag::Preferred));
-        //output->addMode(QSize(1024, 768));
-        //output->addMode(QSize(1280, 1024), OutputInterface::ModeFlags(), 90000);
+    qDebug() << "EDID Info: ";
+    if (edid.isValid()) {
+        qDebug() << "\tDevice ID: " << edid.deviceId();
+        qDebug() << "\tName: " << edid.name();
+        qDebug() << "\tVendor: " << edid.vendor();
+//         qDebug() << "\tSerial: " << edid.serial();
+//         qDebug() << "\tEISA ID: " << edid.eisaId();
+//         qDebug() << "\tHash: " << edid.hash();
+//         qDebug() << "\tWidth: " << edid.width();
+//         qDebug() << "\tHeight: " << edid.height();
+//         qDebug() << "\tGamma: " << edid.gamma();
+//         qDebug() << "\tRed: " << edid.red();
+//         qDebug() << "\tGreen: " << edid.green();
+//         qDebug() << "\tBlue: " << edid.blue();
+//         qDebug() << "\tWhite: " << edid.white();
+        output->setPhysicalSize(QSize(edid.width() * 10, edid.height() * 10));
+        output->setManufacturer(edid.vendor());
+        output->setModel(edid.name());
     }
 
-    output->setCurrentMode(QSize(1024, 768));
-    output->setGlobalPosition(QPoint(0, 0));
-    output->setPhysicalSize(QSize(400, 300)); // FIXME mm?
-    output->setManufacturer("Darknet Industries");
-    output->setModel("Small old monitor");
+    int currentModeId = outputConfig["currentModeId"].toInt();
+    QVariantList preferredModes = outputConfig["preferredModes"].toList();
+
+    Q_FOREACH(const QVariant &_mode, outputConfig["modes"].toList()) {
+        const QVariantMap &mode = _mode.toMap();
+        const QSize _size = sizeFromJson(mode["size"]);
+        int refresh = 60000;
+
+        if (outputConfig.keys().contains("refreshRate")) {
+            refresh = qRound(outputConfig["refreshRate"].toReal() * 1000);
+        }
+        bool isCurrent = currentModeId == mode["id"].toInt();
+        bool isPreferred = preferredModes.contains(mode["id"]);
+
+        qDebug() << "Mode: " << _size << isCurrent << isPreferred;
+        OutputInterface::ModeFlags flags;
+        if (isPreferred) {
+            flags &= OutputInterface::ModeFlags(OutputInterface::ModeFlag::Preferred);
+        }
+        if (isCurrent) {
+            flags &= OutputInterface::ModeFlags(OutputInterface::ModeFlag::Preferred);
+        }
+
+        output->addMode(_size, flags, refresh);
+
+        if (isCurrent) {
+            output->setCurrentMode(_size, refresh);
+        }
+    }
+
+    output->setGlobalPosition(pointFromJson(outputConfig["pos"]));
     output->create();
 
     return output;
