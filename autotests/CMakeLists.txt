@@ -15,7 +15,7 @@ KSCREEN_TESTS(testqscreenbackend )
 
 if(ENABLE_WAYLAND)
     set(KSCREEN_WAYLAND_LIBS KF5::WaylandServer KF5::WaylandClient)
-    KSCREEN_TESTS(testwaylandbackend testwaylandbackendconfigs)
+    KSCREEN_TESTS(testwaylandbackend)
     set(KSCREEN_WAYLAND_LIBS "")
 endif()
 
