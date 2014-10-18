@@ -70,6 +70,7 @@ private:
     Config *m_config;
     QString m_backend;
 
+    bool m_startServer;
     KWayland::Server::Display *m_display;
     KWayland::Server::CompositorInterface *m_compositor;
     QList<KWayland::Server::OutputInterface*> m_outputs;
@@ -80,6 +81,7 @@ private:
 testWaylandBackend::testWaylandBackend(QObject *parent)
     : QObject(parent)
     , m_config(nullptr)
+    , m_startServer(true)
     , m_display(nullptr)
     , m_compositor(nullptr)
     , m_seat(nullptr)
@@ -91,6 +93,7 @@ void testWaylandBackend::initTestCase()
 {
     setenv("KSCREEN_BACKEND", "wayland", 1);
     m_backend = qgetenv("KSCREEN_BACKEND").constData();
+    m_startServer = QString::fromLocal8Bit(qgetenv("KSCREEN_EXTERNAL_WAYLAND_SERVER").constData()).isEmpty();
 
     // This is how KWayland will pick up the right socket,
     // and thus connect to our internal test server.
@@ -107,6 +110,9 @@ void testWaylandBackend::verifyDisco()
 
 void testWaylandBackend::startWaylandServer()
 {
+    if (!m_startServer) {
+        return;
+    }
     using namespace KWayland::Server;
     m_display = new KWayland::Server::Display(this);
     m_display->setSocketName(s_socketName);
@@ -242,6 +248,9 @@ void testWaylandBackend::verifyModes()
 
 void testWaylandBackend::stopWaylandServer()
 {
+    if (!m_startServer) {
+        return;
+    }
     KScreen::ConfigMonitor::instance()->addConfig(m_config);
     QSignalSpy connectedSpy(ConfigMonitor::instance(), SIGNAL(configurationChanged()));
     QVERIFY(connectedSpy.isValid());
@@ -256,7 +265,9 @@ void testWaylandBackend::stopWaylandServer()
 
 void testWaylandBackend::cleanupTestCase()
 {
-    QCOMPARE(m_config->outputs().count(), 0);
+    if (m_startServer) {
+        QCOMPARE(m_config->outputs().count(), 0);
+    }
     delete m_config;
 }
 
