@@ -25,7 +25,6 @@
 #include "config.h"
 #include "kscreen_export.h"
 
-
 namespace KScreen
 {
 
@@ -39,9 +38,6 @@ public:
     void addConfig(const KScreen::ConfigPtr &config);
     void removeConfig(const KScreen::ConfigPtr &config);
 
-public Q_SLOTS:
-    void notifyUpdate();
-
 Q_SIGNALS:
     void configurationChanged();
 
@@ -53,7 +49,7 @@ private:
 
     class Private;
     Private * const d;
-    Q_PRIVATE_SLOT(d, void _k_configurationDestroyed(QObject *))
+
 };
 
 } /* namespace KScreen */

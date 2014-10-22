@@ -20,8 +20,9 @@
 #include "output.h"
 #include "mode.h"
 #include "edid.h"
-#include "backendloader.h"
 #include "abstractbackend.h"
+#include "backendmanager_p.h"
+#include "debug_p.h"
 
 #include <QStringList>
 #include <QPointer>
@@ -394,11 +395,23 @@ void Output::setClones(QList<int> outputlist)
 
 Edid *Output::edid() const
 {
-    if (d->edid == 0) {
-        AbstractBackend *backend = BackendLoader::backend();
-        d->edid = new Edid(backend->edid(d->id));
-    }
+    if (!d->edid) {
+        // FIXME: This is wrong on so many levels....
+        QEventLoop loop;
+        org::kde::kscreen::Backend *backend = 0;
+        connect(BackendManager::instance(), &BackendManager::backendReady,
+                [&](org::kde::kscreen::Backend *interface) { backend = interface; loop.quit(); });
+        loop.exec();
+        Q_ASSERT(backend);
+        QDBusPendingReply<QByteArray> reply = backend->getEdid(d->id);
+        reply.waitForFinished();
+        if (reply.isError()) {
+            qCWarning(KSCREEN) << "Failed to retrieve EDID:" << reply.error().message();
+            return 0;
+        }
 
+        d->edid = new Edid(reply.value());
+    }
     return d->edid;
 }
 
@@ -416,6 +429,22 @@ QRect Output::geometry() const
 {
     return QRect(pos(), currentMode()->size());
 }
+
+void Output::apply(const OutputPtr& other)
+{
+    // Only set values that can change
+    setName(other->d->name);
+    setType(other->d->type);
+    setIcon(other->d->icon);
+    setPos(other->pos());
+    setRotation(other->d->rotation);
+    setCurrentModeId(other->d->currentMode);
+    setConnected(other->d->connected);
+    setEnabled(other->d->enabled);
+    setPrimary(other->d->primary);
+    setClones(other->d->clones);;
+}
+
 
 QDebug operator<<(QDebug dbg, const KScreen::OutputPtr &output)
 {

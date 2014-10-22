@@ -19,7 +19,7 @@
 
 #include "config.h"
 #include "output.h"
-#include "backendloader.h"
+#include "backendmanager_p.h"
 #include "abstractbackend.h"
 
 #include <QtCore/QDebug>
@@ -50,37 +50,10 @@ class Config::Private
     OutputList outputs;
 };
 
-bool Config::loadBackend()
-{
-    return BackendLoader::init();
-}
-
-ConfigPtr Config::current()
-{
-    if (!BackendLoader::init()) {
-        return ConfigPtr();
-    }
-
-    return BackendLoader::backend()->config();
-}
-
-bool Config::setConfig(const ConfigPtr &config)
-{
-    if (!BackendLoader::init()) {
-        return false;
-    }
-
-    if (!Config::canBeApplied(config)) {
-        return false;
-    }
-
-    BackendLoader::backend()->setConfig(config);
-    return true;
-}
-
 bool Config::canBeApplied(const ConfigPtr &config)
 {
-    ConfigPtr currentConfig = BackendLoader::backend()->config();
+#warning TODO
+    ConfigPtr currentConfig; // = BackendLoader::backend()->config();
     QRect rect;
     QSize outputSize;
     OutputPtr currentOutput;
@@ -243,6 +216,10 @@ OutputPtr Config::primaryOutput() const
 
 void Config::setPrimaryOutput(const OutputPtr &output)
 {
+    if (primaryOutput() == output) {
+        return;
+    }
+
     d->primaryOutput = output;
 
     Q_EMIT primaryOutputChanged(output);
@@ -280,4 +257,42 @@ bool Config::isValid() const
 void Config::setValid(bool valid)
 {
     d->valid = valid;
+}
+
+void Config::apply(const ConfigPtr& other)
+{
+    d->screen->apply(other->screen());
+
+    // Remove removed outputs
+    Q_FOREACH (const OutputPtr &output, d->outputs) {
+        if (!other->d->outputs.contains(output->id())) {
+            removeOutput(output->id());
+        }
+    }
+
+    Q_FOREACH (const OutputPtr &otherOutput, other->d->outputs) {
+        // Add new outputs
+        if (!d->outputs.contains(otherOutput->id())) {
+            addOutput(otherOutput->clone());
+        } else {
+            // Update existing outputs
+            d->outputs[otherOutput->id()]->apply(otherOutput);
+        }
+    }
+
+    // Update primary output
+    bool matched = false;
+    Q_FOREACH (const OutputPtr &output, d->outputs) {
+        if (output->isPrimary() && output != d->primaryOutput) {
+            setPrimaryOutput(output);
+            matched = true;
+            break;
+        }
+    }
+    if (!matched) {
+        setPrimaryOutput(OutputPtr());
+    }
+
+    // Update validity
+    setValid(other->isValid());
 }

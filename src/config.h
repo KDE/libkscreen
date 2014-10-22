@@ -51,34 +51,6 @@ class KSCREEN_EXPORT Config : public QObject
 
   public:
     /**
-    * Tries to load a backend (it might be already loaded)
-    *
-    * @return true if there is a working backend, false if none are found or work
-    */
-    static bool loadBackend();
-
-    /**
-     * Gets the current system configuration
-     *
-     * The returned config is a representation of the current system setup, for
-     * example if your screens a currently cloned, it will show that.
-     *
-     * @return the current system config, or null on error
-     */
-    static ConfigPtr current();
-
-    /**
-     * Sets the given config to the system
-     *
-     * The config will first be validated via canBeApplied(), then
-     * it will be applied to the system.
-     *
-     * @arg config to be applied
-     * @return true if everything went well, false if something failed
-     */
-    static bool setConfig(const ConfigPtr &config);
-
-    /**
      * Validates that a config can be applied in the current system
      *
      * Each system has different constrains, this method will test
@@ -124,6 +96,8 @@ class KSCREEN_EXPORT Config : public QObject
 
     bool isValid() const;
     void setValid(bool valid);
+
+    void apply(const ConfigPtr &other);
 
   Q_SIGNALS:
       void outputAdded(const KScreen::OutputPtr &output);

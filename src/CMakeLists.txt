@@ -6,6 +6,9 @@ set(libkscreen_SRCS
     abstractbackend.cpp
     backendmanager.cpp
     config.cpp
+    configoperation.cpp
+    getconfigoperation.cpp
+    setconfigoperation.cpp
     configmonitor.cpp
     configserializer.cpp
     screen.cpp

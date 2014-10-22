@@ -17,56 +17,35 @@
  *
  */
 
-#ifndef KSCREEN_BACKENDMANAGER_H
-#define KSCREEN_BACKENDMANAGER_H
-
 #include <QObject>
-#include <QProcess>
 
+#include "configoperation.h"
 #include "backendinterface.h"
 
-class QDBusPendingCallWatcher;
+namespace KScreen
+{
 
-namespace KScreen {
-
-class BackendManager : public QObject
+class ConfigOperationPrivate : public QObject
 {
     Q_OBJECT
 
 public:
-    static BackendManager *instance();
-    ~BackendManager();
+    ConfigOperationPrivate(ConfigOperation *qq);
+    virtual ~ConfigOperationPrivate();
 
     void requestBackend();
+    virtual void backendReady(org::kde::kscreen::Backend *backend);
 
-Q_SIGNALS:
-    void backendReady(org::kde::kscreen::Backend *backend);
+public Q_SLOTS:
+    void doEmitResult();
 
-
-private Q_SLOTS:
-    void startBackend(const QString &backend = QString());
-
-    void launcherFinished(int existCode, QProcess::ExitStatus exitStatus);
-    void launcherDataAvailable();
-
-    void backendServiceUnregistered(const QString &serviceName);
 private:
-    void findBestBackend();
-    void invalidateInterface();
+    QString error;
 
-
-    explicit BackendManager();
-    static BackendManager *sInstance;
-
-    org::kde::kscreen::Backend *mInterface;
-    int mCrashCount;
-
-    QProcess *mLauncher;
-    QString mBackendService;
-    QDBusServiceWatcher mServiceWatcher;
+protected:
+    ConfigOperation * const q_ptr;
+    Q_DECLARE_PUBLIC(ConfigOperation)
 
 };
 
 }
-
-#endif // KSCREEN_BACKENDMANAGER_H

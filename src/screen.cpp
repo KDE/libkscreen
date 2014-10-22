@@ -124,3 +124,9 @@ void Screen::setMaxActiveOutputsCount(int maxActiveOutputsCount)
 {
     d->maxActiveOutputsCount = maxActiveOutputsCount;
 }
+
+void Screen::apply(const ScreenPtr &other)
+{
+    // Only set values that can change
+    setMaxActiveOutputsCount(other->d->maxActiveOutputsCount);
+}

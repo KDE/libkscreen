@@ -50,8 +50,13 @@ BackendManager::BackendManager()
     : QObject()
     , mInterface(0)
     , mCrashCount(0)
+    , mLauncher(0)
 {
     qRegisterMetaType<org::kde::kscreen::Backend*>("OrgKdeKscreenBackendInterface");
+
+    mServiceWatcher.setConnection(QDBusConnection::sessionBus());
+    connect(&mServiceWatcher, &QDBusServiceWatcher::serviceUnregistered,
+            this, &BackendManager::backendServiceUnregistered);
 }
 
 BackendManager::~BackendManager()
@@ -60,19 +65,13 @@ BackendManager::~BackendManager()
 
 void BackendManager::requestBackend()
 {
-    if (mInterface) {
+    if (mInterface && mInterface->isValid()) {
         QMetaObject::invokeMethod(this, "backendReady", Qt::QueuedConnection,
                                   Q_ARG(org::kde::kscreen::Backend*, mInterface));
         return;
     }
 
-    // If an explicit backend is requested, then start it
-    if (!qgetenv("KSCREEN_BACKEND").isEmpty()) {
-        startBackend(QString::fromLatin1(qgetenv("KSCREEN_BACKEND")));
-        return;
-    }
-
-    startBackend();
+    startBackend(QString::fromLatin1(qgetenv("KSCREEN_BACKEND")));
 }
 
 void BackendManager::startBackend(const QString &backend)
@@ -129,8 +128,7 @@ void BackendManager::launcherFinished(int exitCode, QProcess::ExitStatus exitSta
     case BackendLoader::BackendLoaded:
         // This means that the launcher has terminated successfully after doing
         // what it was asked to do, so delete the interface, but don't emit signals
-        delete mInterface;
-        mInterface = 0;
+        invalidateInterface();
         break;
 
     case BackendLoader::BackendFailedToLoad:
@@ -138,8 +136,7 @@ void BackendManager::launcherFinished(int exitCode, QProcess::ExitStatus exitSta
         // means that we didn't try before and someone is probably waiting for
         // the signal
         qCWarning(KSCREEN) << "Launcher failed to load any backend: KScreen will be useless";
-        delete mInterface;
-        mInterface = 0;
+        invalidateInterface();
         Q_EMIT backendReady(0);
         break;
 
@@ -156,7 +153,7 @@ void BackendManager::launcherFinished(int exitCode, QProcess::ExitStatus exitSta
 void BackendManager::launcherDataAvailable()
 {
     mLauncher->setReadChannel(QProcess::StandardOutput);
-    QByteArray service = mLauncher->readLine();
+    const QByteArray service = mLauncher->readLine();
     qCDebug(KSCREEN) << "launcherDataAvailable:" << service;
     mBackendService = QString::fromLatin1(service);
 
@@ -166,9 +163,27 @@ void BackendManager::launcherDataAvailable()
                                                 this);
     if (!mInterface->isValid()) {
         qCWarning(KSCREEN) << "Failed start KScreen backend service:" << QDBusConnection::sessionBus().lastError().message();
-        delete mInterface;
-        mInterface = 0;
+        invalidateInterface();
     }
 
+    mServiceWatcher.addWatchedService(mBackendService);
+
     Q_EMIT backendReady(mInterface);
+}
+
+void BackendManager::backendServiceUnregistered(const QString &serviceName)
+{
+    Q_ASSERT(serviceName == mBackendService);
+
+    mServiceWatcher.removeWatchedService(serviceName);
+
+    invalidateInterface();
+    requestBackend();
+}
+
+void BackendManager::invalidateInterface()
+{
+    delete mInterface;
+    mInterface = 0;
+    mBackendService.clear();
 }

@@ -58,6 +58,8 @@ class KSCREEN_EXPORT Screen : public QObject
         int maxActiveOutputsCount() const;
         void setMaxActiveOutputsCount(int maxActiveOutputsCount);
 
+        void apply(const ScreenPtr &other);
+
     Q_SIGNALS:
         void currentSizeChanged();
 

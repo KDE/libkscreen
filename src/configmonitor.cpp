@@ -17,44 +17,115 @@
  *************************************************************************************/
 
 #include "configmonitor.h"
-#include "backendloader.h"
+#include "backendmanager_p.h"
+#include "backendinterface.h"
 #include "abstractbackend.h"
+#include "configserializer_p.h"
+#include "getconfigoperation.h"
+#include "debug_p.h"
 
 using namespace KScreen;
 
 
-class ConfigMonitor::Private
+class ConfigMonitor::Private : public QObject
 {
-  public:
-    Private(ConfigMonitor *q)
-     : backend(BackendLoader::backend())
-     , m_q(q)
-    { }
+      Q_OBJECT
+
+public:
+    Private(ConfigMonitor *q);
 
     void updateConfigs();
-    void _k_configurationDestroyed(QObject* removedConfig);
+    void onBackendReady(org::kde::kscreen::Backend *backend);
+    void backendConfigChanged(const QVariantMap &config);
+    void configDestroyed(QObject* removedConfig);
+    void getConfigFinished(ConfigOperation *op);
+    void updateConfigs(const KScreen::ConfigPtr &newConfig);
 
     QList<QWeakPointer<KScreen::Config>>  watchedConfigs;
-    AbstractBackend* backend;
-    ConfigMonitor *m_q;
+
+    QPointer<org::kde::kscreen::Backend> mBackend;
+
+private:
+    ConfigMonitor *q;
 };
 
-void ConfigMonitor::Private::updateConfigs()
+ConfigMonitor::Private::Private(ConfigMonitor *q)
+    : QObject(q)
+    , q(q)
+{
+}
+
+void ConfigMonitor::Private::onBackendReady(org::kde::kscreen::Backend *backend)
+{
+    if (backend == mBackend) {
+        return;
+    }
+
+    if (mBackend) {
+        disconnect(mBackend.data(), &org::kde::kscreen::Backend::configChanged,
+                   this, &ConfigMonitor::Private::backendConfigChanged);
+    }
+
+    mBackend = QPointer<org::kde::kscreen::Backend>(backend);
+    connect(mBackend.data(), &org::kde::kscreen::Backend::configChanged,
+            this, &ConfigMonitor::Private::backendConfigChanged);
+
+    // If we received a new backend interface, then it's very likely that it is
+    // because the backend process has crashed - just to be sure we haven't missed
+    // any change, request the current config now and update our watched configs
+    if (!watchedConfigs.isEmpty()) {
+        connect(new GetConfigOperation(), &GetConfigOperation::finished,
+                this, &Private::getConfigFinished);
+    }
+}
+
+void ConfigMonitor::Private::getConfigFinished(ConfigOperation* op)
+{
+    if (op->hasError()) {
+        qCWarning(KSCREEN) << "Failed to retrieve current config: " << op->errorString();
+        return;
+    }
+
+    const KScreen::ConfigPtr config = qobject_cast<GetConfigOperation*>(op)->config();
+    updateConfigs(config);
+}
+
+
+void ConfigMonitor::Private::backendConfigChanged(const QVariantMap &configMap)
+{
+    const QJsonObject obj = QJsonObject::fromVariantMap(configMap);
+    const ConfigPtr newConfig = ConfigSerializer::deserializeConfig(obj);
+    if (!newConfig) {
+        qCWarning(KSCREEN) << "Failed to deserialize config from DBus change notification";
+        return;
+    }
+
+    updateConfigs(newConfig);
+}
+
+void ConfigMonitor::Private::updateConfigs(const KScreen::ConfigPtr &newConfig)
 {
     QMutableListIterator<QWeakPointer<Config>> iter(watchedConfigs);
     while (iter.hasNext()) {
         KScreen::ConfigPtr config = iter.next().toStrongRef();
-        //backend->updateConfig(config);
+        if (!config) {
+            iter.remove();
+            continue;
+        }
+
+        config->apply(newConfig);
         iter.setValue(config.toWeakRef());
     }
+
+    Q_EMIT q->configurationChanged();
 }
 
-void ConfigMonitor::Private::_k_configurationDestroyed(QObject *removedConfig)
+void ConfigMonitor::Private::configDestroyed(QObject *removedConfig)
 {
     for (auto iter = watchedConfigs.begin(); iter != watchedConfigs.end(); ++iter) {
         if (iter->data() == removedConfig) {
-            watchedConfigs.erase(iter);
-            break;
+            iter = watchedConfigs.erase(iter);
+            // Iterate over the entire list in case there are duplicates
         }
     }
 }
@@ -74,18 +145,21 @@ ConfigMonitor::ConfigMonitor():
     QObject(),
     d(new Private(this))
 {
+    connect(BackendManager::instance(), &BackendManager::backendReady,
+            d, &ConfigMonitor::Private::onBackendReady);
+    BackendManager::instance()->requestBackend();
 }
 
 ConfigMonitor::~ConfigMonitor()
 {
-    delete d;
 }
 
 void ConfigMonitor::addConfig(const ConfigPtr &config)
 {
     const QWeakPointer<Config> weakConfig = config.toWeakRef();
     if (!d->watchedConfigs.contains(weakConfig)) {
-        connect(weakConfig.data(), SIGNAL(destroyed(QObject*)), SLOT(_k_configurationDestroyed(QObject*)));
+        connect(weakConfig.data(), &QObject::destroyed,
+                d, &Private::configDestroyed);
         d->watchedConfigs << weakConfig;
     }
 }
@@ -94,16 +168,10 @@ void ConfigMonitor::removeConfig(const ConfigPtr &config)
 {
     const QWeakPointer<Config> weakConfig = config.toWeakRef();
     if (d->watchedConfigs.contains(config)) {
-        disconnect(config.data(), SIGNAL(destroyed(QObject*)), this, SLOT(_k_configurationDestroyed(QObject*)));
+        disconnect(weakConfig.data(), &QObject::destroyed,
+                   d, &Private::configDestroyed);
         d->watchedConfigs.removeAll(config);
     }
 }
 
-void ConfigMonitor::notifyUpdate()
-{
-    d->updateConfigs();
-
-    Q_EMIT configurationChanged();
-}
-
-#include "moc_configmonitor.cpp"
+#include "configmonitor.moc"
