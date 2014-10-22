@@ -53,9 +53,9 @@ QSize XRandRScreen::currentSize()
     return m_currentSize;
 }
 
-KScreen::Screen *XRandRScreen::toKScreenScreen(KScreen::Config *parent) const
+KScreen::ScreenPtr XRandRScreen::toKScreenScreen() const
 {
-    KScreen::Screen *kscreenScreen = new KScreen::Screen(parent);
+    KScreen::ScreenPtr kscreenScreen(new KScreen::Screen);
     kscreenScreen->setId(m_id);
     kscreenScreen->setMaxSize(m_maxSize);
     kscreenScreen->setMinSize(m_minSize);
@@ -65,10 +65,7 @@ KScreen::Screen *XRandRScreen::toKScreenScreen(KScreen::Config *parent) const
     return kscreenScreen;
 }
 
-void XRandRScreen::updateKScreenScreen(KScreen::Screen *screen) const
+void XRandRScreen::updateKScreenScreen(KScreen::ScreenPtr &screen) const
 {
     screen->setCurrentSize(m_currentSize);
 }
-
-
-#include "xrandrscreen.moc"

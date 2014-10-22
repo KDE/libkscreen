@@ -43,11 +43,11 @@ class XRandR : public QObject, public AbstractBackend
         virtual ~XRandR();
 
         virtual QString name() const;
-        virtual KScreen::Config* config() const;
-        virtual void setConfig(KScreen::Config* config) const;
+        virtual KScreen::ConfigPtr config() const;
+        virtual void setConfig(const KScreen::ConfigPtr &config) const;
         virtual bool isValid() const;
         virtual KScreen::Edid *edid(int outputId) const;
-        virtual void updateConfig(KScreen::Config *config) const;
+        virtual void updateConfig(KScreen::ConfigPtr &config) const;
 
         static RRCrtc outputCrtc(int outputId);
         static quint8 *outputEdid(int outputId, size_t &len);

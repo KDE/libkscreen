@@ -86,8 +86,8 @@ public:
     inline bool isHorizontal() const { return ((m_rotation == KScreen::Output::None) || (m_rotation == KScreen::Output::Inverted)); }
     KScreen::Edid* edid() const;
 
-    KScreen::Output* toKScreenOutput(KScreen::Config *parent) const;
-    void updateKScreenOutput(KScreen::Output *output) const;
+    KScreen::OutputPtr toKScreenOutput() const;
+    void updateKScreenOutput(KScreen::OutputPtr &output) const;
 
     void updateModes(const XRROutputInfo *outputInfo);
     void addNewOutput(const RROutput output);

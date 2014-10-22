@@ -342,9 +342,9 @@ QByteArray XRandROutput::typeFromProperty() const
     return type;
 }
 
-KScreen::Output *XRandROutput::toKScreenOutput(KScreen::Config *parent) const
+KScreen::OutputPtr XRandROutput::toKScreenOutput() const
 {
-    KScreen::Output *kscreenOutput = new KScreen::Output(parent);
+    KScreen::OutputPtr kscreenOutput(new KScreen::Output);
 
     m_changedProperties = 0;
     kscreenOutput->setId(m_id);
@@ -355,7 +355,7 @@ KScreen::Output *XRandROutput::toKScreenOutput(KScreen::Config *parent) const
     return kscreenOutput;
 }
 
-void XRandROutput::updateKScreenOutput(KScreen::Output *output) const
+void XRandROutput::updateKScreenOutput(KScreen::OutputPtr &output) const
 {
     if (!m_changedProperties || (m_changedProperties & PropertyName)) {
         output->setName(m_name);
@@ -406,11 +406,9 @@ void XRandROutput::updateKScreenOutput(KScreen::Output *output) const
         KScreen::ModeList kscreenModes;
         for (iter = m_modes.constBegin(); iter != m_modes.constEnd(); ++iter) {
             XRandRMode *mode = iter.value();
-            KScreen::Mode *kscreenMode = mode->toKScreenMode(output);
+            KScreen::ModePtr kscreenMode = mode->toKScreenMode();
             kscreenModes.insert(QString::number(iter.key()), kscreenMode);
         }
         output->setModes(kscreenModes);
     }
 }
-
-#include "xrandroutput.moc"

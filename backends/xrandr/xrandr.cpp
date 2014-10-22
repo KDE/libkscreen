@@ -154,12 +154,12 @@ void XRandR::updateCrtc(RRCrtc crtc)
     KScreen::ConfigMonitor::instance()->notifyUpdate();
 }
 
-Config* XRandR::config() const
+ConfigPtr XRandR::config() const
 {
     return s_internalConfig->toKScreenConfig();
 }
 
-void XRandR::setConfig(Config* config) const
+void XRandR::setConfig(const ConfigPtr &config) const
 {
     if (!config) {
         return;
@@ -184,7 +184,7 @@ bool XRandR::isValid() const
     return m_isValid;
 }
 
-void XRandR::updateConfig(Config *config) const
+void XRandR::updateConfig(ConfigPtr &config) const
 {
     Q_ASSERT(config != 0);
 

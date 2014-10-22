@@ -35,9 +35,9 @@ XRandRMode::~XRandRMode()
 {
 }
 
-KScreen::Mode *XRandRMode::toKScreenMode(KScreen::Output *parent)
+KScreen::ModePtr XRandRMode::toKScreenMode()
 {
-    KScreen::Mode *kscreenMode = new KScreen::Mode(parent);
+    KScreen::ModePtr kscreenMode(new KScreen::Mode);
 
     kscreenMode->setId(QString::number(m_id));
     kscreenMode->setName(m_name);
@@ -66,5 +66,3 @@ QString XRandRMode::name() const
 {
     return m_name;
 }
-
-#include "xrandrmode.moc"
