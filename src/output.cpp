@@ -21,7 +21,7 @@
 #include "mode.h"
 #include "edid.h"
 #include "backendloader.h"
-#include "backends/abstractbackend.h"
+#include "abstractbackend.h"
 
 #include <QStringList>
 #include <QPointer>
@@ -396,7 +396,7 @@ Edid *Output::edid() const
 {
     if (d->edid == 0) {
         AbstractBackend *backend = BackendLoader::backend();
-        d->edid = backend->edid(d->id);
+        d->edid = new Edid(backend->edid(d->id));
     }
 
     return d->edid;

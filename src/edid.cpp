@@ -73,7 +73,7 @@ class Edid::Private
     {
     }
 
-    bool parse(const quint8 *data, size_t length);
+    bool parse(const QByteArray &data);
     int edidGetBit(int in, int bit) const;
     int edidGetBits(int in, int begin, int end) const;
     double edidDecodeFraction(int high, int low) const;
@@ -102,11 +102,11 @@ Edid::Edid()
 {
 }
 
-Edid::Edid(const quint8 *data, size_t length, QObject *parent)
+Edid::Edid(const QByteArray &data, QObject *parent)
   : QObject(parent)
   , d(new Private())
 {
-    d->parse(data, length);
+    d->parse(data);
 }
 
 Edid::Edid(Edid::Private *dd)
@@ -239,9 +239,11 @@ QQuaternion Edid::white() const
     return d->white;
 }
 
-bool Edid::Private::parse(const quint8 *data, size_t length)
+bool Edid::Private::parse(const QByteArray &rawData)
 {
     quint32 serial;
+    const quint8 *data = (quint8*) rawData.constData();
+    size_t length = rawData.length();
 
     /* check header */
     if (length < 128) {
