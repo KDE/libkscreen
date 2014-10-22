@@ -400,7 +400,11 @@ Edid *Output::edid() const
         QEventLoop loop;
         org::kde::kscreen::Backend *backend = 0;
         connect(BackendManager::instance(), &BackendManager::backendReady,
-                [&](org::kde::kscreen::Backend *interface) { backend = interface; loop.quit(); });
+                [&](org::kde::kscreen::Backend *interface) {
+                    backend = interface;
+                    loop.quit();
+                });
+        BackendManager::instance()->requestBackend();
         loop.exec();
         Q_ASSERT(backend);
         QDBusPendingReply<QByteArray> reply = backend->getEdid(d->id);
