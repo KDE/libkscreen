@@ -1,5 +1,6 @@
 /*************************************************************************************
  *  Copyright (C) 2012 by Alejandro Fiestas Olivares <afiestas@kde.org>              *
+ *  Copyright (C) 2014 by Daniel Vrátil <dvratil@redhat.com>                         *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -20,12 +21,13 @@
 #include "mode.h"
 #include "edid.h"
 #include "backendloader.h"
-#include <backends/abstractbackend.h>
+#include "backends/abstractbackend.h"
 
-#include <QtCore/QStringList>
+#include <QStringList>
+#include <QPointer>
 #include <QRect>
 
-namespace KScreen {
+using namespace KScreen;
 
 class Output::Private
 {
@@ -57,7 +59,7 @@ class Output::Private
         enabled(other.enabled),
         primary(other.primary)
     {
-        Q_FOREACH (Mode *otherMode, other.modeList) {
+        Q_FOREACH (const ModePtr &otherMode, other.modeList) {
             modeList.insert(otherMode->id(), otherMode->clone());
         }
         if (other.edid) {
@@ -90,8 +92,8 @@ class Output::Private
 QString Output::Private::biggestMode(const ModeList& modes) const
 {
     int area, total = 0;
-    KScreen::Mode* biggest = 0;
-    Q_FOREACH(KScreen::Mode* mode, modes) {
+    KScreen::ModePtr biggest;
+    Q_FOREACH(const KScreen::ModePtr &mode, modes) {
         area = mode->size().width() * mode->size().height();
         if (area < total) {
             continue;
@@ -115,8 +117,8 @@ QString Output::Private::biggestMode(const ModeList& modes) const
     return biggest->id();
 }
 
-Output::Output(QObject *parent)
- : QObject(parent)
+Output::Output()
+ : QObject(0)
  , d(new Private())
 {
 
@@ -133,15 +135,15 @@ Output::~Output()
     delete d;
 }
 
-Output *Output::clone() const
+OutputPtr Output::clone() const
 {
-    Output *output = new Output(new Private(*d));
+    OutputPtr output(new Output(new Private(*d)));
     // Make sure the new output takes ownership of the cloned modes
-    Q_FOREACH (Mode *mode, output->d->modeList) {
-        mode->setParent(output);
+    for (auto iter = output->d->modeList.begin(); iter != output->d->modeList.end(); ++iter) {
+        (*iter)->setParent(output.data());
     }
     if (output->d->edid) {
-        output->d->edid->setParent(output);
+        output->d->edid->setParent(output.data());
     }
 
     return output;
@@ -211,25 +213,22 @@ void Output::setIcon(const QString& icon)
     Q_EMIT outputChanged();
 }
 
-Mode* Output::mode(const QString& id) const
+ModePtr Output::mode(const QString& id) const
 {
     if (!d->modeList.contains(id)) {
-        return 0;
+        return ModePtr();
     }
 
     return d->modeList[id];
 }
 
-QHash< QString, Mode* > Output::modes() const
+ModeList Output::modes() const
 {
     return d->modeList;
 }
 
-void Output::setModes(ModeList modes)
+void Output::setModes(const ModeList &modes)
 {
-    if (!d->modeList.isEmpty()) {
-        qDeleteAll(d->modeList);
-    }
     d->modeList = modes;
 }
 
@@ -249,7 +248,7 @@ void Output::setCurrentModeId(const QString& mode)
     Q_EMIT currentModeIdChanged();
 }
 
-Mode *Output::currentMode() const
+ModePtr Output::currentMode() const
 {
     return d->modeList.value(d->currentMode);
 }
@@ -275,8 +274,8 @@ QString Output::preferredModeId() const
     }
 
     int area, total = 0;
-    KScreen::Mode* biggest = 0;
-    KScreen::Mode* candidateMode = 0;
+    KScreen::ModePtr biggest;
+    KScreen::ModePtr candidateMode;
     Q_FOREACH(const QString &modeId, d->preferredModes) {
         candidateMode = mode(modeId);
         area = candidateMode->size().width() * candidateMode->size().height();
@@ -301,7 +300,7 @@ QString Output::preferredModeId() const
     return d->preferredMode;
 }
 
-Mode* Output::preferredMode() const
+ModePtr Output::preferredMode() const
 {
     return d->modeList.value(preferredModeId());
 }
@@ -427,9 +426,7 @@ QRect Output::geometry() const
     return QRect(pos(), currentMode()->size());
 }
 
-} //KScreen namespace
-
-QDebug operator<<(QDebug dbg, const KScreen::Output *output)
+QDebug operator<<(QDebug dbg, const KScreen::OutputPtr &output)
 {
     if(output) {
         dbg << "KScreen::Output(Id:" << output->id() <<", Name:" << output->name() << ")";
@@ -438,5 +435,3 @@ QDebug operator<<(QDebug dbg, const KScreen::Output *output)
     }
     return dbg;
 }
-
-#include "output.moc"

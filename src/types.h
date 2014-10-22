@@ -1,5 +1,5 @@
 /*************************************************************************************
- *  Copyright (C) 2012 by Alejandro Fiestas Olivares <afiestas@kde.org>              *
+ *  Copyright 2014  Daniel Vrátil <dvratil@redhat.com>                               *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -16,59 +16,27 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
-#ifndef SCREEN_CONFIG_H
-#define SCREEN_CONFIG_H
+#ifndef KSCREEN_TYPES_H
+#define KSCREEN_TYPES_H
 
-#include "types.h"
-#include "kscreen_export.h"
+#include <QSharedPointer>
+#include <QMap>
 
-#include <QSize>
-#include <QObject>
-
-namespace KScreen {
-
-class KSCREEN_EXPORT Screen : public QObject
+namespace KScreen
 {
-    Q_OBJECT
 
-    public:
-        Q_PROPERTY(int id READ id CONSTANT)
-        Q_PROPERTY(QSize currentSize READ currentSize WRITE setCurrentSize NOTIFY currentSizeChanged)
-        Q_PROPERTY(QSize minSize READ minSize CONSTANT)
-        Q_PROPERTY(QSize maxSize READ maxSize CONSTANT)
-        Q_PROPERTY(int maxActiveOutputsCount READ maxActiveOutputsCount CONSTANT)
+class Config;
+typedef QSharedPointer<Config> ConfigPtr;
+class Screen;
+typedef QSharedPointer<Screen> ScreenPtr;
+class Output;
+typedef QSharedPointer<Output> OutputPtr;
+typedef QMap<int, OutputPtr> OutputList;
 
-        explicit Screen();
-        virtual ~Screen();
+class Mode;
+typedef QSharedPointer<Mode> ModePtr;
+typedef QMap<QString, ModePtr> ModeList;
 
-        ScreenPtr clone() const;
+}
 
-        int id() const;
-        void setId(int id);
-
-        QSize currentSize() const;
-        void setCurrentSize(const QSize& currentSize);
-
-        QSize minSize() const;
-        void setMinSize(const QSize& minSize);
-
-        QSize maxSize() const;
-        void setMaxSize(const QSize& maxSize);
-
-        int maxActiveOutputsCount() const;
-        void setMaxActiveOutputsCount(int maxActiveOutputsCount);
-
-    Q_SIGNALS:
-        void currentSizeChanged();
-
-    private:
-        Q_DISABLE_COPY(Screen)
-
-        class Private;
-        Private * const d;
-
-        Screen(Private *dd);
-};
-
-} //KScreen namespace
-#endif //SCREEN_H
+#endif

@@ -1,5 +1,6 @@
 /*************************************************************************************
  *  Copyright (C) 2012 by Alejandro Fiestas Olivares <afiestas@kde.org>              *
+ *  Copyright (C) 2014 by Daniel Vrátil <dvratil@redhat.com>                         *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -20,15 +21,15 @@
 #define OUTPUT_CONFIG_H
 
 #include "mode.h"
+#include "types.h"
 #include "kscreen_export.h"
 
-#include <QtCore/QSize>
-#include <QtCore/QPoint>
-#include <QtCore/QObject>
-#include <QtCore/QMetaType>
-#include <QtCore/QPointer>
-#include <QtCore/QStringList>
-#include <QtCore/QDebug>
+#include <QObject>
+#include <QSize>
+#include <QPoint>
+#include <QMetaType>
+#include <QStringList>
+#include <QDebug>
 
 namespace KScreen {
 
@@ -82,10 +83,10 @@ class KSCREEN_EXPORT Output : public QObject
             Right = 8
         };
 
-        explicit Output(QObject *parent = 0);
+        explicit Output();
         virtual ~Output();
 
-        Output* clone() const;
+        OutputPtr clone() const;
 
         int id() const;
         void setId(int id);
@@ -99,13 +100,13 @@ class KSCREEN_EXPORT Output : public QObject
         QString icon() const;
         void setIcon(const QString& icon);
 
-        Q_INVOKABLE Mode* mode(const QString &id) const;
-        QHash<QString, Mode*> modes() const;
-        void setModes(ModeList modes);
+        Q_INVOKABLE ModePtr mode(const QString &id) const;
+        ModeList modes() const;
+        void setModes(const ModeList &modes);
 
         QString currentModeId() const;
         void setCurrentModeId(const QString& mode);
-        Q_INVOKABLE Mode* currentMode() const;
+        Q_INVOKABLE ModePtr currentMode() const;
 
         void setPreferredModes(const QStringList &modes);
         QStringList preferredModes() const;
@@ -116,7 +117,7 @@ class KSCREEN_EXPORT Output : public QObject
         /**
          * Returns KScreen::Mode associated with preferredModeId()
          */
-        Q_INVOKABLE Mode* preferredMode() const;
+        Q_INVOKABLE ModePtr preferredMode() const;
 
         QPoint pos() const;
         void setPos(const QPoint& pos);
@@ -173,11 +174,9 @@ class KSCREEN_EXPORT Output : public QObject
 
 };
 
-typedef QHash<int, Output*> OutputList;
-
 } //KScreen namespace
 
-KSCREEN_EXPORT QDebug operator<<(QDebug dbg, const KScreen::Output *output);
+KSCREEN_EXPORT QDebug operator<<(QDebug dbg, const KScreen::OutputPtr &output);
 
 Q_DECLARE_METATYPE(KScreen::OutputList)
 Q_DECLARE_METATYPE(KScreen::Output::Rotation)

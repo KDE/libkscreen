@@ -1,5 +1,6 @@
 /*************************************************************************************
  *  Copyright (C) 2012 by Alejandro Fiestas Olivares <afiestas@kde.org>              *
+ *  Copyright (C) 2014 by Daniel Vrátil <dvratil@redhat.com>                         *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -18,8 +19,7 @@
 
 #include "mode.h"
 
-namespace KScreen {
-
+using namespace KScreen;
 class Mode::Private
 {
   public:
@@ -41,8 +41,8 @@ class Mode::Private
     float rate;
 };
 
-Mode::Mode(QObject *parent)
-  : QObject(parent)
+Mode::Mode()
+  : QObject(0)
   , d(new Private())
 {
 
@@ -59,9 +59,9 @@ Mode::~Mode()
     delete d;
 }
 
-Mode *Mode::clone() const
+ModePtr Mode::clone() const
 {
-    return new Mode(new Private(*d));
+    return ModePtr(new Mode(new Private(*d)));
 }
 
 const QString Mode::id() const
@@ -129,13 +129,9 @@ void Mode::setRefreshRate(float refresh)
     Q_EMIT modeChanged();
 }
 
-} //KScreen namespace
 
-QDebug operator<<(QDebug dbg, const KScreen::Mode *mode)
+QDebug operator<<(QDebug dbg, const KScreen::ModePtr &mode)
 {
     dbg << "KScreen::Mode(Id:" << mode->id() << ", Size:" << mode->size() << ")";
     return dbg;
 }
-
-
-#include "mode.moc"

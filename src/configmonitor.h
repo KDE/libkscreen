@@ -1,5 +1,5 @@
 /*************************************************************************************
- *  Copyright 2012, 2013  Daniel Vrátil <dvratil@redhat.com>                         *
+ *  Copyright 2012 - 2014  Daniel Vrátil <dvratil@redhat.com>                        *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -36,8 +36,8 @@ class KSCREEN_EXPORT ConfigMonitor : public QObject
 public:
     static ConfigMonitor* instance();
 
-    void addConfig(KScreen::Config *config);
-    void removeConfig(KScreen::Config *config);
+    void addConfig(const KScreen::ConfigPtr &config);
+    void removeConfig(const KScreen::ConfigPtr &config);
 
 public Q_SLOTS:
     void notifyUpdate();

@@ -1,5 +1,5 @@
 /*************************************************************************************
- *  Copyright 2012, 2013  Daniel Vrátil <dvratil@redhat.com>                         *
+ *  Copyright 2012 - 2014  Daniel Vrátil <dvratil@redhat.com>                        *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -34,23 +34,29 @@ class ConfigMonitor::Private
     void updateConfigs();
     void _k_configurationDestroyed(QObject* removedConfig);
 
-    QList< KScreen::Config* >  watchedConfigs;
+    QList<QWeakPointer<KScreen::Config>>  watchedConfigs;
     AbstractBackend* backend;
     ConfigMonitor *m_q;
 };
 
 void ConfigMonitor::Private::updateConfigs()
 {
-    Q_FOREACH( Config *config, watchedConfigs) {
-        if (config) {
-            backend->updateConfig(config);
-        }
+    QMutableListIterator<QWeakPointer<Config>> iter(watchedConfigs);
+    while (iter.hasNext()) {
+        KScreen::ConfigPtr config = iter.next().toStrongRef();
+        backend->updateConfig(config);
+        iter.setValue(config.toWeakRef());
     }
 }
 
 void ConfigMonitor::Private::_k_configurationDestroyed(QObject *removedConfig)
 {
-    m_q->removeConfig(static_cast<Config*>(removedConfig));
+    for (auto iter = watchedConfigs.begin(); iter != watchedConfigs.end(); ++iter) {
+        if (iter->data() == removedConfig) {
+            watchedConfigs.erase(iter);
+            break;
+        }
+    }
 }
 
 ConfigMonitor *ConfigMonitor::instance()
@@ -75,18 +81,20 @@ ConfigMonitor::~ConfigMonitor()
     delete d;
 }
 
-void ConfigMonitor::addConfig(Config *config)
+void ConfigMonitor::addConfig(const ConfigPtr &config)
 {
-    if (!d->watchedConfigs.contains(config)) {
-        connect(config, SIGNAL(destroyed(QObject*)), SLOT(_k_configurationDestroyed(QObject*)));
-        d->watchedConfigs << config;
+    const QWeakPointer<Config> weakConfig = config.toWeakRef();
+    if (!d->watchedConfigs.contains(weakConfig)) {
+        connect(weakConfig.data(), SIGNAL(destroyed(QObject*)), SLOT(_k_configurationDestroyed(QObject*)));
+        d->watchedConfigs << weakConfig;
     }
 }
 
-void ConfigMonitor::removeConfig(Config *config)
+void ConfigMonitor::removeConfig(const ConfigPtr &config)
 {
+    const QWeakPointer<Config> weakConfig = config.toWeakRef();
     if (d->watchedConfigs.contains(config)) {
-        disconnect(config, SIGNAL(destroyed(QObject*)), this, SLOT(_k_configurationDestroyed(QObject*)));
+        disconnect(config.data(), SIGNAL(destroyed(QObject*)), this, SLOT(_k_configurationDestroyed(QObject*)));
         d->watchedConfigs.removeAll(config);
     }
 }
@@ -97,6 +105,5 @@ void ConfigMonitor::notifyUpdate()
 
     Q_EMIT configurationChanged();
 }
-
 
 #include "moc_configmonitor.cpp"

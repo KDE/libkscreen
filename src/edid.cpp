@@ -1,6 +1,6 @@
 /*************************************************************************************
  *   Copyright (C) 2012 by Daniel Nicoletti <dantti12@gmail.com>                     *
- *             (C) 2012, 2013 by Daniel Vrátil <dvratil@redhat.com>                  *
+ *             (C) 2012 - 2014 by Daniel Vrátil <dvratil@redhat.com>                 *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -43,8 +43,7 @@
 
 #define PNP_IDS "/usr/share/hwdata/pnp.ids"
 
-namespace KScreen {
-
+using namespace KScreen;
 
 class Edid::Private
 {
@@ -416,7 +415,3 @@ QString Edid::Private::edidParseString(const quint8 *data) const
 
         return text;
 }
-
-} /* namespace KScreen */
-
-#include "edid.moc"

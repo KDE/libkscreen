@@ -19,8 +19,10 @@
 #ifndef ABSTRACT_BACKEND_H
 #define ABSTRACT_BACKEND_H
 
-#include <QtCore/QString>
-#include <QtCore/QObject>
+#include "types.h"
+
+#include <QString>
+#include <QObject>
 
 namespace KScreen {
     class Config;
@@ -47,11 +49,11 @@ class AbstractBackend
          *
          * @return Config object for the system.
          */
-        virtual KScreen::Config* config() const = 0;
+        virtual KScreen::ConfigPtr config() const = 0;
 
         /** Apply a config object to the system.
          */
-        virtual void setConfig(KScreen::Config* config) const = 0;
+        virtual void setConfig(const KScreen::ConfigPtr &config) const = 0;
 
         virtual bool isValid() const = 0;
 
@@ -74,7 +76,7 @@ class AbstractBackend
          * Your reimplementation of this method should update the configuration's outputs,
          * screen, etc..
          */
-        virtual void updateConfig(KScreen::Config* config) const = 0;
+        virtual void updateConfig(KScreen::ConfigPtr &config) const = 0;
 };
 
 Q_DECLARE_INTERFACE(AbstractBackend, "org.kde.libkscreen")
