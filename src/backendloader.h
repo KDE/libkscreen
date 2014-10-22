@@ -19,16 +19,19 @@
 #ifndef BACKEND_LOADER_H
 #define BACKEND_LOADER_H
 
+namespace KScreen
+{
 class AbstractBackend;
+}
 
 class BackendLoader
 {
     public:
         static bool init();
-        static AbstractBackend* backend();
+        static KScreen::AbstractBackend* backend();
 
     private:
-        static AbstractBackend* s_backend;
+        static KScreen::AbstractBackend* s_backend;
 };
 
 #endif //BACKEND_LOADER_H

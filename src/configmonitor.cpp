@@ -18,7 +18,7 @@
 
 #include "configmonitor.h"
 #include "backendloader.h"
-#include "backends/abstractbackend.h"
+#include "abstractbackend.h"
 
 using namespace KScreen;
 
@@ -44,7 +44,7 @@ void ConfigMonitor::Private::updateConfigs()
     QMutableListIterator<QWeakPointer<Config>> iter(watchedConfigs);
     while (iter.hasNext()) {
         KScreen::ConfigPtr config = iter.next().toStrongRef();
-        backend->updateConfig(config);
+        //backend->updateConfig(config);
         iter.setValue(config.toWeakRef());
     }
 }

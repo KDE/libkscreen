@@ -18,7 +18,7 @@
 
 #include "backendloader.h"
 #include "debug_p.h"
-#include "backends/abstractbackend.h"
+#include "src/abstractbackend.h"
 
 #include <QtCore/QStringList>
 #include <QtCore/QCoreApplication>
@@ -26,7 +26,7 @@
 #include <QX11Info>
 #include <QDir>
 
-AbstractBackend* BackendLoader::s_backend = 0;
+KScreen::AbstractBackend* BackendLoader::s_backend = 0;
 
 
 bool BackendLoader::init()
@@ -77,7 +77,7 @@ bool BackendLoader::init()
                 continue;
             }
 
-            s_backend = qobject_cast< AbstractBackend* >(instance);
+            s_backend = qobject_cast< KScreen::AbstractBackend* >(instance);
             if (s_backend) {
                 if (!s_backend->isValid()) {
                     qCDebug(KSCREEN) << "Skipping" << s_backend->name() << "backend";
@@ -96,7 +96,7 @@ bool BackendLoader::init()
     return false;
 }
 
-AbstractBackend* BackendLoader::backend()
+KScreen::AbstractBackend* BackendLoader::backend()
 {
     return s_backend;
 }

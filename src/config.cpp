@@ -20,7 +20,7 @@
 #include "config.h"
 #include "output.h"
 #include "backendloader.h"
-#include "backends/abstractbackend.h"
+#include "abstractbackend.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QRect>
