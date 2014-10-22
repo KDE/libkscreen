@@ -53,7 +53,7 @@ class AbstractBackend
 
         /** Apply a config object to the system.
          */
-        virtual void setConfig(const KScreen::ConfigPtr &config) const = 0;
+        virtual void setConfig(const KScreen::ConfigPtr &config) = 0;
 
         virtual bool isValid() const = 0;
 

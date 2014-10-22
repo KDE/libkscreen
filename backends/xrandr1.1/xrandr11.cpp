@@ -148,7 +148,7 @@ KScreen::ConfigPtr XRandR11::config() const
     return config;
 }
 
-void XRandR11::setConfig(const KScreen::ConfigPtr &config) const
+void XRandR11::setConfig(const KScreen::ConfigPtr &config)
 {
     KScreen::OutputPtr output = config->outputs().take(1);
     KScreen::ModePtr mode = output->currentMode();

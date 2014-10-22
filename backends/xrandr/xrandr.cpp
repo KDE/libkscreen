@@ -159,7 +159,7 @@ ConfigPtr XRandR::config() const
     return s_internalConfig->toKScreenConfig();
 }
 
-void XRandR::setConfig(const ConfigPtr &config) const
+void XRandR::setConfig(const ConfigPtr &config)
 {
     if (!config) {
         return;

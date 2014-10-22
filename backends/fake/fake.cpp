@@ -55,7 +55,7 @@ ConfigPtr Fake::config() const
     return Parser::fromJson(QString(qgetenv("TEST_DATA")));
 }
 
-void Fake::setConfig(const ConfigPtr &config) const
+void Fake::setConfig(const ConfigPtr &config)
 {
     Q_UNUSED(config)
 }

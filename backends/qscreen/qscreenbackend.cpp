@@ -55,7 +55,7 @@ ConfigPtr QScreenBackend::config() const
     return s_internalConfig->toKScreenConfig();
 }
 
-void QScreenBackend::setConfig(const ConfigPtr &config) const
+void QScreenBackend::setConfig(const ConfigPtr &config)
 {
     if (!config) {
         return;
