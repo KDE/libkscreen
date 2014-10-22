@@ -52,8 +52,11 @@ class Config::Private
 
 bool Config::canBeApplied(const ConfigPtr &config)
 {
-#warning TODO
-    ConfigPtr currentConfig; // = BackendLoader::backend()->config();
+    ConfigPtr currentConfig = BackendManager::instance()->config();
+    if (!currentConfig) {
+        return false;
+    }
+
     QRect rect;
     QSize outputSize;
     OutputPtr currentOutput;

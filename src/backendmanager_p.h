@@ -23,6 +23,7 @@
 #include <QObject>
 #include <QProcess>
 
+#include "types.h"
 #include "backendinterface.h"
 
 class QDBusPendingCallWatcher;
@@ -38,6 +39,8 @@ public:
     ~BackendManager();
 
     void requestBackend();
+
+    KScreen::ConfigPtr config() const;
 
 Q_SIGNALS:
     void backendReady(org::kde::kscreen::Backend *backend);
@@ -64,6 +67,7 @@ private:
     QProcess *mLauncher;
     QString mBackendService;
     QDBusServiceWatcher mServiceWatcher;
+    KScreen::ConfigPtr mConfig;
 
 };
 

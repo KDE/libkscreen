@@ -20,6 +20,8 @@
 #include "backendmanager_p.h"
 #include "backendlauncher/backendloader.h"
 #include "debug_p.h"
+#include "getconfigoperation.h"
+#include "configserializer_p.h"
 
 #include <QDBusConnection>
 #include <QDBusPendingCall>
@@ -169,6 +171,16 @@ void BackendManager::launcherDataAvailable()
 
     mServiceWatcher.addWatchedService(mBackendService);
 
+    // Immediatelly request config
+    connect(new GetConfigOperation(GetConfigOperation::NoEDID), &GetConfigOperation::finished,
+            [&](ConfigOperation *op) {
+                mConfig = qobject_cast<GetConfigOperation*>(op)->config();
+            });
+    connect(mInterface, &org::kde::kscreen::Backend::configChanged,
+            [&](const QVariantMap &newConfig) {
+                mConfig = KScreen::ConfigSerializer::deserializeConfig(newConfig);
+            });
+
     Q_EMIT backendReady(mInterface);
 }
 
@@ -187,4 +199,9 @@ void BackendManager::invalidateInterface()
     delete mInterface;
     mInterface = 0;
     mBackendService.clear();
+}
+
+ConfigPtr BackendManager::config() const
+{
+    return mConfig;
 }
