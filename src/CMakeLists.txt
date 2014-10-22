@@ -49,6 +49,10 @@ ecm_generate_headers(KScreen_HEADERS
         Screen
         Config
         ConfigMonitor
+        ConfigOperation
+        GetConfigOperation
+        SetConfigOperation
+        Types
     PREFIX KScreen
     REQUIRED_HEADERS KScreen_REQ_HEADERS
 )
