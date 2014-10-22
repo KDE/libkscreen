@@ -23,6 +23,7 @@
 #include "config.h"
 #include "edid.h"
 #include "configmonitor.h"
+#include "output.h"
 
 #include <xcb/xcb.h>
 #include <xcb/randr.h>
@@ -37,7 +38,7 @@ XRandR11::XRandR11(QObject* parent)
  : QObject(parent)
  , m_valid(false)
  , m_x11Helper(0)
- , m_currentConfig(0)
+ , m_currentConfig(new KScreen::Config)
  , m_currentTimestamp(0)
 {
     QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.xrandr11.debug = true"));
@@ -66,7 +67,6 @@ XRandR11::XRandR11(QObject* parent)
 XRandR11::~XRandR11()
 {
     closeConnection();
-    delete m_currentConfig;
     delete m_x11Helper;
 }
 
@@ -80,9 +80,9 @@ bool XRandR11::isValid() const
     return m_valid;
 }
 
-KScreen::Config* XRandR11::config() const
+KScreen::ConfigPtr XRandR11::config() const
 {
-    KScreen::Config* config = new KScreen::Config();
+    KScreen::ConfigPtr config(new KScreen::Config);
 
     int screenId = QX11Info::appScreen();
     xcb_screen_t* xcbScreen = screen_of_display(connection(), screenId);
@@ -93,7 +93,7 @@ KScreen::Config* XRandR11::config() const
         return m_currentConfig;
     }
 
-    KScreen::Screen* screen = new KScreen::Screen();
+    KScreen::ScreenPtr screen(new KScreen::Screen);
     screen->setId(screenId);
     screen->setCurrentSize(QSize(xcbScreen->width_in_pixels, xcbScreen->height_in_pixels));
     screen->setMaxSize(QSize(size->max_width, size->max_height));
@@ -103,7 +103,7 @@ KScreen::Config* XRandR11::config() const
     config->setScreen(screen);
 
     KScreen::OutputList outputs;
-    KScreen::Output* output = new KScreen::Output();
+    KScreen::OutputPtr output(new KScreen::Output);
     output->setId(1);
 
     output->setConnected(true);
@@ -117,7 +117,7 @@ KScreen::Config* XRandR11::config() const
     outputs.insert(1, output);
     config->setOutputs(outputs);
 
-    KScreen::Mode *mode = 0;
+    KScreen::ModePtr mode;
     KScreen::ModeList modes;
 
     int nrates;
@@ -129,7 +129,7 @@ KScreen::Config* XRandR11::config() const
         nrates = xcb_randr_refresh_rates_rates_length(ite.data);
 
         for (int j = 0; j < nrates; j++) {
-            mode = new KScreen::Mode();
+            mode = KScreen::ModePtr(new KScreen::Mode);
             mode->setId(QString::number(x) + "-" + QString::number(j));
             mode->setSize(QSize(sizes[x].width, sizes[x].height));
             mode->setRefreshRate((float) rates[j]);
@@ -148,10 +148,10 @@ KScreen::Config* XRandR11::config() const
     return config;
 }
 
-void XRandR11::setConfig(KScreen::Config* config) const
+void XRandR11::setConfig(const KScreen::ConfigPtr &config) const
 {
-    KScreen::Output* output = config->outputs().take(1);
-    KScreen::Mode *mode = output->currentMode();
+    KScreen::OutputPtr output = config->outputs().take(1);
+    KScreen::ModePtr mode = output->currentMode();
 
     int screenId = QX11Info::appScreen();
     xcb_screen_t* xcbScreen = screen_of_display(connection(), screenId);
@@ -174,19 +174,18 @@ KScreen::Edid* XRandR11::edid(int outputId) const
     return new KScreen::Edid();
 }
 
-void XRandR11::updateConfig(KScreen::Config* config) const
+void XRandR11::updateConfig(KScreen::ConfigPtr &config) const
 {
-    KScreen::Output* output = config->output(1);
-    KScreen::Output *current = m_currentConfig->output(1);
+    KScreen::OutputList outputs = config->outputs();
+    KScreen::OutputPtr &output = outputs[1];
+    KScreen::OutputPtr current = m_currentConfig->output(1);
     output->setCurrentModeId(current->currentModeId());
     output->setRotation(current->rotation());
+    config->setOutputs(outputs);
 }
 
 void XRandR11::updateConfig()
 {
-    delete m_currentConfig;
     m_currentConfig = config();
     KScreen::ConfigMonitor::instance()->notifyUpdate();
 }
-
-#include "xrandr11.moc"

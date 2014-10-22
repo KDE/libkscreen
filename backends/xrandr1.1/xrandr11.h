@@ -37,11 +37,11 @@ public:
     virtual ~XRandR11();
 
     virtual QString name() const;
-    virtual KScreen::Config* config() const;
-    virtual void setConfig(KScreen::Config* config) const;
+    virtual KScreen::ConfigPtr config() const;
+    virtual void setConfig(const KScreen::ConfigPtr &config) const;
     virtual bool isValid() const;
     virtual KScreen::Edid *edid(int outputId) const;
-    virtual void updateConfig(KScreen::Config *config) const;
+    virtual void updateConfig(KScreen::ConfigPtr &config) const;
 
 private Q_SLOTS:
     void updateConfig();
@@ -49,7 +49,7 @@ private Q_SLOTS:
 private:
     bool m_valid;
     XRandRXCBHelper* m_x11Helper;
-    KScreen::Config* m_currentConfig;
+    KScreen::ConfigPtr m_currentConfig;
     xcb_timestamp_t m_currentTimestamp;
 };
 
