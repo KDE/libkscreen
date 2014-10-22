@@ -165,10 +165,23 @@ void BackendManager::launcherDataAvailable()
                                                 QDBusConnection::sessionBus(),
                                                 this);
     if (!mInterface->isValid()) {
-        qCWarning(KSCREEN) << "Failed start KScreen backend service:" << QDBusConnection::sessionBus().lastError().message();
-        invalidateInterface();
+        QDBusServiceWatcher *watcher = new QDBusServiceWatcher(mBackendService,
+                                                               QDBusConnection::sessionBus());
+        connect(watcher, &QDBusServiceWatcher::serviceOwnerChanged,
+                [&](const QString &service, const QString &newOwner, const QString &oldOwner) {
+                    qDebug() << service << newOwner << oldOwner;
+                    if (newOwner == mBackendService) {
+                        backendServiceReady();
+                    }
+                });
+        return;
     }
 
+    backendServiceReady();
+}
+
+void BackendManager::backendServiceReady()
+{
     mServiceWatcher.addWatchedService(mBackendService);
 
     // Immediatelly request config
@@ -186,8 +199,6 @@ void BackendManager::launcherDataAvailable()
 
 void BackendManager::backendServiceUnregistered(const QString &serviceName)
 {
-    Q_ASSERT(serviceName == mBackendService);
-
     mServiceWatcher.removeWatchedService(serviceName);
 
     invalidateInterface();

@@ -56,6 +56,7 @@ private Q_SLOTS:
 private:
     void findBestBackend();
     void invalidateInterface();
+    void backendServiceReady();
 
 
     explicit BackendManager();
