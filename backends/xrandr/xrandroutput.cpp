@@ -23,7 +23,6 @@
 #include "xrandr.h"
 #include "output.h"
 #include "config.h"
-#include "edid.h"
 
 #include <QRect>
 
@@ -37,7 +36,6 @@ XRandROutput::XRandROutput(int id, bool primary, XRandRConfig *config)
     , m_connected(0)
     , m_enabled(0)
     , m_primary(0)
-    , m_edid(0)
     , m_changedProperties(0)
 {
     XRROutputInfo *outputInfo = XRandR::XRROutput(m_id);
@@ -54,7 +52,6 @@ XRandROutput::XRandROutput(int id, bool primary, XRandRConfig *config)
 
 XRandROutput::~XRandROutput()
 {
-    delete m_edid;
 }
 
 int XRandROutput::id() const
@@ -107,16 +104,16 @@ KScreen::Output::Rotation XRandROutput::rotation() const
     return m_rotation;
 }
 
-KScreen::Edid *XRandROutput::edid() const
+QByteArray XRandROutput::edid() const
 {
-    if (!m_edid) {
+    if (m_edid.isNull()) {
         size_t len;
         quint8 *data = XRandR::outputEdid(m_id, len);
         if (data) {
-            m_edid = new KScreen::Edid(data, len, 0);
+            m_edid = QByteArray((char *) data, len);
             delete[] data;
         } else {
-            m_edid = new KScreen::Edid(0, 0, 0);
+            m_edid = QByteArray("");
         }
     }
 

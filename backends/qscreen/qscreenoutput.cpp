@@ -49,14 +49,6 @@ void QScreenOutput::setId(const int newId)
     m_id = newId;
 }
 
-KScreen::Edid *QScreenOutput::edid()
-{
-    if (!m_edid) {
-        m_edid = new KScreen::Edid(0, 0, this);
-    }
-    return m_edid;
-}
-
 const QScreen *QScreenOutput::qscreen() const
 {
     return m_qscreen;

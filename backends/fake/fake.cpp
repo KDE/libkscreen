@@ -35,7 +35,8 @@ using namespace KScreen;
 
 Q_LOGGING_CATEGORY(KSCREEN_FAKE, "kscreen.fake")
 
-Fake::Fake(QObject* parent): QObject(parent)
+Fake::Fake()
+    : KScreen::AbstractBackend()
 {
     QLoggingCategory::setFilterRules(QStringLiteral("kscreen.fake.debug = true"));
 }
@@ -48,6 +49,11 @@ Fake::~Fake()
 QString Fake::name() const
 {
     return QString("Fake");
+}
+
+QString Fake::serviceName() const
+{
+    return QLatin1Literal("org.kde.KScreen.Backend.Fake");
 }
 
 ConfigPtr Fake::config() const
@@ -81,13 +87,7 @@ Edid *Fake::edid(int outputId) const
             continue;
         }
 
-        const QByteArray data = QByteArray::fromBase64(output["edid"].toByteArray());
-        return new Edid((quint8*)data.data(), data.length());
+        return QByteArray::fromBase64(output["edid"].toByteArray());
     }
-    return 0;
-}
-
-void Fake::updateConfig(ConfigPtr &config) const
-{
-    Q_UNUSED(config);
+    return QByteArray();
 }

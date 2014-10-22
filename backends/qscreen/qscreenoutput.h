@@ -43,13 +43,6 @@ public:
     KScreen::OutputPtr toKScreenOutput() const;
     void updateKScreenOutput(KScreen::OutputPtr &output) const;
 
-    /** QScreen doesn't support querying for the EDID, this function centralizes
-     *  creating the EDID per output, anyway, so a drop-in solution will "just work".
-     *
-     * This function returns 0.
-     */
-    KScreen::Edid *edid();
-
     int id() const;
     void setId(const int newId);
 

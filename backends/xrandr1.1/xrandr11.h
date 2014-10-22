@@ -26,22 +26,21 @@
 
 class XRandRXCBHelper;
 
-class XRandR11 : public QObject, public AbstractBackend
+class XRandR11 : public KScreen::AbstractBackend
 {
     Q_OBJECT
-    Q_INTERFACES(AbstractBackend)
+    Q_INTERFACES(KScreen::AbstractBackend)
     Q_PLUGIN_METADATA(IID "org.kf5.kscreen.backends.xrandr11")
 
 public:
-    explicit XRandR11(QObject* parent = 0);
+    explicit XRandR11();
     virtual ~XRandR11();
 
     virtual QString name() const;
+    virtual QString serviceName() const;
     virtual KScreen::ConfigPtr config() const;
     virtual void setConfig(const KScreen::ConfigPtr &config);
     virtual bool isValid() const;
-    virtual KScreen::Edid *edid(int outputId) const;
-    virtual void updateConfig(KScreen::ConfigPtr &config) const;
 
 private Q_SLOTS:
     void updateConfig();

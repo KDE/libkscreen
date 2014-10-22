@@ -48,6 +48,9 @@ private Q_SLOTS:
     void screenAdded(const QScreen *qscreen);
     void screenDestroyed(QObject *qscreen = 0);
 
+Q_SIGNALS:
+    void configChanged(const KScreen::ConfigPtr &config);
+
 private:
     QMap<int, QScreenOutput *> m_outputMap;
     QScreenScreen *m_screen;

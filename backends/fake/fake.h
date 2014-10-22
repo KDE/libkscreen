@@ -23,22 +23,23 @@
 #include <QtCore/QObject>
 #include <QLoggingCategory>
 
-class Fake : public QObject, public AbstractBackend
+class Fake : public KScreen::AbstractBackend
 {
     Q_OBJECT
-    Q_INTERFACES(AbstractBackend)
+    Q_INTERFACES(KScreen::AbstractBackend)
     Q_PLUGIN_METADATA(IID "org.kf5.kscreen.backends.fake")
 
     public:
-        explicit Fake(QObject* parent = 0);
+        explicit Fake();
         virtual ~Fake();
 
         virtual QString name() const;
+        virtual QString serviceName() const;
         virtual KScreen::ConfigPtr config() const;
         virtual void setConfig(const KScreen::ConfigPtr &config);
+        virtual QByteArray edid(int outputId) const;
         virtual bool isValid() const;
-        virtual KScreen::Edid *edid(int outputId) const;
-        virtual void updateConfig(KScreen::ConfigPtr &config) const;
+
 };
 Q_DECLARE_LOGGING_CATEGORY(KSCREEN_FAKE)
 #endif //FAKE_BACKEND_H

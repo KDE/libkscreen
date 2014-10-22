@@ -32,22 +32,22 @@ namespace KScreen {
     class Output;
 }
 
-class XRandR : public QObject, public AbstractBackend
+class XRandR : public KScreen::AbstractBackend
 {
     Q_OBJECT
-    Q_INTERFACES(AbstractBackend)
+    Q_INTERFACES(KScreen::AbstractBackend)
     Q_PLUGIN_METADATA(IID "org.kf5.kscreen.backends.xrandr")
 
     public:
-        explicit XRandR(QObject* parent = 0);
+        explicit XRandR();
         virtual ~XRandR();
 
         virtual QString name() const;
+        virtual QString serviceName() const;
         virtual KScreen::ConfigPtr config() const;
         virtual void setConfig(const KScreen::ConfigPtr &config);
         virtual bool isValid() const;
-        virtual KScreen::Edid *edid(int outputId) const;
-        virtual void updateConfig(KScreen::ConfigPtr &config) const;
+        virtual QByteArray edid(int outputId) const;
 
         static RRCrtc outputCrtc(int outputId);
         static quint8 *outputEdid(int outputId, size_t &len);

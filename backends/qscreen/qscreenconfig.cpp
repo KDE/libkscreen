@@ -21,7 +21,6 @@
 #include "qscreenscreen.h"
 #include "qscreenbackend.h"
 
-#include <configmonitor.h>
 #include <mode.h>
 
 #include <QtCore/QRect>
@@ -79,7 +78,7 @@ void QScreenConfig::screenAdded(const QScreen *qscreen)
     connect(qscreen, &QObject::destroyed, this, &QScreenConfig::screenDestroyed);
 
     if (!m_blockSignals) {
-        KScreen::ConfigMonitor::instance()->notifyUpdate();
+        Q_EMIT configChanged(toKScreenConfig());
     }
 }
 
@@ -95,7 +94,7 @@ void QScreenConfig::screenDestroyed(QObject *qscreen)
             delete output;
         }
     }
-    KScreen::ConfigMonitor::instance()->notifyUpdate();
+    Q_EMIT configChanged(toKScreenConfig());
 }
 
 void QScreenConfig::updateKScreenConfig(ConfigPtr &config) const

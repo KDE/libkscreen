@@ -30,22 +30,21 @@ namespace KScreen
 class Output;
 class QScreenConfig;
 
-class QScreenBackend : public QObject, public AbstractBackend
+class QScreenBackend : public KScreen::AbstractBackend
 {
     Q_OBJECT
-    Q_INTERFACES(AbstractBackend)
+    Q_INTERFACES(KScreen::AbstractBackend)
     Q_PLUGIN_METADATA(IID "org.kf5.kscreen.backends.qscreen")
 
 public:
-    explicit QScreenBackend(QObject *parent = 0);
+    explicit QScreenBackend();
     virtual ~QScreenBackend();
 
     virtual QString name() const;
+    virtual QString serviceName() const;
     virtual KScreen::ConfigPtr config() const;
     virtual void setConfig(const KScreen::ConfigPtr &config);
     virtual bool isValid() const;
-    virtual KScreen::Edid *edid(int outputId) const;
-    virtual void updateConfig(KScreen::ConfigPtr &config) const;
 
 private:
     bool m_isValid;

@@ -22,22 +22,22 @@
 #include "qscreenconfig.h"
 #include "qscreenoutput.h"
 
-#include <configmonitor.h>
-
 using namespace KScreen;
 
 Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.qscreen");
 
 QScreenConfig *QScreenBackend::s_internalConfig = 0;
 
-QScreenBackend::QScreenBackend(QObject *parent)
-    : QObject(parent)
+QScreenBackend::QScreenBackend()
+    : KScreen::AbstractBackend()
     , m_isValid(true)
 {
     QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.qscreen.debug = true"));
 
     if (s_internalConfig == 0) {
         s_internalConfig = new QScreenConfig();
+        connect(s_internalConfig, &QScreenConfig::configChanged,
+                this, &QScreenConfig::configChanged);
     }
 }
 
@@ -49,6 +49,12 @@ QString QScreenBackend::name() const
 {
     return QString("QScreen");
 }
+
+QString QScreenBackend::serviceName() const
+{
+    return QLatin1Literal("org.kde.KScreen.Backend.QScreen");
+}
+
 
 ConfigPtr QScreenBackend::config() const
 {
@@ -66,22 +72,7 @@ void QScreenBackend::setConfig(const ConfigPtr &config)
     qWarning() << "You can force another backend using the KSCREEN_BACKEND env var.";
 }
 
-Edid *QScreenBackend::edid(int outputId) const
-{
-    QScreenOutput *output = s_internalConfig->outputMap().value(outputId);
-    if (!output) {
-        return 0;
-    }
-    return output->edid();
-}
-
 bool QScreenBackend::isValid() const
 {
     return m_isValid;
-}
-
-void QScreenBackend::updateConfig(ConfigPtr &config) const
-{
-    Q_ASSERT(!config.isNull());
-    s_internalConfig->updateKScreenConfig(config);
 }

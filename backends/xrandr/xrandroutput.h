@@ -33,7 +33,6 @@ namespace KScreen
 {
 class Config;
 class Output;
-class Edid;
 }
 
 class XRandROutput : public QObject
@@ -84,7 +83,7 @@ public:
     XRandRMode* currentMode() const;
     KScreen::Output::Rotation rotation() const;
     inline bool isHorizontal() const { return ((m_rotation == KScreen::Output::None) || (m_rotation == KScreen::Output::Inverted)); }
-    KScreen::Edid* edid() const;
+    QByteArray edid() const;
 
     KScreen::OutputPtr toKScreenOutput() const;
     void updateKScreenOutput(KScreen::OutputPtr &output) const;
@@ -114,7 +113,7 @@ private:
     bool m_enabled;
     bool m_primary;
     QList<int> m_clones;
-    mutable QPointer<KScreen::Edid> m_edid;
+    mutable QByteArray m_edid;
     unsigned int m_widthMm;
     unsigned int m_heightMm;
 

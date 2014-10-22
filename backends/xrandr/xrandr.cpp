@@ -24,7 +24,6 @@
 #include "config.h"
 #include "output.h"
 #include "edid.h"
-#include "configmonitor.h"
 
 #include <QtCore/QFile>
 #include <QtCore/qplugin.h>
@@ -50,8 +49,8 @@ using namespace KScreen;
 
 Q_LOGGING_CATEGORY(KSCREEN_XRANDR, "kscreen.xrandr");
 
-XRandR::XRandR(QObject* parent)
-    : QObject(parent)
+XRandR::XRandR()
+    : KScreen::AbstractBackend()
     , m_x11Helper(0)
     , m_isValid(false)
 {
@@ -115,15 +114,21 @@ QString XRandR::name() const
     return QString("XRandR");
 }
 
+QString XRandR::serviceName() const
+{
+    return QLatin1Literal("org.kde.KScreen.Backend.XRandR");
+}
+
+
 void XRandR::updateConfig()
 {
     s_internalConfig->update();
-    KScreen::ConfigMonitor::instance()->notifyUpdate();
+    Q_EMIT configChanged(config());
 }
 
 void XRandR::outputRemovedSlot()
 {
-    KScreen::ConfigMonitor::instance()->notifyUpdate();
+    Q_EMIT configChanged(config());
 }
 
 void XRandR::updateOutput(RROutput output)
@@ -139,7 +144,7 @@ void XRandR::updateOutput(RROutput output)
         }
     }
 
-    KScreen::ConfigMonitor::instance()->notifyUpdate();
+    Q_EMIT configChanged(config());
 }
 
 void XRandR::updateCrtc(RRCrtc crtc)
@@ -151,7 +156,7 @@ void XRandR::updateCrtc(RRCrtc crtc)
     }
     XRRFreeCrtcInfo(crtcInfo);
 
-    KScreen::ConfigMonitor::instance()->notifyUpdate();
+    Q_EMIT configChanged(config());
 }
 
 ConfigPtr XRandR::config() const
@@ -168,7 +173,7 @@ void XRandR::setConfig(const ConfigPtr &config)
     s_internalConfig->applyKScreenConfig(config);
 }
 
-Edid *XRandR::edid(int outputId) const
+QByteArray XRandR::edid(int outputId) const
 {
     const XRandROutput::Map outputs = s_internalConfig->outputs();
     const XRandROutput *output = outputs.value(outputId);

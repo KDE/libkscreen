@@ -22,7 +22,6 @@
 
 #include "config.h"
 #include "edid.h"
-#include "configmonitor.h"
 #include "output.h"
 
 #include <xcb/xcb.h>
@@ -34,8 +33,8 @@
 
 Q_LOGGING_CATEGORY(KSCREEN_XRANDR11, "kscreen.xrandr11")
 
-XRandR11::XRandR11(QObject* parent)
- : QObject(parent)
+XRandR11::XRandR11()
+ : KScreen::AbstractBackend()
  , m_valid(false)
  , m_x11Helper(0)
  , m_currentConfig(new KScreen::Config)
@@ -72,8 +71,14 @@ XRandR11::~XRandR11()
 
 QString XRandR11::name() const
 {
-    return "XRandR 1.1";
+    return QLatin1Literal("XRandR 1.1");
 }
+
+QString XRandR11::serviceName() const
+{
+    return QLatin1Literal("org.kde.KScreen.Backend.XRandR11");
+}
+
 
 bool XRandR11::isValid() const
 {
@@ -166,12 +171,6 @@ void XRandR11::setConfig(const KScreen::ConfigPtr &config)
     delete result;
 }
 
-KScreen::Edid* XRandR11::edid(int outputId) const
-{
-    Q_UNUSED(outputId)
-    return new KScreen::Edid();
-}
-
 void XRandR11::updateConfig(KScreen::ConfigPtr &config) const
 {
     KScreen::OutputList outputs = config->outputs();
@@ -185,5 +184,5 @@ void XRandR11::updateConfig(KScreen::ConfigPtr &config) const
 void XRandR11::updateConfig()
 {
     m_currentConfig = config();
-    KScreen::ConfigMonitor::instance()->notifyUpdate();
+    Q_EMIT configChanged(m_currentConfig);
 }
