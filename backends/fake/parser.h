@@ -19,32 +19,28 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include <QtCore/QByteArray>
-#include <QtCore/QString>
-#include <QtCore/QVariant>
-#include <QtCore/QSize>
-#include <QtCore/QRect>
-#include <QtCore/QPoint>
+#include <QByteArray>
+#include <QString>
+#include <QVariant>
+#include <QSize>
+#include <QRect>
+#include <QPoint>
 
-namespace KScreen {
-    class Config;
-    class Screen;
-    class Output;
-    class Mode;
-}
+#include "types.h"
+
 class Parser
 {
     public:
-        static KScreen::Config* fromJson(const QByteArray &data);
-        static KScreen::Config* fromJson(const QString &path);
+        static KScreen::ConfigPtr fromJson(const QByteArray &data);
+        static KScreen::ConfigPtr fromJson(const QString &path);
         static bool validate(const QByteArray &data);
         static bool validate(const QString &data);
 
     private:
         static void qvariant2qobject(const QVariantMap& variant, QObject* object);
-        static KScreen::Screen* screenFromJson(const QMap<QString, QVariant>& data);
-        static KScreen::Output* outputFromJson(QMap<QString, QVariant> data);
-        static KScreen::Mode* modeFromJson(const QVariant& data);
+        static KScreen::ScreenPtr screenFromJson(const QMap<QString, QVariant>& data);
+        static KScreen::OutputPtr outputFromJson(QMap<QString, QVariant> data);
+        static KScreen::ModePtr modeFromJson(const QVariant& data);
         static QSize sizeFromJson(const QVariant& data);
         static QRect rectFromJson(const QVariant& data);
         static QPoint pointFromJson(const QVariant& data);

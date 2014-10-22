@@ -34,11 +34,11 @@ class Fake : public QObject, public AbstractBackend
         virtual ~Fake();
 
         virtual QString name() const;
-        virtual KScreen::Config* config() const;
-        virtual void setConfig(KScreen::Config* config) const;
+        virtual KScreen::ConfigPtr config() const;
+        virtual void setConfig(const KScreen::ConfigPtr &config) const;
         virtual bool isValid() const;
         virtual KScreen::Edid *edid(int outputId) const;
-        virtual void updateConfig(KScreen::Config *config) const;
+        virtual void updateConfig(KScreen::ConfigPtr &config) const;
 };
 Q_DECLARE_LOGGING_CATEGORY(KSCREEN_FAKE)
 #endif //FAKE_BACKEND_H

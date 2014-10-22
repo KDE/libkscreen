@@ -50,12 +50,12 @@ QString Fake::name() const
     return QString("Fake");
 }
 
-Config* Fake::config() const
+ConfigPtr Fake::config() const
 {
     return Parser::fromJson(QString(qgetenv("TEST_DATA")));
 }
 
-void Fake::setConfig(Config* config) const
+void Fake::setConfig(const ConfigPtr &config) const
 {
     Q_UNUSED(config)
 }
@@ -87,7 +87,7 @@ Edid *Fake::edid(int outputId) const
     return 0;
 }
 
-void Fake::updateConfig(Config *config) const
+void Fake::updateConfig(ConfigPtr &config) const
 {
     Q_UNUSED(config);
 }
