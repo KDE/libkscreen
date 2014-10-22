@@ -19,6 +19,7 @@
 
 #include "backenddbuswrapper.h"
 #include "backendloader.h"
+#include "backendadaptor.h"
 #include "src/configserializer_p.h"
 #include "src/config.h"
 #include "src/abstractbackend.h"
@@ -52,7 +53,9 @@ bool BackendDBusWrapper::init()
         qCWarning(KSCREEN_BACKEND_LAUNCHER) << dbus.lastError().message();
         return false;
     }
-    if (!dbus.registerObject(QLatin1String("/"), this, QDBusConnection::ExportAllSlots | QDBusConnection::ExportAllSignals)) {
+
+    new BackendAdaptor(this);
+    if (!dbus.registerObject(QLatin1String("/"), this, QDBusConnection::ExportAdaptors)) {
         qCWarning(KSCREEN_BACKEND_LAUNCHER) << "Failed to export backend to DBus: another launcher already running?";
         qCWarning(KSCREEN_BACKEND_LAUNCHER) << dbus.lastError().message();
         return false;
@@ -89,7 +92,7 @@ QVariantMap BackendDBusWrapper::setConfig(const QVariantMap &configMap)
     return getConfig();
 }
 
-QByteArray BackendDBusWrapper::edid(int output) const
+QByteArray BackendDBusWrapper::getEdid(int output) const
 {
     const QByteArray edidData =  mBackend->edid(output);
     if (edidData.isEmpty()) {

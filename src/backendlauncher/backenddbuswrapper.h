@@ -33,6 +33,7 @@ class AbstractBackend;
 class BackendDBusWrapper : public QObject
 {
     Q_OBJECT
+    Q_CLASSINFO("D-Bus Interface", "org.kde.KScreen.Backend")
 
 public:
     explicit BackendDBusWrapper(KScreen::AbstractBackend *backend);
@@ -40,9 +41,9 @@ public:
 
     bool init();
 
-    Q_INVOKABLE QVariantMap getConfig() const;
-    Q_INVOKABLE QVariantMap setConfig(const QVariantMap &config);
-    Q_INVOKABLE QByteArray edid(int output) const;
+    QVariantMap getConfig() const;
+    QVariantMap setConfig(const QVariantMap &config);
+    QByteArray getEdid(int output) const;
 
 Q_SIGNALS:
     void configChanged(const QVariantMap &config);
