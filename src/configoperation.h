@@ -39,6 +39,7 @@ public:
     bool hasError() const;
     QString errorString() const;
 
+    bool exec();
 Q_SIGNALS:
     void finished(ConfigOperation *operation);
 

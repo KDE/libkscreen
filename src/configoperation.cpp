@@ -42,6 +42,8 @@ void ConfigOperationPrivate::requestBackend()
 
 void ConfigOperationPrivate::backendReady(org::kde::kscreen::Backend *backend)
 {
+    Q_UNUSED(backend);
+
     disconnect(BackendManager::instance(), &BackendManager::backendReady,
                this, &ConfigOperationPrivate::backendReady);
 }
@@ -92,4 +94,17 @@ void ConfigOperation::emitResult()
     const bool ok = QMetaObject::invokeMethod(d, "doEmitResult", Qt::QueuedConnection);
     Q_ASSERT(ok);
     Q_UNUSED(ok);
+}
+
+bool ConfigOperation::exec()
+{
+    QEventLoop loop;
+    connect(this, &ConfigOperation::finished,
+            [&](ConfigOperation *op) {
+                Q_UNUSED(op);
+                loop.quit();
+            });
+    loop.exec();
+
+    return hasError();
 }

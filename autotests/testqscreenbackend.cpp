@@ -26,6 +26,7 @@
 #include "../src/output.h"
 #include "../src/mode.h"
 #include "../src/edid.h"
+#include "../src/getconfigoperation.h"
 
 Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.qscreen");
 
@@ -56,12 +57,14 @@ void testQScreenBackend::initTestCase()
 //     setenv("KSCREEN_BACKEND", "xrandr", 1);
     m_backend = qgetenv("KSCREEN_BACKEND").constData();
 
-    m_config = Config::current();
+    GetConfigOperation *op = new GetConfigOperation();
+    op->exec();
+    m_config = op->config();
 }
 
 void testQScreenBackend::verifyConfig()
 {
-    QVERIFY(m_config != 0);
+    QVERIFY(!m_config.isNull());
     if (!m_config) {
         QSKIP("QScreenbackend invalid", SkipAll);
     }
@@ -147,7 +150,10 @@ void testQScreenBackend::verifyModes()
 
 void testQScreenBackend::commonUsagePattern()
 {
-    const KScreen::OutputList outputs = KScreen::Config::current()->outputs();
+    GetConfigOperation *op = new GetConfigOperation();
+    op->exec();
+
+    const KScreen::OutputList outputs = op->config()->outputs();
 
     QVariantList outputList;
     Q_FOREACH(const KScreen::OutputPtr &output, outputs) {
