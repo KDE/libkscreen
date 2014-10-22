@@ -189,13 +189,6 @@ bool XRandR::isValid() const
     return m_isValid;
 }
 
-void XRandR::updateConfig(ConfigPtr &config) const
-{
-    Q_ASSERT(config != 0);
-
-    s_internalConfig->updateKScreenConfig(config);
-}
-
 quint8* XRandR::getXProperty(Display *dpy, RROutput output, Atom atom, size_t &len)
 {
     unsigned char *prop = 0;

@@ -19,7 +19,6 @@
 #ifndef QSCREEN_SCREEN_H
 #define QSCREEN_SCREEN_H
 
-#include "../abstractbackend.h"
 #include "config.h"
 #include "screen.h"
 

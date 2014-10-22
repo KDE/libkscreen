@@ -21,7 +21,7 @@
 #ifndef QSCREEN_BACKEND_H
 #define QSCREEN_BACKEND_H
 
-#include "../abstractbackend.h"
+#include "abstractbackend.h"
 
 #include <QLoggingCategory>
 
@@ -33,7 +33,6 @@ class QScreenConfig;
 class QScreenBackend : public KScreen::AbstractBackend
 {
     Q_OBJECT
-    Q_INTERFACES(KScreen::AbstractBackend)
     Q_PLUGIN_METADATA(IID "org.kf5.kscreen.backends.qscreen")
 
 public:

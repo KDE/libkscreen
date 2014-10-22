@@ -19,14 +19,14 @@
 #ifndef FAKE_BACKEND_H
 #define FAKE_BACKEND_H
 
-#include "../abstractbackend.h"
+#include "abstractbackend.h"
+
 #include <QtCore/QObject>
 #include <QLoggingCategory>
 
 class Fake : public KScreen::AbstractBackend
 {
     Q_OBJECT
-    Q_INTERFACES(KScreen::AbstractBackend)
     Q_PLUGIN_METADATA(IID "org.kf5.kscreen.backends.fake")
 
     public:

@@ -73,6 +73,4 @@ Q_SIGNALS:
 
 } // namespace KScreen
 
-Q_DECLARE_INTERFACE(KScreen::AbstractBackend, "org.kde.KScreen")
-
 #endif //ABSTRACT_BACKEND_H

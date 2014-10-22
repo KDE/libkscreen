@@ -37,7 +37,7 @@ QScreenBackend::QScreenBackend()
     if (s_internalConfig == 0) {
         s_internalConfig = new QScreenConfig();
         connect(s_internalConfig, &QScreenConfig::configChanged,
-                this, &QScreenConfig::configChanged);
+                this, &QScreenBackend::configChanged);
     }
 }
 

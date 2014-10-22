@@ -20,7 +20,7 @@
 #define XRANDR11_BACKEND_H
 
 #include "xlibandxcb.h"
-#include "../abstractbackend.h"
+#include "abstractbackend.h"
 #include <QtCore/QObject>
 #include <QLoggingCategory>
 
@@ -29,7 +29,6 @@ class XRandRXCBHelper;
 class XRandR11 : public KScreen::AbstractBackend
 {
     Q_OBJECT
-    Q_INTERFACES(KScreen::AbstractBackend)
     Q_PLUGIN_METADATA(IID "org.kf5.kscreen.backends.xrandr11")
 
 public:

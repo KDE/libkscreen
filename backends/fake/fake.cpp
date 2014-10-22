@@ -71,7 +71,7 @@ bool Fake::isValid() const
     return true;
 }
 
-Edid *Fake::edid(int outputId) const
+QByteArray Fake::edid(int outputId) const
 {
     Q_UNUSED(outputId);
     QFile file(QString(qgetenv("TEST_DATA")));

@@ -201,7 +201,7 @@ void XRandROutput::updateOutput(const XRROutputInfo *outputInfo)
             m_preferredModes.clear();
             qDeleteAll(m_modes);
             m_modes.clear();
-            delete m_edid;
+            m_edid.clear();
             m_changedProperties |= PropertyConnected | PropertyModes | PropertyEdid | PropertyPreferredMode;
         } else {
             updateModes(outputInfo);

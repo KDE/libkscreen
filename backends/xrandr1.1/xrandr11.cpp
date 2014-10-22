@@ -171,16 +171,6 @@ void XRandR11::setConfig(const KScreen::ConfigPtr &config)
     delete result;
 }
 
-void XRandR11::updateConfig(KScreen::ConfigPtr &config) const
-{
-    KScreen::OutputList outputs = config->outputs();
-    KScreen::OutputPtr &output = outputs[1];
-    KScreen::OutputPtr current = m_currentConfig->output(1);
-    output->setCurrentModeId(current->currentModeId());
-    output->setRotation(current->rotation());
-    config->setOutputs(outputs);
-}
-
 void XRandR11::updateConfig()
 {
     m_currentConfig = config();

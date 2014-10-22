@@ -19,7 +19,6 @@
 #ifndef QSCREEN_OUTPUT_H
 #define QSCREEN_OUTPUT_H
 
-#include "../abstractbackend.h"
 #include "qscreenconfig.h"
 
 #include "config.h"

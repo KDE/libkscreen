@@ -21,7 +21,7 @@
 #define XRANDR_BACKEND_H
 
 #include "xlibandxrandr.h"
-#include "../abstractbackend.h"
+#include "abstractbackend.h"
 
 #include <QtCore/QSize>
 #include <QLoggingCategory>
@@ -35,7 +35,6 @@ namespace KScreen {
 class XRandR : public KScreen::AbstractBackend
 {
     Q_OBJECT
-    Q_INTERFACES(KScreen::AbstractBackend)
     Q_PLUGIN_METADATA(IID "org.kf5.kscreen.backends.xrandr")
 
     public:
