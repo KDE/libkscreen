@@ -28,21 +28,24 @@ namespace KScreen
 {
 class Output;
 class QScreenOutput;
+class ConfigOperation;
 
 class TestPnp : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit TestPnp(QObject *parent = 0);
+    explicit TestPnp(bool monitor, QObject *parent = 0);
     virtual ~TestPnp();
 
 private Q_SLOTS:
     void init();
+    void configReady(KScreen::ConfigOperation *op);
     void print();
 
 private:
     ConfigPtr m_config;
+    bool m_monitor;
 };
 
 } // namespace

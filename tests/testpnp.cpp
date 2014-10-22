@@ -25,6 +25,7 @@
 #include "../src/mode.h"
 #include "../src/output.h"
 #include "../src/screen.h"
+#include "../src/getconfigoperation.h"
 
 #include <QGuiApplication>
 #include <QRect>
@@ -70,11 +71,11 @@ QString typetoString(const Output::Type& type)
     };
 }
 
-TestPnp::TestPnp(QObject *parent)
+TestPnp::TestPnp(bool monitor, QObject *parent)
     : QObject(parent)
+    , m_monitor(monitor)
 {
     init();
-    print();
 }
 
 TestPnp::~TestPnp()
@@ -83,17 +84,30 @@ TestPnp::~TestPnp()
 
 void TestPnp::init()
 {
-    m_config = KScreen::Config::current();
+    connect(new KScreen::GetConfigOperation(), &KScreen::GetConfigOperation::finished,
+            this, &TestPnp::configReady);
+}
+
+void TestPnp::configReady(KScreen::ConfigOperation *op)
+{
+    m_config = qobject_cast<KScreen::GetConfigOperation*>(op)->config();
     if (!m_config) {
         qDebug() << "Config is invalid, probably backend couldn't load";
         qApp->quit();
+        return;
     }
     if (!m_config->screen()) {
         qDebug() << "No screen in the configuration, broken backend";
         qApp->quit();
+        return;
     }
 
-    ConfigMonitor::instance()->addConfig(m_config);
+    print();
+    if (m_monitor) {
+        ConfigMonitor::instance()->addConfig(m_config);
+    } else {
+        qApp->quit();
+    }
 }
 
 void TestPnp::print()
