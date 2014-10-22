@@ -15,7 +15,7 @@ include(FeatureSummary)
 include(CheckCXXCompilerFlag)
 
 set(REQUIRED_QT_VERSION 5.2.0)
-find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Core Gui Test X11Extras)
+find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Core DBus Gui Test X11Extras)
 
 find_package(XCB COMPONENTS XCB RANDR)
 set_package_properties(XCB PROPERTIES

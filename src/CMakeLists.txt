@@ -1,10 +1,13 @@
 include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${QT_INCLUDES})
 
+add_subdirectory(backendlauncher)
+
 set(libkscreen_SRCS
     abstractbackend.cpp
-    backendloader.cpp
+    backendmanager.cpp
     config.cpp
     configmonitor.cpp
+    configserializer.cpp
     screen.cpp
     output.cpp
     edid.cpp
@@ -12,9 +15,17 @@ set(libkscreen_SRCS
     debug_p.cpp
 )
 
+qt5_add_dbus_interface(libkscreen_SRCS ${CMAKE_SOURCE_DIR}/interfaces/org.kde.KScreen.Backend.xml backendinterface)
+
 add_library(KF5Screen SHARED ${libkscreen_SRCS})
 
-target_link_libraries(KF5Screen PUBLIC Qt5::Core PRIVATE Qt5::X11Extras)
+target_link_libraries(KF5Screen
+    PUBLIC
+    Qt5::Core
+    PRIVATE
+    Qt5::DBus
+    Qt5::X11Extras
+)
 
 set_target_properties(KF5Screen PROPERTIES
     VERSION "${KSCREEN_VERSION_STRING}"
