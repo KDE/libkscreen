@@ -42,7 +42,7 @@ private Q_SLOTS:
     void print();
 
 private:
-    Config *m_config;
+    ConfigPtr m_config;
 };
 
 } // namespace

@@ -24,6 +24,7 @@
 #include "../src/edid.h"
 #include "../src/mode.h"
 #include "../src/output.h"
+#include "../src/screen.h"
 
 #include <QGuiApplication>
 #include <QRect>
@@ -103,7 +104,7 @@ void TestPnp::print()
     qDebug() << "\tcurrentSize:" << m_config->screen()->currentSize();
 
     OutputList outputs = m_config->outputs();
-    Q_FOREACH(Output *output, outputs) {
+    Q_FOREACH(const OutputPtr &output, outputs) {
         qDebug() << "\n-----------------------------------------------------\n";
         qDebug() << "Id: " << output->id();
         qDebug() << "Name: " << output->name();
@@ -131,7 +132,7 @@ void TestPnp::print()
         qDebug() << "Modes: ";
 
         ModeList modes = output->modes();
-        Q_FOREACH(Mode* mode, modes) {
+        Q_FOREACH(const ModePtr &mode, modes) {
             qDebug() << "\t" << mode->id() << "  " << mode->name() << " " << mode->size() << " " << mode->refreshRate();
         }
 
