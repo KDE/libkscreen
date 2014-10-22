@@ -46,14 +46,14 @@ void testXRandR::initTestCase()
 void testXRandR::singleOutput()
 {
     setenv("KSCREEN_BACKEND", "XRandR", 1);
-    Config *config = Config::current();
+    ConfigPtr config = Config::current();
     if (!config) {
         QSKIP("XRandR X extension is not available", SkipAll);
     }
 
     QCOMPARE(config->outputs().count(), 1);
 
-    Output *output = config->outputs().take(327);
+    OutputPtr output = config->outputs().take(327);
 
     QCOMPARE(output->name(), QString("default"));
     QCOMPARE(output->type(), Output::Unknown);
