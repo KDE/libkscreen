@@ -91,5 +91,3 @@ void Fake::updateConfig(ConfigPtr &config) const
 {
     Q_UNUSED(config);
 }
-
-#include "fake.moc"

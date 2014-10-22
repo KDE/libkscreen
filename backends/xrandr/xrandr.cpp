@@ -334,5 +334,3 @@ int XRandR::screen()
 {
     return s_screen;
 }
-
-#include "xrandr.moc"
