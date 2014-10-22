@@ -170,8 +170,8 @@ void XRandR::setConfig(const ConfigPtr &config)
 
 Edid *XRandR::edid(int outputId) const
 {
-    XRandROutput::Map outputs = s_internalConfig->outputs();
-    XRandROutput *output = outputs.value(outputId);
+    const XRandROutput::Map outputs = s_internalConfig->outputs();
+    const XRandROutput *output = outputs.value(outputId);
     if (!output) {
         return 0;
     }
@@ -219,7 +219,7 @@ quint8* XRandR::getXProperty(Display *dpy, RROutput output, Atom atom, size_t &l
 
 quint8 *XRandR::outputEdid(int outputId, size_t &len)
 {
-   Atom edid_atom;
+    Atom edid_atom;
     quint8 *result;
 
     edid_atom = XInternAtom(QX11Info::display(), RR_PROPERTY_RANDR_EDID, false);
@@ -265,7 +265,7 @@ RRCrtc XRandR::freeCrtc(int outputId)
     XRRCrtcInfo *crtc;
     for (int i = 0; i < outputInfo->ncrtc; ++i)
     {
-        RRCrtc crtcId = outputInfo->crtcs[i];
+       const RRCrtc crtcId = outputInfo->crtcs[i];
        crtc = XRRCrtc(crtcId);
        if (!crtc->noutput) {
            qCDebug(KSCREEN_XRANDR) << "Found free CRTC" << crtcId;

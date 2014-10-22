@@ -39,7 +39,7 @@ class Parser
     private:
         static void qvariant2qobject(const QVariantMap& variant, QObject* object);
         static KScreen::ScreenPtr screenFromJson(const QMap<QString, QVariant>& data);
-        static KScreen::OutputPtr outputFromJson(QMap<QString, QVariant> data);
+        static KScreen::OutputPtr outputFromJson(QMap<QString, QVariant> data /* sic */);
         static KScreen::ModePtr modeFromJson(const QVariant& data);
         static QSize sizeFromJson(const QVariant& data);
         static QRect rectFromJson(const QVariant& data);

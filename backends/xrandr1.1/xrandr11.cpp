@@ -84,10 +84,10 @@ KScreen::ConfigPtr XRandR11::config() const
 {
     KScreen::ConfigPtr config(new KScreen::Config);
 
-    int screenId = QX11Info::appScreen();
+    const int screenId = QX11Info::appScreen();
     xcb_screen_t* xcbScreen = screen_of_display(connection(), screenId);
-    ScreenInfo info(xcbScreen->root);
-    ScreenSize size(xcbScreen->root);
+    const ScreenInfo info(xcbScreen->root);
+    const ScreenSize size(xcbScreen->root);
 
     if (info->config_timestamp == m_currentTimestamp) {
         return m_currentConfig;
@@ -120,13 +120,11 @@ KScreen::ConfigPtr XRandR11::config() const
     KScreen::ModePtr mode;
     KScreen::ModeList modes;
 
-    int nrates;
-    uint16_t* rates;
     xcb_randr_refresh_rates_iterator_t ite =  xcb_randr_get_screen_info_rates_iterator(info.data());
     xcb_randr_screen_size_t* sizes = xcb_randr_get_screen_info_sizes(info.data());
     for (int x = 0; x < info->nSizes; x++) {
-        rates = xcb_randr_refresh_rates_rates(ite.data);
-        nrates = xcb_randr_refresh_rates_rates_length(ite.data);
+        const uint16_t* rates = xcb_randr_refresh_rates_rates(ite.data);
+        const int nrates = xcb_randr_refresh_rates_rates_length(ite.data);
 
         for (int j = 0; j < nrates; j++) {
             mode = KScreen::ModePtr(new KScreen::Mode);
@@ -150,19 +148,19 @@ KScreen::ConfigPtr XRandR11::config() const
 
 void XRandR11::setConfig(const KScreen::ConfigPtr &config)
 {
-    KScreen::OutputPtr output = config->outputs().take(1);
-    KScreen::ModePtr mode = output->currentMode();
+    const KScreen::OutputPtr output = config->outputs().take(1);
+    const KScreen::ModePtr mode = output->currentMode();
 
-    int screenId = QX11Info::appScreen();
+    const int screenId = QX11Info::appScreen();
     xcb_screen_t* xcbScreen = screen_of_display(connection(), screenId);
 
-    ScreenInfo info(xcbScreen->root);
+    const ScreenInfo info(xcbScreen->root);
     xcb_generic_error_t *err;
     xcb_randr_set_screen_config_cookie_t cookie;
     xcb_randr_set_screen_config_reply_t *result;
-    int sizeId = mode->id().split("-").first().toInt();
+    const int sizeId = mode->id().split("-").first().toInt();
     cookie = xcb_randr_set_screen_config(connection(), xcbScreen->root, CurrentTime, info->config_timestamp, sizeId,
-                                       (short) output->rotation(), mode->refreshRate());
+                                         (short) output->rotation(), mode->refreshRate());
     result = xcb_randr_set_screen_config_reply(connection(), cookie, &err);
 
     delete result;

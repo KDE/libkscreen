@@ -103,7 +103,7 @@ void TestPnp::print()
     qDebug() << "\tminSize:" << m_config->screen()->minSize();
     qDebug() << "\tcurrentSize:" << m_config->screen()->currentSize();
 
-    OutputList outputs = m_config->outputs();
+    const OutputList outputs = m_config->outputs();
     Q_FOREACH(const OutputPtr &output, outputs) {
         qDebug() << "\n-----------------------------------------------------\n";
         qDebug() << "Id: " << output->id();
@@ -131,12 +131,12 @@ void TestPnp::print()
         qDebug() << "Preferred modes: " << output->preferredModes();
         qDebug() << "Modes: ";
 
-        ModeList modes = output->modes();
+        const ModeList modes = output->modes();
         Q_FOREACH(const ModePtr &mode, modes) {
             qDebug() << "\t" << mode->id() << "  " << mode->name() << " " << mode->size() << " " << mode->refreshRate();
         }
 
-        Edid* edid = output->edid();
+        const Edid * const edid = output->edid();
         qDebug() << "EDID Info: ";
         if (edid && edid->isValid()) {
             qDebug() << "\tDevice ID: " << edid->deviceId();
@@ -157,7 +157,3 @@ void TestPnp::print()
         }
     }
 }
-
-
-#include "testpnp.moc"
-

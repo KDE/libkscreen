@@ -71,17 +71,17 @@ Edid *Fake::edid(int outputId) const
     QFile file(QString(qgetenv("TEST_DATA")));
     file.open(QIODevice::ReadOnly);
 
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
-    QJsonObject json = jsonDoc.object();
+    const QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
+    const QJsonObject json = jsonDoc.object();
 
-    QJsonArray outputs = json["outputs"].toArray();
+    const QJsonArray outputs = json["outputs"].toArray();
     Q_FOREACH(const QJsonValue &value, outputs) {
-        QVariantMap output = value.toObject().toVariantMap();
+        const QVariantMap output = value.toObject().toVariantMap();
         if (output["id"].toInt() != outputId) {
             continue;
         }
 
-        QByteArray data = QByteArray::fromBase64(output["edid"].toByteArray());
+        const QByteArray data = QByteArray::fromBase64(output["edid"].toByteArray());
         return new Edid((quint8*)data.data(), data.length());
     }
     return 0;

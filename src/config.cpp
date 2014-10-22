@@ -84,7 +84,7 @@ bool Config::canBeApplied(const ConfigPtr &config)
     QRect rect;
     QSize outputSize;
     OutputPtr currentOutput;
-    OutputList outputs = config->outputs();
+    const OutputList outputs = config->outputs();
     int enabledOutputsCount = 0;
     Q_FOREACH(const OutputPtr &output, outputs) {
         if (!output->isEnabled()) {
@@ -116,9 +116,9 @@ bool Config::canBeApplied(const ConfigPtr &config)
         }
 
 
-        ModePtr currentMode = output->currentMode();
+        const ModePtr currentMode = output->currentMode();
 
-        QSize outputSize = currentMode->size();
+        const QSize outputSize = currentMode->size();
 
         if (output->pos().x() < rect.x()) {
             rect.setX(output->pos().x());

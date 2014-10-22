@@ -102,18 +102,18 @@ public:
         return *this;
     }
 
-    inline const Reply *operator->() {
+    inline const Reply *operator->() const {
         getReply();
         return m_reply;
     }
-    inline bool isNull() {
+    inline bool isNull() const {
         getReply();
         return m_reply == NULL;
     }
-    inline operator bool() {
+    inline operator bool() const {
         return !isNull();
     }
-    inline const Reply *data() {
+    inline const Reply *data() const {
         getReply();
         return m_reply;
     }
@@ -139,7 +139,7 @@ public:
     }
 
 protected:
-    void getReply() {
+    void getReply() const {
         if (m_retrieved || !m_cookie.sequence) {
             return;
         }
@@ -164,10 +164,10 @@ private:
             other.m_window = XCB_WINDOW_NONE;
         }
     }
-    bool m_retrieved;
+    mutable bool m_retrieved;
     Cookie m_cookie;
     WindowId m_window;
-    Reply *m_reply;
+    mutable Reply *m_reply;
 };
 
 typedef Wrapper<xcb_randr_get_screen_size_range_reply_t, xcb_randr_get_screen_size_range_cookie_t, &xcb_randr_get_screen_size_range_reply, &xcb_randr_get_screen_size_range> ScreenSize;

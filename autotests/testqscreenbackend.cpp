@@ -52,7 +52,7 @@ private:
 
 void testQScreenBackend::initTestCase()
 {
-   setenv("KSCREEN_BACKEND", "qscreen", 1);
+    setenv("KSCREEN_BACKEND", "qscreen", 1);
 //     setenv("KSCREEN_BACKEND", "xrandr", 1);
     m_backend = qgetenv("KSCREEN_BACKEND").constData();
 
@@ -99,7 +99,7 @@ void testQScreenBackend::verifyOutputs()
         QCOMPARE(m_config->outputs().count(), QGuiApplication::screens().count());
     }
 
-    KScreen::OutputPtr primary = m_config->primaryOutput();
+    const KScreen::OutputPtr primary = m_config->primaryOutput();
     qDebug() << "ppp" << primary;
     QVERIFY(primary->isEnabled());
     QVERIFY(primary->isConnected());
@@ -131,7 +131,7 @@ void testQScreenBackend::verifyOutputs()
 
 void testQScreenBackend::verifyModes()
 {
-    KScreen::OutputPtr primary = m_config->primaryOutput();
+    const KScreen::OutputPtr primary = m_config->primaryOutput();
     QVERIFY(primary);
     QVERIFY(primary->modes().count() > 0);
 
@@ -147,7 +147,7 @@ void testQScreenBackend::verifyModes()
 
 void testQScreenBackend::commonUsagePattern()
 {
-    KScreen::OutputList outputs = KScreen::Config::current()->outputs();
+    const KScreen::OutputList outputs = KScreen::Config::current()->outputs();
 
     QVariantList outputList;
     Q_FOREACH(const KScreen::OutputPtr &output, outputs) {
@@ -168,7 +168,7 @@ void testQScreenBackend::commonUsagePattern()
         info["pos"] = pos;
 
         if (output->isEnabled()) {
-            KScreen::ModePtr mode = output->currentMode();
+            const KScreen::ModePtr mode = output->currentMode();
             if (!mode) {
                 //qWarning() << "CurrentMode is null" << output->name();
                 return;

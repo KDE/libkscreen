@@ -34,19 +34,18 @@ ConfigPtr Parser::fromJson(const QByteArray& data)
 {
     ConfigPtr config(new Config);
 
-    QJsonObject json = QJsonDocument::fromJson(data).object();
+    const QJsonObject json = QJsonDocument::fromJson(data).object();
 
     ScreenPtr screen = Parser::screenFromJson(json["screen"].toObject().toVariantMap());
 
-    QVariantList outputs = json["outputs"].toArray().toVariantList();
+    const QVariantList outputs = json["outputs"].toArray().toVariantList();
     if (outputs.isEmpty()) {
         return config;
     }
 
-    OutputPtr output;
     OutputList outputList;
     Q_FOREACH(const QVariant &value, outputs) {
-        output = Parser::outputFromJson(value.toMap());
+        const OutputPtr output = Parser::outputFromJson(value.toMap());
         outputList.insert(output->id(), output);
     }
 
@@ -79,7 +78,7 @@ void Parser::qvariant2qobject(const QVariantMap& variant, QObject* object)
 {
     for ( QVariantMap::const_iterator iter = variant.begin(); iter != variant.end(); ++iter )
     {
-        QVariant property = object->property( iter.key().toLatin1() );
+        const QVariant property = object->property( iter.key().toLatin1() );
         Q_ASSERT( property.isValid() );
         if ( property.isValid() )
         {
@@ -101,18 +100,17 @@ OutputPtr Parser::outputFromJson(QMap< QString, QVariant > map)
     output->setId(map["id"].toInt());
 
     QStringList preferredModes;
-    QVariantList modes = map["preferredModes"].toList();
-    Q_FOREACH(const QVariant &mode, modes) {
+    const QVariantList prefModes = map["preferredModes"].toList();
+    Q_FOREACH(const QVariant &mode, prefModes) {
         preferredModes.append(mode.toString());
     }
     output->setPreferredModes(preferredModes);
     map.remove(QLatin1Literal("preferredModes"));
 
-    ModePtr mode;
     ModeList modelist;
-    modes = map["modes"].toList();
+    const QVariantList modes = map["modes"].toList();
     Q_FOREACH(const QVariant &modeValue, modes) {
-        mode = Parser::modeFromJson(modeValue);
+        const ModePtr mode = Parser::modeFromJson(modeValue);
         modelist.insert(mode->id(), mode);
     }
     output->setModes(modelist);
@@ -128,7 +126,7 @@ OutputPtr Parser::outputFromJson(QMap< QString, QVariant > map)
         map.remove(QLatin1Literal("clones"));
     }
 
-    QString type = map["type"].toByteArray().toUpper();
+    const QString type = map["type"].toByteArray().toUpper();
     if (type.contains("LVDS") || type.contains("EDP") || type.contains("IDP")) {
         output->setType(Output::Panel);
     } else if (type.contains("VGA")) {
@@ -180,7 +178,7 @@ OutputPtr Parser::outputFromJson(QMap< QString, QVariant > map)
 
 ModePtr Parser::modeFromJson(const QVariant& data)
 {
-    QVariantMap map = data.toMap();
+    const QVariantMap map = data.toMap();
     ModePtr mode(new Mode);
     Parser::qvariant2qobject(map, mode.data());
 
@@ -191,7 +189,7 @@ ModePtr Parser::modeFromJson(const QVariant& data)
 
 QSize Parser::sizeFromJson(const QVariant& data)
 {
-    QVariantMap map = data.toMap();
+    const QVariantMap map = data.toMap();
 
     QSize size;
     size.setWidth(map["width"].toInt());
@@ -202,7 +200,7 @@ QSize Parser::sizeFromJson(const QVariant& data)
 
 QPoint Parser::pointFromJson(const QVariant& data)
 {
-    QVariantMap map = data.toMap();
+    const QVariantMap map = data.toMap();
 
     QPoint point;
     point.setX(map["x"].toInt());

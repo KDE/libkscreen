@@ -136,7 +136,7 @@ void XRandROutput::update(PrimaryChange primary)
     updateOutput(outputInfo);
 
     if (primary != NoChange) {
-        bool setPrimary = (primary == SetPrimary);
+        const bool setPrimary = (primary == SetPrimary);
         if (m_primary != setPrimary) {
             m_primary = setPrimary;
             m_changedProperties |= PropertyPrimary;
@@ -152,7 +152,7 @@ void XRandROutput::update(PrimaryChange primary)
 
 void XRandROutput::updateOutput(const XRROutputInfo *outputInfo)
 {
-    bool isConnected = (outputInfo->connection == RR_Connected);
+    const bool isConnected = (outputInfo->connection == RR_Connected);
 
     if (m_name != outputInfo->name) {
         m_name = outputInfo->name;
@@ -245,7 +245,7 @@ void XRandROutput::updateModes(const XRROutputInfo *outputInfo)
 
 void XRandROutput::fetchType()
 {
-    QByteArray type = typeFromProperty();
+    const QByteArray type = typeFromProperty();
     if (type.isEmpty()) {
         m_type = typeFromName();
         return;
@@ -308,7 +308,7 @@ QByteArray XRandROutput::typeFromProperty() const
 {
     QByteArray type;
 
-    Atom atomType = XInternAtom (XRandR::display(), RR_PROPERTY_CONNECTOR_TYPE, True);
+    const Atom atomType = XInternAtom (XRandR::display(), RR_PROPERTY_CONNECTOR_TYPE, True);
     if (atomType == None) {
         return type;
     }
@@ -319,7 +319,7 @@ QByteArray XRandROutput::typeFromProperty() const
     Atom actualType;
     char *connectorType;
 
-    if (XRRGetOutputProperty (XRandR::display(), m_id, atomType, 0, 100, False,
+    if (XRRGetOutputProperty(XRandR::display(), m_id, atomType, 0, 100, False,
             False, AnyPropertyType, &actualType, &actualFormat, &nitems,
             &bytes_after, &prop) != Success) {
 
@@ -402,12 +402,10 @@ void XRandROutput::updateKScreenOutput(KScreen::OutputPtr &output) const
     }
 
     if (!m_changedProperties || (m_changedProperties & PropertyModes)) {
-        XRandRMode::Map::ConstIterator iter;
         KScreen::ModeList kscreenModes;
-        for (iter = m_modes.constBegin(); iter != m_modes.constEnd(); ++iter) {
+        for (auto iter = m_modes.constBegin(); iter != m_modes.constEnd(); ++iter) {
             XRandRMode *mode = iter.value();
-            KScreen::ModePtr kscreenMode = mode->toKScreenMode();
-            kscreenModes.insert(QString::number(iter.key()), kscreenMode);
+            kscreenModes.insert(QString::number(iter.key()), mode->toKScreenMode());
         }
         output->setModes(kscreenModes);
     }

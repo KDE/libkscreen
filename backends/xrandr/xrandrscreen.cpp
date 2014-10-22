@@ -38,8 +38,8 @@ XRandRScreen::~XRandRScreen()
 void XRandRScreen::update()
 {
     Display *display = QX11Info::display();
-    int screen = DefaultScreen(display);
-    Window rootWindow = XRootWindow(display, screen);
+    const int screen = DefaultScreen(display);
+    const Window rootWindow = XRootWindow(display, screen);
 
     XRRGetScreenSizeRange (display, rootWindow,
                            &m_minSize.rwidth(), &m_minSize.rheight(),
