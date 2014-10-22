@@ -184,14 +184,7 @@ Config::~Config()
 
 ConfigPtr Config::clone() const
 {
-    ConfigPtr config(new Config(new Private(*d)));
-    // Set parent of the newly copied items
-    config->d->screen->setParent(config.data());
-    Q_FOREACH (const OutputPtr &output, config->d->outputs) {
-        output->setParent(config.data());
-    }
-
-    return config;
+    return ConfigPtr(new Config(new Private(*d)));
 }
 
 

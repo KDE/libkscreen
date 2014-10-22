@@ -137,16 +137,7 @@ Output::~Output()
 
 OutputPtr Output::clone() const
 {
-    OutputPtr output(new Output(new Private(*d)));
-    // Make sure the new output takes ownership of the cloned modes
-    for (auto iter = output->d->modeList.begin(); iter != output->d->modeList.end(); ++iter) {
-        (*iter)->setParent(output.data());
-    }
-    if (output->d->edid) {
-        output->d->edid->setParent(output.data());
-    }
-
-    return output;
+    return OutputPtr(new Output(new Private(*d)));
 }
 
 int Output::id() const
