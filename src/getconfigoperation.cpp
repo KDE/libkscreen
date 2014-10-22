@@ -20,6 +20,7 @@
 #include "getconfigoperation.h"
 #include "configoperation_p.h"
 #include "config.h"
+#include "output.h"
 #include "backendmanager_p.h"
 #include "configserializer_p.h"
 #include "backendinterface.h"
@@ -34,13 +35,16 @@ class GetConfigOperationPrivate : public ConfigOperationPrivate
     Q_OBJECT
 
 public:
-    GetConfigOperationPrivate(GetConfigOperation *qq);
+    GetConfigOperationPrivate(GetConfigOperation::Options options, GetConfigOperation *qq);
 
     virtual void backendReady(org::kde::kscreen::Backend* backend);
     void onConfigReceived(QDBusPendingCallWatcher *watcher);
+    void onEDIDReceived(QDBusPendingCallWatcher *watcher);
 
 public:
+    GetConfigOperation::Options options;
     ConfigPtr config;
+    int pendingEDIDs;
 
 private:
     Q_DECLARE_PUBLIC(GetConfigOperation)
@@ -48,8 +52,9 @@ private:
 
 }
 
-GetConfigOperationPrivate::GetConfigOperationPrivate(GetConfigOperation* qq)
+GetConfigOperationPrivate::GetConfigOperationPrivate(GetConfigOperation::Options options, GetConfigOperation* qq)
     : ConfigOperationPrivate(qq)
+    , options(options)
 {
 }
 
@@ -65,7 +70,8 @@ void GetConfigOperationPrivate::backendReady(org::kde::kscreen::Backend* backend
         return;
     }
 
-    QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(backend->getConfig(), q);
+    QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(backend->getConfig(), this);
+    watcher->setProperty("backend", QVariant::fromValue(backend));
     connect(watcher, &QDBusPendingCallWatcher::finished,
             this, &GetConfigOperationPrivate::onConfigReceived);
 }
@@ -87,12 +93,50 @@ void GetConfigOperationPrivate::onConfigReceived(QDBusPendingCallWatcher *watche
         q->setError(tr("Failed to deserialize backend response"));
     }
 
-    q->emitResult();
+    if (options & GetConfigOperation::NoEDID) {
+        q->emitResult();
+        return;
+    }
+
+    pendingEDIDs = 0;
+    org::kde::kscreen::Backend *backend = watcher->property("backend").value<org::kde::kscreen::Backend*>();
+    Q_FOREACH (const OutputPtr &output, config->outputs()) {
+        QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(backend->getEdid(output->id()), this);
+        watcher->setProperty("outputId", output->id());
+        connect(watcher, &QDBusPendingCallWatcher::finished,
+                this, &GetConfigOperationPrivate::onEDIDReceived);
+        ++pendingEDIDs;
+    }
+}
+
+void GetConfigOperationPrivate::onEDIDReceived(QDBusPendingCallWatcher* watcher)
+{
+    Q_Q(GetConfigOperation);
+
+    QDBusPendingReply<QByteArray> reply = *watcher;
+    watcher->deleteLater();
+    if (reply.isError()) {
+        q->setError(reply.error().message());
+        q->emitResult();
+        return;
+    }
+
+    const QByteArray edidData = reply.value();
+    const int outputId = watcher->property("outputId").toInt();
+
+    OutputList outputs = config->outputs();
+    outputs[outputId]->setEdid(edidData);
+    config->setOutputs(outputs);
+
+    if (--pendingEDIDs == 0) {
+        q->emitResult();
+    }
 }
 
 
-GetConfigOperation::GetConfigOperation(QObject* parent)
-    : ConfigOperation(new GetConfigOperationPrivate(this), parent)
+
+GetConfigOperation::GetConfigOperation(Options options, QObject* parent)
+    : ConfigOperation(new GetConfigOperationPrivate(options, this), parent)
 {
 }
 

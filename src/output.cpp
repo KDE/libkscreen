@@ -393,29 +393,15 @@ void Output::setClones(QList<int> outputlist)
     Q_EMIT clonesChanged();
 }
 
+void Output::setEdid(const QByteArray& rawData)
+{
+    Q_ASSERT(d->edid == 0);
+
+    d->edid = new Edid(rawData);
+}
+
 Edid *Output::edid() const
 {
-    if (!d->edid) {
-        // FIXME: This is wrong on so many levels....
-        QEventLoop loop;
-        org::kde::kscreen::Backend *backend = 0;
-        connect(BackendManager::instance(), &BackendManager::backendReady,
-                [&](org::kde::kscreen::Backend *interface) {
-                    backend = interface;
-                    loop.quit();
-                });
-        BackendManager::instance()->requestBackend();
-        loop.exec();
-        Q_ASSERT(backend);
-        QDBusPendingReply<QByteArray> reply = backend->getEdid(d->id);
-        reply.waitForFinished();
-        if (reply.isError()) {
-            qCWarning(KSCREEN) << "Failed to retrieve EDID:" << reply.error().message();
-            return 0;
-        }
-
-        d->edid = new Edid(reply.value());
-    }
     return d->edid;
 }
 
