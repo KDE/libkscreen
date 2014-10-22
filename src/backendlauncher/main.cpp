@@ -17,7 +17,7 @@
  *
  */
 
-#include <QCoreApplication>
+#include <QGuiApplication>
 #include <QCommandLineParser>
 #include <QDebug>
 
@@ -28,7 +28,7 @@
 
 int main(int argc, char **argv)
 {
-    QCoreApplication app(argc, argv);
+    QGuiApplication app(argc, argv);
 
     BackendLoader launcher;
 
