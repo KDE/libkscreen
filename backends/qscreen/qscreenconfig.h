@@ -38,8 +38,8 @@ public:
     explicit QScreenConfig(QObject *parent = 0);
     virtual ~QScreenConfig();
 
-    KScreen::Config *toKScreenConfig() const;
-    void updateKScreenConfig(KScreen::Config *config) const;
+    KScreen::ConfigPtr toKScreenConfig() const;
+    void updateKScreenConfig(KScreen::ConfigPtr &config) const;
 
     QMap<int, QScreenOutput *> outputMap() const;
     int outputId(const QScreen *qscreen);

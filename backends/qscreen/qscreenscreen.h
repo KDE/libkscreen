@@ -40,8 +40,8 @@ public:
     explicit QScreenScreen(QScreenConfig *config);
     virtual ~QScreenScreen();
 
-    KScreen::Screen *toKScreenScreen(KScreen::Config *parent) const;
-    void updateKScreenScreen(KScreen::Screen *screen) const;
+    KScreen::ScreenPtr toKScreenScreen() const;
+    void updateKScreenScreen(KScreen::ScreenPtr &screen) const;
 };
 
 } // namespace

@@ -50,12 +50,12 @@ QString QScreenBackend::name() const
     return QString("QScreen");
 }
 
-Config *QScreenBackend::config() const
+ConfigPtr QScreenBackend::config() const
 {
     return s_internalConfig->toKScreenConfig();
 }
 
-void QScreenBackend::setConfig(Config *config) const
+void QScreenBackend::setConfig(const ConfigPtr &config) const
 {
     if (!config) {
         return;
@@ -80,11 +80,8 @@ bool QScreenBackend::isValid() const
     return m_isValid;
 }
 
-void QScreenBackend::updateConfig(Config *config) const
+void QScreenBackend::updateConfig(ConfigPtr &config) const
 {
-    Q_ASSERT(config != 0);
+    Q_ASSERT(!config.isNull());
     s_internalConfig->updateKScreenConfig(config);
 }
-
-#include "qscreenbackend.moc"
-

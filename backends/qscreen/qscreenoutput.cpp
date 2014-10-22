@@ -62,16 +62,16 @@ const QScreen *QScreenOutput::qscreen() const
     return m_qscreen;
 }
 
-Output *QScreenOutput::toKScreenOutput(Config *parent) const
+OutputPtr QScreenOutput::toKScreenOutput() const
 {
-    Output *output = new Output(parent);
+    OutputPtr output(new Output);
     output->setId(m_id);
     output->setName(m_qscreen->name());
     updateKScreenOutput(output);
     return output;
 }
 
-void QScreenOutput::updateKScreenOutput(Output *output) const
+void QScreenOutput::updateKScreenOutput(OutputPtr &output) const
 {
     // Initialize primary output
     output->setEnabled(true);
@@ -102,7 +102,7 @@ void QScreenOutput::updateKScreenOutput(Output *output) const
     output->setPos(m_qscreen->availableGeometry().topLeft());
 
     // Modes: we create a single default mode and go with that
-    Mode *mode = new Mode(output);
+    ModePtr mode(new Mode);
     const QString modeid = QStringLiteral("defaultmode");
     mode->setId(modeid);
     mode->setRefreshRate(m_qscreen->refreshRate());
@@ -117,5 +117,3 @@ void QScreenOutput::updateKScreenOutput(Output *output) const
     output->setModes(modes);
     output->setCurrentModeId(modeid);
 }
-
-#include "qscreenoutput.moc"
