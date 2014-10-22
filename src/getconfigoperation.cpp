@@ -82,8 +82,7 @@ void GetConfigOperationPrivate::onConfigReceived(QDBusPendingCallWatcher *watche
         return;
     }
 
-    const QJsonObject obj = QJsonObject::fromVariantMap(reply.value());
-    config = ConfigSerializer::deserializeConfig(obj);
+    config = ConfigSerializer::deserializeConfig(reply.value());
     if (!config) {
         q->setError(tr("Failed to deserialize backend response"));
     }

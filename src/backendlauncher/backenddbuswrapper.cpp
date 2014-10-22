@@ -85,8 +85,7 @@ QVariantMap BackendDBusWrapper::setConfig(const QVariantMap &configMap)
         return QVariantMap();
     }
 
-    const QJsonObject obj = QJsonObject::fromVariantMap(configMap);
-    const KScreen::ConfigPtr config = KScreen::ConfigSerializer::deserializeConfig(obj);
+    const KScreen::ConfigPtr config = KScreen::ConfigSerializer::deserializeConfig(configMap);
     mBackend->setConfig(config);
     // TODO: setConfig should return adjusted config that we should use
     return getConfig();

@@ -93,8 +93,7 @@ void ConfigMonitor::Private::getConfigFinished(ConfigOperation* op)
 
 void ConfigMonitor::Private::backendConfigChanged(const QVariantMap &configMap)
 {
-    const QJsonObject obj = QJsonObject::fromVariantMap(configMap);
-    const ConfigPtr newConfig = ConfigSerializer::deserializeConfig(obj);
+    const ConfigPtr newConfig = ConfigSerializer::deserializeConfig(configMap);
     if (!newConfig) {
         qCWarning(KSCREEN) << "Failed to deserialize config from DBus change notification";
         return;

@@ -23,6 +23,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QVariant>
+#include <QDBusArgument>
 
 #include "types.h"
 #include "kscreen_export.h"
@@ -50,22 +51,25 @@ KSCREEN_EXPORT QJsonObject serializeOutput(const KScreen::OutputPtr &output);
 KSCREEN_EXPORT QJsonObject serializeMode(const KScreen::ModePtr &mode);
 KSCREEN_EXPORT QJsonObject serializeScreen(const KScreen::ScreenPtr &screen);
 
-KSCREEN_EXPORT QPoint deserializePoint(const QJsonObject &map);
-KSCREEN_EXPORT QSize deserializeSize(const QJsonObject &map);
+KSCREEN_EXPORT QPoint deserializePoint(const QDBusArgument &map);
+KSCREEN_EXPORT QSize deserializeSize(const QDBusArgument &map);
 template<typename T>
-KSCREEN_EXPORT QList<T> deserializeList(const QJsonArray &vlist)
+KSCREEN_EXPORT QList<T> deserializeList(const QDBusArgument &arg)
 {
     QList<T> list;
-    list.reserve(vlist.size());
-    Q_FOREACH (const QJsonValue &v, vlist) {
-        list.append(v.toVariant().value<T>());
+    arg.beginArray();
+    while (!arg.atEnd()) {
+        QVariant v;
+        arg >> v;
+        list.append(v.value<T>());
     }
+    arg.endArray();
     return list;
 }
-KSCREEN_EXPORT KScreen::ConfigPtr deserializeConfig(const QJsonObject &config);
-KSCREEN_EXPORT KScreen::OutputPtr deserializeOutput(const QJsonObject &output);
-KSCREEN_EXPORT KScreen::ModePtr deserializeMode(const QJsonObject &mode);
-KSCREEN_EXPORT KScreen::ScreenPtr deserializeScreen(const QJsonObject &screen);
+KSCREEN_EXPORT KScreen::ConfigPtr deserializeConfig(const QVariantMap &map);
+KSCREEN_EXPORT KScreen::OutputPtr deserializeOutput(const QDBusArgument &output);
+KSCREEN_EXPORT KScreen::ModePtr deserializeMode(const QDBusArgument &mode);
+KSCREEN_EXPORT KScreen::ScreenPtr deserializeScreen(const QDBusArgument &screen);
 
 }
 

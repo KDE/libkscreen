@@ -35,6 +35,7 @@ using namespace KScreen;
 
 Q_DECLARE_METATYPE(org::kde::kscreen::Backend*)
 
+
 BackendManager *BackendManager::sInstance = 0;
 
 BackendManager *BackendManager::instance()
