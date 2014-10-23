@@ -53,6 +53,7 @@ private Q_SLOTS:
     void launcherDataAvailable();
 
     void backendServiceUnregistered(const QString &serviceName);
+
 private:
     void findBestBackend();
     void invalidateInterface();
@@ -61,6 +62,7 @@ private:
 
     explicit BackendManager();
     static BackendManager *sInstance;
+    static const int sMaxCrashCount;
 
     org::kde::kscreen::Backend *mInterface;
     int mCrashCount;
@@ -69,6 +71,7 @@ private:
     QString mBackendService;
     QDBusServiceWatcher mServiceWatcher;
     KScreen::ConfigPtr mConfig;
+    QTimer mRestCrashCountTimer;
 
 };
 

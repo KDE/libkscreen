@@ -37,6 +37,7 @@ using namespace KScreen;
 
 Q_DECLARE_METATYPE(org::kde::kscreen::Backend*)
 
+const int BackendManager::sMaxCrashCount = 4;
 
 BackendManager *BackendManager::sInstance = 0;
 
@@ -60,6 +61,13 @@ BackendManager::BackendManager()
     mServiceWatcher.setConnection(QDBusConnection::sessionBus());
     connect(&mServiceWatcher, &QDBusServiceWatcher::serviceUnregistered,
             this, &BackendManager::backendServiceUnregistered);
+
+    mRestCrashCountTimer.setSingleShot(true);
+    mRestCrashCountTimer.setInterval(60000);
+    connect(&mRestCrashCountTimer, &QTimer::timeout,
+            [&]() {
+                mCrashCount = 0;
+            });
 }
 
 BackendManager::~BackendManager()
@@ -108,17 +116,23 @@ void BackendManager::startBackend(const QString &backend)
     }
 
     mLauncher->start();
+    mRestCrashCountTimer.start();
 }
 
 void BackendManager::launcherFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
     qCDebug(KSCREEN) << "Launcher finished with exit code" << exitCode << ", status" << exitStatus;
 
+    // Stop the timer if it's running, otherwise the number would get reset to 0
+    // anyway even if we reached the sMaxCrashCount, and then the backend would
+    // be restarted again anyway.
+    mRestCrashCountTimer.stop();
+
     if (exitStatus == QProcess::CrashExit) {
         // Backend has crashed: restart it
         delete mInterface;
         mInterface = 0;
-        if (++mCrashCount < 4) {
+        if (++mCrashCount <= sMaxCrashCount) {
             requestBackend();
         } else {
             qCWarning(KSCREEN) << "Launcher has crashed too many times: not restarting";
