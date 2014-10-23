@@ -21,6 +21,7 @@
 #include "output.h"
 #include "backendmanager_p.h"
 #include "abstractbackend.h"
+#include "debug_p.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QRect>
@@ -223,6 +224,9 @@ void Config::setPrimaryOutput(const OutputPtr &output)
         return;
     }
 
+    qDebug(KSCREEN) << "Primary output changed from" << d->primaryOutput
+                    << "(" << (d->primaryOutput.isNull() ? "none" : d->primaryOutput->name()) << ") to"
+                    << output << "(" << (output.isNull() ? "none" : output->name()) << ")";
     d->primaryOutput = output;
 
     Q_EMIT primaryOutputChanged(output);
@@ -286,7 +290,7 @@ void Config::apply(const ConfigPtr& other)
     // Update primary output
     bool matched = false;
     Q_FOREACH (const OutputPtr &output, d->outputs) {
-        if (output->isPrimary() && output != d->primaryOutput) {
+        if (output->isPrimary()) {
             setPrimaryOutput(output);
             matched = true;
             break;
