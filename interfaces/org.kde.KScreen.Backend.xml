@@ -20,5 +20,7 @@
       <arg type="i" direction="in" />
       <arg type="ay" direction="out" />
     </method>
+
+    <method name="quit" />
   </interface>
 </node>

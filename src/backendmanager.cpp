@@ -33,6 +33,10 @@
 
 #include <QProcess>
 
+#ifdef Q_OS_UNIX
+#include <sys/wait.h>
+#endif
+
 using namespace KScreen;
 
 Q_DECLARE_METATYPE(org::kde::kscreen::Backend*)
@@ -55,6 +59,7 @@ BackendManager::BackendManager()
     , mInterface(0)
     , mCrashCount(0)
     , mLauncher(0)
+    , mShuttingDown(false)
 {
     qRegisterMetaType<org::kde::kscreen::Backend*>("OrgKdeKscreenBackendInterface");
 
@@ -116,6 +121,17 @@ void BackendManager::startBackend(const QString &backend)
     }
 
     mLauncher->start();
+    if (!qgetenv("KSCREEN_BACKEND_DEBUG").isEmpty()) {
+        pid_t pid = mLauncher->pid();
+        qDebug() << "==================================";
+        qDebug() << "KScreen BackendManager: Suspending backend launcher";
+        qDebug() << "'gdb --pid" << pid << "' to debug";
+        qDebug() << "'kill -SIGCONT" << pid << "' to continue";
+        qDebug() << "==================================";
+        qDebug();
+        kill(pid, SIGSTOP);
+    }
+
     mRestCrashCountTimer.start();
 }
 
@@ -130,15 +146,17 @@ void BackendManager::launcherFinished(int exitCode, QProcess::ExitStatus exitSta
 
     if (exitStatus == QProcess::CrashExit) {
         // Backend has crashed: restart it
-        delete mInterface;
-        mInterface = 0;
-        if (++mCrashCount <= sMaxCrashCount) {
-            requestBackend();
-        } else {
-            qCWarning(KSCREEN) << "Launcher has crashed too many times: not restarting";
-            mLauncher->deleteLater();
-            mLauncher = 0;
+        invalidateInterface();
+        if (!mShuttingDown) {
+            if (++mCrashCount <= sMaxCrashCount) {
+                requestBackend();
+            } else {
+                qCWarning(KSCREEN) << "Launcher has crashed too many times: not restarting";
+                mLauncher->deleteLater();
+                mLauncher = 0;
+            }
         }
+        mShuttingDown = false;
         return;
     }
 
@@ -163,8 +181,16 @@ void BackendManager::launcherFinished(int exitCode, QProcess::ExitStatus exitSta
         // from launcherDataAvailable(), nothing else to do here
         qCDebug(KSCREEN) << "Service for requested backend already running";
         break;
+
+    case BackendLoader::LauncherStopped:
+        // The launcher has been stopped on request, probably by someone calling
+        // shutdownBackend()
+        qCDebug(KSCREEN) << "Backend launcher terminated on requested";
+        invalidateInterface();
+        break;
     }
 
+    mShuttingDown = false;
     mLauncher->deleteLater();
     mLauncher = 0;
 };
@@ -192,7 +218,6 @@ void BackendManager::launcherDataAvailable()
                 });
         return;
     }
-
     backendServiceReady();
 }
 
@@ -231,4 +256,23 @@ void BackendManager::invalidateInterface()
 ConfigPtr BackendManager::config() const
 {
     return mConfig;
+}
+
+void BackendManager::shutdownBackend()
+{
+    mServiceWatcher.removeWatchedService(mBackendService);
+    mShuttingDown = true;
+    const QDBusReply<uint> reply = QDBusConnection::sessionBus().interface()->servicePid(mInterface->service());
+
+    // Call synchronously
+    mInterface->quit().waitForFinished();
+    invalidateInterface();
+
+    if (mLauncher) {
+        mLauncher->waitForFinished(5000);
+        // This will ensure that launcherFinished() is called, which will take care
+        // of deleting the QProcess
+    } else {
+        // ... ?
+    }
 }

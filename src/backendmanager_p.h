@@ -25,12 +25,13 @@
 
 #include "types.h"
 #include "backendinterface.h"
+#include "kscreen_export.h"
 
 class QDBusPendingCallWatcher;
 
 namespace KScreen {
 
-class BackendManager : public QObject
+class KSCREEN_EXPORT BackendManager : public QObject
 {
     Q_OBJECT
 
@@ -41,6 +42,8 @@ public:
     void requestBackend();
 
     KScreen::ConfigPtr config() const;
+
+    void shutdownBackend();
 
 Q_SIGNALS:
     void backendReady(org::kde::kscreen::Backend *backend);
@@ -72,6 +75,7 @@ private:
     QDBusServiceWatcher mServiceWatcher;
     KScreen::ConfigPtr mConfig;
     QTimer mRestCrashCountTimer;
+    bool mShuttingDown;
 
 };
 

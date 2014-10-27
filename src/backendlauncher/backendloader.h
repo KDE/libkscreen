@@ -36,7 +36,8 @@ public:
     enum State {
         BackendLoaded = 0,
         BackendAlreadyExists = 1,
-        BackendFailedToLoad = 2
+        BackendFailedToLoad = 2,
+        LauncherStopped = 3
     };
 
     explicit BackendLoader();

@@ -45,6 +45,8 @@ public:
     QVariantMap setConfig(const QVariantMap &config);
     QByteArray getEdid(int output) const;
 
+    void quit();
+
 Q_SIGNALS:
     void configChanged(const QVariantMap &config);
 

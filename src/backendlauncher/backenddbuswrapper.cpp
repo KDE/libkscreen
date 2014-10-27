@@ -101,6 +101,12 @@ QByteArray BackendDBusWrapper::getEdid(int output) const
     return edidData;
 }
 
+void BackendDBusWrapper::quit()
+{
+    qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Launcher termination requested";
+    qApp->exit(BackendLoader::LauncherStopped);
+}
+
 void BackendDBusWrapper::backendConfigChanged(const KScreen::ConfigPtr &config)
 {
     Q_ASSERT(!config.isNull());
