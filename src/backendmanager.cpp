@@ -137,6 +137,7 @@ void BackendManager::launcherFinished(int exitCode, QProcess::ExitStatus exitSta
         } else {
             qCWarning(KSCREEN) << "Launcher has crashed too many times: not restarting";
             mLauncher->deleteLater();
+            mLauncher = 0;
         }
         return;
     }
@@ -165,6 +166,7 @@ void BackendManager::launcherFinished(int exitCode, QProcess::ExitStatus exitSta
     }
 
     mLauncher->deleteLater();
+    mLauncher = 0;
 };
 
 void BackendManager::launcherDataAvailable()
