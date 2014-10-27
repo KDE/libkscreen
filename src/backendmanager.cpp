@@ -60,6 +60,7 @@ BackendManager::BackendManager()
     , mCrashCount(0)
     , mLauncher(0)
     , mShuttingDown(false)
+    , mRequestsCounter(0)
 {
     qRegisterMetaType<org::kde::kscreen::Backend*>("OrgKdeKscreenBackendInterface");
 
@@ -82,12 +83,27 @@ BackendManager::~BackendManager()
 void BackendManager::requestBackend()
 {
     if (mInterface && mInterface->isValid()) {
-        QMetaObject::invokeMethod(this, "backendReady", Qt::QueuedConnection,
-                                  Q_ARG(org::kde::kscreen::Backend*, mInterface));
+        ++mRequestsCounter;
+        QMetaObject::invokeMethod(this, "emitBackendReady", Qt::QueuedConnection);
         return;
     }
 
+    // Another request already pending
+    if (mRequestsCounter > 0) {
+        return;
+    }
+    ++mRequestsCounter;
+
     startBackend(QString::fromLatin1(qgetenv("KSCREEN_BACKEND")));
+}
+
+void BackendManager::emitBackendReady()
+{
+    Q_EMIT backendReady(mInterface);
+    --mRequestsCounter;
+    if (mShutdownLoop.isRunning()) {
+        mShutdownLoop.quit();
+    }
 }
 
 void BackendManager::startBackend(const QString &backend)
@@ -107,10 +123,10 @@ void BackendManager::startBackend(const QString &backend)
         launcher = QStandardPaths::findExecutable("kscreen_backend_launcher");
         if (launcher.isEmpty()) {
             qCWarning(KSCREEN) << "Failed to locate kscreen_backend_launcher, KScreen will be useless";
+            invalidateInterface();
             delete mLauncher;
             mLauncher = 0;
-            QMetaObject::invokeMethod(this, "backendReady", Qt::QueuedConnection,
-                                      Q_ARG(org::kde::kscreen::Backend*, 0));
+            QMetaObject::invokeMethod(this, "emitBackendReady", Qt::QueuedConnection);
             return;
         }
     }
@@ -173,7 +189,7 @@ void BackendManager::launcherFinished(int exitCode, QProcess::ExitStatus exitSta
         // the signal
         qCWarning(KSCREEN) << "Launcher failed to load any backend: KScreen will be useless";
         invalidateInterface();
-        Q_EMIT backendReady(0);
+        emitBackendReady();
         break;
 
     case BackendLoader::BackendAlreadyExists:
@@ -235,7 +251,7 @@ void BackendManager::backendServiceReady()
                 mConfig = KScreen::ConfigSerializer::deserializeConfig(newConfig);
             });
 
-    Q_EMIT backendReady(mInterface);
+    emitBackendReady();
 }
 
 void BackendManager::backendServiceUnregistered(const QString &serviceName)
@@ -260,6 +276,14 @@ ConfigPtr BackendManager::config() const
 
 void BackendManager::shutdownBackend()
 {
+    if (mBackendService.isEmpty() && !mInterface) {
+        return;
+    }
+
+    while (mRequestsCounter > 0) {
+        mShutdownLoop.exec();
+    }
+
     mServiceWatcher.removeWatchedService(mBackendService);
     mShuttingDown = true;
     const QDBusReply<uint> reply = QDBusConnection::sessionBus().interface()->servicePid(mInterface->service());

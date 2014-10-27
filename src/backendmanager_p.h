@@ -50,6 +50,8 @@ Q_SIGNALS:
 
 
 private Q_SLOTS:
+    void emitBackendReady();
+
     void startBackend(const QString &backend = QString());
 
     void launcherFinished(int existCode, QProcess::ExitStatus exitStatus);
@@ -76,6 +78,9 @@ private:
     KScreen::ConfigPtr mConfig;
     QTimer mRestCrashCountTimer;
     bool mShuttingDown;
+
+    int mRequestsCounter;
+    QEventLoop mShutdownLoop;
 
 };
 
