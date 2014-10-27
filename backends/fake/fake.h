@@ -46,6 +46,9 @@ public:
     void setCurrentModeId(int outputId, const QString &modeId);
     void setRotation(int outputId, int rotation);
 
+private Q_SLOTS:
+    void delayedInit();
+
 
 private:
     mutable KScreen::ConfigPtr mConfig;

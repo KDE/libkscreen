@@ -25,12 +25,16 @@
 
 #include <stdlib.h>
 
-#include <QtCore/QFile>
-#include <QtCore/qplugin.h>
+#include <QFile>
+#include <QTimer>
 
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+
+#include <QDBusConnection>
+
+#include "fakebackendadaptor.h"
 
 using namespace KScreen;
 
@@ -40,6 +44,14 @@ Fake::Fake()
     : KScreen::AbstractBackend()
 {
     QLoggingCategory::setFilterRules(QStringLiteral("kscreen.fake.debug = true"));
+
+    QTimer::singleShot(0, this, SLOT(delayedInit()));
+}
+
+void Fake::delayedInit()
+{
+    new FakeBackendAdaptor(this);
+    QDBusConnection::sessionBus().registerObject(QLatin1String("/fake"), this);
 }
 
 Fake::~Fake()
