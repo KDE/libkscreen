@@ -27,6 +27,7 @@
 #include "../src/mode.h"
 #include "../src/edid.h"
 #include "../src/getconfigoperation.h"
+#include "../src/backendmanager_p.h"
 
 Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.qscreen");
 
@@ -54,6 +55,8 @@ private:
 void testQScreenBackend::initTestCase()
 {
     setenv("KSCREEN_BACKEND", "qscreen", 1);
+    KScreen::BackendManager::instance()->shutdownBackend();
+
 //     setenv("KSCREEN_BACKEND", "xrandr", 1);
     m_backend = qgetenv("KSCREEN_BACKEND").constData();
 
@@ -197,6 +200,7 @@ void testQScreenBackend::commonUsagePattern()
 
 void testQScreenBackend::cleanupTestCase()
 {
+    KScreen::BackendManager::instance()->shutdownBackend();
     qApp->exit(0);
 }
 

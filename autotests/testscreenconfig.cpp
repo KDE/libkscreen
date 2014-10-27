@@ -42,6 +42,7 @@ private Q_SLOTS:
     void multiOutput();
     void clonesOutput();
     void configCanBeApplied();
+    void cleanupTestCase();
 };
 
 ConfigPtr testScreenConfig::getConfig()
@@ -61,6 +62,11 @@ ConfigPtr testScreenConfig::getConfig()
 void testScreenConfig::initTestCase()
 {
     setenv("KSCREEN_BACKEND", "Fake", 1);
+}
+
+void testScreenConfig::cleanupTestCase()
+{
+    BackendManager::instance()->shutdownBackend();
 }
 
 void testScreenConfig::singleOutput()

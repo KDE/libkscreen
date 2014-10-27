@@ -36,7 +36,7 @@ public:
     }
 
 
-public Q_SLOTS:
+private Q_SLOTS:
     void testSerializePoint()
     {
         const QPoint point(42, 24);
