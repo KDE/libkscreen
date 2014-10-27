@@ -24,6 +24,7 @@
 #include "../src/output.h"
 #include "../src/mode.h"
 #include "../src/getconfigoperation.h"
+#include "../src/backendmanager_p.h"
 
 using namespace KScreen;
 
@@ -47,8 +48,11 @@ ConfigPtr testScreenConfig::getConfig()
 {
     GetConfigOperation *op = new GetConfigOperation();
     if (!op->exec()) {
+        qWarning("GetConfigOperation error: %s", qPrintable(op->errorString()));
         return ConfigPtr();
     }
+
+    BackendManager::instance()->shutdownBackend();
 
     return op->config();
 }
