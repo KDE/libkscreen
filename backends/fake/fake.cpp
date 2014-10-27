@@ -21,6 +21,7 @@
 
 #include "config.h"
 #include "edid.h"
+#include <output.h>
 
 #include <stdlib.h>
 
@@ -43,7 +44,6 @@ Fake::Fake()
 
 Fake::~Fake()
 {
-
 }
 
 QString Fake::name() const
@@ -53,12 +53,20 @@ QString Fake::name() const
 
 QString Fake::serviceName() const
 {
+    if (!qgetenv("KSCREEN_TEST_INSTANCE").isEmpty()) {
+        return QString::fromLatin1("org.kde.KScreen.Backend.Fake.") + QString::fromLatin1(qgetenv("KSCREEN_TEST_INSTANCE"));
+    }
+
     return QLatin1Literal("org.kde.KScreen.Backend.Fake");
 }
 
 ConfigPtr Fake::config() const
 {
-    return Parser::fromJson(QString(qgetenv("TEST_DATA")));
+    if (mConfig.isNull()) {
+        mConfig = Parser::fromJson(QString(qgetenv("TEST_DATA")));
+    }
+
+    return mConfig;
 }
 
 void Fake::setConfig(const ConfigPtr &config)
@@ -90,4 +98,66 @@ QByteArray Fake::edid(int outputId) const
         return QByteArray::fromBase64(output["edid"].toByteArray());
     }
     return QByteArray();
+}
+
+void Fake::setConnected(int outputId, bool connected)
+{
+    KScreen::OutputPtr output = config()->output(outputId);
+    if (output->isConnected() == connected) {
+        return;
+    }
+
+    output->setConnected(connected);
+    Q_EMIT configChanged(mConfig);
+}
+
+void Fake::setEnabled(int outputId, bool enabled)
+{
+    KScreen::OutputPtr output = config()->output(outputId);
+    if (output->isEnabled() == enabled) {
+        return;
+    }
+
+    output->setEnabled(enabled);
+    Q_EMIT configChanged(mConfig);
+}
+
+void Fake::setPrimary(int outputId, bool primary)
+{
+    KScreen::OutputPtr output = config()->output(outputId);
+    if (output->isPrimary() == primary) {
+        return;
+    }
+
+    Q_FOREACH (KScreen::OutputPtr output, config()->outputs()) {
+        if (output->id() == outputId) {
+            output->setPrimary(primary);
+        } else {
+            output->setPrimary(false);
+        }
+    }
+    Q_EMIT configChanged(mConfig);
+}
+
+void Fake::setCurrentModeId(int outputId, const QString &modeId)
+{
+    KScreen::OutputPtr output = config()->output(outputId);
+    if (output->currentModeId() == modeId) {
+        return;
+    }
+
+    output->setCurrentModeId(modeId);
+    Q_EMIT configChanged(mConfig);
+}
+
+void Fake::setRotation(int outputId, int rotation)
+{
+    KScreen::OutputPtr output = config()->output(outputId);
+    const KScreen::Output::Rotation rot = static_cast<KScreen::Output::Rotation>(rotation);
+    if (output->rotation() == rot) {
+        return;
+    }
+
+    output->setRotation(rot);
+    Q_EMIT configChanged(mConfig);
 }

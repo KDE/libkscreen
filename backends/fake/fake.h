@@ -29,17 +29,26 @@ class Fake : public KScreen::AbstractBackend
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.kf5.kscreen.backends.fake")
 
-    public:
-        explicit Fake();
-        virtual ~Fake();
+public:
+    explicit Fake();
+    virtual ~Fake();
 
-        virtual QString name() const;
-        virtual QString serviceName() const;
-        virtual KScreen::ConfigPtr config() const;
-        virtual void setConfig(const KScreen::ConfigPtr &config);
-        virtual QByteArray edid(int outputId) const;
-        virtual bool isValid() const;
+    QString name() const;
+    QString serviceName() const;
+    KScreen::ConfigPtr config() const;
+    void setConfig(const KScreen::ConfigPtr &config);
+    QByteArray edid(int outputId) const;
+    bool isValid() const;
 
+    void setConnected(int outputId, bool connected);
+    void setEnabled(int outputId, bool enabled);
+    void setPrimary(int outputId, bool primary);
+    void setCurrentModeId(int outputId, const QString &modeId);
+    void setRotation(int outputId, int rotation);
+
+
+private:
+    mutable KScreen::ConfigPtr mConfig;
 };
 Q_DECLARE_LOGGING_CATEGORY(KSCREEN_FAKE)
 #endif //FAKE_BACKEND_H
