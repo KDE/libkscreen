@@ -106,5 +106,5 @@ bool ConfigOperation::exec()
             });
     loop.exec();
 
-    return hasError();
+    return !hasError();
 }
