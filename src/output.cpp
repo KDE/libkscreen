@@ -417,22 +417,84 @@ void Output::setSizeMm(const QSize &size)
 
 QRect Output::geometry() const
 {
+    if (!currentMode()) {
+        return QRect();
+    }
+
     return QRect(pos(), currentMode()->size());
 }
 
 void Output::apply(const OutputPtr& other)
 {
-    // Only set values that can change
-    setName(other->d->name);
-    setType(other->d->type);
-    setIcon(other->d->icon);
-    setPos(other->pos());
-    setRotation(other->d->rotation);
-    setCurrentModeId(other->d->currentMode);
-    setConnected(other->d->connected);
-    setEnabled(other->d->enabled);
-    setPrimary(other->d->primary);
-    setClones(other->d->clones);;
+    typedef void (KScreen::Output::*ChangeSignal)();
+    QList<ChangeSignal> changes;
+
+    // We block all signals, and emit them only after we have set up everything
+    // This is necessary in order to prevent clients from accessig inconsistent
+    // outputs from intermediate change signals
+    const bool unblockSignals = !signalsBlocked();
+    blockSignals(true);
+    if (d->name != other->d->name) {
+        changes << &Output::outputChanged;
+        setName(other->d->name);
+    }
+    if (d->type != other->d->type) {
+        changes << &Output::outputChanged;
+        setType(other->d->type);
+    }
+    if (d->icon != other->d->icon) {
+        changes << &Output::outputChanged;
+        setIcon(other->d->icon);
+    }
+    if (d->pos != other->d->pos) {
+        changes << &Output::posChanged;
+        setPos(other->pos());
+    }
+    if (d->rotation != other->d->rotation) {
+        changes << &Output::rotationChanged;
+        setRotation(other->d->rotation);
+    }
+    if (d->currentMode != other->d->currentMode) {
+        changes << &Output::currentModeIdChanged;
+        setCurrentModeId(other->d->currentMode);
+    }
+    if (d->connected != other->d->connected) {
+        changes << &Output::isConnectedChanged;
+        setConnected(other->d->connected);
+    }
+    if (d->enabled != other->d->enabled) {
+        changes << &Output::isEnabledChanged;
+        setEnabled(other->d->enabled);
+    }
+    if (d->primary != other->d->primary) {
+        changes << &Output::isPrimaryChanged;
+        setPrimary(other->d->primary);
+    }
+    if (d->clones != other->d->clones) {
+        changes << &Output::clonesChanged;
+        setClones(other->d->clones);;
+    }
+
+    // Non-notifyable changes
+    setPreferredModes(other->d->preferredModes);
+    ModeList modes;
+    Q_FOREACH (const ModePtr &otherMode, other->modes()) {
+        modes.insert(otherMode->id(), otherMode->clone());
+    }
+    setModes(modes);
+
+    if (other->d->edid) {
+        delete d->edid;
+        d->edid = other->d->edid->clone();
+    }
+
+    blockSignals(unblockSignals);
+
+    while (!changes.isEmpty()) {
+        ChangeSignal sig = changes.at(0);
+        (this->*sig)();
+        changes.removeAll(sig);
+    }
 }
 
 
