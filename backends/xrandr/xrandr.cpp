@@ -170,7 +170,9 @@ void XRandR::setConfig(const ConfigPtr &config)
         return;
     }
 
+    qCDebug(KSCREEN_XRANDR) << "XRandR::setConfig";
     s_internalConfig->applyKScreenConfig(config);
+    qCDebug(KSCREEN_XRANDR) << "XRandR::setConfig done!";
 }
 
 QByteArray XRandR::edid(int outputId) const
