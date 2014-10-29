@@ -167,6 +167,15 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
 
     int neededCrtc = 0;
     int primaryOutput = 0;
+    int oldPrimary = 0;
+
+    Q_FOREACH (const XRandROutput *xrandrOutput, m_outputs) {
+        if (xrandrOutput->isPrimary()) {
+            oldPrimary = xrandrOutput->id();
+            break;
+        }
+    }
+
     KScreen::OutputList toDisable, toEnable, toChange;
     QHash<int, int> currentCrtc;
     Q_FOREACH(const KScreen::OutputPtr &output, outputs) {
@@ -276,10 +285,8 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
     qCDebug(KSCREEN_XRANDR) << "Actions to perform: ";
     qCDebug(KSCREEN_XRANDR) << "\t Primary Output: " << primaryOutput;
     qCDebug(KSCREEN_XRANDR) << "\t Screen Size: " << (newSize != m_screen->currentSize());
-    if (newSize != m_screen->currentSize()) {
-        qCDebug(KSCREEN_XRANDR) << "\t Old: " << m_screen->currentSize();
-        qCDebug(KSCREEN_XRANDR) << "\t New: " << newSize;
-    }
+    qCDebug(KSCREEN_XRANDR) << "\t\t Old: " << m_screen->currentSize();
+    qCDebug(KSCREEN_XRANDR) << "\t\t New: " << newSize;
     qCDebug(KSCREEN_XRANDR) << "\t Disable outputs: " << !toDisable.isEmpty();
     if (!toDisable.isEmpty()) {
         qCDebug(KSCREEN_XRANDR) << "\t\t" << toDisable.keys();
@@ -293,10 +300,8 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
         qCDebug(KSCREEN_XRANDR) << "\t\t" << toEnable.keys();
     }
 
-    setPrimaryOutput(primaryOutput);
-
     //If there is nothing to do, not even bother
-    if (toDisable.isEmpty() && toEnable.isEmpty() && toChange.isEmpty()) {
+    if (oldPrimary == primaryOutput && toDisable.isEmpty() && toEnable.isEmpty() && toChange.isEmpty()) {
         if (newSize != m_screen->currentSize()) {
             setScreenSize(newSize);
         }
@@ -333,6 +338,9 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
         }
     }
 
+    if (oldPrimary != primaryOutput) {
+        setPrimaryOutput(primaryOutput);
+    }
 
     if (forceScreenSizeUpdate) {
         newSize = screenSize(config);
