@@ -35,7 +35,7 @@ BackendDBusWrapper::BackendDBusWrapper(KScreen::AbstractBackend* backend)
             this, &BackendDBusWrapper::backendConfigChanged);
 
     mChangeCollector.setSingleShot(true);
-    mChangeCollector.setInterval(500); // wait for 500 msecs without any change
+    mChangeCollector.setInterval(200); // wait for 200 msecs without any change
                                        // before actually emitting configChanged
     connect(&mChangeCollector, &QTimer::timeout,
             this, &BackendDBusWrapper::doEmitConfigChanged);
