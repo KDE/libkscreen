@@ -183,7 +183,9 @@ QByteArray XRandR::edid(int outputId) const
         return 0;
     }
 
-    return output->edid();
+    const QByteArray rawEdid = output->edid();
+    qDebug(KSCREEN_XRANDR) << "Got EDID for output" << outputId << ". Valid?" << !rawEdid.isEmpty();
+    return rawEdid;
 }
 
 bool XRandR::isValid() const

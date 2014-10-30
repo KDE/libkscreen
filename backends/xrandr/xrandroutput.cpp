@@ -113,7 +113,7 @@ QByteArray XRandROutput::edid() const
             m_edid = QByteArray((char *) data, len);
             delete[] data;
         } else {
-            m_edid = QByteArray("");
+            m_edid = QByteArray();
         }
     }
 
