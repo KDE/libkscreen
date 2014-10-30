@@ -164,6 +164,7 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
 {
     KScreen::OutputList outputs = config->outputs();
     QSize newSize = screenSize(config);
+    const QSize currentScreenSize = m_screen->currentSize();
 
     int neededCrtc = 0;
     int primaryOutput = 0;
@@ -284,8 +285,8 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
 
     qCDebug(KSCREEN_XRANDR) << "Actions to perform: ";
     qCDebug(KSCREEN_XRANDR) << "\t Primary Output: " << primaryOutput;
-    qCDebug(KSCREEN_XRANDR) << "\t Screen Size: " << (newSize != m_screen->currentSize());
-    qCDebug(KSCREEN_XRANDR) << "\t\t Old: " << m_screen->currentSize();
+    qCDebug(KSCREEN_XRANDR) << "\t Screen Size: " << (newSize != currentScreenSize);
+    qCDebug(KSCREEN_XRANDR) << "\t\t Old: " << currentScreenSize;
     qCDebug(KSCREEN_XRANDR) << "\t\t New: " << newSize;
     qCDebug(KSCREEN_XRANDR) << "\t Disable outputs: " << !toDisable.isEmpty();
     if (!toDisable.isEmpty()) {
@@ -302,7 +303,7 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
 
     //If there is nothing to do, not even bother
     if (oldPrimary == primaryOutput && toDisable.isEmpty() && toEnable.isEmpty() && toChange.isEmpty()) {
-        if (newSize != m_screen->currentSize()) {
+        if (newSize != currentScreenSize) {
             setScreenSize(newSize);
         }
         return;
@@ -312,7 +313,7 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
         disableOutput(output);
     }
 
-    if (newSize != m_screen->currentSize()) {
+    if (newSize != currentScreenSize) {
         setScreenSize(newSize);
     }
 
@@ -509,6 +510,7 @@ bool XRandRConfig::setScreenSize(const QSize& size) const
     XRRSetScreenSize(XRandR::display(), XRandR::rootWindow(),
                      size.width(), size.height(), widthMM, heightMM);
 
+    qDebug(KSCREEN_XRANDR) << "Applied screen size change to " << size;
     return true;
 }
 
