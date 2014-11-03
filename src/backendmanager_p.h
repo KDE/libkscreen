@@ -17,17 +17,26 @@
  *
  */
 
+/**
+ * WARNING: This header is *not* part of public API and is subject to change.
+ * There are not guarantees or API or ABI stability or compatibility between
+ * releases
+ */
+
 #ifndef KSCREEN_BACKENDMANAGER_H
 #define KSCREEN_BACKENDMANAGER_H
 
 #include <QObject>
 #include <QProcess>
+#include <QDBusServiceWatcher>
+#include <QTimer>
+#include <QEventLoop>
 
 #include "types.h"
-#include "backendinterface.h"
 #include "kscreen_export.h"
 
 class QDBusPendingCallWatcher;
+class OrgKdeKscreenBackendInterface;
 
 namespace KScreen {
 
@@ -46,7 +55,7 @@ public:
     void shutdownBackend();
 
 Q_SIGNALS:
-    void backendReady(org::kde::kscreen::Backend *backend);
+    void backendReady(OrgKdeKscreenBackendInterface *backend);
 
 
 private Q_SLOTS:
@@ -69,7 +78,7 @@ private:
     static BackendManager *sInstance;
     static const int sMaxCrashCount;
 
-    org::kde::kscreen::Backend *mInterface;
+    OrgKdeKscreenBackendInterface *mInterface;
     int mCrashCount;
 
     QProcess *mLauncher;

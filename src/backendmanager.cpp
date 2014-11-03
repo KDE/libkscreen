@@ -18,6 +18,7 @@
  */
 
 #include "backendmanager_p.h"
+#include "backendinterface.h"
 #include "backendlauncher/backendloader.h"
 #include "debug_p.h"
 #include "getconfigoperation.h"
