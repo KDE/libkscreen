@@ -133,7 +133,11 @@ void Mode::setRefreshRate(float refresh)
 
 QDebug operator<<(QDebug dbg, const KScreen::Mode *mode)
 {
-    dbg << "KScreen::Mode(Id:" << mode->id() << ", Size:" << mode->size() << ")";
+    if (mode) {
+        dbg << "KScreen::Mode(Id:" << mode->id() << ", Size:" << mode->size() << ")";
+    }  else {
+        dbg << "KScreen::Mode(NULL)";
+    }
     return dbg;
 }
 
