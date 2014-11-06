@@ -1,4 +1,7 @@
 project(libkscreen)
+set(PROJECT_VERSION "5.1.90")
+set(PROJECT_VERSION_MAJOR 5)
+
 set(libkscreen_VERSION_MAJOR 1)
 set(libkscreen_VERSION_MINOR 0)
 set(libkscreen_VERSION_RELEASE 6)
