@@ -37,6 +37,7 @@ ConfigPtr Parser::fromJson(const QByteArray& data)
     const QJsonObject json = QJsonDocument::fromJson(data).object();
 
     ScreenPtr screen = Parser::screenFromJson(json["screen"].toObject().toVariantMap());
+    config->setScreen(screen);
 
     const QVariantList outputs = json["outputs"].toArray().toVariantList();
     if (outputs.isEmpty()) {
@@ -49,7 +50,6 @@ ConfigPtr Parser::fromJson(const QByteArray& data)
         outputList.insert(output->id(), output);
     }
 
-    config->setScreen(screen);
     config->setOutputs(outputList);
     return config;
 }
@@ -57,7 +57,11 @@ ConfigPtr Parser::fromJson(const QByteArray& data)
 ConfigPtr Parser::fromJson(const QString& path)
 {
     QFile file(path);
-    file.open(QIODevice::ReadOnly);
+    if (!file.open(QIODevice::ReadOnly)) {
+        qWarning() << file.errorString();
+        qWarning() << "File: " << path;
+        return ConfigPtr();
+    }
 
     return Parser::fromJson(file.readAll());
 }
