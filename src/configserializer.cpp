@@ -27,6 +27,8 @@
 #include "debug_p.h"
 
 #include <QtDBus/QDBusArgument>
+#include <QJsonDocument>
+#include <QFile>
 
 using namespace KScreen;
 
@@ -55,7 +57,9 @@ QJsonObject ConfigSerializer::serializeConfig(const ConfigPtr &config)
         outputs.append(serializeOutput(output));
     }
     obj[QLatin1String("outputs")] = outputs;
-    obj[QLatin1String("screen")] = serializeScreen(config->screen());
+    if (config->screen()) {
+        obj[QLatin1String("screen")] = serializeScreen(config->screen());
+    }
 
     return obj;
 }
@@ -163,26 +167,31 @@ ConfigPtr ConfigSerializer::deserializeConfig(const QVariantMap &map)
 {
     ConfigPtr config(new Config);
 
-    const QDBusArgument &outputsArg = map[QLatin1String("outputs")].value<QDBusArgument>();
-    outputsArg.beginArray();
-    OutputList outputs;
-    while (!outputsArg.atEnd()) {
-        QVariant value;
-        outputsArg >> value;
-        const KScreen::OutputPtr output = deserializeOutput(value.value<QDBusArgument>());
-        if (!output) {
+    if (map.contains(QLatin1String("outputs"))) {
+        const QDBusArgument &outputsArg = map[QLatin1String("outputs")].value<QDBusArgument>();
+        outputsArg.beginArray();
+        OutputList outputs;
+        while (!outputsArg.atEnd()) {
+            QVariant value;
+            outputsArg >> value;
+            const KScreen::OutputPtr output = deserializeOutput(value.value<QDBusArgument>());
+            if (!output) {
+                return ConfigPtr();
+            }
+            outputs.insert(output->id(), output);
+        }
+        outputsArg.endArray();
+        config->setOutputs(outputs);
+    }
+
+    if (map.contains(QLatin1String("screen"))) {
+        const QDBusArgument &screenArg = map[QLatin1String("screen")].value<QDBusArgument>();
+        const KScreen::ScreenPtr screen = deserializeScreen(screenArg);
+        if (!screen) {
             return ConfigPtr();
         }
-        outputs.insert(output->id(), output);
+        config->setScreen(screen);
     }
-    config->setOutputs(outputs);
-
-    const QDBusArgument &screenArg = map[QLatin1String("screen")].value<QDBusArgument>();
-    const KScreen::ScreenPtr screen = deserializeScreen(screenArg);
-    if (!screen) {
-        return ConfigPtr();
-    }
-    config->setScreen(screen);
 
     return config;
 }
