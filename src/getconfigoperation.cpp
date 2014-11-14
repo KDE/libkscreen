@@ -91,9 +91,11 @@ void GetConfigOperationPrivate::onConfigReceived(QDBusPendingCallWatcher *watche
     config = ConfigSerializer::deserializeConfig(reply.value());
     if (!config) {
         q->setError(tr("Failed to deserialize backend response"));
+        q->emitResult();
+        return;
     }
 
-    if (options & GetConfigOperation::NoEDID) {
+    if (options & GetConfigOperation::NoEDID || config->outputs().isEmpty()) {
         q->emitResult();
         return;
     }
