@@ -301,6 +301,7 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
         if (newSize != m_screen->currentSize()) {
             setScreenSize(newSize);
         }
+        XUngrabServer(XRandR::display());
         return;
     }
 
