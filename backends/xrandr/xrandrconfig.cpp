@@ -275,7 +275,7 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
 
     qCDebug(KSCREEN_XRANDR) << "Actions to perform: ";
     qCDebug(KSCREEN_XRANDR) << "\t Primary Output: " << primaryOutput;
-    qCDebug(KSCREEN_XRANDR) << "\t Screen Size: " << (newSize != m_screen->currentSize());
+    qCDebug(KSCREEN_XRANDR) << "\t Change Screen Size: " << (newSize != m_screen->currentSize());
     if (newSize != m_screen->currentSize()) {
         qCDebug(KSCREEN_XRANDR) << "\t Old: " << m_screen->currentSize();
         qCDebug(KSCREEN_XRANDR) << "\t New: " << newSize;
