@@ -339,6 +339,8 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
         qCDebug(KSCREEN_XRANDR) << "forced to change screen Size: " << newSize;
         setScreenSize(newSize);
     }
+
+    XFlush(XRandR::display());
 }
 
 void XRandRConfig::printConfig(Config* config) const
