@@ -293,6 +293,7 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
         qCDebug(KSCREEN_XRANDR) << "\t\t" << toEnable.keys();
     }
 
+    XGrabServer(XRandR::display());
     setPrimaryOutput(primaryOutput);
 
     //If there is nothing to do, not even bother
@@ -341,6 +342,7 @@ void XRandRConfig::applyKScreenConfig(KScreen::Config *config)
     }
 
     XFlush(XRandR::display());
+    XUngrabServer(XRandR::display());
 }
 
 void XRandRConfig::printConfig(Config* config) const
