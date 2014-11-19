@@ -432,7 +432,7 @@ void Output::apply(const OutputPtr& other)
     // We block all signals, and emit them only after we have set up everything
     // This is necessary in order to prevent clients from accessig inconsistent
     // outputs from intermediate change signals
-    const bool unblockSignals = !signalsBlocked();
+    const bool keepBlocked = signalsBlocked();
     blockSignals(true);
     if (d->name != other->d->name) {
         changes << &Output::outputChanged;
@@ -488,7 +488,7 @@ void Output::apply(const OutputPtr& other)
         d->edid = other->d->edid->clone();
     }
 
-    blockSignals(unblockSignals);
+    blockSignals(keepBlocked);
 
     while (!changes.isEmpty()) {
         ChangeSignal sig = changes.at(0);
