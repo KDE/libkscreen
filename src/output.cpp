@@ -483,7 +483,7 @@ void Output::apply(const OutputPtr& other)
     }
     setModes(modes);
 
-    if (other->d->edid) {
+    if (other->d->edid && !d->edid) {
         delete d->edid;
         d->edid = other->d->edid->clone();
     }
@@ -491,8 +491,8 @@ void Output::apply(const OutputPtr& other)
     blockSignals(keepBlocked);
 
     while (!changes.isEmpty()) {
-        ChangeSignal sig = changes.at(0);
-        (this->*sig)();
+        const ChangeSignal &sig = changes.first();
+        Q_EMIT (this->*sig)();
         changes.removeAll(sig);
     }
 }
