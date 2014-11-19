@@ -199,10 +199,11 @@ void XRandROutput::updateOutput(const XRROutputInfo *outputInfo)
         m_connected = isConnected;
         if (!m_connected) {
             m_preferredModes.clear();
+            m_enabled = false;
             qDeleteAll(m_modes);
             m_modes.clear();
             m_edid.clear();
-            m_changedProperties |= PropertyConnected | PropertyModes | PropertyEdid | PropertyPreferredMode;
+            m_changedProperties |= PropertyConnected | PropertyEnabled | PropertyModes | PropertyEdid | PropertyPreferredMode;
         } else {
             updateModes(outputInfo);
             m_changedProperties |= PropertyConnected | PropertyModes | PropertyPreferredMode;
