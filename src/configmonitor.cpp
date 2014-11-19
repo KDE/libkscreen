@@ -23,6 +23,9 @@
 #include "configserializer_p.h"
 #include "getconfigoperation.h"
 #include "debug_p.h"
+#include "output.h"
+
+#include <QDBusPendingCallWatcher>
 
 using namespace KScreen;
 
@@ -40,11 +43,14 @@ public:
     void configDestroyed(QObject* removedConfig);
     void getConfigFinished(ConfigOperation *op);
     void updateConfigs(const KScreen::ConfigPtr &newConfig);
+    void edidReady(QDBusPendingCallWatcher *watcher);
 
     QList<QWeakPointer<KScreen::Config>>  watchedConfigs;
 
     QPointer<org::kde::kscreen::Backend> mBackend;
 
+    QSet<int> mPendingEDIDRequests;
+    KScreen::ConfigPtr mPendingConfigUpdate;
 private:
     ConfigMonitor *q;
 };
@@ -93,20 +99,69 @@ void ConfigMonitor::Private::getConfigFinished(ConfigOperation* op)
 
 void ConfigMonitor::Private::backendConfigChanged(const QVariantMap &configMap)
 {
-    const ConfigPtr newConfig = ConfigSerializer::deserializeConfig(configMap);
+    ConfigPtr newConfig = ConfigSerializer::deserializeConfig(configMap);
     if (!newConfig) {
         qCWarning(KSCREEN) << "Failed to deserialize config from DBus change notification";
         return;
     }
 
-    updateConfigs(newConfig);
+    Q_FOREACH (OutputPtr output, newConfig->connectedOutputs()) {
+        if (!output->edid() && output->isConnected()) {
+            QDBusPendingReply<QByteArray> reply = mBackend->getEdid(output->id());
+            mPendingEDIDRequests.insert(output->id());
+            QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(reply);
+            watcher->setProperty("outputId", output->id());
+            connect(watcher, &QDBusPendingCallWatcher::finished,
+                    this, &ConfigMonitor::Private::edidReady);
+        }
+    }
+
+    if (!mPendingEDIDRequests.isEmpty()) {
+        mPendingConfigUpdate = newConfig;
+    } else {
+        updateConfigs(newConfig);
+    }
 }
+
+void ConfigMonitor::Private::edidReady(QDBusPendingCallWatcher* watcher)
+{
+    const int outputId = watcher->property("outputId").toInt();
+    Q_ASSERT(!mPendingConfigUpdate.isNull());
+    Q_ASSERT(mPendingEDIDRequests.contains(outputId));
+
+    watcher->deleteLater();
+
+    mPendingEDIDRequests.remove(watcher->property("outputId").toInt());
+
+    const QDBusPendingReply<QByteArray> reply = *watcher;
+    if (reply.isError()) {
+        qWarning() << "Error when retrieving EDID: " << reply.error().message();
+        if (mPendingEDIDRequests.isEmpty()) {
+            updateConfigs(mPendingConfigUpdate);
+        }
+        return;
+    }
+
+    const QByteArray edid = reply.argumentAt<0>();
+    if (!edid.isEmpty()) {
+        OutputPtr output = mPendingConfigUpdate->output(outputId);
+        output->setEdid(edid);
+    }
+
+    if (mPendingEDIDRequests.isEmpty()) {
+        const KScreen::ConfigPtr config = mPendingConfigUpdate;
+        mPendingConfigUpdate.clear();
+        updateConfigs(config);
+    }
+}
+
 
 void ConfigMonitor::Private::updateConfigs(const KScreen::ConfigPtr &newConfig)
 {
     QMutableListIterator<QWeakPointer<Config>> iter(watchedConfigs);
     while (iter.hasNext()) {
         KScreen::ConfigPtr config = iter.next().toStrongRef();
+        qDebug() << "LibKscreen updates config" << config.data();
         if (!config) {
             iter.remove();
             continue;
