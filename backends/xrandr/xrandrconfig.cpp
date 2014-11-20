@@ -523,8 +523,11 @@ bool XRandRConfig::disableOutput(const OutputPtr &output) const
 {
     const int crtcId = XRandR::outputCrtc(output->id());
     qCDebug(KSCREEN_XRANDR) << "Disabling: " << output->id() << "(CRTC" << crtcId << ")";
-    const Status s = XRRSetCrtcConfig(XRandR::display(), XRandR::screenResources(), crtcId, CurrentTime,
+
+    XRRScreenResources *screenResources = XRandR::screenResources();
+    const Status s = XRRSetCrtcConfig(XRandR::display(), screenResources, crtcId, CurrentTime,
                                       0, 0, None, RR_Rotate_0, NULL, 0);
+    XRRFreeScreenResources(screenResources);
 
     qCDebug(KSCREEN_XRANDR) << "XRRSetCrtcConfig() returned" << s;
 
@@ -540,11 +543,12 @@ bool XRandRConfig::enableOutput(const OutputPtr &output) const
 {
     qCDebug(KSCREEN_XRANDR) << "Enabling: " << output->id();
     RROutput *outputs = new RROutput[1];
+    XRRScreenResources *screenResources = XRandR::screenResources();
     outputs[0] = output->id();
-    const Status s = XRRSetCrtcConfig(XRandR::display(), XRandR::screenResources(), XRandR::freeCrtc(output->id()),
+    const Status s = XRRSetCrtcConfig(XRandR::display(), screenResources, XRandR::freeCrtc(output->id()),
                                       CurrentTime, output->pos().rx(), output->pos().ry(), output->currentModeId().toInt(),
                                       output->rotation(), outputs, 1);
-
+    XRRFreeScreenResources(screenResources);
     qCDebug(KSCREEN_XRANDR) << "XRRSetCrtcConfig() returned" << s;
     return (s == RRSetConfigSuccess);
 }
@@ -554,10 +558,12 @@ bool XRandRConfig::changeOutput(const OutputPtr &output, int crtcId) const
     qCDebug(KSCREEN_XRANDR) << "Updating: " << output->id() << "with CRTC" << crtcId;
 
     RROutput *outputs = new RROutput[1];
+    XRRScreenResources *screenResources = XRandR::screenResources();
     outputs[0] = output->id();
-    const Status s = XRRSetCrtcConfig(XRandR::display(), XRandR::screenResources(), crtcId,
+    const Status s = XRRSetCrtcConfig(XRandR::display(), screenResources, crtcId,
                                       CurrentTime, output->pos().rx(), output->pos().ry(), output->currentModeId().toInt(),
                                       output->rotation(), outputs, 1);
+    XRRFreeScreenResources(screenResources);
 
     qCDebug(KSCREEN_XRANDR) << "XRRSetCrtcConfig() returned" << s;
     return (s == RRSetConfigSuccess);
