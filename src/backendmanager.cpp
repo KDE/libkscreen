@@ -29,6 +29,7 @@
 #include <QDBusPendingCallWatcher>
 #include <QDBusPendingReply>
 #include <QDBusConnectionInterface>
+#include <QStandardPaths>
 
 #include "config-libkscreen.h"
 
@@ -69,10 +70,10 @@ BackendManager::BackendManager()
     connect(&mServiceWatcher, &QDBusServiceWatcher::serviceUnregistered,
             this, &BackendManager::backendServiceUnregistered);
 
-    mRestCrashCountTimer.setSingleShot(true);
-    mRestCrashCountTimer.setInterval(60000);
-    connect(&mRestCrashCountTimer, &QTimer::timeout,
-            [&]() {
+    mResetCrashCountTimer.setSingleShot(true);
+    mResetCrashCountTimer.setInterval(60000);
+    connect(&mResetCrashCountTimer, &QTimer::timeout,
+            this, [=]() {
                 mCrashCount = 0;
             });
 }
@@ -149,7 +150,7 @@ void BackendManager::startBackend(const QString &backend)
         kill(pid, SIGSTOP);
     }
 
-    mRestCrashCountTimer.start();
+    mResetCrashCountTimer.start();
 }
 
 void BackendManager::launcherFinished(int exitCode, QProcess::ExitStatus exitStatus)
@@ -159,7 +160,7 @@ void BackendManager::launcherFinished(int exitCode, QProcess::ExitStatus exitSta
     // Stop the timer if it's running, otherwise the number would get reset to 0
     // anyway even if we reached the sMaxCrashCount, and then the backend would
     // be restarted again anyway.
-    mRestCrashCountTimer.stop();
+    mResetCrashCountTimer.stop();
 
     if (exitStatus == QProcess::CrashExit) {
         // Backend has crashed: restart it

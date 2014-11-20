@@ -85,7 +85,7 @@ private:
     QString mBackendService;
     QDBusServiceWatcher mServiceWatcher;
     KScreen::ConfigPtr mConfig;
-    QTimer mRestCrashCountTimer;
+    QTimer mResetCrashCountTimer;
     bool mShuttingDown;
 
     int mRequestsCounter;
