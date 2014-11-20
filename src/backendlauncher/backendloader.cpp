@@ -28,7 +28,7 @@
 #include <QDBusConnection>
 #include <QDBusInterface>
 
-Q_LOGGING_CATEGORY(KSCREEN_BACKEND_LAUNCHER, "org.kde.KScreen.BackendLauncher")
+Q_LOGGING_CATEGORY(KSCREEN_BACKEND_LAUNCHER, "kscreen.backendLauncher")
 
 BackendLoader::BackendLoader()
     : QObject()

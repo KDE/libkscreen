@@ -73,22 +73,22 @@ bool Config::canBeApplied(const ConfigPtr &config)
         currentOutput = currentConfig->output(output->id());
         //If there is no such output
         if (!currentOutput) {
-            qDebug() << "The output:" << output->id() << "does not exists";
+            qCDebug(KSCREEN) << "The output:" << output->id() << "does not exists";
             return false;
         }
         //If the output is not connected
         if (!currentOutput->isConnected()) {
-            qDebug() << "The output:" << output->id() << "is not connected";
+            qCDebug(KSCREEN) << "The output:" << output->id() << "is not connected";
             return false;
         }
         //if there is no currentMode
         if (output->currentModeId().isEmpty()) {
-            qDebug() << "The output:" << output->id() << "has no currentModeId";
+            qCDebug(KSCREEN) << "The output:" << output->id() << "has no currentModeId";
             return false;
         }
         //If the mode is not found in the current output
         if (!currentOutput->mode(output->currentModeId())) {
-            qDebug() << "The output:" << output->id() << "has no mode:" << output->currentModeId();
+            qCDebug(KSCREEN) << "The output:" << output->id() << "has no mode:" << output->currentModeId();
             return false;
         }
 
@@ -125,16 +125,16 @@ bool Config::canBeApplied(const ConfigPtr &config)
 
     const int maxEnabledOutputsCount = config->screen()->maxActiveOutputsCount();
     if (enabledOutputsCount > maxEnabledOutputsCount) {
-        qDebug() << "Too many active screens. Requested: " << enabledOutputsCount << ", Max: " << maxEnabledOutputsCount;
+        qCDebug(KSCREEN) << "Too many active screens. Requested: " << enabledOutputsCount << ", Max: " << maxEnabledOutputsCount;
         return false;
     }
 
     if (rect.width() > config->screen()->maxSize().width()) {
-        qDebug() << "The configuration has too much width:" << rect.width();
+        qCDebug(KSCREEN) << "The configuration has too much width:" << rect.width();
         return false;
     }
     if (rect.height() > config->screen()->maxSize().height()) {
-        qDebug() << "The configuration has too much height:" << rect.height();
+        qCDebug(KSCREEN) << "The configuration has too much height:" << rect.height();
         return false;
     }
 

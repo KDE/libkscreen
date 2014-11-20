@@ -135,7 +135,7 @@ void ConfigMonitor::Private::edidReady(QDBusPendingCallWatcher* watcher)
 
     const QDBusPendingReply<QByteArray> reply = *watcher;
     if (reply.isError()) {
-        qWarning() << "Error when retrieving EDID: " << reply.error().message();
+        qCWarning(KSCREEN) << "Error when retrieving EDID: " << reply.error().message();
         if (mPendingEDIDRequests.isEmpty()) {
             updateConfigs(mPendingConfigUpdate);
         }
@@ -161,7 +161,6 @@ void ConfigMonitor::Private::updateConfigs(const KScreen::ConfigPtr &newConfig)
     QMutableListIterator<QWeakPointer<Config>> iter(watchedConfigs);
     while (iter.hasNext()) {
         KScreen::ConfigPtr config = iter.next().toStrongRef();
-        qDebug() << "LibKscreen updates config" << config.data();
         if (!config) {
             iter.remove();
             continue;

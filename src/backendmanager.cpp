@@ -141,12 +141,12 @@ void BackendManager::startBackend(const QString &backend)
     mLauncher->start();
     if (!qgetenv("KSCREEN_BACKEND_DEBUG").isEmpty()) {
         pid_t pid = mLauncher->pid();
-        qDebug() << "==================================";
-        qDebug() << "KScreen BackendManager: Suspending backend launcher";
-        qDebug() << "'gdb --pid" << pid << "' to debug";
-        qDebug() << "'kill -SIGCONT" << pid << "' to continue";
-        qDebug() << "==================================";
-        qDebug();
+        qCDebug(KSCREEN) << "==================================";
+        qCDebug(KSCREEN) << "KScreen BackendManager: Suspending backend launcher";
+        qCDebug(KSCREEN) << "'gdb --pid" << pid << "' to debug";
+        qCDebug(KSCREEN) << "'kill -SIGCONT" << pid << "' to continue";
+        qCDebug(KSCREEN) << "==================================";
+        qCDebug(KSCREEN);
         kill(pid, SIGSTOP);
     }
 
