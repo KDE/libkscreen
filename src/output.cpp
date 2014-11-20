@@ -483,7 +483,7 @@ void Output::apply(const OutputPtr& other)
     }
     setModes(modes);
 
-    if (other->d->edid && !d->edid) {
+    if (other->d->edid) {
         delete d->edid;
         d->edid = other->d->edid->clone();
     }

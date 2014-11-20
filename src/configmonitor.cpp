@@ -117,6 +117,7 @@ void ConfigMonitor::Private::backendConfigChanged(const QVariantMap &configMap)
     }
 
     if (!mPendingEDIDRequests.isEmpty()) {
+        qCDebug(KSCREEN) << "Requesting missing EDID for outputs" << mPendingEDIDRequests;
         mPendingConfigUpdate = newConfig;
     } else {
         updateConfigs(newConfig);
@@ -144,6 +145,7 @@ void ConfigMonitor::Private::edidReady(QDBusPendingCallWatcher* watcher)
 
     const QByteArray edid = reply.argumentAt<0>();
     if (!edid.isEmpty()) {
+        qCDebug(KSCREEN) << "Received valid EDID for output" << outputId;
         OutputPtr output = mPendingConfigUpdate->output(outputId);
         output->setEdid(edid);
     }
