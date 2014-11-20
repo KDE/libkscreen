@@ -488,7 +488,6 @@ QSize XRandRConfig::screenSize(const KScreen::ConfigPtr &config) const
         if (bottomRight.y() > rect.height()) {
             rect.setHeight(bottomRight.y());
         }
-
     }
 
     const QSize size = QSize(rect.width(), rect.height());
@@ -550,6 +549,10 @@ bool XRandRConfig::enableOutput(const OutputPtr &output) const
                                       output->rotation(), outputs, 1);
     XRRFreeScreenResources(screenResources);
     qCDebug(KSCREEN_XRANDR) << "XRRSetCrtcConfig() returned" << s;
+
+    if (s == RRSetConfigSuccess) {
+        m_outputs.value(output->id())->update();
+    }
     return (s == RRSetConfigSuccess);
 }
 
@@ -566,5 +569,9 @@ bool XRandRConfig::changeOutput(const OutputPtr &output, int crtcId) const
     XRRFreeScreenResources(screenResources);
 
     qCDebug(KSCREEN_XRANDR) << "XRRSetCrtcConfig() returned" << s;
+
+    if (s == RRSetConfigSuccess) {
+        m_outputs.value(output->id())->update();
+    }
     return (s == RRSetConfigSuccess);
 }
