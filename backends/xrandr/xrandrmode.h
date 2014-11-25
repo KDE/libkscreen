@@ -24,6 +24,7 @@
 #include <QVariant>
 #include <QSize>
 
+#include "types.h"
 #include "xlibandxrandr.h"
 
 class XRandROutput;
@@ -43,7 +44,7 @@ public:
     explicit XRandRMode(XRRModeInfo* modeInfo, XRandROutput *output);
     virtual ~XRandRMode();
 
-    KScreen::Mode* toKScreenMode(KScreen::Output *parent);
+    KScreen::ModePtr toKScreenMode();
 
     int id() const;
     QSize size() const;

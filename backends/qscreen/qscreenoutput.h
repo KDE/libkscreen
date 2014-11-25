@@ -19,13 +19,14 @@
 #ifndef QSCREEN_OUTPUT_H
 #define QSCREEN_OUTPUT_H
 
-#include "../abstractbackend.h"
 #include "qscreenconfig.h"
 
 #include "config.h"
 #include "output.h"
+#include "edid.h"
 
 #include <QScreen>
+#include <QPointer>
 
 namespace KScreen
 {
@@ -38,15 +39,8 @@ public:
     explicit QScreenOutput(const QScreen *qscreen, QObject *parent = 0);
     virtual ~QScreenOutput();
 
-    KScreen::Output *toKScreenOutput(KScreen::Config *parent) const;
-    void updateKScreenOutput(KScreen::Output *output) const;
-
-    /** QScreen doesn't support querying for the EDID, this function centralizes
-     *  creating the EDID per output, anyway, so a drop-in solution will "just work".
-     *
-     * This function returns 0.
-     */
-    KScreen::Edid *edid();
+    KScreen::OutputPtr toKScreenOutput() const;
+    void updateKScreenOutput(KScreen::OutputPtr &output) const;
 
     int id() const;
     void setId(const int newId);

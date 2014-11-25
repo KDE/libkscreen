@@ -1,5 +1,6 @@
 /*************************************************************************************
  *  Copyright (C) 2012 by Alejandro Fiestas Olivares <afiestas@kde.org>              *
+ *  Copyright (C) 2014 by Daniel Vrátil <dvratil@redhat.com>                         *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -18,21 +19,20 @@
 
 #include "config.h"
 #include "output.h"
-#include "backendloader.h"
-#include "backends/abstractbackend.h"
+#include "backendmanager_p.h"
+#include "abstractbackend.h"
+#include "debug_p.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QRect>
 
-namespace KScreen {
+using namespace KScreen;
 
 class Config::Private
 {
   public:
     Private():
-      valid(true),
-      screen(0),
-      primaryOutput(0)
+      valid(true)
     { }
 
     Private(const Private &other):
@@ -40,54 +40,30 @@ class Config::Private
       primaryOutput(other.primaryOutput)
     {
       screen = other.screen->clone();
-      Q_FOREACH (Output *otherOutput, other.outputs) {
+      Q_FOREACH (const OutputPtr &otherOutput, other.outputs) {
           outputs.insert(otherOutput->id(), otherOutput->clone());
       }
     }
 
     bool valid;
-    Screen* screen;
-    Output* primaryOutput;
+    ScreenPtr screen;
+    OutputPtr primaryOutput;
     OutputList outputs;
 };
 
-bool Config::loadBackend()
+bool Config::canBeApplied(const ConfigPtr &config)
 {
-    return BackendLoader::init();
-}
-
-Config* Config::current()
-{
-    if (!BackendLoader::init()) {
-        return 0;
-    }
-
-    return BackendLoader::backend()->config();
-}
-
-bool Config::setConfig(Config* config)
-{
-    if (!BackendLoader::init()) {
+    ConfigPtr currentConfig = BackendManager::instance()->config();
+    if (!currentConfig) {
         return false;
     }
 
-    if (!Config::canBeApplied(config)) {
-        return false;
-    }
-
-    BackendLoader::backend()->setConfig(config);
-    return true;
-}
-
-bool Config::canBeApplied(Config* config)
-{
-    Config* currentConfig = BackendLoader::backend()->config();
     QRect rect;
     QSize outputSize;
-    Output* currentOutput = 0;
-    OutputList outputs = config->outputs();
+    OutputPtr currentOutput;
+    const OutputList outputs = config->outputs();
     int enabledOutputsCount = 0;
-    Q_FOREACH(Output *output, outputs) {
+    Q_FOREACH(const OutputPtr &output, outputs) {
         if (!output->isEnabled()) {
             continue;
         }
@@ -97,29 +73,29 @@ bool Config::canBeApplied(Config* config)
         currentOutput = currentConfig->output(output->id());
         //If there is no such output
         if (!currentOutput) {
-            qDebug() << "The output:" << output->id() << "does not exists";
+            qCDebug(KSCREEN) << "The output:" << output->id() << "does not exists";
             return false;
         }
         //If the output is not connected
         if (!currentOutput->isConnected()) {
-            qDebug() << "The output:" << output->id() << "is not connected";
+            qCDebug(KSCREEN) << "The output:" << output->id() << "is not connected";
             return false;
         }
         //if there is no currentMode
         if (output->currentModeId().isEmpty()) {
-            qDebug() << "The output:" << output->id() << "has no currentModeId";
+            qCDebug(KSCREEN) << "The output:" << output->id() << "has no currentModeId";
             return false;
         }
         //If the mode is not found in the current output
         if (!currentOutput->mode(output->currentModeId())) {
-            qDebug() << "The output:" << output->id() << "has no mode:" << output->currentModeId();
+            qCDebug(KSCREEN) << "The output:" << output->id() << "has no mode:" << output->currentModeId();
             return false;
         }
 
 
-        Mode *currentMode = output->currentMode();
+        const ModePtr currentMode = output->currentMode();
 
-        QSize outputSize = currentMode->size();
+        const QSize outputSize = currentMode->size();
 
         if (output->pos().x() < rect.x()) {
             rect.setX(output->pos().x());
@@ -149,24 +125,24 @@ bool Config::canBeApplied(Config* config)
 
     const int maxEnabledOutputsCount = config->screen()->maxActiveOutputsCount();
     if (enabledOutputsCount > maxEnabledOutputsCount) {
-        qDebug() << "Too many active screens. Requested: " << enabledOutputsCount << ", Max: " << maxEnabledOutputsCount;
+        qCDebug(KSCREEN) << "Too many active screens. Requested: " << enabledOutputsCount << ", Max: " << maxEnabledOutputsCount;
         return false;
     }
 
     if (rect.width() > config->screen()->maxSize().width()) {
-        qDebug() << "The configuration has too much width:" << rect.width();
+        qCDebug(KSCREEN) << "The configuration has too much width:" << rect.width();
         return false;
     }
     if (rect.height() > config->screen()->maxSize().height()) {
-        qDebug() << "The configuration has too much height:" << rect.height();
+        qCDebug(KSCREEN) << "The configuration has too much height:" << rect.height();
         return false;
     }
 
     return true;
 }
 
-Config::Config(QObject* parent)
- : QObject(parent)
+Config::Config()
+ : QObject(0)
  , d(new Private())
 {
 }
@@ -183,47 +159,40 @@ Config::~Config()
     delete d;
 }
 
-Config *Config::clone() const
+ConfigPtr Config::clone() const
 {
-    Config *config = new Config(new Private(*d));
-    // Set parent of the newly copied items
-    config->d->screen->setParent(config);
-    Q_FOREACH (Output *output, config->d->outputs) {
-        output->setParent(config);
-    }
-
-    return config;
+    return ConfigPtr(new Config(new Private(*d)));
 }
 
 
-Screen* Config::screen() const
+ScreenPtr Config::screen() const
 {
     return d->screen;
 }
 
-void Config::setScreen(Screen* screen)
+void Config::setScreen(const ScreenPtr &screen)
 {
     d->screen = screen;
 }
 
-Output* Config::output(int outputId) const
+OutputPtr Config::output(int outputId) const
 {
     if (!d->outputs.contains(outputId)) {
-        return 0;
+        return OutputPtr();
     }
 
     return d->outputs[outputId];
 }
 
-QHash< int, Output* > Config::outputs() const
+OutputList Config::outputs() const
 {
     return d->outputs;
 }
 
-QHash< int, Output* > Config::connectedOutputs() const
+OutputList Config::connectedOutputs() const
 {
-    QHash< int, Output* > outputs;
-    Q_FOREACH(Output* output, d->outputs) {
+    OutputList outputs;
+    Q_FOREACH(const OutputPtr &output, d->outputs) {
         if (!output->isConnected()) {
             continue;
         }
@@ -233,30 +202,37 @@ QHash< int, Output* > Config::connectedOutputs() const
     return outputs;
 }
 
-Output* Config::primaryOutput() const
+OutputPtr Config::primaryOutput() const
 {
     if (d->primaryOutput) {
         return d->primaryOutput;
     }
 
-    Q_FOREACH(Output* output, d->outputs) {
+    Q_FOREACH(const OutputPtr &output, d->outputs) {
         if (output->isPrimary()) {
             d->primaryOutput = output;
             return d->primaryOutput;
         }
     }
 
-    return 0;
+    return OutputPtr();
 }
 
-void Config::setPrimaryOutput(Output* output)
+void Config::setPrimaryOutput(const OutputPtr &output)
 {
+    if (primaryOutput() == output) {
+        return;
+    }
+
+    qDebug(KSCREEN) << "Primary output changed from" << d->primaryOutput
+                    << "(" << (d->primaryOutput.isNull() ? "none" : d->primaryOutput->name()) << ") to"
+                    << output << "(" << (output.isNull() ? "none" : output->name()) << ")";
     d->primaryOutput = output;
 
     Q_EMIT primaryOutputChanged(output);
 }
 
-void Config::addOutput(Output* output)
+void Config::addOutput(const OutputPtr &output)
 {
     d->outputs.insert(output->id(), output);
 
@@ -265,11 +241,10 @@ void Config::addOutput(Output* output)
 
 void Config::removeOutput(int outputId)
 {
-    Output *output = d->outputs.take(outputId);
+    OutputPtr output = d->outputs.take(outputId);
     if (output) {
-        output->deleteLater();
         if (d->primaryOutput == output) {
-            setPrimaryOutput(0);
+            setPrimaryOutput(OutputPtr());
         }
     }
 
@@ -291,6 +266,40 @@ void Config::setValid(bool valid)
     d->valid = valid;
 }
 
-} //KScreen namespace
+void Config::apply(const ConfigPtr& other)
+{
+    d->screen->apply(other->screen());
 
-#include "config.moc"
+    // Remove removed outputs
+    Q_FOREACH (const OutputPtr &output, d->outputs) {
+        if (!other->d->outputs.contains(output->id())) {
+            removeOutput(output->id());
+        }
+    }
+
+    Q_FOREACH (const OutputPtr &otherOutput, other->d->outputs) {
+        // Add new outputs
+        if (!d->outputs.contains(otherOutput->id())) {
+            addOutput(otherOutput->clone());
+        } else {
+            // Update existing outputs
+            d->outputs[otherOutput->id()]->apply(otherOutput);
+        }
+    }
+
+    // Update primary output
+    bool matched = false;
+    Q_FOREACH (const OutputPtr &output, d->outputs) {
+        if (output->isPrimary()) {
+            setPrimaryOutput(output);
+            matched = true;
+            break;
+        }
+    }
+    if (!matched) {
+        setPrimaryOutput(OutputPtr());
+    }
+
+    // Update validity
+    setValid(other->isValid());
+}

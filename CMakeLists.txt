@@ -15,7 +15,7 @@ include(FeatureSummary)
 include(CheckCXXCompilerFlag)
 
 set(REQUIRED_QT_VERSION 5.2.0)
-find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Core Gui Test X11Extras)
+find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Core DBus Gui Test X11Extras)
 
 find_package(XCB COMPONENTS XCB RANDR)
 set_package_properties(XCB PROPERTIES
@@ -30,7 +30,7 @@ set_package_properties(X11 PROPERTIES DESCRIPTION "X11 libraries"
                         PURPOSE "Required for building XRandR 1.2 backend"
 )
 
-set(KF5_VERSION "5.0.91") #When we are happy with the api, we can sync with frameworks
+set(KF5_VERSION "5.0.92") #When we are happy with the api, we can sync with frameworks
 ecm_setup_version(${KF5_VERSION} VARIABLE_PREFIX KSCREEN
                         VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/kscreen_version.h"
                         PACKAGE_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/KF5ScreenConfigVersion.cmake"

@@ -1,5 +1,6 @@
 /*************************************************************************************
  *  Copyright (C) 2012 by Alejandro Fiestas Olivares <afiestas@kde.org>              *
+ *  Copyright (C) 2014 by Daniel Vrátil <dvratil@redhat.com>                         *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -20,12 +21,13 @@
 #define KSCREEN_CONFIG_H
 
 #include "screen.h"
-#include "output.h"
+#include "types.h"
 #include "kscreen_export.h"
 
 #include <QtCore/QHash>
 #include <QtCore/QObject>
 #include <QtCore/QMetaType>
+
 
 namespace KScreen {
 
@@ -44,38 +46,10 @@ namespace KScreen {
 class KSCREEN_EXPORT Config : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(Screen* screen READ screen)
+    Q_PROPERTY(ScreenPtr screen READ screen)
     Q_PROPERTY(OutputList outputs READ outputs)
 
   public:
-    /**
-    * Tries to load a backend (it might be already loaded)
-    *
-    * @return true if there is a working backend, false if none are found or work
-    */
-    static bool loadBackend();
-
-    /**
-     * Gets the current system configuration
-     *
-     * The returned config is a representation of the current system setup, for
-     * example if your screens a currently cloned, it will show that.
-     *
-     * @return the current system config, or null on error
-     */
-    static Config* current();
-
-    /**
-     * Sets the given config to the system
-     *
-     * The config will first be validated via canBeApplied(), then
-     * it will be applied to the system.
-     *
-     * @arg config to be applied
-     * @return true if everything went well, false if something failed
-     */
-    static bool setConfig(Config* config);
-
     /**
      * Validates that a config can be applied in the current system
      *
@@ -86,7 +60,7 @@ class KSCREEN_EXPORT Config : public QObject
      * @arg config to be checked
      * @return true if the configuration can be applied, false if not.
      */
-    static bool canBeApplied(Config* config);
+    static bool canBeApplied(const ConfigPtr &config);
 
     /**
      * Instance an empty config
@@ -98,7 +72,7 @@ class KSCREEN_EXPORT Config : public QObject
      * So usually what you do is call current() and then modify
      * whatever you need.
      */
-    explicit Config(QObject *parent = 0);
+    explicit Config();
     virtual ~Config();
 
     /**
@@ -106,27 +80,30 @@ class KSCREEN_EXPORT Config : public QObject
      *
      * @return a new Config instance with same property values
      */
-    Config* clone() const;
+    ConfigPtr clone() const;
 
-    Screen* screen() const;
-    void setScreen(Screen* screen);
+    ScreenPtr screen() const;
+    void setScreen(const ScreenPtr &screen);
 
-    Output* output(int outputId) const;
-    QHash<int, Output*> outputs() const;
-    QHash<int, Output*> connectedOutputs() const;
-    Output* primaryOutput() const;
-    void setPrimaryOutput(Output *output);
-    void addOutput(Output *output);
+    OutputPtr output(int outputId) const;
+    OutputList outputs() const;
+    OutputList connectedOutputs() const;
+    OutputPtr primaryOutput() const;
+    void setPrimaryOutput(const OutputPtr &output);
+    void addOutput(const OutputPtr &output);
     void removeOutput(int outputId);
     void setOutputs(OutputList outputs);
 
     bool isValid() const;
     void setValid(bool valid);
 
+    void apply(const ConfigPtr &other);
+
   Q_SIGNALS:
-      void outputAdded(KScreen::Output *output);
+      void outputAdded(const KScreen::OutputPtr &output);
       void outputRemoved(int outputId);
-      void primaryOutputChanged(KScreen::Output *output);
+      void primaryOutputChanged(const KScreen::OutputPtr &output);
+
   private:
     Q_DISABLE_COPY(Config)
 

@@ -26,6 +26,8 @@
 #include "../src/output.h"
 #include "../src/mode.h"
 #include "../src/edid.h"
+#include "../src/getconfigoperation.h"
+#include "../src/backendmanager_p.h"
 
 Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.qscreen");
 
@@ -46,22 +48,26 @@ private Q_SLOTS:
 
 private:
     QProcess m_process;
-    Config *m_config;
+    ConfigPtr m_config;
     QString m_backend;
 };
 
 void testQScreenBackend::initTestCase()
 {
-   setenv("KSCREEN_BACKEND", "qscreen", 1);
+    setenv("KSCREEN_BACKEND", "qscreen", 1);
+    KScreen::BackendManager::instance()->shutdownBackend();
+
 //     setenv("KSCREEN_BACKEND", "xrandr", 1);
     m_backend = qgetenv("KSCREEN_BACKEND").constData();
 
-    m_config = Config::current();
+    GetConfigOperation *op = new GetConfigOperation();
+    op->exec();
+    m_config = op->config();
 }
 
 void testQScreenBackend::verifyConfig()
 {
-    QVERIFY(m_config != 0);
+    QVERIFY(!m_config.isNull());
     if (!m_config) {
         QSKIP("QScreenbackend invalid", SkipAll);
     }
@@ -69,7 +75,7 @@ void testQScreenBackend::verifyConfig()
 
 void testQScreenBackend::verifyScreen()
 {
-    Screen *screen = m_config->screen();
+    ScreenPtr screen = m_config->screen();
 
     QVERIFY(screen->minSize().width() <= screen->maxSize().width());
     QVERIFY(screen->minSize().height() <= screen->maxSize().height());
@@ -87,7 +93,7 @@ void testQScreenBackend::verifyOutputs()
 {
 
     bool primaryFound = false;
-    foreach (const KScreen::Output* op, m_config->outputs()) {
+    foreach (const KScreen::OutputPtr &op, m_config->outputs()) {
         qDebug() << "CHecking at all";
         if (op->isPrimary()) {
             primaryFound = true;
@@ -99,7 +105,7 @@ void testQScreenBackend::verifyOutputs()
         QCOMPARE(m_config->outputs().count(), QGuiApplication::screens().count());
     }
 
-    KScreen::Output *primary = m_config->primaryOutput();
+    const KScreen::OutputPtr primary = m_config->primaryOutput();
     qDebug() << "ppp" << primary;
     QVERIFY(primary->isEnabled());
     QVERIFY(primary->isConnected());
@@ -108,7 +114,7 @@ void testQScreenBackend::verifyOutputs()
 
 
     QList<int> ids;
-    foreach (auto output, m_config->outputs()) {
+    foreach (const KScreen::OutputPtr &output, m_config->outputs()) {
         qDebug() << " _____________________ Output: " << output;
         qDebug() << "   output name: " << output->name();
         qDebug() << "   output modes: " << output->modes().count() << output->modes();
@@ -131,12 +137,12 @@ void testQScreenBackend::verifyOutputs()
 
 void testQScreenBackend::verifyModes()
 {
-    KScreen::Output *primary = m_config->primaryOutput();
+    const KScreen::OutputPtr primary = m_config->primaryOutput();
     QVERIFY(primary);
     QVERIFY(primary->modes().count() > 0);
 
-    foreach (auto output, m_config->outputs()) {
-        foreach (auto mode, output->modes()) {
+    foreach (const KScreen::OutputPtr &output, m_config->outputs()) {
+        foreach (const KScreen::ModePtr &mode, output->modes()) {
             qDebug() << "   Mode   : " << mode->name();
             QVERIFY(!mode->name().isEmpty());
             QVERIFY(mode->refreshRate() > 0);
@@ -147,10 +153,13 @@ void testQScreenBackend::verifyModes()
 
 void testQScreenBackend::commonUsagePattern()
 {
-    KScreen::OutputList outputs = KScreen::Config::current()->outputs();
+    GetConfigOperation *op = new GetConfigOperation();
+    op->exec();
+
+    const KScreen::OutputList outputs = op->config()->outputs();
 
     QVariantList outputList;
-    Q_FOREACH(KScreen::Output *output, outputs) {
+    Q_FOREACH(const KScreen::OutputPtr &output, outputs) {
         if (!output->isConnected()) {
             continue;
         }
@@ -168,7 +177,7 @@ void testQScreenBackend::commonUsagePattern()
         info["pos"] = pos;
 
         if (output->isEnabled()) {
-            KScreen::Mode *mode = output->currentMode();
+            const KScreen::ModePtr mode = output->currentMode();
             if (!mode) {
                 //qWarning() << "CurrentMode is null" << output->name();
                 return;
@@ -191,7 +200,7 @@ void testQScreenBackend::commonUsagePattern()
 
 void testQScreenBackend::cleanupTestCase()
 {
-    delete m_config;
+    KScreen::BackendManager::instance()->shutdownBackend();
     qApp->exit(0);
 }
 

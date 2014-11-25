@@ -24,7 +24,6 @@
 #include "config.h"
 #include "output.h"
 #include "edid.h"
-#include "configmonitor.h"
 
 #include <QtCore/QFile>
 #include <QtCore/qplugin.h>
@@ -50,8 +49,8 @@ using namespace KScreen;
 
 Q_LOGGING_CATEGORY(KSCREEN_XRANDR, "kscreen.xrandr");
 
-XRandR::XRandR(QObject* parent)
-    : QObject(parent)
+XRandR::XRandR()
+    : KScreen::AbstractBackend()
     , m_x11Helper(0)
     , m_isValid(false)
 {
@@ -115,15 +114,21 @@ QString XRandR::name() const
     return QString("XRandR");
 }
 
+QString XRandR::serviceName() const
+{
+    return QLatin1Literal("org.kde.KScreen.Backend.XRandR");
+}
+
+
 void XRandR::updateConfig()
 {
     s_internalConfig->update();
-    KScreen::ConfigMonitor::instance()->notifyUpdate();
+    Q_EMIT configChanged(config());
 }
 
 void XRandR::outputRemovedSlot()
 {
-    KScreen::ConfigMonitor::instance()->notifyUpdate();
+    Q_EMIT configChanged(config());
 }
 
 void XRandR::updateOutput(RROutput output)
@@ -139,7 +144,7 @@ void XRandR::updateOutput(RROutput output)
         }
     }
 
-    KScreen::ConfigMonitor::instance()->notifyUpdate();
+    Q_EMIT configChanged(config());
 }
 
 void XRandR::updateCrtc(RRCrtc crtc)
@@ -151,44 +156,40 @@ void XRandR::updateCrtc(RRCrtc crtc)
     }
     XRRFreeCrtcInfo(crtcInfo);
 
-    KScreen::ConfigMonitor::instance()->notifyUpdate();
+    Q_EMIT configChanged(config());
 }
 
-Config* XRandR::config() const
+ConfigPtr XRandR::config() const
 {
     return s_internalConfig->toKScreenConfig();
 }
 
-void XRandR::setConfig(Config* config) const
+void XRandR::setConfig(const ConfigPtr &config)
 {
     if (!config) {
         return;
     }
 
+    qCDebug(KSCREEN_XRANDR) << "XRandR::setConfig";
     s_internalConfig->applyKScreenConfig(config);
+    qCDebug(KSCREEN_XRANDR) << "XRandR::setConfig done!";
 }
 
-Edid *XRandR::edid(int outputId) const
+QByteArray XRandR::edid(int outputId) const
 {
-    XRandROutput::Map outputs = s_internalConfig->outputs();
-    XRandROutput *output = outputs.value(outputId);
+    const XRandROutput::Map outputs = s_internalConfig->outputs();
+    const XRandROutput *output = outputs.value(outputId);
     if (!output) {
         return 0;
     }
 
-    return output->edid();
+    const QByteArray rawEdid = output->edid();
+    return rawEdid;
 }
 
 bool XRandR::isValid() const
 {
     return m_isValid;
-}
-
-void XRandR::updateConfig(Config *config) const
-{
-    Q_ASSERT(config != 0);
-
-    s_internalConfig->updateKScreenConfig(config);
 }
 
 quint8* XRandR::getXProperty(Display *dpy, RROutput output, Atom atom, size_t &len)
@@ -219,7 +220,7 @@ quint8* XRandR::getXProperty(Display *dpy, RROutput output, Atom atom, size_t &l
 
 quint8 *XRandR::outputEdid(int outputId, size_t &len)
 {
-   Atom edid_atom;
+    Atom edid_atom;
     quint8 *result;
 
     edid_atom = XInternAtom(QX11Info::display(), RR_PROPERTY_RANDR_EDID, false);
@@ -265,7 +266,7 @@ RRCrtc XRandR::freeCrtc(int outputId)
     XRRCrtcInfo *crtc;
     for (int i = 0; i < outputInfo->ncrtc; ++i)
     {
-        RRCrtc crtcId = outputInfo->crtcs[i];
+       const RRCrtc crtcId = outputInfo->crtcs[i];
        crtc = XRRCrtc(crtcId);
        if (!crtc->noutput) {
            qCDebug(KSCREEN_XRANDR) << "Found free CRTC" << crtcId;
@@ -334,5 +335,3 @@ int XRandR::screen()
 {
     return s_screen;
 }
-
-#include "xrandr.moc"

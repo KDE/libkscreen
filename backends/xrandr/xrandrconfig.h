@@ -42,9 +42,9 @@ public:
     XRandROutput::Map outputs() const;
     void addNewOutput(const RROutput id);
 
-    KScreen::Config *toKScreenConfig() const;
-    void updateKScreenConfig(KScreen::Config *config) const;
-    void applyKScreenConfig(KScreen::Config *config);
+    KScreen::ConfigPtr toKScreenConfig() const;
+    void updateKScreenConfig(KScreen::ConfigPtr &config) const;
+    void applyKScreenConfig(const KScreen::ConfigPtr &config);
 
     int m_primaryOutput;
 private:
@@ -52,14 +52,14 @@ private:
      * We need to print stuff to discover the damn bug
      * where currentMode is null
      */
-    void printConfig(KScreen::Config* config) const;
+    void printConfig(const KScreen::ConfigPtr &config) const;
     void printInternalCond() const;
-    QSize screenSize(KScreen::Config* config) const;
+    QSize screenSize(const KScreen::ConfigPtr &config) const;
     bool setScreenSize(const QSize& size) const;
     void setPrimaryOutput(int outputId) const;
-    bool disableOutput(KScreen::Output* output) const;
-    bool enableOutput(KScreen::Output* output) const;
-    bool changeOutput(KScreen::Output* output, int crtcId) const;
+    bool disableOutput(const KScreen::OutputPtr &output) const;
+    bool enableOutput(const KScreen::OutputPtr &output) const;
+    bool changeOutput(const KScreen::OutputPtr &output, int crtcId) const;
     XRandROutput* createNewOutput(RROutput id, bool primary);
     XRandROutput::Map m_outputs;
     XRandRScreen *m_screen;

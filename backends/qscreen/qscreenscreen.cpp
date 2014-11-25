@@ -37,14 +37,14 @@ QScreenScreen::~QScreenScreen()
 {
 }
 
-Screen *QScreenScreen::toKScreenScreen(Config *parent) const
+ScreenPtr QScreenScreen::toKScreenScreen() const
 {
-    KScreen::Screen *kscreenScreen = new KScreen::Screen(parent);
+    KScreen::ScreenPtr kscreenScreen(new KScreen::Screen);
     updateKScreenScreen(kscreenScreen);
     return kscreenScreen;
 }
 
-void QScreenScreen::updateKScreenScreen(Screen *screen) const
+void QScreenScreen::updateKScreenScreen(ScreenPtr &screen) const
 {
     auto primary = QGuiApplication::primaryScreen();
     QSize _s = primary->availableVirtualGeometry().size();
@@ -56,6 +56,3 @@ void QScreenScreen::updateKScreenScreen(Screen *screen) const
     screen->setCurrentSize(_s);
     screen->setMaxActiveOutputsCount(QGuiApplication::screens().count());
 }
-
-#include "qscreenscreen.moc"
-

@@ -1,9 +1,18 @@
 include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${QT_INCLUDES})
 
+configure_file(config-libkscreen.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config-libkscreen.h)
+
+add_subdirectory(backendlauncher)
+
 set(libkscreen_SRCS
-    backendloader.cpp
+    abstractbackend.cpp
+    backendmanager.cpp
     config.cpp
+    configoperation.cpp
+    getconfigoperation.cpp
+    setconfigoperation.cpp
     configmonitor.cpp
+    configserializer.cpp
     screen.cpp
     output.cpp
     edid.cpp
@@ -11,9 +20,17 @@ set(libkscreen_SRCS
     debug_p.cpp
 )
 
+qt5_add_dbus_interface(libkscreen_SRCS ${CMAKE_SOURCE_DIR}/interfaces/org.kde.KScreen.Backend.xml backendinterface)
+
 add_library(KF5Screen SHARED ${libkscreen_SRCS})
 
-target_link_libraries(KF5Screen PUBLIC Qt5::Core PRIVATE Qt5::X11Extras)
+target_link_libraries(KF5Screen
+    PUBLIC
+    Qt5::Core
+    PRIVATE
+    Qt5::DBus
+    Qt5::X11Extras
+)
 
 set_target_properties(KF5Screen PROPERTIES
     VERSION "${KSCREEN_VERSION_STRING}"
@@ -34,6 +51,10 @@ ecm_generate_headers(KScreen_HEADERS
         Screen
         Config
         ConfigMonitor
+        ConfigOperation
+        GetConfigOperation
+        SetConfigOperation
+        Types
     PREFIX KScreen
     REQUIRED_HEADERS KScreen_REQ_HEADERS
 )
@@ -42,8 +63,9 @@ install(FILES ${KScreen_HEADERS}
         DESTINATION ${KF5_INCLUDE_INSTALL_DIR}/KScreen/KScreen
         COMPONENT Devel)
 install(FILES kscreen_export.h
-            ${KScreen_REQ_HEADERS}
-    DESTINATION ${KF5_INCLUDE_INSTALL_DIR}/KScreen/kscreen)
+              backendmanager_p.h # needed for unit-tests in KScreen
+              ${KScreen_REQ_HEADERS}
+        DESTINATION ${KF5_INCLUDE_INSTALL_DIR}/KScreen/kscreen)
 
 if(NOT WIN32)
    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/kscreen2.pc.in ${CMAKE_CURRENT_BINARY_DIR}/kscreen2.pc @ONLY)

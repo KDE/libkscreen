@@ -19,7 +19,6 @@
 #ifndef QSCREEN_SCREEN_H
 #define QSCREEN_SCREEN_H
 
-#include "../abstractbackend.h"
 #include "config.h"
 #include "screen.h"
 
@@ -40,8 +39,8 @@ public:
     explicit QScreenScreen(QScreenConfig *config);
     virtual ~QScreenScreen();
 
-    KScreen::Screen *toKScreenScreen(KScreen::Config *parent) const;
-    void updateKScreenScreen(KScreen::Screen *screen) const;
+    KScreen::ScreenPtr toKScreenScreen() const;
+    void updateKScreenScreen(KScreen::ScreenPtr &screen) const;
 };
 
 } // namespace

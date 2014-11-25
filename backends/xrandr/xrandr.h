@@ -21,7 +21,7 @@
 #define XRANDR_BACKEND_H
 
 #include "xlibandxrandr.h"
-#include "../abstractbackend.h"
+#include "abstractbackend.h"
 
 #include <QtCore/QSize>
 #include <QLoggingCategory>
@@ -32,22 +32,21 @@ namespace KScreen {
     class Output;
 }
 
-class XRandR : public QObject, public AbstractBackend
+class XRandR : public KScreen::AbstractBackend
 {
     Q_OBJECT
-    Q_INTERFACES(AbstractBackend)
     Q_PLUGIN_METADATA(IID "org.kf5.kscreen.backends.xrandr")
 
     public:
-        explicit XRandR(QObject* parent = 0);
+        explicit XRandR();
         virtual ~XRandR();
 
         virtual QString name() const;
-        virtual KScreen::Config* config() const;
-        virtual void setConfig(KScreen::Config* config) const;
+        virtual QString serviceName() const;
+        virtual KScreen::ConfigPtr config() const;
+        virtual void setConfig(const KScreen::ConfigPtr &config);
         virtual bool isValid() const;
-        virtual KScreen::Edid *edid(int outputId) const;
-        virtual void updateConfig(KScreen::Config *config) const;
+        virtual QByteArray edid(int outputId) const;
 
         static RRCrtc outputCrtc(int outputId);
         static quint8 *outputEdid(int outputId, size_t &len);

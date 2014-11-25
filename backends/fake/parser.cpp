@@ -19,7 +19,8 @@
 #include "parser.h"
 #include "fake.h"
 
-#include <config.h>
+#include "config.h"
+#include "output.h"
 
 #include <QtCore/QFile>
 #include <QLoggingCategory>
@@ -29,42 +30,45 @@
 
 using namespace KScreen;
 
-Config* Parser::fromJson(const QByteArray& data)
+ConfigPtr Parser::fromJson(const QByteArray& data)
 {
-    Config *config =  new Config();
+    ConfigPtr config(new Config);
 
-    QJsonObject json = QJsonDocument::fromJson(data).object();
+    const QJsonObject json = QJsonDocument::fromJson(data).object();
 
-    Screen* screen = Parser::screenFromJson(json["screen"].toObject().toVariantMap());
+    ScreenPtr screen = Parser::screenFromJson(json["screen"].toObject().toVariantMap());
+    config->setScreen(screen);
 
-    QVariantList outputs = json["outputs"].toArray().toVariantList();
+    const QVariantList outputs = json["outputs"].toArray().toVariantList();
     if (outputs.isEmpty()) {
         return config;
     }
 
-    Output *output;
     OutputList outputList;
     Q_FOREACH(const QVariant &value, outputs) {
-        output = Parser::outputFromJson(value.toMap());
+        const OutputPtr output = Parser::outputFromJson(value.toMap());
         outputList.insert(output->id(), output);
     }
 
-    config->setScreen(screen);
     config->setOutputs(outputList);
     return config;
 }
 
-Config* Parser::fromJson(const QString& path)
+ConfigPtr Parser::fromJson(const QString& path)
 {
     QFile file(path);
-    file.open(QIODevice::ReadOnly);
+    if (!file.open(QIODevice::ReadOnly)) {
+        qWarning() << file.errorString();
+        qWarning() << "File: " << path;
+        return ConfigPtr();
+    }
 
     return Parser::fromJson(file.readAll());
 }
 
-Screen* Parser::screenFromJson(const QVariantMap &data)
+ScreenPtr Parser::screenFromJson(const QVariantMap &data)
 {
-    Screen* screen = new Screen;
+    ScreenPtr screen(new Screen);
     screen->setId(data["id"].toInt());
     screen->setMinSize(Parser::sizeFromJson(data["minSize"].toMap()));
     screen->setMaxSize(Parser::sizeFromJson(data["maxSize"].toMap()));
@@ -78,7 +82,7 @@ void Parser::qvariant2qobject(const QVariantMap& variant, QObject* object)
 {
     for ( QVariantMap::const_iterator iter = variant.begin(); iter != variant.end(); ++iter )
     {
-        QVariant property = object->property( iter.key().toLatin1() );
+        const QVariant property = object->property( iter.key().toLatin1() );
         Q_ASSERT( property.isValid() );
         if ( property.isValid() )
         {
@@ -94,24 +98,23 @@ void Parser::qvariant2qobject(const QVariantMap& variant, QObject* object)
     }
 }
 
-Output* Parser::outputFromJson(QMap< QString, QVariant > map)
+OutputPtr Parser::outputFromJson(QMap< QString, QVariant > map)
 {
-    Output *output = new Output;
+    OutputPtr output(new Output);
     output->setId(map["id"].toInt());
 
     QStringList preferredModes;
-    QVariantList modes = map["preferredModes"].toList();
-    Q_FOREACH(const QVariant &mode, modes) {
+    const QVariantList prefModes = map["preferredModes"].toList();
+    Q_FOREACH(const QVariant &mode, prefModes) {
         preferredModes.append(mode.toString());
     }
     output->setPreferredModes(preferredModes);
     map.remove(QLatin1Literal("preferredModes"));
 
-    Mode *mode;
     ModeList modelist;
-    modes = map["modes"].toList();
+    const QVariantList modes = map["modes"].toList();
     Q_FOREACH(const QVariant &modeValue, modes) {
-        mode = Parser::modeFromJson(modeValue);
+        const ModePtr mode = Parser::modeFromJson(modeValue);
         modelist.insert(mode->id(), mode);
     }
     output->setModes(modelist);
@@ -127,7 +130,7 @@ Output* Parser::outputFromJson(QMap< QString, QVariant > map)
         map.remove(QLatin1Literal("clones"));
     }
 
-    QString type = map["type"].toByteArray().toUpper();
+    const QString type = map["type"].toByteArray().toUpper();
     if (type.contains("LVDS") || type.contains("EDP") || type.contains("IDP")) {
         output->setType(Output::Panel);
     } else if (type.contains("VGA")) {
@@ -173,15 +176,15 @@ Output* Parser::outputFromJson(QMap< QString, QVariant > map)
     //Remove some extra properties that we do not want or need special treatment
     map.remove(QLatin1Literal("edid"));
 
-    Parser::qvariant2qobject(map, output);
+    Parser::qvariant2qobject(map, output.data());
     return output;
 }
 
-Mode* Parser::modeFromJson(const QVariant& data)
+ModePtr Parser::modeFromJson(const QVariant& data)
 {
-    QVariantMap map = data.toMap();
-    Mode *mode = new Mode;
-    Parser::qvariant2qobject(map, mode);
+    const QVariantMap map = data.toMap();
+    ModePtr mode(new Mode);
+    Parser::qvariant2qobject(map, mode.data());
 
     mode->setSize(Parser::sizeFromJson(map["size"].toMap()));
 
@@ -190,7 +193,7 @@ Mode* Parser::modeFromJson(const QVariant& data)
 
 QSize Parser::sizeFromJson(const QVariant& data)
 {
-    QVariantMap map = data.toMap();
+    const QVariantMap map = data.toMap();
 
     QSize size;
     size.setWidth(map["width"].toInt());
@@ -201,7 +204,7 @@ QSize Parser::sizeFromJson(const QVariant& data)
 
 QPoint Parser::pointFromJson(const QVariant& data)
 {
-    QVariantMap map = data.toMap();
+    const QVariantMap map = data.toMap();
 
     QPoint point;
     point.setX(map["x"].toInt());

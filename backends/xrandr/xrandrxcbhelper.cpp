@@ -270,5 +270,3 @@ bool XRandRXCBHelper::x11Event(XEvent *event)
 
     return false;
 }
-
-#include "xrandrxcbhelper.moc"
