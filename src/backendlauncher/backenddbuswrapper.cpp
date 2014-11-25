@@ -88,11 +88,13 @@ QVariantMap BackendDBusWrapper::setConfig(const QVariantMap &configMap)
     const KScreen::ConfigPtr config = KScreen::ConfigSerializer::deserializeConfig(configMap);
     mBackend->setConfig(config);
 
-    mCurrentConfig = config;
+    mCurrentConfig = mBackend->config();
     QMetaObject::invokeMethod(this, "doEmitConfigChanged", Qt::QueuedConnection);
 
-    // TODO: setConfig should return adjusted config that we should use
-    return getConfig();
+    // TODO: setConfig should return adjusted config that was actually applied
+    const QJsonObject obj = KScreen::ConfigSerializer::serializeConfig(mCurrentConfig);
+    Q_ASSERT(!obj.isEmpty());
+    return obj.toVariantMap();
 }
 
 QByteArray BackendDBusWrapper::getEdid(int output) const
