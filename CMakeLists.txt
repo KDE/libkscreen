@@ -34,7 +34,7 @@ set(KF5_VERSION "5.0.93") #When we are happy with the api, we can sync with fram
 ecm_setup_version(${KF5_VERSION} VARIABLE_PREFIX KSCREEN
                         VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/kscreen_version.h"
                         PACKAGE_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/KF5ScreenConfigVersion.cmake"
-                        SOVERSION 5)
+                        SOVERSION 6)
 
 check_cxx_compiler_flag(-fvisibility=hidden _HAVE_VISIBILITY)
 if (_HAVE_VISIBILITY AND NOT WIN32)
