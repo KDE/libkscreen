@@ -37,6 +37,7 @@
 
 #ifdef Q_OS_UNIX
 #include <sys/wait.h>
+#include <signal.h>
 #endif
 
 using namespace KScreen;
