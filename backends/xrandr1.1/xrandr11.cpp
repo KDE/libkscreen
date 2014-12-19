@@ -90,6 +90,10 @@ KScreen::Config* XRandR11::config() const
     ScreenInfo info(xcbScreen->root);
     ScreenSize size(xcbScreen->root);
 
+    if (info.isNull() || size.isNull()) {
+        return 0;
+    }
+
     if (info->config_timestamp == m_currentTimestamp) {
         return m_currentConfig;
     }
