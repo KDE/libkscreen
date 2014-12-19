@@ -187,7 +187,7 @@ void ConfigMonitor::Private::configDestroyed(QObject *removedConfig)
 
 ConfigMonitor *ConfigMonitor::instance()
 {
-    static ConfigMonitor *s_instance;
+    static ConfigMonitor *s_instance = Q_NULLPTR;
 
     if (s_instance == 0) {
         s_instance = new ConfigMonitor();
