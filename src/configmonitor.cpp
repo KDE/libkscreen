@@ -207,6 +207,7 @@ ConfigMonitor::ConfigMonitor():
 
 ConfigMonitor::~ConfigMonitor()
 {
+    delete d;
 }
 
 void ConfigMonitor::addConfig(const ConfigPtr &config)
