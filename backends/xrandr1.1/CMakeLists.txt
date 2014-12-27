@@ -1,4 +1,4 @@
-find_package(XCB REQUIRED)
+find_package(XCB REQUIRED COMPONENTS XCB RANDR)
 
 include_directories(${CMAKE_SOURCE_DIR}/src
                     ${KDE4_INCLUDES}
