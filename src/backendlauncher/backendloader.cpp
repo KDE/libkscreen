@@ -21,6 +21,7 @@
 #include "src/abstractbackend.h"
 
 #include <QCoreApplication>
+#include <QDBusConnectionInterface>
 #include <QDir>
 #include <QPluginLoader>
 #include <QX11Info>
@@ -110,12 +111,5 @@ KScreen::AbstractBackend* BackendLoader::backend() const
 
 bool BackendLoader::checkIsAlreadyRunning()
 {
-    QDBusInterface *iface = new QDBusInterface(mBackend->serviceName(),
-                                               QLatin1String("/"),
-                                               QLatin1String("org.kde.KScreen.Backend"),
-                                               QDBusConnection::sessionBus(),
-                                               this);
-    const bool valid = iface->isValid();
-    delete iface;
-    return valid;
+    return QDBusConnection::sessionBus().interface()->isServiceRegistered(mBackend->serviceName());
 }

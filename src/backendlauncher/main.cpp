@@ -54,21 +54,20 @@ int main(int argc, char **argv)
         return BackendLoader::BackendFailedToLoad;
     }
 
-    // Check if another Backend Launcher with this particual backend is already running
-    const bool alreadyRunning = launcher.checkIsAlreadyRunning();
-    if (alreadyRunning) {
-        // If it is, let caller now it's DBus service name and terminate
-        printf("%s", qPrintable(launcher.backend()->serviceName()));
-        fflush(stdout);
-        return BackendLoader::BackendAlreadyExists;
-    }
-
-
     // Create BackendDBusWrapper that takes implements the DBus interface and translates
     // DBus calls to backend implementations. It will also take care of terminating this
     // launcher when no other KScreen-enabled processes are running
     BackendDBusWrapper backendWrapper(launcher.backend());
     if (!backendWrapper.init()) {
+        // Loading failed, maybe it failed because another process is already running; if so we still want to print the path before we exit
+        // Check if another Backend Launcher with this particular backend is already running
+        const bool alreadyRunning = launcher.checkIsAlreadyRunning();
+        if (alreadyRunning) {
+            // If it is, let caller now it's DBus service name and terminate
+            printf("%s", qPrintable(launcher.backend()->serviceName()));
+            fflush(stdout);
+            return BackendLoader::BackendAlreadyExists;
+        }
         return BackendLoader::BackendFailedToLoad;
     }
 
