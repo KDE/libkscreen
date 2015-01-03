@@ -21,6 +21,8 @@
 #include "configoperation_p.h"
 #include "backendmanager_p.h"
 
+#include <QDebug>
+
 using namespace KScreen;
 
 ConfigOperationPrivate::ConfigOperationPrivate(ConfigOperation* qq)
@@ -44,6 +46,8 @@ void ConfigOperationPrivate::backendReady(org::kde::kscreen::Backend *backend)
 {
     Q_UNUSED(backend);
 
+    qDebug() << "config op backend ready";
+
     disconnect(BackendManager::instance(), &BackendManager::backendReady,
                this, &ConfigOperationPrivate::backendReady);
 }
@@ -51,6 +55,8 @@ void ConfigOperationPrivate::backendReady(org::kde::kscreen::Backend *backend)
 void ConfigOperationPrivate::doEmitResult()
 {
     Q_Q(ConfigOperation);
+
+    qDebug() << "ZZZZZZZZZZZZZZZZZZZZZZZZ";
 
     Q_EMIT q->finished(q);
     q->deleteLater();

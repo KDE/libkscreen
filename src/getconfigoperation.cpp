@@ -25,6 +25,8 @@
 #include "configserializer_p.h"
 #include "backendinterface.h"
 
+#include <QDebug>
+
 using namespace KScreen;
 
 namespace KScreen
@@ -63,12 +65,17 @@ void GetConfigOperationPrivate::backendReady(org::kde::kscreen::Backend* backend
     ConfigOperationPrivate::backendReady(backend);
 
     Q_Q(GetConfigOperation);
+    qDebug() << "get config operation backend ready";
 
     if (!backend) {
         q->setError(tr("Failed to prepare backend"));
         q->emitResult();
         return;
     }
+
+    qDebug() << "get config operation backend ready 2";
+
+
 
     QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(backend->getConfig(), this);
     watcher->setProperty("backend", QVariant::fromValue(backend));
@@ -80,10 +87,13 @@ void GetConfigOperationPrivate::onConfigReceived(QDBusPendingCallWatcher *watche
 {
     Q_Q(GetConfigOperation);
 
+    qDebug() << "config received";
+
     QDBusPendingReply<QVariantMap> reply = *watcher;
     watcher->deleteLater();
     if (reply.isError()) {
         q->setError(reply.error().message());
+        qDebug() << "emit result 1";
         q->emitResult();
         return;
     }
@@ -91,11 +101,13 @@ void GetConfigOperationPrivate::onConfigReceived(QDBusPendingCallWatcher *watche
     config = ConfigSerializer::deserializeConfig(reply.value());
     if (!config) {
         q->setError(tr("Failed to deserialize backend response"));
+        qDebug() << "emit result 2";
         q->emitResult();
         return;
     }
 
     if (options & GetConfigOperation::NoEDID || config->outputs().isEmpty()) {
+        qDebug() << "emit result 3";
         q->emitResult();
         return;
     }
@@ -115,6 +127,8 @@ void GetConfigOperationPrivate::onEDIDReceived(QDBusPendingCallWatcher* watcher)
 {
     Q_Q(GetConfigOperation);
 
+    qDebug() << "edid recieved";
+
     QDBusPendingReply<QByteArray> reply = *watcher;
     watcher->deleteLater();
     if (reply.isError()) {
@@ -131,6 +145,7 @@ void GetConfigOperationPrivate::onEDIDReceived(QDBusPendingCallWatcher* watcher)
     config->setOutputs(outputs);
 
     if (--pendingEDIDs == 0) {
+        qDebug() << "emit result 4";
         q->emitResult();
     }
 }

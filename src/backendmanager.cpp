@@ -235,6 +235,9 @@ void BackendManager::launcherDataAvailable()
                         backendServiceReady();
                     }
                 });
+
+
+        qDebug() << "failed to load requested interface ERROR ERROR THE BUG IS HERE. LOOK HERE YOU CHUMP";
         return;
     }
     backendServiceReady();
