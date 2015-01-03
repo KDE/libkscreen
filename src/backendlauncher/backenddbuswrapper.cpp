@@ -48,15 +48,18 @@ BackendDBusWrapper::~BackendDBusWrapper()
 bool BackendDBusWrapper::init()
 {
     QDBusConnection dbus = QDBusConnection::sessionBus();
-    if (!dbus.registerService(mBackend->serviceName())) {
-        qCWarning(KSCREEN_BACKEND_LAUNCHER) << "Failed to register as DBus service: another launcher already running?";
-        qCWarning(KSCREEN_BACKEND_LAUNCHER) << dbus.lastError().message();
-        return false;
-    }
 
     new BackendAdaptor(this);
     if (!dbus.registerObject(QLatin1String("/"), this, QDBusConnection::ExportAdaptors)) {
         qCWarning(KSCREEN_BACKEND_LAUNCHER) << "Failed to export backend to DBus: another launcher already running?";
+        qCWarning(KSCREEN_BACKEND_LAUNCHER) << dbus.lastError().message();
+        return false;
+    }
+
+    //register the service after the object. Otherwise we might detect the service is registered and try to load an object that doesn't exist yet
+
+    if (!dbus.registerService(mBackend->serviceName())) {
+        qCWarning(KSCREEN_BACKEND_LAUNCHER) << "Failed to register as DBus service: another launcher already running?";
         qCWarning(KSCREEN_BACKEND_LAUNCHER) << dbus.lastError().message();
         return false;
     }
