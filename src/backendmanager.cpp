@@ -229,7 +229,7 @@ void BackendManager::launcherDataAvailable()
         QDBusServiceWatcher *watcher = new QDBusServiceWatcher(mBackendService,
                                                                QDBusConnection::sessionBus());
         connect(watcher, &QDBusServiceWatcher::serviceOwnerChanged,
-                [&](const QString &service, const QString &newOwner, const QString &oldOwner) {
+                [&](const QString &service, const QString &oldOwner, const QString &newOwner) {
                     qDebug() << service << newOwner << oldOwner;
                     if (newOwner == mBackendService) {
                         backendServiceReady();
