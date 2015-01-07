@@ -55,6 +55,7 @@ bool Config::canBeApplied(const ConfigPtr &config)
 {
     ConfigPtr currentConfig = BackendManager::instance()->config();
     if (!currentConfig) {
+        qCDebug(KSCREEN) << "canBeApplied: Current config not available, returning false";
         return false;
     }
 
@@ -73,22 +74,22 @@ bool Config::canBeApplied(const ConfigPtr &config)
         currentOutput = currentConfig->output(output->id());
         //If there is no such output
         if (!currentOutput) {
-            qCDebug(KSCREEN) << "The output:" << output->id() << "does not exists";
+            qCDebug(KSCREEN) << "canBeApplied: The output:" << output->id() << "does not exists";
             return false;
         }
         //If the output is not connected
         if (!currentOutput->isConnected()) {
-            qCDebug(KSCREEN) << "The output:" << output->id() << "is not connected";
+            qCDebug(KSCREEN) << "canBeApplied: The output:" << output->id() << "is not connected";
             return false;
         }
         //if there is no currentMode
         if (output->currentModeId().isEmpty()) {
-            qCDebug(KSCREEN) << "The output:" << output->id() << "has no currentModeId";
+            qCDebug(KSCREEN) << "canBeApplied: The output:" << output->id() << "has no currentModeId";
             return false;
         }
         //If the mode is not found in the current output
         if (!currentOutput->mode(output->currentModeId())) {
-            qCDebug(KSCREEN) << "The output:" << output->id() << "has no mode:" << output->currentModeId();
+            qCDebug(KSCREEN) << "canBeApplied: The output:" << output->id() << "has no mode:" << output->currentModeId();
             return false;
         }
 
@@ -125,16 +126,16 @@ bool Config::canBeApplied(const ConfigPtr &config)
 
     const int maxEnabledOutputsCount = config->screen()->maxActiveOutputsCount();
     if (enabledOutputsCount > maxEnabledOutputsCount) {
-        qCDebug(KSCREEN) << "Too many active screens. Requested: " << enabledOutputsCount << ", Max: " << maxEnabledOutputsCount;
+        qCDebug(KSCREEN) << "canBeApplied: Too many active screens. Requested: " << enabledOutputsCount << ", Max: " << maxEnabledOutputsCount;
         return false;
     }
 
     if (rect.width() > config->screen()->maxSize().width()) {
-        qCDebug(KSCREEN) << "The configuration has too much width:" << rect.width();
+        qCDebug(KSCREEN) << "canBeApplied: The configuration is too wide:" << rect.width();
         return false;
     }
     if (rect.height() > config->screen()->maxSize().height()) {
-        qCDebug(KSCREEN) << "The configuration has too much height:" << rect.height();
+        qCDebug(KSCREEN) << "canBeApplied: The configuration is too high:" << rect.height();
         return false;
     }
 
