@@ -99,7 +99,7 @@ QJsonObject ConfigSerializer::serializeMode(const ModePtr &mode)
     obj[QLatin1String("id")] = mode->id();
     obj[QLatin1String("name")] = mode->name();
     obj[QLatin1String("size")] = serializeSize(mode->size());
-    obj[QLatin1String("refreshRate")] = (double) mode->refreshRate();
+    obj[QLatin1String("refreshRate")] = mode->refreshRate();
 
     return obj;
 }
@@ -275,7 +275,7 @@ ModePtr ConfigSerializer::deserializeMode(const QDBusArgument &arg)
         } else if (key == QLatin1String("size")) {
             mode->setSize(deserializeSize(value.value<QDBusArgument>()));
         } else if (key == QLatin1String("refreshRate")) {
-            mode->setRefreshRate((float) value.toDouble());
+            mode->setRefreshRate(value.toFloat());
         } else {
             qCWarning(KSCREEN) << "Invalid key in Mode map: " << key;
             return ModePtr();
