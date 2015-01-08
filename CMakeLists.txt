@@ -1,6 +1,5 @@
 project(libkscreen)
-set(PROJECT_VERSION "5.1.1")
-set(PROJECT_VERSION_MAJOR 5)
+set(PROJECT_VERSION "5.1.95")
 
 cmake_minimum_required(VERSION 2.8.12)
 
@@ -32,7 +31,7 @@ set_package_properties(X11 PROPERTIES DESCRIPTION "X11 libraries"
                         PURPOSE "Required for building XRandR 1.2 backend"
 )
 
-set(KF5_VERSION "5.0.93") #When we are happy with the api, we can sync with frameworks
+set(KF5_VERSION ${PROJECT_VERSION}) #When we are happy with the api, we can sync with frameworks
 ecm_setup_version(${KF5_VERSION} VARIABLE_PREFIX KSCREEN
                         VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/kscreen_version.h"
                         PACKAGE_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/KF5ScreenConfigVersion.cmake"
