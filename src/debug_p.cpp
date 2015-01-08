@@ -1,5 +1,5 @@
 /*************************************************************************************
- *  Copyright (C) 2012 by Alejandro Fiestas Olivares <afiestas@kde.org>              *
+ *  Copyright (C) 2014 by Alejandro Fiestas Olivares <afiestas@kde.org>              *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -16,19 +16,17 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
-#ifndef BACKEND_LOADER_H
-#define BACKEND_LOADER_H
+#include "debug_p.h"
+#include <QString>
+#include <QCoreApplication>
 
-class AbstractBackend;
+Q_LOGGING_CATEGORY(KSCREEN, "kscreen")
+Q_LOGGING_CATEGORY(KSCREEN_EDID, "kscreen.edid")
 
-class BackendLoader
+static void enableAllDebug()
 {
-    public:
-        static bool init();
-        static AbstractBackend* backend();
+    QLoggingCategory::setFilterRules(QStringLiteral("kscreen.debug = true"));
+    QLoggingCategory::setFilterRules(QStringLiteral("kscreen.edid.debug = true"));
+}
 
-    private:
-        static AbstractBackend* s_backend;
-};
-
-#endif //BACKEND_LOADER_H
+Q_COREAPP_STARTUP_FUNCTION(enableAllDebug)

@@ -1,5 +1,6 @@
 /*************************************************************************************
  *  Copyright (C) 2012 by Alejandro Fiestas Olivares <afiestas@kde.org>              *
+ *  Copyright (C) 2014 by Daniel Vrátil <dvratil@redhat.com>                         *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -18,7 +19,7 @@
 
 #include "screen.h"
 
-namespace KScreen {
+using namespace KScreen;
 
 class Screen::Private
 {
@@ -44,8 +45,8 @@ class Screen::Private
     QSize maxSize;
 };
 
-Screen::Screen(QObject *parent)
- : QObject(parent)
+Screen::Screen()
+ : QObject(0)
  , d(new Private())
 {
 }
@@ -62,9 +63,9 @@ Screen::~Screen()
     delete d;
 }
 
-Screen *Screen::clone() const
+ScreenPtr Screen::clone() const
 {
-    return new Screen(new Private(*d));
+    return ScreenPtr(new Screen(new Private(*d)));
 }
 
 
@@ -124,6 +125,8 @@ void Screen::setMaxActiveOutputsCount(int maxActiveOutputsCount)
     d->maxActiveOutputsCount = maxActiveOutputsCount;
 }
 
-} //KScreen namespace
-
-#include "screen.moc"
+void Screen::apply(const ScreenPtr &other)
+{
+    // Only set values that can change
+    setMaxActiveOutputsCount(other->d->maxActiveOutputsCount);
+}

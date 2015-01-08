@@ -1,5 +1,5 @@
 /*************************************************************************************
- *  Copyright (C) 2012 by Alejandro Fiestas Olivares <afiestas@kde.org>              *
+ *  Copyright 2014 Sebastian Kügler <sebas@kde.org>                                  *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -16,28 +16,47 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
-#ifndef ABSTRACT_BACKEND_H
-#define ABSTRACT_BACKEND_H
+#ifndef QSCREEN_CONFIG_H
+#define QSCREEN_CONFIG_H
 
-#include <QtCore/QString>
-#include <QtCore/QObject>
+#include "config.h"
 
-namespace KScreen {
-    class Config;
-    class Edid;
-}
+#include <QScreen>
 
-class AbstractBackend
+namespace KScreen
 {
-    public:
-        virtual ~AbstractBackend() {}
-        virtual QString name() const = 0;
-        virtual KScreen::Config* config() const = 0;
-        virtual void setConfig(KScreen::Config* config) const = 0;
-        virtual bool isValid() const = 0;
-        virtual KScreen::Edid* edid(int outputId) const = 0;
-        virtual void updateConfig(KScreen::Config* config) const = 0;
+class Output;
+class QScreenOutput;
+class QScreenScreen;
+
+class QScreenConfig : public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit QScreenConfig(QObject *parent = 0);
+    virtual ~QScreenConfig();
+
+    KScreen::ConfigPtr toKScreenConfig() const;
+    void updateKScreenConfig(KScreen::ConfigPtr &config) const;
+
+    QMap<int, QScreenOutput *> outputMap() const;
+    int outputId(const QScreen *qscreen);
+
+private Q_SLOTS:
+    void screenAdded(const QScreen *qscreen);
+    void screenDestroyed(QObject *qscreen = 0);
+
+Q_SIGNALS:
+    void configChanged(const KScreen::ConfigPtr &config);
+
+private:
+    QMap<int, QScreenOutput *> m_outputMap;
+    QScreenScreen *m_screen;
+    int m_lastOutputId = -1;
+    bool m_blockSignals;
 };
 
-Q_DECLARE_INTERFACE(AbstractBackend, "org.kde.libkscreen")
-#endif //ABSTRACT_BACKEND_H
+} // namespace
+
+#endif // QSCREEN_CONFIG_H

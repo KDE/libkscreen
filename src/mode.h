@@ -1,5 +1,6 @@
 /*************************************************************************************
  *  Copyright (C) 2012 by Alejandro Fiestas Olivares <afiestas@kde.org>              *
+ *  Copyright (C) 2014 by Daniel Vrátil <dvratil@redhat.com>                         *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -20,28 +21,28 @@
 #define MODE_CONFIG_H
 
 #include "kscreen_export.h"
+#include "types.h"
 
-#include <QtCore/QSize>
-#include <QtCore/QHash>
-#include <QtCore/QObject>
-#include <QtCore/QMetaType>
-#include <QtCore/QDebug>
+#include <QObject>
+#include <QSize>
+#include <QMetaType>
+#include <QDebug>
 
 namespace KScreen {
 
 class KSCREEN_EXPORT Mode : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString id READ id NOTIFY modeChanged)
+    Q_PROPERTY(QString id READ id WRITE setId NOTIFY modeChanged)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY modeChanged)
     Q_PROPERTY(QSize size READ size WRITE setSize NOTIFY modeChanged)
     Q_PROPERTY(float refreshRate READ refreshRate WRITE setRefreshRate NOTIFY modeChanged)
 
     public:
-        explicit Mode(QObject *parent = 0);
+        explicit Mode();
         virtual ~Mode();
 
-        Mode* clone() const;
+        ModePtr clone() const;
 
         const QString id() const;
         void setId(const QString &id);
@@ -59,17 +60,17 @@ class KSCREEN_EXPORT Mode : public QObject
         void modeChanged();
 
     private:
+        Q_DISABLE_COPY(Mode)
+
         class Private;
         Private * const d;
 
         Mode(Private *dd);
 };
 
-typedef QHash<QString, Mode*> ModeList;
-
 } //KSCreen namespace
 
-KSCREEN_EXPORT QDebug operator<<(QDebug dbg, const KScreen::Mode *mode);
+KSCREEN_EXPORT QDebug operator<<(QDebug dbg, const KScreen::ModePtr &mode);
 
 Q_DECLARE_METATYPE(KScreen::ModeList)
 

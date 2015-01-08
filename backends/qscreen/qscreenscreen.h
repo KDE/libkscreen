@@ -1,5 +1,5 @@
 /*************************************************************************************
- *  Copyright 2012, 2013  Daniel Vrátil <dvratil@redhat.com>                         *
+ *  Copyright 2014 Sebastian Kügler <sebas@kde.org>                                  *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -16,42 +16,33 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
-#ifndef XRANDRX11HELPER_H
-#define XRANDRX11HELPER_H
+#ifndef QSCREEN_SCREEN_H
+#define QSCREEN_SCREEN_H
 
-#include <QWidget>
-#include "xlibandxrandr.h"
+#include "config.h"
+#include "screen.h"
 
-class XRandRX11Helper : public QWidget
+#include <QScreen>
+#include <QtCore/QSize>
+#include <QLoggingCategory>
+
+namespace KScreen
+{
+class Output;
+class QScreenOutput;
+
+class QScreenScreen : public QObject
 {
     Q_OBJECT
 
-    public:
-        XRandRX11Helper();
-        virtual ~XRandRX11Helper();
+public:
+    explicit QScreenScreen(QScreenConfig *config);
+    virtual ~QScreenScreen();
 
-    Q_SIGNALS:
-        /* Emitted when only XRandR 1.1 or older is available */
-        void outputsChanged();
-
-        /* Emitted only when XRandR 1.2 or newer is available */
-        void crtcChanged(RRCrtc crtc);
-        void outputChanged(RROutput output);
-        void outputPropertyChanged(RROutput output);
-
-    private:
-        QString rotationToString(Rotation rotation);
-        QString connectionToString(Connection connection);
-
-    protected:
-        virtual bool x11Event(XEvent *);
-
-        int m_randrBase;
-        int m_randrError;
-        int m_versionMajor;
-        int m_versionMinor;
-
-        Window m_window;
+    KScreen::ScreenPtr toKScreenScreen() const;
+    void updateKScreenScreen(KScreen::ScreenPtr &screen) const;
 };
 
-#endif // XRANDRX11HELPER_H
+} // namespace
+
+#endif // QSCREEN_SCREEN_H

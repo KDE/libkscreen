@@ -23,11 +23,8 @@
 #include "xrandr.h"
 #include "output.h"
 #include "config.h"
-#include "edid.h"
 
 #include <QRect>
-
-#include <KDebug>
 
 Q_DECLARE_METATYPE(QList<int>)
 
@@ -39,7 +36,6 @@ XRandROutput::XRandROutput(int id, bool primary, XRandRConfig *config)
     , m_connected(0)
     , m_enabled(0)
     , m_primary(0)
-    , m_edid(0)
     , m_changedProperties(0)
 {
     XRROutputInfo *outputInfo = XRandR::XRROutput(m_id);
@@ -56,7 +52,6 @@ XRandROutput::XRandROutput(int id, bool primary, XRandRConfig *config)
 
 XRandROutput::~XRandROutput()
 {
-    delete m_edid;
 }
 
 int XRandROutput::id() const
@@ -109,16 +104,16 @@ KScreen::Output::Rotation XRandROutput::rotation() const
     return m_rotation;
 }
 
-KScreen::Edid *XRandROutput::edid() const
+QByteArray XRandROutput::edid() const
 {
-    if (!m_edid) {
+    if (m_edid.isNull()) {
         size_t len;
         quint8 *data = XRandR::outputEdid(m_id, len);
         if (data) {
-            m_edid = new KScreen::Edid(data, len, 0);
+            m_edid = QByteArray((char *) data, len);
             delete[] data;
         } else {
-            m_edid = new KScreen::Edid(0, 0, 0);
+            m_edid = QByteArray();
         }
     }
 
@@ -138,7 +133,7 @@ void XRandROutput::update(PrimaryChange primary)
     updateOutput(outputInfo);
 
     if (primary != NoChange) {
-        bool setPrimary = (primary == SetPrimary);
+        const bool setPrimary = (primary == SetPrimary);
         if (m_primary != setPrimary) {
             m_primary = setPrimary;
             m_changedProperties |= PropertyPrimary;
@@ -154,7 +149,7 @@ void XRandROutput::update(PrimaryChange primary)
 
 void XRandROutput::updateOutput(const XRROutputInfo *outputInfo)
 {
-    bool isConnected = (outputInfo->connection == RR_Connected);
+    const bool isConnected = (outputInfo->connection == RR_Connected);
 
     if (m_name != outputInfo->name) {
         m_name = outputInfo->name;
@@ -204,10 +199,11 @@ void XRandROutput::updateOutput(const XRROutputInfo *outputInfo)
         m_connected = isConnected;
         if (!m_connected) {
             m_preferredModes.clear();
+            m_enabled = false;
             qDeleteAll(m_modes);
             m_modes.clear();
-            delete m_edid;
-            m_changedProperties |= PropertyConnected | PropertyModes | PropertyEdid | PropertyPreferredMode;
+            m_edid.clear();
+            m_changedProperties |= PropertyConnected | PropertyEnabled | PropertyModes | PropertyEdid | PropertyPreferredMode;
         } else {
             updateModes(outputInfo);
             m_changedProperties |= PropertyConnected | PropertyModes | PropertyPreferredMode;
@@ -247,7 +243,7 @@ void XRandROutput::updateModes(const XRROutputInfo *outputInfo)
 
 void XRandROutput::fetchType()
 {
-    QByteArray type = typeFromProperty();
+    const QByteArray type = typeFromProperty();
     if (type.isEmpty()) {
         m_type = typeFromName();
         return;
@@ -284,7 +280,7 @@ void XRandROutput::fetchType()
     } else if (type.contains("unknown")) {
         m_type = KScreen::Output::Unknown;
     } else {
-//         kDebug() << "Output Type not translated:" << type;
+//         qCDebug(KSCREEN_XRANDR) << "Output Type not translated:" << type;
     }
 
 }
@@ -310,7 +306,7 @@ QByteArray XRandROutput::typeFromProperty() const
 {
     QByteArray type;
 
-    Atom atomType = XInternAtom (XRandR::display(), RR_PROPERTY_CONNECTOR_TYPE, True);
+    const Atom atomType = XInternAtom (XRandR::display(), RR_PROPERTY_CONNECTOR_TYPE, True);
     if (atomType == None) {
         return type;
     }
@@ -321,7 +317,7 @@ QByteArray XRandROutput::typeFromProperty() const
     Atom actualType;
     char *connectorType;
 
-    if (XRRGetOutputProperty (XRandR::display(), m_id, atomType, 0, 100, False,
+    if (XRRGetOutputProperty(XRandR::display(), m_id, atomType, 0, 100, False,
             False, AnyPropertyType, &actualType, &actualFormat, &nitems,
             &bytes_after, &prop) != Success) {
 
@@ -344,9 +340,9 @@ QByteArray XRandROutput::typeFromProperty() const
     return type;
 }
 
-KScreen::Output *XRandROutput::toKScreenOutput(KScreen::Config *parent) const
+KScreen::OutputPtr XRandROutput::toKScreenOutput() const
 {
-    KScreen::Output *kscreenOutput = new KScreen::Output(parent);
+    KScreen::OutputPtr kscreenOutput(new KScreen::Output);
 
     m_changedProperties = 0;
     kscreenOutput->setId(m_id);
@@ -357,7 +353,7 @@ KScreen::Output *XRandROutput::toKScreenOutput(KScreen::Config *parent) const
     return kscreenOutput;
 }
 
-void XRandROutput::updateKScreenOutput(KScreen::Output *output) const
+void XRandROutput::updateKScreenOutput(KScreen::OutputPtr &output) const
 {
     if (!m_changedProperties || (m_changedProperties & PropertyName)) {
         output->setName(m_name);
@@ -404,15 +400,11 @@ void XRandROutput::updateKScreenOutput(KScreen::Output *output) const
     }
 
     if (!m_changedProperties || (m_changedProperties & PropertyModes)) {
-        XRandRMode::Map::ConstIterator iter;
         KScreen::ModeList kscreenModes;
-        for (iter = m_modes.constBegin(); iter != m_modes.constEnd(); ++iter) {
+        for (auto iter = m_modes.constBegin(); iter != m_modes.constEnd(); ++iter) {
             XRandRMode *mode = iter.value();
-            KScreen::Mode *kscreenMode = mode->toKScreenMode(output);
-            kscreenModes.insert(QString::number(iter.key()), kscreenMode);
+            kscreenModes.insert(QString::number(iter.key()), mode->toKScreenMode());
         }
         output->setModes(kscreenModes);
     }
 }
-
-#include "xrandroutput.moc"

@@ -1,42 +1,41 @@
 project(libkscreen)
+set(PROJECT_VERSION "5.1.95")
 
-set(libkscreen_VERSION_MAJOR 1)
-set(libkscreen_VERSION_MINOR 0)
-set(libkscreen_VERSION_RELEASE 6)
-set(libkscreen_VERSION "${libkscreen_VERSION_MAJOR}.${libkscreen_VERSION_MINOR}.${libkscreen_VERSION_RELEASE}")
-add_definitions("-DLIBKSCREEN_VERSION=\\\"${libkscreen_VERSION}\\\"")
+cmake_minimum_required(VERSION 2.8.12)
 
-cmake_minimum_required(VERSION 2.8.0)
-
-if(POLICY CMP0017)
-  cmake_policy(SET CMP0017 NEW)
-endif()
-
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules ${CMAKE_MODULE_PATH})
-enable_testing()
-find_package(Qt4 REQUIRED)
-find_package(KDE4 REQUIRED)
-find_package(QJSON 0.8 REQUIRED)
-include(KDE4Defaults)
-add_definitions(${KDE4_DEFINITIONS})
+find_package(ECM 0.0.11 REQUIRED NO_MODULE)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR})
+include(KDEInstallDirs)
+include(KDECompilerSettings)
+include(KDECMakeSettings)
+include(ECMSetupVersion)
+include(ECMPackageConfigHelpers)
+include(ECMMarkAsTest)
+include(ECMGenerateHeaders)
+include(FeatureSummary)
 include(CheckCXXCompilerFlag)
 
-macro_optional_find_package(XCB)
-set_package_properties(XCB PROPERTIES DESCRIPTION "The X protocol C-language Binding (XCB) is a replacement for Xlib"
-    URL "http://xcb.freedesktop.org/"
-    TYPE OPTIONAL
-    PURPOSE "Needed to build XRandR 1.1 backend"
+set(REQUIRED_QT_VERSION 5.2.0)
+find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Core DBus Gui Test X11Extras)
+
+find_package(XCB COMPONENTS XCB RANDR)
+set_package_properties(XCB PROPERTIES
+                       TYPE OPTIONAL
+                       PURPOSE "Required for building XRandR 1.1 backend"
 )
 
-macro_optional_find_package(X11_XCB)
-set_package_properties(X11_XCB PROPERTIES DESCRIPTION "XCB extension to work with X11"
-    URL "http://xcb.freedesktop.org/"
-    TYPE OPTIONAL
-    PURPOSE "Needed to build XRandR 1.1 backend"
+find_package(X11)
+set_package_properties(X11 PROPERTIES DESCRIPTION "X11 libraries"
+                        URL "http://www.x.org"
+                        TYPE OPTIONAL
+                        PURPOSE "Required for building XRandR 1.2 backend"
 )
 
-# Required to build on Gentoo
-link_directories(${QJSON_LIBRARY_DIRS})
+set(KF5_VERSION ${PROJECT_VERSION}) #When we are happy with the api, we can sync with frameworks
+ecm_setup_version(${KF5_VERSION} VARIABLE_PREFIX KSCREEN
+                        VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/kscreen_version.h"
+                        PACKAGE_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/KF5ScreenConfigVersion.cmake"
+                        SOVERSION 6)
 
 check_cxx_compiler_flag(-fvisibility=hidden _HAVE_VISIBILITY)
 if (_HAVE_VISIBILITY AND NOT WIN32)
@@ -48,41 +47,41 @@ if (_HAVE_VISIBILITY AND NOT WIN32)
   endif (_HAVE_VISIBILITY_INLINES)
 endif (_HAVE_VISIBILITY AND NOT WIN32)
 
-#
-### lib64/32 support kde like
-#
-set(LIB_SUFFIX "" CACHE STRING "Define suffix for lib directory (32/64)")
-
-set(BIN_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/bin)
-set(LIB_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX})
-
-set(INSTALL_TARGETS_DEFAULT_ARGS  RUNTIME DESTINATION "${BIN_INSTALL_DIR}"
-                                  LIBRARY DESTINATION "${LIB_INSTALL_DIR}"
-                                  ARCHIVE DESTINATION "${LIB_INSTALL_DIR}" COMPONENT Devel )
-
-include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${QT_INCLUDES} ${KDE4_INCLUDES})
+# include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
 add_subdirectory(src)
 add_subdirectory(backends)
+add_subdirectory(autotests)
 add_subdirectory(tests)
 
-configure_file(${libkscreen_SOURCE_DIR}/LibKScreenConfig.cmake.in
-               ${libkscreen_BINARY_DIR}/LibKScreenConfig.cmake
-               @ONLY
+set(CMAKECONFIG_INSTALL_DIR "${CMAKECONFIG_INSTALL_PREFIX}/KF5Screen")
+ecm_configure_package_config_file("${CMAKE_CURRENT_SOURCE_DIR}/KF5ScreenConfig.cmake.in"
+                              "${CMAKE_CURRENT_BINARY_DIR}/KF5ScreenConfig.cmake"
+                              INSTALL_DESTINATION ${CMAKECONFIG_INSTALL_DIR}
 )
-# this file is used by to check if the installed version can be used.
-macro_write_basic_cmake_version_file(${libkscreen_BINARY_DIR}/LibKScreenConfigVersion.cmake
-                                     ${libkscreen_VERSION_MAJOR} ${libkscreen_VERSION_MINOR} ${libkscreen_VERSION_RELEASE})
 
-install(FILES ${libkscreen_BINARY_DIR}/LibKScreenConfig.cmake ${libkscreen_BINARY_DIR}/LibKScreenConfigVersion.cmake
-        DESTINATION ${LIB_INSTALL_DIR}/cmake/LibKScreen)
+install(FILES
+  "${CMAKE_CURRENT_BINARY_DIR}/KF5ScreenConfig.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/KF5ScreenConfigVersion.cmake"
+  DESTINATION "${CMAKECONFIG_INSTALL_DIR}"
+  COMPONENT Devel
+)
 
-# Install the file with the exported targets
-install(EXPORT kscreenLibraryTargets
-        DESTINATION ${LIB_INSTALL_DIR}/cmake/LibKScreen
-        FILE LibKScreenTargetsWithPrefix.cmake)
+install(EXPORT
+  KF5ScreenTargets
+  DESTINATION "${CMAKECONFIG_INSTALL_DIR}"
+  FILE KF5ScreenTargets.cmake
+  NAMESPACE KF5::
+  COMPONENT Devel
+)
 
+install(FILES
+  "${CMAKE_CURRENT_BINARY_DIR}/kscreen_version.h"
+  DESTINATION "${KF5_INCLUDE_INSTALL_DIR}"
+  COMPONENT Devel
+)
 
+feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
 
 ############################################ apidox ############################################
 

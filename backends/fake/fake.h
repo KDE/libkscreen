@@ -19,24 +19,39 @@
 #ifndef FAKE_BACKEND_H
 #define FAKE_BACKEND_H
 
-#include "../abstractbackend.h"
-#include <QtCore/QObject>
+#include "abstractbackend.h"
 
-class Fake : public QObject, public AbstractBackend
+#include <QtCore/QObject>
+#include <QLoggingCategory>
+
+class Fake : public KScreen::AbstractBackend
 {
     Q_OBJECT
-    Q_INTERFACES(AbstractBackend)
+    Q_PLUGIN_METADATA(IID "org.kf5.kscreen.backends.fake")
 
-    public:
-        explicit Fake(QObject* parent = 0);
-        virtual ~Fake();
+public:
+    explicit Fake();
+    virtual ~Fake();
 
-        virtual QString name() const;
-        virtual KScreen::Config* config() const;
-        virtual void setConfig(KScreen::Config* config) const;
-        virtual bool isValid() const;
-        virtual KScreen::Edid *edid(int outputId) const;
-        virtual void updateConfig(KScreen::Config *config) const;
+    QString name() const;
+    QString serviceName() const;
+    KScreen::ConfigPtr config() const;
+    void setConfig(const KScreen::ConfigPtr &config);
+    QByteArray edid(int outputId) const;
+    bool isValid() const;
+
+    void setConnected(int outputId, bool connected);
+    void setEnabled(int outputId, bool enabled);
+    void setPrimary(int outputId, bool primary);
+    void setCurrentModeId(int outputId, const QString &modeId);
+    void setRotation(int outputId, int rotation);
+
+private Q_SLOTS:
+    void delayedInit();
+
+
+private:
+    mutable KScreen::ConfigPtr mConfig;
 };
-
+Q_DECLARE_LOGGING_CATEGORY(KSCREEN_FAKE)
 #endif //FAKE_BACKEND_H

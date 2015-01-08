@@ -19,26 +19,21 @@
 
 #include "xrandr.h"
 #include "xrandrconfig.h"
-#include "xrandrx11helper.h"
+#include "xrandrxcbhelper.h"
 
 #include "config.h"
 #include "output.h"
 #include "edid.h"
-#include "configmonitor.h"
 
 #include <QtCore/QFile>
 #include <QtCore/qplugin.h>
 #include <QtCore/QRect>
 #include <QAbstractEventDispatcher>
 
-#include <QtGui/QX11Info>
-#include <QApplication>
+#include <QX11Info>
+#include <QGuiApplication>
 
 #include <xcb/randr.h>
-
-#include <kdebug.h>
-
-Q_EXPORT_PLUGIN2(XRandR, XRandR)
 
 Display* XRandR::s_display = 0;
 int XRandR::s_screen = 0;
@@ -52,11 +47,15 @@ bool XRandR::s_xorgCacheInitialized = false;
 
 using namespace KScreen;
 
-XRandR::XRandR(QObject* parent)
-    : QObject(parent)
+Q_LOGGING_CATEGORY(KSCREEN_XRANDR, "kscreen.xrandr");
+
+XRandR::XRandR()
+    : KScreen::AbstractBackend()
     , m_x11Helper(0)
     , m_isValid(false)
 {
+    QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.xrandr.debug = true"));
+
     // Use our own connection to make sure that we won't mess up Qt's connection
     // if something goes wrong on our side.
     xcb_generic_error_t *error = 0;
@@ -73,7 +72,7 @@ XRandR::XRandR(QObject* parent)
     if ((version->major_version > 1) || ((version->major_version == 1) && (version->minor_version >= 2))) {
         m_isValid = true;
     } else {
-        kDebug() << "XRandR extension not available or unsupported version";
+        qCWarning(KSCREEN_XRANDR) << "XRandR extension not available or unsupported version";
         return;
     }
 
@@ -92,7 +91,7 @@ XRandR::XRandR(QObject* parent)
     }
 
     if (!s_monitorInitialized) {
-        m_x11Helper = new XRandRX11Helper();
+        m_x11Helper = new XRandRXCBHelper();
         /* In case of XRandR 1.0 or 1.1 */
         connect(m_x11Helper, SIGNAL(outputsChanged()), SLOT(updateConfig()));
 
@@ -115,15 +114,21 @@ QString XRandR::name() const
     return QString("XRandR");
 }
 
+QString XRandR::serviceName() const
+{
+    return QLatin1Literal("org.kde.KScreen.Backend.XRandR");
+}
+
+
 void XRandR::updateConfig()
 {
     s_internalConfig->update();
-    KScreen::ConfigMonitor::instance()->notifyUpdate();
+    Q_EMIT configChanged(config());
 }
 
 void XRandR::outputRemovedSlot()
 {
-    KScreen::ConfigMonitor::instance()->notifyUpdate();
+    Q_EMIT configChanged(config());
 }
 
 void XRandR::updateOutput(RROutput output)
@@ -139,7 +144,7 @@ void XRandR::updateOutput(RROutput output)
         }
     }
 
-    KScreen::ConfigMonitor::instance()->notifyUpdate();
+    Q_EMIT configChanged(config());
 }
 
 void XRandR::updateCrtc(RRCrtc crtc)
@@ -151,44 +156,40 @@ void XRandR::updateCrtc(RRCrtc crtc)
     }
     XRRFreeCrtcInfo(crtcInfo);
 
-    KScreen::ConfigMonitor::instance()->notifyUpdate();
+    Q_EMIT configChanged(config());
 }
 
-Config* XRandR::config() const
+ConfigPtr XRandR::config() const
 {
     return s_internalConfig->toKScreenConfig();
 }
 
-void XRandR::setConfig(Config* config) const
+void XRandR::setConfig(const ConfigPtr &config)
 {
     if (!config) {
         return;
     }
 
+    qCDebug(KSCREEN_XRANDR) << "XRandR::setConfig";
     s_internalConfig->applyKScreenConfig(config);
+    qCDebug(KSCREEN_XRANDR) << "XRandR::setConfig done!";
 }
 
-Edid *XRandR::edid(int outputId) const
+QByteArray XRandR::edid(int outputId) const
 {
-    XRandROutput::Map outputs = s_internalConfig->outputs();
-    XRandROutput *output = outputs.value(outputId);
+    const XRandROutput::Map outputs = s_internalConfig->outputs();
+    const XRandROutput *output = outputs.value(outputId);
     if (!output) {
         return 0;
     }
 
-    return output->edid();
+    const QByteArray rawEdid = output->edid();
+    return rawEdid;
 }
 
 bool XRandR::isValid() const
 {
     return m_isValid;
-}
-
-void XRandR::updateConfig(Config *config) const
-{
-    Q_ASSERT(config != 0);
-
-    s_internalConfig->updateKScreenConfig(config);
 }
 
 quint8* XRandR::getXProperty(Display *dpy, RROutput output, Atom atom, size_t &len)
@@ -219,7 +220,7 @@ quint8* XRandR::getXProperty(Display *dpy, RROutput output, Atom atom, size_t &l
 
 quint8 *XRandR::outputEdid(int outputId, size_t &len)
 {
-   Atom edid_atom;
+    Atom edid_atom;
     quint8 *result;
 
     edid_atom = XInternAtom(QX11Info::display(), RR_PROPERTY_RANDR_EDID, false);
@@ -250,7 +251,7 @@ RRCrtc XRandR::outputCrtc(int outputId)
 {
     RRCrtc crtcId;
     XRROutputInfo* outputInfo = XRROutput(outputId);
-    kDebug(dXndr()) << "Output" << outputId << "has CRTC" << outputInfo->crtc;
+    qCDebug(KSCREEN_XRANDR) << "Output" << outputId << "has CRTC" << outputInfo->crtc;
 
     crtcId = outputInfo->crtc;
     XRRFreeOutputInfo(outputInfo);
@@ -265,17 +266,17 @@ RRCrtc XRandR::freeCrtc(int outputId)
     XRRCrtcInfo *crtc;
     for (int i = 0; i < outputInfo->ncrtc; ++i)
     {
-        RRCrtc crtcId = outputInfo->crtcs[i];
+       const RRCrtc crtcId = outputInfo->crtcs[i];
        crtc = XRRCrtc(crtcId);
        if (!crtc->noutput) {
-           kDebug(dXndr()) << "Found free CRTC" << crtcId;
+           qCDebug(KSCREEN_XRANDR) << "Found free CRTC" << crtcId;
            XRRFreeCrtcInfo(crtc);
            return crtcId;
        }
        XRRFreeCrtcInfo(crtc);
     }
 
-    kDebug(dXndr()) << "No free CRTC found!";
+    qCDebug(KSCREEN_XRANDR) << "No free CRTC found!";
     return 0;
 }
 
@@ -334,7 +335,3 @@ int XRandR::screen()
 {
     return s_screen;
 }
-
-extern int dXndr() { static int s_area = KDebug::registerArea("KSRandr", false); return s_area; }
-
-#include "xrandr.moc"

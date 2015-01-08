@@ -1,5 +1,6 @@
 /*************************************************************************************
  *  Copyright (C) 2012 by Alejandro Fiestas Olivares <afiestas@kde.org>              *
+ *  Copyright (C) 2014 by Daniel Vrátil <dvratil@redhat.com>                         *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -19,12 +20,15 @@
 #include "output.h"
 #include "mode.h"
 #include "edid.h"
-#include "backendloader.h"
-#include <backends/abstractbackend.h>
+#include "abstractbackend.h"
+#include "backendmanager_p.h"
+#include "debug_p.h"
 
-#include <QtCore/QStringList>
+#include <QStringList>
+#include <QPointer>
+#include <QRect>
 
-namespace KScreen {
+using namespace KScreen;
 
 class Output::Private
 {
@@ -56,7 +60,7 @@ class Output::Private
         enabled(other.enabled),
         primary(other.primary)
     {
-        Q_FOREACH (Mode *otherMode, other.modeList) {
+        Q_FOREACH (const ModePtr &otherMode, other.modeList) {
             modeList.insert(otherMode->id(), otherMode->clone());
         }
         if (other.edid) {
@@ -89,8 +93,8 @@ class Output::Private
 QString Output::Private::biggestMode(const ModeList& modes) const
 {
     int area, total = 0;
-    KScreen::Mode* biggest = 0;
-    Q_FOREACH(KScreen::Mode* mode, modes) {
+    KScreen::ModePtr biggest;
+    Q_FOREACH(const KScreen::ModePtr &mode, modes) {
         area = mode->size().width() * mode->size().height();
         if (area < total) {
             continue;
@@ -114,8 +118,8 @@ QString Output::Private::biggestMode(const ModeList& modes) const
     return biggest->id();
 }
 
-Output::Output(QObject *parent)
- : QObject(parent)
+Output::Output()
+ : QObject(0)
  , d(new Private())
 {
 
@@ -132,18 +136,9 @@ Output::~Output()
     delete d;
 }
 
-Output *Output::clone() const
+OutputPtr Output::clone() const
 {
-    Output *output = new Output(new Private(*d));
-    // Make sure the new output takes ownership of the cloned modes
-    Q_FOREACH (Mode *mode, output->d->modeList) {
-        mode->setParent(output);
-    }
-    if (output->d->edid) {
-        output->d->edid->setParent(output);
-    }
-
-    return output;
+    return OutputPtr(new Output(new Private(*d)));
 }
 
 int Output::id() const
@@ -210,25 +205,22 @@ void Output::setIcon(const QString& icon)
     Q_EMIT outputChanged();
 }
 
-Mode* Output::mode(const QString& id) const
+ModePtr Output::mode(const QString& id) const
 {
     if (!d->modeList.contains(id)) {
-        return 0;
+        return ModePtr();
     }
 
     return d->modeList[id];
 }
 
-QHash< QString, Mode* > Output::modes() const
+ModeList Output::modes() const
 {
     return d->modeList;
 }
 
-void Output::setModes(ModeList modes)
+void Output::setModes(const ModeList &modes)
 {
-    if (!d->modeList.isEmpty()) {
-        qDeleteAll(d->modeList);
-    }
     d->modeList = modes;
 }
 
@@ -248,7 +240,7 @@ void Output::setCurrentModeId(const QString& mode)
     Q_EMIT currentModeIdChanged();
 }
 
-Mode *Output::currentMode() const
+ModePtr Output::currentMode() const
 {
     return d->modeList.value(d->currentMode);
 }
@@ -274,8 +266,8 @@ QString Output::preferredModeId() const
     }
 
     int area, total = 0;
-    KScreen::Mode* biggest = 0;
-    KScreen::Mode* candidateMode = 0;
+    KScreen::ModePtr biggest;
+    KScreen::ModePtr candidateMode;
     Q_FOREACH(const QString &modeId, d->preferredModes) {
         candidateMode = mode(modeId);
         area = candidateMode->size().width() * candidateMode->size().height();
@@ -300,7 +292,7 @@ QString Output::preferredModeId() const
     return d->preferredMode;
 }
 
-Mode* Output::preferredMode() const
+ModePtr Output::preferredMode() const
 {
     return d->modeList.value(preferredModeId());
 }
@@ -401,13 +393,15 @@ void Output::setClones(QList<int> outputlist)
     Q_EMIT clonesChanged();
 }
 
+void Output::setEdid(const QByteArray& rawData)
+{
+    Q_ASSERT(d->edid == 0);
+
+    d->edid = new Edid(rawData);
+}
+
 Edid *Output::edid() const
 {
-    if (d->edid == 0) {
-        AbstractBackend *backend = BackendLoader::backend();
-        d->edid = backend->edid(d->id);
-    }
-
     return d->edid;
 }
 
@@ -421,9 +415,90 @@ void Output::setSizeMm(const QSize &size)
     d->sizeMm = size;
 }
 
-} //KScreen namespace
+QRect Output::geometry() const
+{
+    if (!currentMode()) {
+        return QRect();
+    }
 
-QDebug operator<<(QDebug dbg, const KScreen::Output *output)
+    return QRect(pos(), currentMode()->size());
+}
+
+void Output::apply(const OutputPtr& other)
+{
+    typedef void (KScreen::Output::*ChangeSignal)();
+    QList<ChangeSignal> changes;
+
+    // We block all signals, and emit them only after we have set up everything
+    // This is necessary in order to prevent clients from accessig inconsistent
+    // outputs from intermediate change signals
+    const bool keepBlocked = signalsBlocked();
+    blockSignals(true);
+    if (d->name != other->d->name) {
+        changes << &Output::outputChanged;
+        setName(other->d->name);
+    }
+    if (d->type != other->d->type) {
+        changes << &Output::outputChanged;
+        setType(other->d->type);
+    }
+    if (d->icon != other->d->icon) {
+        changes << &Output::outputChanged;
+        setIcon(other->d->icon);
+    }
+    if (d->pos != other->d->pos) {
+        changes << &Output::posChanged;
+        setPos(other->pos());
+    }
+    if (d->rotation != other->d->rotation) {
+        changes << &Output::rotationChanged;
+        setRotation(other->d->rotation);
+    }
+    if (d->currentMode != other->d->currentMode) {
+        changes << &Output::currentModeIdChanged;
+        setCurrentModeId(other->d->currentMode);
+    }
+    if (d->connected != other->d->connected) {
+        changes << &Output::isConnectedChanged;
+        setConnected(other->d->connected);
+    }
+    if (d->enabled != other->d->enabled) {
+        changes << &Output::isEnabledChanged;
+        setEnabled(other->d->enabled);
+    }
+    if (d->primary != other->d->primary) {
+        changes << &Output::isPrimaryChanged;
+        setPrimary(other->d->primary);
+    }
+    if (d->clones != other->d->clones) {
+        changes << &Output::clonesChanged;
+        setClones(other->d->clones);;
+    }
+
+    // Non-notifyable changes
+    setPreferredModes(other->d->preferredModes);
+    ModeList modes;
+    Q_FOREACH (const ModePtr &otherMode, other->modes()) {
+        modes.insert(otherMode->id(), otherMode->clone());
+    }
+    setModes(modes);
+
+    if (other->d->edid) {
+        delete d->edid;
+        d->edid = other->d->edid->clone();
+    }
+
+    blockSignals(keepBlocked);
+
+    while (!changes.isEmpty()) {
+        const ChangeSignal &sig = changes.first();
+        Q_EMIT (this->*sig)();
+        changes.removeAll(sig);
+    }
+}
+
+
+QDebug operator<<(QDebug dbg, const KScreen::OutputPtr &output)
 {
     if(output) {
         dbg << "KScreen::Output(Id:" << output->id() <<", Name:" << output->name() << ")";
@@ -432,5 +507,3 @@ QDebug operator<<(QDebug dbg, const KScreen::Output *output)
     }
     return dbg;
 }
-
-#include "output.moc"

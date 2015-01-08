@@ -1,5 +1,7 @@
 /*************************************************************************************
  *  Copyright (C) 2012 by Alejandro Fiestas Olivares <afiestas@kde.org>              *
+ *  Copyright (C) 2012, 2013 by Daniel Vrátil <dvratil@redhat.com>                   *
+ *  Copyright 2014 Sebastian Kügler <sebas@kde.org>                                  *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -16,57 +18,61 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
-#define QT_GUI_LIB
-
-#include <QtTest/QtTest>
-#include <QtCore/QObject>
-
-#include "../src/config.h"
-#include "../src/output.h"
-#include "../src/mode.h"
+#include "qscreenbackend.h"
+#include "qscreenconfig.h"
+#include "qscreenoutput.h"
 
 using namespace KScreen;
 
-class testXRandR : public QObject
+Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.qscreen");
+
+QScreenConfig *QScreenBackend::s_internalConfig = 0;
+
+QScreenBackend::QScreenBackend()
+    : KScreen::AbstractBackend()
+    , m_isValid(true)
 {
-    Q_OBJECT
+    QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.qscreen.debug = true"));
 
-private Q_SLOTS:
-    void initTestCase();
-    void singleOutput();
+    if (s_internalConfig == 0) {
+        s_internalConfig = new QScreenConfig();
+        connect(s_internalConfig, &QScreenConfig::configChanged,
+                this, &QScreenBackend::configChanged);
+    }
+}
 
-private:
-    QProcess m_process;
-};
-
-void testXRandR::initTestCase()
+QScreenBackend::~QScreenBackend()
 {
 }
 
-void testXRandR::singleOutput()
+QString QScreenBackend::name() const
 {
-    setenv("KSCREEN_BACKEND", "XRandR", 1);
-    Config *config = Config::current();
+    return QString("QScreen");
+}
+
+QString QScreenBackend::serviceName() const
+{
+    return QLatin1Literal("org.kde.KScreen.Backend.QScreen");
+}
+
+
+ConfigPtr QScreenBackend::config() const
+{
+    return s_internalConfig->toKScreenConfig();
+}
+
+void QScreenBackend::setConfig(const ConfigPtr &config)
+{
     if (!config) {
-        QSKIP("XRandR X extension is not available", SkipAll);
+        return;
     }
 
-    QCOMPARE(config->outputs().count(), 1);
-
-    Output *output = config->outputs().take(327);
-
-    QCOMPARE(output->name(), QString("default"));
-    QCOMPARE(output->type(), Output::Unknown);
-    QCOMPARE(output->modes().count(), 15);
-    QCOMPARE(output->pos(), QPoint(0, 0));
-    QCOMPARE(output->currentModeId(), QLatin1String("338"));
-    QCOMPARE(output->rotation(), Output::None);
-    QCOMPARE(output->isConnected(), true);
-    QCOMPARE(output->isEnabled(), true);
-    QCOMPARE(output->isPrimary(), false);
-    QVERIFY2(output->clones().isEmpty(), "In singleOutput is impossible to have clones");
+    qWarning() << "The QScreen backend for libkscreen is read-only,";
+    qWarning() << "setting a configuration is not supported.";
+    qWarning() << "You can force another backend using the KSCREEN_BACKEND env var.";
 }
 
-QTEST_MAIN(testXRandR)
-
-#include "testxrandr.moc"
+bool QScreenBackend::isValid() const
+{
+    return m_isValid;
+}

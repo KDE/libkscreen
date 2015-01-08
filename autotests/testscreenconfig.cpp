@@ -23,12 +23,17 @@
 #include "../src/config.h"
 #include "../src/output.h"
 #include "../src/mode.h"
+#include "../src/getconfigoperation.h"
+#include "../src/backendmanager_p.h"
 
 using namespace KScreen;
 
 class testScreenConfig : public QObject
 {
     Q_OBJECT
+
+private:
+    KScreen::ConfigPtr getConfig();
 
 private Q_SLOTS:
     void initTestCase();
@@ -37,11 +42,31 @@ private Q_SLOTS:
     void multiOutput();
     void clonesOutput();
     void configCanBeApplied();
+    void cleanupTestCase();
 };
+
+ConfigPtr testScreenConfig::getConfig()
+{
+    GetConfigOperation *op = new GetConfigOperation();
+    if (!op->exec()) {
+        qWarning("GetConfigOperation error: %s", qPrintable(op->errorString()));
+        return ConfigPtr();
+    }
+
+    BackendManager::instance()->shutdownBackend();
+
+    return op->config();
+}
+
 
 void testScreenConfig::initTestCase()
 {
     setenv("KSCREEN_BACKEND", "Fake", 1);
+}
+
+void testScreenConfig::cleanupTestCase()
+{
+    BackendManager::instance()->shutdownBackend();
 }
 
 void testScreenConfig::singleOutput()
@@ -55,9 +80,12 @@ void testScreenConfig::singleOutput()
 
 //     QVERIFY2(!kscreen->backend().isEmpty(), "No backend loaded");
 
-    Config *config = Config::current();
 
-    Screen* screen = config->screen();
+
+    const ConfigPtr config = getConfig();
+    QVERIFY(!config.isNull());
+    const ScreenPtr screen = config->screen();
+    QVERIFY(!screen.isNull());
 
     QCOMPARE(screen->minSize(), QSize(320, 200));
     QCOMPARE(screen->maxSize(), QSize(8192, 8192));
@@ -65,12 +93,14 @@ void testScreenConfig::singleOutput()
 
     QCOMPARE(config->outputs().count(), 1);
 
-    Output *output = config->outputs().take(1);
+    const OutputPtr output = config->outputs().take(1);
+    QVERIFY(!output.isNull());
 
     QCOMPARE(output->name(), QString("LVDS1"));
     QCOMPARE(output->type(), Output::Panel);
     QCOMPARE(output->modes().count(), 3);
     QCOMPARE(output->pos(), QPoint(0, 0));
+    QCOMPARE(output->geometry(), QRect(0,0, 1280, 800));
     QCOMPARE(output->currentModeId(), QLatin1String("3"));
     QCOMPARE(output->preferredModeId(), QLatin1String("3"));
     QCOMPARE(output->rotation(), Output::None);
@@ -80,7 +110,7 @@ void testScreenConfig::singleOutput()
     //QCOMPARE(output->isEmbedded(), true);
     QVERIFY2(output->clones().isEmpty(), "In singleOutput is impossible to have clones");
 
-    Mode* mode = output->currentMode();
+    const ModePtr mode = output->currentMode();
     QCOMPARE(mode->size(), QSize(1280, 800));
     QCOMPARE(mode->refreshRate(), (float)59.9);
 }
@@ -91,8 +121,10 @@ void testScreenConfig::singleOutputWithoutPreferred()
     path.append("/singleOutputWithoutPreferred.json");
     setenv("TEST_DATA", path, 1);
 
-    Config* config = Config::current();
-    Output* output = config->outputs().take(1);
+    const ConfigPtr config = getConfig();
+    QVERIFY(!config.isNull());
+    const OutputPtr output = config->outputs().take(1);
+    QVERIFY(!output.isNull());
 
     QVERIFY(output->preferredModes().isEmpty());
     QCOMPARE(output->preferredModeId(), QLatin1String("3"));
@@ -104,9 +136,10 @@ void testScreenConfig::multiOutput()
     path.append("/multipleoutput.json");
     setenv("TEST_DATA", path, 1);
 
-    Config *config = Config::current();
-
-    Screen* screen = config->screen();
+    const ConfigPtr config = getConfig();
+    QVERIFY(!config.isNull());
+    const ScreenPtr screen = config->screen();
+    QVERIFY(!screen.isNull());
 
     QCOMPARE(screen->minSize(), QSize(320, 200));
     QCOMPARE(screen->maxSize(), QSize(8192, 8192));
@@ -114,12 +147,14 @@ void testScreenConfig::multiOutput()
 
     QCOMPARE(config->outputs().count(), 2);
 
-    Output *output = config->outputs().take(2);
+    const OutputPtr output = config->outputs().take(2);
+    QVERIFY(!output.isNull());
 
     QCOMPARE(output->name(), QString("HDMI1"));
     QCOMPARE(output->type(), Output::HDMI);
     QCOMPARE(output->modes().count(), 4);
-    QCOMPARE(output->pos(), QPoint(0, 0));
+    QCOMPARE(output->pos(), QPoint(1280, 0));
+    QCOMPARE(output->geometry(), QRect(1280, 0, 1920, 1080));
     QCOMPARE(output->currentModeId(), QLatin1String("4"));
     QCOMPARE(output->preferredModeId(), QLatin1String("4"));
     QCOMPARE(output->rotation(), Output::None);
@@ -128,7 +163,8 @@ void testScreenConfig::multiOutput()
     QCOMPARE(output->isPrimary(), false);
     QVERIFY2(output->clones().isEmpty(), "This simulates extended output, no clones");
 
-    Mode* mode = output->currentMode();
+    const ModePtr mode = output->currentMode();
+    QVERIFY(!mode.isNull());
     QCOMPARE(mode->size(), QSize(1920, 1080));
     QCOMPARE(mode->refreshRate(), (float)60.0);
 }
@@ -139,15 +175,17 @@ void testScreenConfig::clonesOutput()
     path.append("/multipleclone.json");
     setenv("TEST_DATA", path, 1);
 
-    Config *config = Config::current();
-    Screen* screen = config->screen();
+    const ConfigPtr config = getConfig();
+    QVERIFY(!config.isNull());
+    const ScreenPtr screen = config->screen();
+    QVERIFY(!screen.isNull());
 
     QCOMPARE(screen->minSize(), QSize(320, 200));
     QCOMPARE(screen->maxSize(), QSize(8192, 8192));
     QCOMPARE(screen->currentSize(), QSize(1024, 768));
 
-    Output* one = config->outputs()[1];
-    Output* two = config->outputs()[2];
+    const OutputPtr one = config->outputs()[1];
+    const OutputPtr two = config->outputs()[2];
 
     QCOMPARE(one->currentMode()->size(), two->currentMode()->size());
     QCOMPARE(one->clones().count(), 1);
@@ -160,15 +198,17 @@ void testScreenConfig::configCanBeApplied()
     QByteArray path(TEST_DATA);
     path.append("/singleoutputBroken.json");
     setenv("TEST_DATA", path, 1);
-    Config* brokenConfig = Config::current();
+    const ConfigPtr brokenConfig = getConfig();
 
     path = TEST_DATA;
     path.append("/singleoutput.json");
     setenv("TEST_DATA", path, 1);
-    Config* currentConfig = Config::current();
-
-    Output* primaryBroken = brokenConfig->outputs()[2];
-    Output* currentPrimary = currentConfig->outputs()[1];
+    const ConfigPtr currentConfig = getConfig();
+    QVERIFY(!currentConfig.isNull());
+    const OutputPtr primaryBroken = brokenConfig->outputs()[2];
+    QVERIFY(!primaryBroken.isNull());
+    const OutputPtr currentPrimary = currentConfig->outputs()[1];
+    QVERIFY(!currentPrimary.isNull());
 
     QVERIFY(!Config::canBeApplied(brokenConfig));
     primaryBroken->setId(currentPrimary->id());
@@ -186,16 +226,17 @@ void testScreenConfig::configCanBeApplied()
     path = TEST_DATA;
     path.append("/tooManyOutputs.json");
     setenv("TEST_DATA", path, 1);
-    brokenConfig = Config::current();
+    const ConfigPtr brokenConfig2 = getConfig();
+    QVERIFY(!brokenConfig2.isNull());
 
     int enabledOutputsCount = 0;
-    Q_FOREACH (Output *output, brokenConfig->outputs()) {
+    Q_FOREACH (const OutputPtr &output, brokenConfig2->outputs()) {
         if (output->isEnabled()) {
             ++enabledOutputsCount;
         }
     }
-    QVERIFY(brokenConfig->screen()->maxActiveOutputsCount() < enabledOutputsCount);
-    QVERIFY(!Config::canBeApplied(brokenConfig));
+    QVERIFY(brokenConfig2->screen()->maxActiveOutputsCount() < enabledOutputsCount);
+    QVERIFY(!Config::canBeApplied(brokenConfig2));
 }
 
 QTEST_MAIN(testScreenConfig)

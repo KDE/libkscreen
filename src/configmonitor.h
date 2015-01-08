@@ -1,5 +1,5 @@
 /*************************************************************************************
- *  Copyright 2012, 2013  Daniel Vrátil <dvratil@redhat.com>                         *
+ *  Copyright 2012 - 2014  Daniel Vrátil <dvratil@redhat.com>                        *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -25,7 +25,6 @@
 #include "config.h"
 #include "kscreen_export.h"
 
-
 namespace KScreen
 {
 
@@ -36,11 +35,8 @@ class KSCREEN_EXPORT ConfigMonitor : public QObject
 public:
     static ConfigMonitor* instance();
 
-    void addConfig(KScreen::Config *config);
-    void removeConfig(KScreen::Config *config);
-
-public Q_SLOTS:
-    void notifyUpdate();
+    void addConfig(const KScreen::ConfigPtr &config);
+    void removeConfig(const KScreen::ConfigPtr &config);
 
 Q_SIGNALS:
     void configurationChanged();
@@ -53,7 +49,7 @@ private:
 
     class Private;
     Private * const d;
-    Q_PRIVATE_SLOT(d, void _k_configurationDestroyed(QObject *))
+
 };
 
 } /* namespace KScreen */

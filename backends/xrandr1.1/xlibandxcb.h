@@ -33,6 +33,6 @@ extern "C"
     #include <xcb/xcb.h>
 }
 
-#include <fixx11h.h>
+#include "fixx11h.h"
 
 #endif // XLIBANDXCB_H
