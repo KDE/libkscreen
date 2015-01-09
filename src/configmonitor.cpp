@@ -48,6 +48,7 @@ public:
     QList<QWeakPointer<KScreen::Config>>  watchedConfigs;
 
     QPointer<org::kde::kscreen::Backend> mBackend;
+    bool mFirstBackend;
 
     QSet<int> mPendingEDIDRequests;
     KScreen::ConfigPtr mPendingConfigUpdate;
@@ -58,6 +59,7 @@ private:
 ConfigMonitor::Private::Private(ConfigMonitor *q)
     : QObject(q)
     , q(q)
+    , mFirstBackend(true)
 {
 }
 
@@ -73,16 +75,23 @@ void ConfigMonitor::Private::onBackendReady(org::kde::kscreen::Backend *backend)
     }
 
     mBackend = QPointer<org::kde::kscreen::Backend>(backend);
-    connect(mBackend.data(), &org::kde::kscreen::Backend::configChanged,
-            this, &ConfigMonitor::Private::backendConfigChanged);
-
     // If we received a new backend interface, then it's very likely that it is
     // because the backend process has crashed - just to be sure we haven't missed
     // any change, request the current config now and update our watched configs
-    if (!watchedConfigs.isEmpty()) {
+    //
+    // Only request the config if this is not initial backend request, because it
+    // can happen that if a change happened before now, or before we get the config,
+    // the result will be invalid. This can happen when KScreen KDED launches and
+    // detects changes need to be done.
+    if (!mFirstBackend && !watchedConfigs.isEmpty()) {
         connect(new GetConfigOperation(), &GetConfigOperation::finished,
                 this, &Private::getConfigFinished);
     }
+    mFirstBackend = false;
+
+    connect(mBackend.data(), &org::kde::kscreen::Backend::configChanged,
+            this, &ConfigMonitor::Private::backendConfigChanged);
+
 }
 
 void ConfigMonitor::Private::getConfigFinished(ConfigOperation* op)
@@ -145,7 +154,6 @@ void ConfigMonitor::Private::edidReady(QDBusPendingCallWatcher* watcher)
 
     const QByteArray edid = reply.argumentAt<0>();
     if (!edid.isEmpty()) {
-        qCDebug(KSCREEN) << "Received valid EDID for output" << outputId;
         OutputPtr output = mPendingConfigUpdate->output(outputId);
         output->setEdid(edid);
     }
