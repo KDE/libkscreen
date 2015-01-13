@@ -47,7 +47,7 @@ bool BackendLoader::loadBackend(const QString& backend)
     const QStringList paths = QCoreApplication::libraryPaths();
     qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Lookup paths: " << paths;
     Q_FOREACH (const QString &path, paths) {
-        const QDir dir(path + QDir::separator() + QLatin1String("/kf5/kscreen/"),
+        const QDir dir(path + QLatin1String("/kf5/kscreen/"),
                        backendFilter,
                        QDir::SortFlags(QDir::QDir::NoSort),
                        QDir::NoDotAndDotDot | QDir::Files);
