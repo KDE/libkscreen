@@ -311,6 +311,7 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
             setScreenSize(newSize);
         }
         XUngrabServer(XRandR::display());
+        XFlush(XRandR::display());
         return;
     }
 
@@ -354,8 +355,8 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
         setScreenSize(newSize);
     }
 
-    XFlush(XRandR::display());
     XUngrabServer(XRandR::display());
+    XFlush(XRandR::display());
 }
 
 void XRandRConfig::printConfig(const ConfigPtr &config) const
