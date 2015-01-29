@@ -26,6 +26,8 @@
 
 #include "xlibandxrandr.h"
 
+#include <QRect>
+
 class XRandRXCBHelper : public QObject, public QAbstractNativeEventFilter
 {
     Q_OBJECT
@@ -37,11 +39,12 @@ class XRandRXCBHelper : public QObject, public QAbstractNativeEventFilter
         virtual bool nativeEventFilter(const QByteArray& eventType, void* message, long int* result) Q_DECL_OVERRIDE;
     Q_SIGNALS:
         /* Emitted when only XRandR 1.1 or older is available */
+        void screenChanged(Rotation rotation, const QSize &sizePx, const QSize &sizeMm);
         void outputsChanged();
 
         /* Emitted only when XRandR 1.2 or newer is available */
-        void crtcChanged(RRCrtc crtc);
-        void outputChanged(RROutput output);
+        void crtcChanged(RRCrtc crtc, RRMode mode, Rotation rotation, const QRect &geom);
+        void outputChanged(RROutput output, RRCrtc crtc, RRMode mode, Connection connection);
         void outputPropertyChanged(RROutput output);
 
     private:

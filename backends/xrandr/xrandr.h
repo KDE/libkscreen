@@ -26,6 +26,9 @@
 #include <QtCore/QSize>
 #include <QLoggingCategory>
 
+class QRect;
+class QTimer;
+
 class XRandRXCBHelper;
 class XRandRConfig;
 namespace KScreen {
@@ -48,9 +51,7 @@ class XRandR : public KScreen::AbstractBackend
         virtual bool isValid() const;
         virtual QByteArray edid(int outputId) const;
 
-        static RRCrtc outputCrtc(int outputId);
         static quint8 *outputEdid(int outputId, size_t &len);
-        static RRCrtc freeCrtc(int outputId);
         static XRRScreenResources* screenResources();
         static XRROutputInfo* XRROutput(int outputId);
         static XRRCrtcInfo* XRRCrtc(int crtcId);
@@ -59,11 +60,9 @@ class XRandR : public KScreen::AbstractBackend
         static Window rootWindow();
 
     private Q_SLOTS:
-        void updateConfig();
-        void outputRemovedSlot();
-
-        void updateOutput(RROutput output);
-        void updateCrtc(RRCrtc crtc);
+        void outputChanged(RROutput output, RRCrtc crtc, RRMode mode, Connection connection);
+        void crtcChanged(RRCrtc crtc, RRMode mode, Rotation rotation, const QRect &geom);
+        void screenChanged(Rotation rotation, const QSize &sizePx, const QSize &sizeMm);
 
     private:
         static quint8* getXProperty(Display *dpy, RROutput output, Atom atom, size_t &len);
@@ -80,6 +79,8 @@ class XRandR : public KScreen::AbstractBackend
 
         XRandRXCBHelper *m_x11Helper;
         bool m_isValid;
+
+        QTimer *m_configChangeCompressor;
 };
 
 Q_DECLARE_LOGGING_CATEGORY(KSCREEN_XRANDR)

@@ -25,11 +25,12 @@
 #include <QX11Info>
 #include <QGuiApplication>
 
+#include <QRect>
+
 Q_LOGGING_CATEGORY(KSCREEN_XCB_HELPER, "kscreen.xcb.helper")
 XRandRXCBHelper::XRandRXCBHelper():
     QObject(),
     m_isRandrPresent(false),
-    m_event11(false),
     m_randrBase(0),
     m_randrErrorBase(0),
     m_majorOpcode(0),
@@ -71,9 +72,6 @@ XRandRXCBHelper::XRandRXCBHelper():
     m_versionMinor = versionReply->minor_version;
     free(versionReply);
 
-    if (m_versionMajor == 1 && m_versionMinor <= 1) {
-        m_event11 = true;
-    }
     qCDebug(KSCREEN_XCB_HELPER).nospace() << "Detected XRandR " << m_versionMajor << "." << m_versionMinor;
     qCDebug(KSCREEN_XCB_HELPER) << "Event Base: " << m_randrBase;
     qCDebug(KSCREEN_XCB_HELPER) << "Event Error: "<< m_randrErrorBase;
@@ -144,7 +142,7 @@ bool XRandRXCBHelper::nativeEventFilter(const QByteArray& eventType, void* messa
     const uint8_t xEventType = e->response_type & ~0x80;
 
     //If this event is not xcb_randr_notify, we don't want it
-    if (xEventType == m_randrBase + XCB_RANDR_SCREEN_CHANGE_NOTIFY && m_event11) {
+    if (xEventType == m_randrBase + XCB_RANDR_SCREEN_CHANGE_NOTIFY) {
         handleScreenChange(e);
     }
     if (xEventType == m_randrBase + XCB_RANDR_NOTIFY) {
@@ -158,14 +156,21 @@ void XRandRXCBHelper::handleScreenChange(xcb_generic_event_t* e)
 {
     xcb_randr_screen_change_notify_event_t *e2 =
         (xcb_randr_screen_change_notify_event_t *) e;
-    qCDebug(KSCREEN_XCB_HELPER) << "Timestamp: " << e2->timestamp;
-    qCDebug(KSCREEN_XCB_HELPER) << "Window: " << e2->request_window;
-    qCDebug(KSCREEN_XCB_HELPER) << "Root: "<< e2->root;
-    qCDebug(KSCREEN_XCB_HELPER) << "Subpixel Order:" << e2->subpixel_order;
-    qCDebug(KSCREEN_XCB_HELPER) << "Rotation: " << rotationToString(e2->rotation);
-    qCDebug(KSCREEN_XCB_HELPER) << "Size: " << e2->width << e2->height;
-    qCDebug(KSCREEN_XCB_HELPER) << "SizeMM: " << e2->mwidth << e2->mheight;
 
+    // Only accept notifications for our window
+    if (e2->request_window != m_window) {
+        return;
+    }
+
+    qCDebug(KSCREEN_XCB_HELPER) << "RRScreenChangeNotify";
+    qCDebug(KSCREEN_XCB_HELPER) << "\tWindow:" << e2->request_window;
+    qCDebug(KSCREEN_XCB_HELPER) << "\tRoot:" << e2->root;
+    qCDebug(KSCREEN_XCB_HELPER) << "\tRotation: " << rotationToString(e2->rotation);
+    qCDebug(KSCREEN_XCB_HELPER) << "\tSize ID:" << e2->sizeID;
+    qCDebug(KSCREEN_XCB_HELPER) << "\tSize: " << e2->width << e2->height;
+    qCDebug(KSCREEN_XCB_HELPER) << "\tSizeMM: " << e2->mwidth << e2->mheight;
+
+    Q_EMIT screenChanged(e2->rotation, QSize(e2->width, e2->height), QSize(e2->mwidth, e2->mheight));
     Q_EMIT outputsChanged();
 }
 
@@ -176,33 +181,33 @@ void XRandRXCBHelper::handleXRandRNotify(xcb_generic_event_t* e)
 
     if (randrEvent->subCode == XCB_RANDR_NOTIFY_CRTC_CHANGE) {
         xcb_randr_crtc_change_t crtc = randrEvent->u.cc;
-        qCDebug(KSCREEN_XCB_HELPER) << "CRTC CHANGE";
-        qCDebug(KSCREEN_XCB_HELPER) << "CRTC: " << crtc.crtc;
-        qCDebug(KSCREEN_XCB_HELPER) << "Mode: " << crtc.mode;
-        qCDebug(KSCREEN_XCB_HELPER) << "Rotation: " << rotationToString(crtc.rotation);
-        qCDebug(KSCREEN_XCB_HELPER) << "Geometry: " << crtc.x << crtc.y << crtc.width << crtc.height;
+        qCDebug(KSCREEN_XCB_HELPER) << "RRNotify_CrtcChange";
+        qCDebug(KSCREEN_XCB_HELPER) << "\tCRTC: " << crtc.crtc;
+        qCDebug(KSCREEN_XCB_HELPER) << "\tMode: " << crtc.mode;
+        qCDebug(KSCREEN_XCB_HELPER) << "\tRotation: " << rotationToString(crtc.rotation);
+        qCDebug(KSCREEN_XCB_HELPER) << "\tGeometry: " << crtc.x << crtc.y << crtc.width << crtc.height;
 
-        Q_EMIT crtcChanged(crtc.crtc);
+        Q_EMIT crtcChanged(crtc.crtc, crtc.mode, crtc.rotation, QRect(crtc.x, crtc.y, crtc.width, crtc.height));
     } else if(randrEvent->subCode == XCB_RANDR_NOTIFY_OUTPUT_CHANGE) {
         xcb_randr_output_change_t output = randrEvent->u.oc;
-        qCDebug(KSCREEN_XCB_HELPER) << "OUTPUT CHANGE";
-        qCDebug(KSCREEN_XCB_HELPER) << "Output: " << output.output;
-        qCDebug(KSCREEN_XCB_HELPER) << "CRTC: " << output.crtc;
-        qCDebug(KSCREEN_XCB_HELPER) << "Mode: " << output.mode;
-        qCDebug(KSCREEN_XCB_HELPER) << "Rotation: " << rotationToString(output.rotation);
-        qCDebug(KSCREEN_XCB_HELPER) << "Connection: " << connectionToString(output.connection);
-        qCDebug(KSCREEN_XCB_HELPER) << "Subpixel Order: " << output.subpixel_order;
+        qCDebug(KSCREEN_XCB_HELPER) << "RRotify_OutputChange";
+        qCDebug(KSCREEN_XCB_HELPER) << "\tOutput: " << output.output;
+        qCDebug(KSCREEN_XCB_HELPER) << "\tCRTC: " << output.crtc;
+        qCDebug(KSCREEN_XCB_HELPER) << "\tMode: " << output.mode;
+        qCDebug(KSCREEN_XCB_HELPER) << "\tRotation: " << rotationToString(output.rotation);
+        qCDebug(KSCREEN_XCB_HELPER) << "\tConnection: " << connectionToString(output.connection);
+        qCDebug(KSCREEN_XCB_HELPER) << "\tSubpixel Order: " << output.subpixel_order;
 
-        Q_EMIT outputChanged(output.output);
+        Q_EMIT outputChanged(output.output, output.crtc, output.mode, output.connection);
     } else if(randrEvent->subCode == XCB_RANDR_NOTIFY_OUTPUT_PROPERTY) {
         xcb_randr_output_property_t property = randrEvent->u.op;
 
-        xcb_get_atom_name_reply_t *reply = xcb_get_atom_name_reply(QX11Info::connection(), xcb_get_atom_name(QX11Info::connection(), property.atom), NULL) ;
+        xcb_get_atom_name_reply_t *reply = xcb_get_atom_name_reply(QX11Info::connection(), xcb_get_atom_name(QX11Info::connection(), property.atom), NULL);
 
-        qCDebug(KSCREEN_XCB_HELPER) << "OUTPUT PROPERTY";
-        qCDebug(KSCREEN_XCB_HELPER) << "Output: " << property.output;
-        qCDebug(KSCREEN_XCB_HELPER) << "Property: " << xcb_get_atom_name_name(reply);
-        qCDebug(KSCREEN_XCB_HELPER) << "State (newValue, Deleted): " << property.status;
+        qCDebug(KSCREEN_XCB_HELPER) << "RRNotify_OutputProperty (ignored)";
+        qCDebug(KSCREEN_XCB_HELPER) << "\tOutput: " << property.output;
+        qCDebug(KSCREEN_XCB_HELPER) << "\tProperty: " << xcb_get_atom_name_name(reply);
+        qCDebug(KSCREEN_XCB_HELPER) << "\tState (newValue, Deleted): " << property.status;
         free(reply);
     }
 }
@@ -237,33 +242,36 @@ bool XRandRXCBHelper::x11Event(XEvent *event)
         if (e2->subtype == RRNotify_CrtcChange) {
             XRRCrtcChangeNotifyEvent* e2 = reinterpret_cast< XRRCrtcChangeNotifyEvent* >(event);
 
-            qCDebug(KSCREEN_XCB_HELPER) << "CRTC: " << e2->crtc;
-            qCDebug(KSCREEN_XCB_HELPER) << "Mode: " << e2->mode;
-            qCDebug(KSCREEN_XCB_HELPER) << "Rotation: " << rotationToString(e2->rotation);
-            qCDebug(KSCREEN_XCB_HELPER) << "Geometry: " << e2->x << e2->y << e2->width << e2->height;
+            qCDebug(KSCREEN_XCB_HELPER) << "RRNotify_CrtcChange";
+            qCDebug(KSCREEN_XCB_HELPER) << "\tCRTC: " << e2->crtc;
+            qCDebug(KSCREEN_XCB_HELPER) << "\tMode: " << e2->mode;
+            qCDebug(KSCREEN_XCB_HELPER) << "\tRotation: " << rotationToString(e2->rotation);
+            qCDebug(KSCREEN_XCB_HELPER) << "\tGeometry: " << e2->x << e2->y << e2->width << e2->height;
 
-            Q_EMIT crtcChanged(e2->crtc);
+            Q_EMIT crtcChanged(e2->crtc, e2->mode, e2->rotation, QRect(e2->x, e2->y, e2->width, e2->height));
 
         } else if (e2->subtype == RRNotify_OutputChange) {
             XRROutputChangeNotifyEvent* e2 = reinterpret_cast< XRROutputChangeNotifyEvent* >(event);
 
-            qCDebug(KSCREEN_XCB_HELPER) << "Output: " << e2->output;
-            qCDebug(KSCREEN_XCB_HELPER) << "CRTC: " << e2->crtc;
-            qCDebug(KSCREEN_XCB_HELPER) << "Mode: " << e2->mode;
-            qCDebug(KSCREEN_XCB_HELPER) << "Rotation: " << rotationToString(e2->rotation);
-            qCDebug(KSCREEN_XCB_HELPER) << "Connection: " << connectionToString(e2->connection);
-            qCDebug(KSCREEN_XCB_HELPER) << "Subpixel Order: " << e2->subpixel_order;
+            qCDebug(KSCREEN_XCB_HELPER) << "RRNotify_OutputChange";
+            qCDebug(KSCREEN_XCB_HELPER) << "\tOutput: " << e2->output;
+            qCDebug(KSCREEN_XCB_HELPER) << "\tCRTC: " << e2->crtc;
+            qCDebug(KSCREEN_XCB_HELPER) << "\tMode: " << e2->mode;
+            qCDebug(KSCREEN_XCB_HELPER) << "\tRotation: " << rotationToString(e2->rotation);
+            qCDebug(KSCREEN_XCB_HELPER) << "\tConnection: " << connectionToString(e2->connection);
+            qCDebug(KSCREEN_XCB_HELPER) << "\tSubpixel Order: " << e2->subpixel_order;
 
-            Q_EMIT outputChanged(e2->output);
+            Q_EMIT outputChanged(e2->output, e2->crtc, e2->mode, e2->connection);
 
         } else if (e2->subtype == RRNotify_OutputProperty) {
             XRROutputPropertyNotifyEvent* e2 = reinterpret_cast< XRROutputPropertyNotifyEvent* >(event);
 
             char *atom_name = XGetAtomName(QX11Info::display(), e2->property);
-            qCDebug(KSCREEN_XCB_HELPER) << "Timestamp: " << e2->timestamp;
-            qCDebug(KSCREEN_XCB_HELPER) << "Output: " << e2->output;
-            qCDebug(KSCREEN_XCB_HELPER) << "Property: " << XGetAtomName(QX11Info::display(), e2->property);
-            qCDebug(KSCREEN_XCB_HELPER) << "State (newValue, Deleted): " << e2->state;
+            qCDebug(KSCREEN_XCB_HELPER) << "RRNotify_OutputProperty (ignored)";
+            qCDebug(KSCREEN_XCB_HELPER) << "\tTimestamp: " << e2->timestamp;
+            qCDebug(KSCREEN_XCB_HELPER) << "\tOutput: " << e2->output;
+            qCDebug(KSCREEN_XCB_HELPER) << "\tProperty: " << XGetAtomName(QX11Info::display(), e2->property);
+            qCDebug(KSCREEN_XCB_HELPER) << "\tState (newValue, Deleted): " << e2->state;
             XFree(atom_name);
         }
     }

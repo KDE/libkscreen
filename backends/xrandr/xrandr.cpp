@@ -20,6 +20,7 @@
 #include "xrandr.h"
 #include "xrandrconfig.h"
 #include "xrandrxcbhelper.h"
+#include "xrandrscreen.h"
 
 #include "config.h"
 #include "output.h"
@@ -29,6 +30,8 @@
 #include <QtCore/qplugin.h>
 #include <QtCore/QRect>
 #include <QAbstractEventDispatcher>
+#include <QTimer>
+#include <QTime>
 
 #include <QX11Info>
 #include <QGuiApplication>
@@ -53,8 +56,12 @@ XRandR::XRandR()
     : KScreen::AbstractBackend()
     , m_x11Helper(0)
     , m_isValid(false)
+    , m_configChangeCompressor(0)
 {
     QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.xrandr.debug = true"));
+
+    qRegisterMetaType<RROutput>("RROutput");
+    qRegisterMetaType<RRCrtc>("RRCrtc");
 
     // Use our own connection to make sure that we won't mess up Qt's connection
     // if something goes wrong on our side.
@@ -92,13 +99,24 @@ XRandR::XRandR()
 
     if (!s_monitorInitialized) {
         m_x11Helper = new XRandRXCBHelper();
-        /* In case of XRandR 1.0 or 1.1 */
-        connect(m_x11Helper, SIGNAL(outputsChanged()), SLOT(updateConfig()));
+        connect(m_x11Helper, &XRandRXCBHelper::outputChanged,
+                this, &XRandR::outputChanged,
+                Qt::QueuedConnection);
+        connect(m_x11Helper, &XRandRXCBHelper::crtcChanged,
+                this, &XRandR::crtcChanged,
+                Qt::QueuedConnection);
+        connect(m_x11Helper, &XRandRXCBHelper::screenChanged,
+                this, &XRandR::screenChanged,
+                Qt::QueuedConnection);
 
-        /* XRandR >= 1.2 */
-        connect(m_x11Helper, SIGNAL(outputChanged(RROutput)), SLOT(updateOutput(RROutput)));
-        connect(m_x11Helper, SIGNAL(crtcChanged(RRCrtc)), SLOT(updateCrtc(RRCrtc)));
-        connect(s_internalConfig, SIGNAL(outputRemoved(int)), SLOT(outputRemovedSlot()));
+        m_configChangeCompressor = new QTimer(this);
+        m_configChangeCompressor->setSingleShot(true);
+        m_configChangeCompressor->setInterval(500);
+        connect(m_configChangeCompressor, &QTimer::timeout,
+                [&]() {
+                    qCDebug(KSCREEN_XRANDR) << "Emitting configChanged()";
+                    Q_EMIT configChanged(config());
+                });
 
         s_monitorInitialized = true;
     }
@@ -120,44 +138,44 @@ QString XRandR::serviceName() const
 }
 
 
-void XRandR::updateConfig()
+void XRandR::outputChanged(RROutput output, RRCrtc crtc, RRMode mode, Connection connection)
 {
-    s_internalConfig->update();
-    Q_EMIT configChanged(config());
-}
-
-void XRandR::outputRemovedSlot()
-{
-    Q_EMIT configChanged(config());
-}
-
-void XRandR::updateOutput(RROutput output)
-{
-    XRandROutput *xOutput = s_internalConfig->outputs().value(output);
+    XRandROutput *xOutput = s_internalConfig->output(output);
+    const RROutput primary = XRRGetOutputPrimary(XRandR::display(), XRandR::rootWindow());
     if (!xOutput) {
         s_internalConfig->addNewOutput(output);
     } else {
-        RROutput primary = XRRGetOutputPrimary(XRandR::display(), XRandR::rootWindow());
-        xOutput->update((output == primary) ? XRandROutput::SetPrimary : XRandROutput::UnsetPrimary);
-        if (output == primary) {
-            s_internalConfig->m_primaryOutput = output;
-        }
+        xOutput->update(crtc, mode, connection, (primary == output));
+        qCDebug(KSCREEN_XRANDR) << "Output" << xOutput->id() << ": connected =" << xOutput->isConnected() << ", enabled =" << xOutput->isEnabled();
     }
 
-    Q_EMIT configChanged(config());
+    m_configChangeCompressor->start();
 }
 
-void XRandR::updateCrtc(RRCrtc crtc)
+void XRandR::crtcChanged(RRCrtc crtc, RRMode mode, Rotation rotation, const QRect& geom)
 {
-    XRRCrtcInfo* crtcInfo = XRRCrtc(crtc);
-    for (int i = 0; i < crtcInfo->noutput; ++i) {
-        XRandROutput *xOutput = s_internalConfig->outputs().value(crtcInfo->outputs[i]);
-        xOutput->update();
+    XRandRCrtc *xCrtc = s_internalConfig->crtc(crtc);
+    if (!xCrtc) {
+        s_internalConfig->addNewCrtc(crtc);
+    } else {
+        xCrtc->update(mode, rotation, geom);
     }
-    XRRFreeCrtcInfo(crtcInfo);
 
-    Q_EMIT configChanged(config());
+    m_configChangeCompressor->start();
 }
+
+void XRandR::screenChanged(Rotation rotation, const QSize &sizePx, const QSize &sizeMm)
+{
+    Q_UNUSED(rotation);
+    Q_UNUSED(sizeMm);
+
+    XRandRScreen *xScreen = s_internalConfig->screen();
+    Q_ASSERT(xScreen);
+    xScreen->update(sizePx);
+
+    m_configChangeCompressor->start();
+}
+
 
 ConfigPtr XRandR::config() const
 {
@@ -177,14 +195,14 @@ void XRandR::setConfig(const ConfigPtr &config)
 
 QByteArray XRandR::edid(int outputId) const
 {
-    const XRandROutput::Map outputs = s_internalConfig->outputs();
-    const XRandROutput *output = outputs.value(outputId);
+    return QByteArray();
+
+    const XRandROutput *output = s_internalConfig->output(outputId);
     if (!output) {
-        return 0;
+        return QByteArray();
     }
 
-    const QByteArray rawEdid = output->edid();
-    return rawEdid;
+    return output->edid();
 }
 
 bool XRandR::isValid() const
@@ -247,39 +265,6 @@ quint8 *XRandR::outputEdid(int outputId, size_t &len)
     return 0;
 }
 
-RRCrtc XRandR::outputCrtc(int outputId)
-{
-    RRCrtc crtcId;
-    XRROutputInfo* outputInfo = XRROutput(outputId);
-    qCDebug(KSCREEN_XRANDR) << "Output" << outputId << "has CRTC" << outputInfo->crtc;
-
-    crtcId = outputInfo->crtc;
-    XRRFreeOutputInfo(outputInfo);
-
-    return crtcId;
-}
-
-RRCrtc XRandR::freeCrtc(int outputId)
-{
-    XRROutputInfo* outputInfo = XRROutput(outputId);
-
-    XRRCrtcInfo *crtc;
-    for (int i = 0; i < outputInfo->ncrtc; ++i)
-    {
-       const RRCrtc crtcId = outputInfo->crtcs[i];
-       crtc = XRRCrtc(crtcId);
-       if (!crtc->noutput) {
-           qCDebug(KSCREEN_XRANDR) << "Found free CRTC" << crtcId;
-           XRRFreeCrtcInfo(crtc);
-           return crtcId;
-       }
-       XRRFreeCrtcInfo(crtc);
-    }
-
-    qCDebug(KSCREEN_XRANDR) << "No free CRTC found!";
-    return 0;
-}
-
 XRRScreenResources* XRandR::screenResources()
 {
     XRRScreenResources *resources;
@@ -318,7 +303,6 @@ XRRCrtcInfo* XRandR::XRRCrtc(int crtcId)
     XRRFreeScreenResources(resources);
 
     return info;
-
 }
 
 Display *XRandR::display()

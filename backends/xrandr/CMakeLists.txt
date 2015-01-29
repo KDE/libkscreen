@@ -7,6 +7,7 @@ set(xrandr_SRCS
     xrandr.cpp
     xrandrxcbhelper.cpp
     xrandrconfig.cpp
+    xrandrcrtc.cpp
     xrandroutput.cpp
     xrandrmode.cpp
     xrandrscreen.cpp

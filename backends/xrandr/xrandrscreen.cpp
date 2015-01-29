@@ -47,9 +47,13 @@ void XRandRScreen::update()
     m_currentSize = QSize(DisplayWidth(display, screen),DisplayHeight(display, screen));
 }
 
+void XRandRScreen::update(const QSize &size)
+{
+    m_currentSize = size;
+}
+
 QSize XRandRScreen::currentSize()
 {
-    update();
     return m_currentSize;
 }
 

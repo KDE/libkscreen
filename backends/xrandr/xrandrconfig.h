@@ -22,6 +22,7 @@
 #include <QObject>
 
 #include "xrandr.h"
+#include "xrandrcrtc.h"
 #include "xrandroutput.h"
 
 class XRandRScreen;
@@ -37,13 +38,18 @@ public:
     explicit XRandRConfig();
     virtual ~XRandRConfig();
 
-    void update();
-
     XRandROutput::Map outputs() const;
-    void addNewOutput(const RROutput id);
+    XRandROutput *output(RROutput output) const;
+
+    XRandRCrtc::Map crtcs() const;
+    XRandRCrtc *crtc(RRCrtc crtc) const;
+
+    XRandRScreen *screen() const;
+
+    void addNewOutput(RROutput id);
+    void addNewCrtc(RRCrtc crtc);
 
     KScreen::ConfigPtr toKScreenConfig() const;
-    void updateKScreenConfig(KScreen::ConfigPtr &config) const;
     void applyKScreenConfig(const KScreen::ConfigPtr &config);
 
     int m_primaryOutput;
@@ -55,13 +61,14 @@ private:
     void printConfig(const KScreen::ConfigPtr &config) const;
     void printInternalCond() const;
     QSize screenSize(const KScreen::ConfigPtr &config) const;
-    bool setScreenSize(const QSize& size) const;
+    bool setScreenSize(const QSize &size) const;
     void setPrimaryOutput(int outputId) const;
     bool disableOutput(const KScreen::OutputPtr &output) const;
     bool enableOutput(const KScreen::OutputPtr &output) const;
-    bool changeOutput(const KScreen::OutputPtr &output, int crtcId) const;
-    XRandROutput* createNewOutput(RROutput id, bool primary);
+    bool changeOutput(const KScreen::OutputPtr &output) const;
+
     XRandROutput::Map m_outputs;
+    XRandRCrtc::Map m_crtcs;
     XRandRScreen *m_screen;
 
 Q_SIGNALS:

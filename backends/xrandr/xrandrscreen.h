@@ -43,6 +43,7 @@ public:
     void updateKScreenScreen(KScreen::ScreenPtr &screen) const;
 
     void update();
+    void update(const QSize &size);
     QSize currentSize();
 
 private:
