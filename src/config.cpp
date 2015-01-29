@@ -254,6 +254,7 @@ void Config::removeOutput(int outputId)
 
 void Config::setOutputs(OutputList outputs)
 {
+    d->primaryOutput.clear();
     d->outputs = outputs;
 }
 
@@ -289,16 +290,13 @@ void Config::apply(const ConfigPtr& other)
     }
 
     // Update primary output
-    bool matched = false;
-    Q_FOREACH (const OutputPtr &output, d->outputs) {
-        if (output->isPrimary()) {
-            setPrimaryOutput(output);
-            matched = true;
-            break;
-        }
-    }
-    if (!matched) {
-        setPrimaryOutput(OutputPtr());
+    KScreen::OutputPtr oldPrimary = d->primaryOutput;
+    d->primaryOutput = OutputPtr();
+    // Calling primaryOutput() when d->primaryOutput is null will force-check all
+    // outputs and will cache the new result in d->primaryOutput
+    if (oldPrimary != primaryOutput()) {
+        Q_EMIT primaryOutputChanged(d->primaryOutput);
+        qCDebug(KSCREEN) << "Primary output changed from" << oldPrimary << "to" << d->primaryOutput;
     }
 
     // Update validity
