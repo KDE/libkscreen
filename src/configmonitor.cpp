@@ -50,8 +50,7 @@ public:
     QPointer<org::kde::kscreen::Backend> mBackend;
     bool mFirstBackend;
 
-    QSet<int> mPendingEDIDRequests;
-    KScreen::ConfigPtr mPendingConfigUpdate;
+    QMap<KScreen::ConfigPtr, QList<int>> mPendingEDIDRequests;
 private:
     ConfigMonitor *q;
 };
@@ -117,17 +116,17 @@ void ConfigMonitor::Private::backendConfigChanged(const QVariantMap &configMap)
     Q_FOREACH (OutputPtr output, newConfig->connectedOutputs()) {
         if (!output->edid() && output->isConnected()) {
             QDBusPendingReply<QByteArray> reply = mBackend->getEdid(output->id());
-            mPendingEDIDRequests.insert(output->id());
+            mPendingEDIDRequests[newConfig].append(output->id());
             QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(reply);
             watcher->setProperty("outputId", output->id());
+            watcher->setProperty("config", QVariant::fromValue(newConfig));
             connect(watcher, &QDBusPendingCallWatcher::finished,
                     this, &ConfigMonitor::Private::edidReady);
         }
     }
 
-    if (!mPendingEDIDRequests.isEmpty()) {
-        qCDebug(KSCREEN) << "Requesting missing EDID for outputs" << mPendingEDIDRequests;
-        mPendingConfigUpdate = newConfig;
+    if (mPendingEDIDRequests.contains(newConfig)) {
+        qCDebug(KSCREEN) << "Requesting missing EDID for outputs" << mPendingEDIDRequests[newConfig];
     } else {
         updateConfigs(newConfig);
     }
@@ -136,31 +135,27 @@ void ConfigMonitor::Private::backendConfigChanged(const QVariantMap &configMap)
 void ConfigMonitor::Private::edidReady(QDBusPendingCallWatcher* watcher)
 {
     const int outputId = watcher->property("outputId").toInt();
-    Q_ASSERT(!mPendingConfigUpdate.isNull());
-    Q_ASSERT(mPendingEDIDRequests.contains(outputId));
+    const ConfigPtr config = watcher->property("config").value<KScreen::ConfigPtr>();
+    Q_ASSERT(mPendingEDIDRequests.contains(config));
+    Q_ASSERT(mPendingEDIDRequests[config].contains(outputId));
 
     watcher->deleteLater();
 
-    mPendingEDIDRequests.remove(watcher->property("outputId").toInt());
+    mPendingEDIDRequests[config].removeOne(outputId);
 
     const QDBusPendingReply<QByteArray> reply = *watcher;
     if (reply.isError()) {
         qCWarning(KSCREEN) << "Error when retrieving EDID: " << reply.error().message();
-        if (mPendingEDIDRequests.isEmpty()) {
-            updateConfigs(mPendingConfigUpdate);
+    } else {
+        const QByteArray edid = reply.argumentAt<0>();
+        if (!edid.isEmpty()) {
+            OutputPtr output = config->output(outputId);
+            output->setEdid(edid);
         }
-        return;
     }
 
-    const QByteArray edid = reply.argumentAt<0>();
-    if (!edid.isEmpty()) {
-        OutputPtr output = mPendingConfigUpdate->output(outputId);
-        output->setEdid(edid);
-    }
-
-    if (mPendingEDIDRequests.isEmpty()) {
-        const KScreen::ConfigPtr config = mPendingConfigUpdate;
-        mPendingConfigUpdate.clear();
+    if (mPendingEDIDRequests[config].isEmpty()) {
+        mPendingEDIDRequests.remove(config);
         updateConfigs(config);
     }
 }
