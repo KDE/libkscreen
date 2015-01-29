@@ -421,7 +421,11 @@ QRect Output::geometry() const
         return QRect();
     }
 
-    return QRect(pos(), currentMode()->size());
+    if (isHorizontal()) {
+        return QRect(pos(), currentMode()->size());
+    } else {
+        return QRect(pos(), QSize(currentMode()->size().height(), currentMode()->size().width()));
+    }
 }
 
 void Output::apply(const OutputPtr& other)

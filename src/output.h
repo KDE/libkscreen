@@ -151,7 +151,10 @@ class KSCREEN_EXPORT Output : public QObject
         void setSizeMm(const QSize &size);
 
         /**
-         * @returns a rectangle containing the current output position and size.
+         * Returns a rectangle containing the current output position and size.
+         *
+         * The geometry takes rotation into account, so if an 1920x1200 output
+         * is rotated by 90 deg, the geometry will be (0, 0, 1200, 1920)!
          */
         QRect geometry() const;
 
