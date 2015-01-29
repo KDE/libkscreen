@@ -26,16 +26,16 @@ namespace KScreen
 {
 
 class Config;
-typedef QSharedPointer<Config> ConfigPtr;
+typedef QSharedPointer<KScreen::Config> ConfigPtr;
 class Screen;
-typedef QSharedPointer<Screen> ScreenPtr;
+typedef QSharedPointer<KScreen::Screen> ScreenPtr;
 class Output;
-typedef QSharedPointer<Output> OutputPtr;
-typedef QMap<int, OutputPtr> OutputList;
+typedef QSharedPointer<KScreen::Output> OutputPtr;
+typedef QMap<int, KScreen::OutputPtr> OutputList;
 
 class Mode;
-typedef QSharedPointer<Mode> ModePtr;
-typedef QMap<QString, ModePtr> ModeList;
+typedef QSharedPointer<KScreen::Mode> ModePtr;
+typedef QMap<QString, KScreen::ModePtr> ModeList;
 
 }
 
