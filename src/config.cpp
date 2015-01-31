@@ -178,11 +178,7 @@ void Config::setScreen(const ScreenPtr &screen)
 
 OutputPtr Config::output(int outputId) const
 {
-    if (!d->outputs.contains(outputId)) {
-        return OutputPtr();
-    }
-
-    return d->outputs[outputId];
+    return d->outputs.value(outputId);
 }
 
 OutputList Config::outputs() const
