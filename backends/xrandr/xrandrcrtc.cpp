@@ -79,7 +79,10 @@ bool XRandRCrtc::connectOutput(RROutput output)
 void XRandRCrtc::disconectOutput(RROutput output)
 {
     qCDebug(KSCREEN_XRANDR) << "Disconnected output" << output << "from CRTC" << m_crtc;
-    m_outputs.removeAll(output);
+    const int index = m_outputs.indexOf(output);
+    if (index > -1) {
+        m_outputs.remove(index);
+    }
 }
 
 bool XRandRCrtc::isFree() const
