@@ -23,6 +23,8 @@
 #include "output.h"
 
 #include <QtCore/QFile>
+#include <QMetaObject>
+#include <QMetaProperty>
 #include <QLoggingCategory>
 #include <QJsonDocument>
 #include <QJsonArray>
@@ -78,21 +80,30 @@ ScreenPtr Parser::screenFromJson(const QVariantMap &data)
     return screen;
 }
 
-void Parser::qvariant2qobject(const QVariantMap& variant, QObject* object)
+void Parser::qvariant2qobject(const QVariantMap &variant, QObject *object)
 {
-    for ( QVariantMap::const_iterator iter = variant.begin(); iter != variant.end(); ++iter )
-    {
-        const QVariant property = object->property( iter.key().toLatin1() );
-        Q_ASSERT( property.isValid() );
-        if ( property.isValid() )
-        {
+    const QMetaObject *metaObject = object->metaObject();
+    for (QVariantMap::const_iterator iter = variant.begin(); iter != variant.end(); ++iter) {
+        const int propertyIndex = metaObject->indexOfProperty(qPrintable(iter.key()));
+        if (propertyIndex == -1) {
+            qWarning() << "Skipping non-existent property" << iter.key();
+            continue;
+        }
+        const QMetaProperty metaProperty = metaObject->property(propertyIndex);
+        if (!metaProperty.isWritable()) {
+            qWarning() << "Skipping read-only property" << iter.key();
+            continue;
+        }
+
+        const QVariant property = object->property(iter.key().toLatin1());
+        Q_ASSERT(property.isValid());
+        if (property.isValid()) {
             QVariant value = iter.value();
-            if ( value.canConvert( property.type() ) )
-            {
-                value.convert( property.type() );
-                object->setProperty( iter.key().toLatin1(), value );
-            } else if ( QString( QLatin1String("QVariant") ).compare( QLatin1String( property.typeName() ) ) == 0) {
-                object->setProperty( iter.key().toLatin1(), value );
+            if (value.canConvert(property.type())) {
+                value.convert(property.type());
+                object->setProperty(iter.key().toLatin1(), value);
+            } else if (QString(QLatin1String("QVariant")).compare(QLatin1String(property.typeName())) == 0) {
+                object->setProperty(iter.key().toLatin1(), value);
             }
         }
     }
