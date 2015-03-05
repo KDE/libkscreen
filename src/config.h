@@ -50,6 +50,12 @@ class KSCREEN_EXPORT Config : public QObject
     Q_PROPERTY(OutputList outputs READ outputs)
 
   public:
+    enum class ValidityFlag {
+        None = 0x0,
+        RequireAtLeastOneEnabledScreen = 0x1
+    };
+    Q_DECLARE_FLAGS(ValidityFlags, ValidityFlag)
+
     /**
      * Validates that a config can be applied in the current system
      *
@@ -58,9 +64,10 @@ class KSCREEN_EXPORT Config : public QObject
      * can be applied.
      *
      * @arg config to be checked
+     * @flags enable additional optional checks
      * @return true if the configuration can be applied, false if not.
      */
-    static bool canBeApplied(const ConfigPtr &config);
+    static bool canBeApplied(const ConfigPtr &config, ValidityFlags flags = ValidityFlag::None);
 
     /**
      * Instance an empty config

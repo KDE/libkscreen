@@ -51,7 +51,7 @@ class Config::Private
     OutputList outputs;
 };
 
-bool Config::canBeApplied(const ConfigPtr &config)
+bool Config::canBeApplied(const ConfigPtr &config, ValidityFlags flags)
 {
     ConfigPtr currentConfig = BackendManager::instance()->config();
     if (!currentConfig) {
@@ -122,6 +122,11 @@ bool Config::canBeApplied(const ConfigPtr &config)
         if (bottomRight.y() > rect.height()) {
             rect.setHeight(bottomRight.y());
         }
+    }
+
+    if (flags & ValidityFlag::RequireAtLeastOneEnabledScreen && enabledOutputsCount == 0) {
+        qCDebug(KSCREEN) << "canBeAppled: There are no enabled screens, at least one required";
+        return false;
     }
 
     const int maxEnabledOutputsCount = config->screen()->maxActiveOutputsCount();
