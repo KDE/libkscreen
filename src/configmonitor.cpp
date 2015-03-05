@@ -57,8 +57,8 @@ private:
 
 ConfigMonitor::Private::Private(ConfigMonitor *q)
     : QObject(q)
-    , q(q)
     , mFirstBackend(true)
+    , q(q)
 {
 }
 
