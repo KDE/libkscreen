@@ -103,6 +103,10 @@ void GetConfigOperationPrivate::onConfigReceived(QDBusPendingCallWatcher *watche
     pendingEDIDs = 0;
     org::kde::kscreen::Backend *backend = watcher->property("backend").value<org::kde::kscreen::Backend*>();
     Q_FOREACH (const OutputPtr &output, config->outputs()) {
+        if (!output->isConnected()) {
+            continue;
+        }
+
         QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(backend->getEdid(output->id()), this);
         watcher->setProperty("outputId", output->id());
         connect(watcher, &QDBusPendingCallWatcher::finished,
@@ -126,10 +130,7 @@ void GetConfigOperationPrivate::onEDIDReceived(QDBusPendingCallWatcher* watcher)
     const QByteArray edidData = reply.value();
     const int outputId = watcher->property("outputId").toInt();
 
-    OutputList outputs = config->outputs();
-    outputs[outputId]->setEdid(edidData);
-    config->setOutputs(outputs);
-
+    config->output(outputId)->setEdid(edidData);
     if (--pendingEDIDs == 0) {
         q->emitResult();
     }
