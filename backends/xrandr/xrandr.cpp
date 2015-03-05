@@ -195,8 +195,6 @@ void XRandR::setConfig(const ConfigPtr &config)
 
 QByteArray XRandR::edid(int outputId) const
 {
-    return QByteArray();
-
     const XRandROutput *output = s_internalConfig->output(outputId);
     if (!output) {
         return QByteArray();
