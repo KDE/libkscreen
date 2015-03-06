@@ -23,21 +23,23 @@
 #include "xrandrconfig.h"
 #include "xrandr.h"
 
-XRandRCrtc::XRandRCrtc(RRCrtc crtc, XRandRConfig *config)
+#include "../xcbwrapper.h"
+
+XRandRCrtc::XRandRCrtc(xcb_randr_crtc_t crtc, XRandRConfig *config)
     : QObject(config)
     , m_crtc(crtc)
     , m_mode(0)
-    , m_rotation(RR_Rotate_0)
+    , m_rotation(XCB_RANDR_ROTATION_ROTATE_0)
 {
     update();
 }
 
-RRCrtc XRandRCrtc::crtc() const
+xcb_randr_crtc_t XRandRCrtc::crtc() const
 {
     return m_crtc;
 }
 
-RRMode XRandRCrtc::mode() const
+xcb_randr_mode_t XRandRCrtc::mode() const
 {
     return m_mode;
 }
@@ -47,22 +49,22 @@ QRect XRandRCrtc::geometry() const
     return m_geometry;
 }
 
-Rotation XRandRCrtc::rotation() const
+xcb_randr_rotation_t XRandRCrtc::rotation() const
 {
     return m_rotation;
 }
 
-QVector<RROutput> XRandRCrtc::possibleOutputs()
+QVector<xcb_randr_output_t> XRandRCrtc::possibleOutputs()
 {
     return m_possibleOutputs;
 }
 
-QVector<RROutput> XRandRCrtc::outputs() const
+QVector<xcb_randr_output_t> XRandRCrtc::outputs() const
 {
     return m_outputs;
 }
 
-bool XRandRCrtc::connectOutput(RROutput output)
+bool XRandRCrtc::connectOutput(xcb_randr_output_t output)
 {
     qCDebug(KSCREEN_XRANDR) << "Connected output" << output << "to CRTC" << m_crtc;
     if (!m_possibleOutputs.contains(output)) {
@@ -76,7 +78,7 @@ bool XRandRCrtc::connectOutput(RROutput output)
     return true;
 }
 
-void XRandRCrtc::disconectOutput(RROutput output)
+void XRandRCrtc::disconectOutput(xcb_randr_output_t output)
 {
     qCDebug(KSCREEN_XRANDR) << "Disconnected output" << output << "from CRTC" << m_crtc;
     const int index = m_outputs.indexOf(output);
@@ -92,21 +94,23 @@ bool XRandRCrtc::isFree() const
 
 void XRandRCrtc::update()
 {
-    XRRCrtcInfo *crtcInfo = XRandR::XRRCrtc(m_crtc);
+    XCB::CRTCInfo crtcInfo(m_crtc, XCB_TIME_CURRENT_TIME);
     m_mode = crtcInfo->mode;
-    m_rotation = crtcInfo->rotation;
+    m_rotation = (xcb_randr_rotation_t) crtcInfo->rotation;
     m_geometry = QRect(crtcInfo->x, crtcInfo->y, crtcInfo->width, crtcInfo->height);
     m_possibleOutputs.clear();
-    m_possibleOutputs.reserve(crtcInfo->npossible);
-    for (int i = 0; i < crtcInfo->npossible; ++i) {
-        m_possibleOutputs.append(crtcInfo->possible[i]);
+    m_possibleOutputs.reserve(crtcInfo->num_possible_outputs);
+    xcb_randr_output_t *possible = xcb_randr_get_crtc_info_possible(crtcInfo);
+    for (int i = 0; i < crtcInfo->num_possible_outputs; ++i) {
+        m_possibleOutputs.append(possible[i]);
     }
-    for (int i = 0; i < crtcInfo->noutput; ++i) {
-        m_outputs.append(crtcInfo->outputs[i]);
+    xcb_randr_output_t *outputs = xcb_randr_get_crtc_info_outputs(crtcInfo);
+    for (int i = 0; i < crtcInfo->num_outputs; ++i) {
+        m_outputs.append(outputs[i]);
     }
 }
 
-void XRandRCrtc::update(RRMode mode, Rotation rotation, const QRect &geom)
+void XRandRCrtc::update(xcb_randr_mode_t mode, xcb_randr_rotation_t rotation, const QRect &geom)
 {
     m_mode = mode;
     m_rotation = rotation;

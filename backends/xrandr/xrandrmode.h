@@ -25,7 +25,7 @@
 #include <QSize>
 
 #include "types.h"
-#include "xlibandxrandr.h"
+#include "../xcbwrapper.h"
 
 class XRandROutput;
 namespace KScreen
@@ -39,20 +39,20 @@ class XRandRMode : public QObject
     Q_OBJECT
 
 public:
-    typedef QMap<int, XRandRMode*> Map;
+    typedef QMap<xcb_randr_mode_t, XRandRMode*> Map;
 
-    explicit XRandRMode(XRRModeInfo* modeInfo, XRandROutput *output);
+    explicit XRandRMode(const xcb_randr_mode_info_t &modeInfo, XRandROutput *output);
     virtual ~XRandRMode();
 
     KScreen::ModePtr toKScreenMode();
 
-    int id() const;
+    xcb_randr_mode_t id() const;
     QSize size() const;
     float refreshRate() const;
     QString name() const;
 
 private:
-    int m_id;
+    xcb_randr_mode_t m_id;
     QString m_name;
     QSize m_size;
     float m_refreshRate;

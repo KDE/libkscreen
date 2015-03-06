@@ -27,7 +27,7 @@
 #include <QVector>
 #include <QMap>
 
-#include "xlibandxrandr.h"
+#include <xcb/randr.h>
 
 class XRandRConfig;
 
@@ -36,33 +36,33 @@ class XRandRCrtc : public QObject
     Q_OBJECT
 
 public:
-    typedef QMap<RRCrtc, XRandRCrtc*> Map;
+    typedef QMap<xcb_randr_crtc_t, XRandRCrtc*> Map;
 
 
-    XRandRCrtc(RRCrtc crtc, XRandRConfig *config);
+    XRandRCrtc(xcb_randr_crtc_t crtc, XRandRConfig *config);
 
-    RRCrtc crtc() const;
-    RRMode mode() const;
-    Rotation rotation() const;
+    xcb_randr_crtc_t crtc() const;
+    xcb_randr_mode_t mode() const;
+    xcb_randr_rotation_t rotation() const;
     QRect geometry() const;
-    QVector<RROutput> possibleOutputs();
-    QVector<RROutput> outputs() const;
+    QVector<xcb_randr_output_t> possibleOutputs();
+    QVector<xcb_randr_output_t> outputs() const;
 
-    bool connectOutput(RROutput output);
-    void disconectOutput(RROutput output);
+    bool connectOutput(xcb_randr_output_t output);
+    void disconectOutput(xcb_randr_output_t output);
 
     bool isFree() const;
 
     void update();
-    void update(RRMode mode, Rotation rotation, const QRect &geom);
+    void update(xcb_randr_crtc_t mode, xcb_randr_rotation_t rotation, const QRect &geom);
 
 private:
-    RRCrtc m_crtc;
-    RRMode m_mode;
-    Rotation m_rotation;
+    xcb_randr_crtc_t m_crtc;
+    xcb_randr_mode_t m_mode;
+    xcb_randr_rotation_t m_rotation;
     QRect m_geometry;
-    QVector<RROutput> m_possibleOutputs;
-    QVector<RROutput> m_outputs;
+    QVector<xcb_randr_output_t> m_possibleOutputs;
+    QVector<xcb_randr_output_t> m_outputs;
 };
 
 #endif // XRANDRCRTC_H

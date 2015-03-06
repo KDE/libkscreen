@@ -39,15 +39,15 @@ public:
     virtual ~XRandRConfig();
 
     XRandROutput::Map outputs() const;
-    XRandROutput *output(RROutput output) const;
+    XRandROutput *output(xcb_randr_output_t output) const;
 
     XRandRCrtc::Map crtcs() const;
-    XRandRCrtc *crtc(RRCrtc crtc) const;
+    XRandRCrtc *crtc(xcb_randr_crtc_t crtc) const;
 
     XRandRScreen *screen() const;
 
-    void addNewOutput(RROutput id);
-    void addNewCrtc(RRCrtc crtc);
+    void addNewOutput(xcb_randr_output_t id);
+    void addNewCrtc(xcb_randr_crtc_t crtc);
 
     KScreen::ConfigPtr toKScreenConfig() const;
     void applyKScreenConfig(const KScreen::ConfigPtr &config);
@@ -62,7 +62,7 @@ private:
     void printInternalCond() const;
     QSize screenSize(const KScreen::ConfigPtr &config) const;
     bool setScreenSize(const QSize &size) const;
-    void setPrimaryOutput(int outputId) const;
+    void setPrimaryOutput(xcb_randr_output_t outputId) const;
     bool disableOutput(const KScreen::OutputPtr &output) const;
     bool enableOutput(const KScreen::OutputPtr &output) const;
     bool changeOutput(const KScreen::OutputPtr &output) const;
@@ -72,10 +72,10 @@ private:
     XRandRScreen *m_screen;
 
 Q_SIGNALS:
-    void outputRemoved(int id);
+    void outputRemoved(xcb_randr_output_t id);
 
 private Q_SLOTS:
-    void outputRemovedSlot(int id);
+    void outputRemovedSlot(xcb_randr_output_t id);
 };
 
 #endif // XRANDRCONFIG_H

@@ -16,11 +16,7 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
-#include "xrandrxcbhelper.h"
-#include "xrandr.h"
-#include "xlibandxrandr.h"
-
-#include <xcb/randr.h>
+#include "xcbeventlistener.h"
 
 #include <QX11Info>
 #include <QGuiApplication>
@@ -28,7 +24,8 @@
 #include <QRect>
 
 Q_LOGGING_CATEGORY(KSCREEN_XCB_HELPER, "kscreen.xcb.helper")
-XRandRXCBHelper::XRandRXCBHelper():
+
+XCBEventListener::XCBEventListener():
     QObject(),
     m_isRandrPresent(false),
     m_randrBase(0),
@@ -43,11 +40,8 @@ XRandRXCBHelper::XRandRXCBHelper():
 
     xcb_connection_t* c = QX11Info::connection();
     xcb_prefetch_extension_data(c, &xcb_randr_id);
-    xcb_randr_query_version_cookie_t cookie = xcb_randr_query_version(c,
-                                                                      XCB_RANDR_MAJOR_VERSION,
-                                                                      XCB_RANDR_MINOR_VERSION
-                                                                     );
-    const xcb_query_extension_reply_t *queryExtension = xcb_get_extension_data(c, &xcb_randr_id);
+    auto cookie = xcb_randr_query_version(c, XCB_RANDR_MAJOR_VERSION, XCB_RANDR_MINOR_VERSION);
+    const auto *queryExtension = xcb_get_extension_data(c, &xcb_randr_id);
     if (!queryExtension) {
         qCDebug(KSCREEN_XCB_HELPER) << "Fail to query for xrandr extension";
         return;
@@ -63,7 +57,7 @@ XRandRXCBHelper::XRandRXCBHelper():
     m_majorOpcode = queryExtension->major_opcode;
 
     xcb_generic_error_t *error = NULL;
-    xcb_randr_query_version_reply_t* versionReply = xcb_randr_query_version_reply(c, cookie, &error);
+    auto* versionReply = xcb_randr_query_version_reply(c, cookie, &error);
     Q_ASSERT_X(versionReply, "xrandrxcbhelper", "Query to fetch xrandr version failed");
     if (error) {
         qFatal("Error while querying for xrandr version: %d", error->error_code);
@@ -93,44 +87,48 @@ XRandRXCBHelper::XRandRXCBHelper():
     qApp->installNativeEventFilter(this);
 }
 
-XRandRXCBHelper::~XRandRXCBHelper()
+XCBEventListener::~XCBEventListener()
 {
     if (m_window && QX11Info::connection()) {
         xcb_destroy_window(QX11Info::connection(), m_window);
     }
 }
 
-QString XRandRXCBHelper::rotationToString(Rotation rotation)
+QString XCBEventListener::rotationToString(xcb_randr_rotation_t rotation)
 {
     switch (rotation) {
-        case RR_Rotate_0:
-            return "RR_Rotate_0";
-        case RR_Rotate_90:
-            return "RR_Rotate_90";
-        case RR_Rotate_180:
-            return "RR_Rotate_180";
-        case RR_Rotate_270:
-            return "RR_Rotate_270";
+    case XCB_RANDR_ROTATION_ROTATE_0:
+        return "Rotate_0";
+    case XCB_RANDR_ROTATION_ROTATE_90:
+        return "Rotate_90";
+    case XCB_RANDR_ROTATION_ROTATE_180:
+        return "Rotate_180";
+    case XCB_RANDR_ROTATION_ROTATE_270:
+        return "Rotate_270";
+    case XCB_RANDR_ROTATION_REFLECT_X:
+        return "Reflect_X";
+    case XCB_RANDR_ROTATION_REFLECT_Y:
+        return "REflect_Y";
     }
 
     return QString("invalid value (%1)").arg(rotation);
 }
 
-QString XRandRXCBHelper::connectionToString(Connection connection)
+QString XCBEventListener::connectionToString(xcb_randr_connection_t connection)
 {
     switch (connection) {
-        case RR_Connected:
-            return "RR_Connected";
-        case RR_Disconnected:
-            return "RR_Disconnected";
-        case RR_UnknownConnection:
-            return "RR_UnknownConnection";
+    case XCB_RANDR_CONNECTION_CONNECTED:
+        return "Connected";
+    case XCB_RANDR_CONNECTION_DISCONNECTED:
+        return "Disconnected";
+    case XCB_RANDR_CONNECTION_UNKNOWN:
+        return "UnknownConnection";
     }
 
     return QString("invalid value (%1)").arg(connection);
 }
 
-bool XRandRXCBHelper::nativeEventFilter(const QByteArray& eventType, void* message, long int* result)
+bool XCBEventListener::nativeEventFilter(const QByteArray& eventType, void* message, long int* result)
 {
     Q_UNUSED(result);
 
@@ -152,7 +150,7 @@ bool XRandRXCBHelper::nativeEventFilter(const QByteArray& eventType, void* messa
     return false;
 }
 
-void XRandRXCBHelper::handleScreenChange(xcb_generic_event_t* e)
+void XCBEventListener::handleScreenChange(xcb_generic_event_t* e)
 {
     xcb_randr_screen_change_notify_event_t *e2 =
         (xcb_randr_screen_change_notify_event_t *) e;
@@ -165,16 +163,16 @@ void XRandRXCBHelper::handleScreenChange(xcb_generic_event_t* e)
     qCDebug(KSCREEN_XCB_HELPER) << "RRScreenChangeNotify";
     qCDebug(KSCREEN_XCB_HELPER) << "\tWindow:" << e2->request_window;
     qCDebug(KSCREEN_XCB_HELPER) << "\tRoot:" << e2->root;
-    qCDebug(KSCREEN_XCB_HELPER) << "\tRotation: " << rotationToString(e2->rotation);
+    qCDebug(KSCREEN_XCB_HELPER) << "\tRotation: " << rotationToString((xcb_randr_rotation_t) e2->rotation);
     qCDebug(KSCREEN_XCB_HELPER) << "\tSize ID:" << e2->sizeID;
     qCDebug(KSCREEN_XCB_HELPER) << "\tSize: " << e2->width << e2->height;
     qCDebug(KSCREEN_XCB_HELPER) << "\tSizeMM: " << e2->mwidth << e2->mheight;
 
-    Q_EMIT screenChanged(e2->rotation, QSize(e2->width, e2->height), QSize(e2->mwidth, e2->mheight));
+    Q_EMIT screenChanged((xcb_randr_rotation_t) e2->rotation, QSize(e2->width, e2->height), QSize(e2->mwidth, e2->mheight));
     Q_EMIT outputsChanged();
 }
 
-void XRandRXCBHelper::handleXRandRNotify(xcb_generic_event_t* e)
+void XCBEventListener::handleXRandRNotify(xcb_generic_event_t* e)
 {
     xcb_randr_notify_event_t*
     randrEvent = reinterpret_cast<xcb_randr_notify_event_t*>(e);
@@ -184,97 +182,32 @@ void XRandRXCBHelper::handleXRandRNotify(xcb_generic_event_t* e)
         qCDebug(KSCREEN_XCB_HELPER) << "RRNotify_CrtcChange";
         qCDebug(KSCREEN_XCB_HELPER) << "\tCRTC: " << crtc.crtc;
         qCDebug(KSCREEN_XCB_HELPER) << "\tMode: " << crtc.mode;
-        qCDebug(KSCREEN_XCB_HELPER) << "\tRotation: " << rotationToString(crtc.rotation);
+        qCDebug(KSCREEN_XCB_HELPER) << "\tRotation: " << rotationToString((xcb_randr_rotation_t) crtc.rotation);
         qCDebug(KSCREEN_XCB_HELPER) << "\tGeometry: " << crtc.x << crtc.y << crtc.width << crtc.height;
+        Q_EMIT crtcChanged(crtc.crtc, crtc.mode, (xcb_randr_rotation_t) crtc.rotation,
+                           QRect(crtc.x, crtc.y, crtc.width, crtc.height));
 
-        Q_EMIT crtcChanged(crtc.crtc, crtc.mode, crtc.rotation, QRect(crtc.x, crtc.y, crtc.width, crtc.height));
     } else if(randrEvent->subCode == XCB_RANDR_NOTIFY_OUTPUT_CHANGE) {
         xcb_randr_output_change_t output = randrEvent->u.oc;
         qCDebug(KSCREEN_XCB_HELPER) << "RRotify_OutputChange";
         qCDebug(KSCREEN_XCB_HELPER) << "\tOutput: " << output.output;
         qCDebug(KSCREEN_XCB_HELPER) << "\tCRTC: " << output.crtc;
         qCDebug(KSCREEN_XCB_HELPER) << "\tMode: " << output.mode;
-        qCDebug(KSCREEN_XCB_HELPER) << "\tRotation: " << rotationToString(output.rotation);
-        qCDebug(KSCREEN_XCB_HELPER) << "\tConnection: " << connectionToString(output.connection);
+        qCDebug(KSCREEN_XCB_HELPER) << "\tRotation: " << rotationToString((xcb_randr_rotation_t) output.rotation);
+        qCDebug(KSCREEN_XCB_HELPER) << "\tConnection: " << connectionToString((xcb_randr_connection_t) output.connection);
         qCDebug(KSCREEN_XCB_HELPER) << "\tSubpixel Order: " << output.subpixel_order;
+        Q_EMIT outputChanged(output.output, output.crtc, output.mode,
+                             (xcb_randr_connection_t) output.connection);
 
-        Q_EMIT outputChanged(output.output, output.crtc, output.mode, output.connection);
     } else if(randrEvent->subCode == XCB_RANDR_NOTIFY_OUTPUT_PROPERTY) {
         xcb_randr_output_property_t property = randrEvent->u.op;
 
-        xcb_get_atom_name_reply_t *reply = xcb_get_atom_name_reply(QX11Info::connection(), xcb_get_atom_name(QX11Info::connection(), property.atom), NULL);
+        XCB::ScopedPointer<xcb_get_atom_name_reply_t> reply(xcb_get_atom_name_reply(QX11Info::connection(),
+                xcb_get_atom_name(QX11Info::connection(), property.atom), NULL));
 
         qCDebug(KSCREEN_XCB_HELPER) << "RRNotify_OutputProperty (ignored)";
         qCDebug(KSCREEN_XCB_HELPER) << "\tOutput: " << property.output;
-        qCDebug(KSCREEN_XCB_HELPER) << "\tProperty: " << xcb_get_atom_name_name(reply);
+        qCDebug(KSCREEN_XCB_HELPER) << "\tProperty: " << xcb_get_atom_name_name(reply.data());
         qCDebug(KSCREEN_XCB_HELPER) << "\tState (newValue, Deleted): " << property.status;
-        free(reply);
     }
-}
-
-
-bool XRandRXCBHelper::x11Event(XEvent *event)
-{
-    /* XRandR <= 1.1 */
-    if (m_versionMajor == 1 && m_versionMinor <= 1) {
-        if (event->xany.type == m_randrBase + RRScreenChangeNotify) {
-
-            XRRScreenChangeNotifyEvent* e2 = reinterpret_cast< XRRScreenChangeNotifyEvent* >(event);
-
-            qCDebug(KSCREEN_XCB_HELPER) << "Timestamp: " << e2->timestamp;
-            qCDebug(KSCREEN_XCB_HELPER) << "Window: " << e2->window;
-            qCDebug(KSCREEN_XCB_HELPER) << "Root: "<< e2->root;
-            qCDebug(KSCREEN_XCB_HELPER) << "Size Index: " << e2->size_index;
-            qCDebug(KSCREEN_XCB_HELPER) << "Subpixel Order:" << e2->subpixel_order;
-            qCDebug(KSCREEN_XCB_HELPER) << "Rotation: " << rotationToString(e2->rotation);
-            qCDebug(KSCREEN_XCB_HELPER) << "Size: " << e2->width << e2->height;
-            qCDebug(KSCREEN_XCB_HELPER) << "SizeMM: " << e2->mwidth << e2->mheight;
-
-            Q_EMIT outputsChanged();
-        }
-
-        return false;
-    }
-
-    /* XRandR >= 1.2 */
-    if (event->xany.type == m_randrBase + RRNotify) {
-        XRRNotifyEvent* e2 = reinterpret_cast< XRRNotifyEvent* >(event);
-        if (e2->subtype == RRNotify_CrtcChange) {
-            XRRCrtcChangeNotifyEvent* e2 = reinterpret_cast< XRRCrtcChangeNotifyEvent* >(event);
-
-            qCDebug(KSCREEN_XCB_HELPER) << "RRNotify_CrtcChange";
-            qCDebug(KSCREEN_XCB_HELPER) << "\tCRTC: " << e2->crtc;
-            qCDebug(KSCREEN_XCB_HELPER) << "\tMode: " << e2->mode;
-            qCDebug(KSCREEN_XCB_HELPER) << "\tRotation: " << rotationToString(e2->rotation);
-            qCDebug(KSCREEN_XCB_HELPER) << "\tGeometry: " << e2->x << e2->y << e2->width << e2->height;
-
-            Q_EMIT crtcChanged(e2->crtc, e2->mode, e2->rotation, QRect(e2->x, e2->y, e2->width, e2->height));
-
-        } else if (e2->subtype == RRNotify_OutputChange) {
-            XRROutputChangeNotifyEvent* e2 = reinterpret_cast< XRROutputChangeNotifyEvent* >(event);
-
-            qCDebug(KSCREEN_XCB_HELPER) << "RRNotify_OutputChange";
-            qCDebug(KSCREEN_XCB_HELPER) << "\tOutput: " << e2->output;
-            qCDebug(KSCREEN_XCB_HELPER) << "\tCRTC: " << e2->crtc;
-            qCDebug(KSCREEN_XCB_HELPER) << "\tMode: " << e2->mode;
-            qCDebug(KSCREEN_XCB_HELPER) << "\tRotation: " << rotationToString(e2->rotation);
-            qCDebug(KSCREEN_XCB_HELPER) << "\tConnection: " << connectionToString(e2->connection);
-            qCDebug(KSCREEN_XCB_HELPER) << "\tSubpixel Order: " << e2->subpixel_order;
-
-            Q_EMIT outputChanged(e2->output, e2->crtc, e2->mode, e2->connection);
-
-        } else if (e2->subtype == RRNotify_OutputProperty) {
-            XRROutputPropertyNotifyEvent* e2 = reinterpret_cast< XRROutputPropertyNotifyEvent* >(event);
-
-            char *atom_name = XGetAtomName(QX11Info::display(), e2->property);
-            qCDebug(KSCREEN_XCB_HELPER) << "RRNotify_OutputProperty (ignored)";
-            qCDebug(KSCREEN_XCB_HELPER) << "\tTimestamp: " << e2->timestamp;
-            qCDebug(KSCREEN_XCB_HELPER) << "\tOutput: " << e2->output;
-            qCDebug(KSCREEN_XCB_HELPER) << "\tProperty: " << XGetAtomName(QX11Info::display(), e2->property);
-            qCDebug(KSCREEN_XCB_HELPER) << "\tState (newValue, Deleted): " << e2->state;
-            XFree(atom_name);
-        }
-    }
-
-    return false;
 }

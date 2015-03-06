@@ -24,9 +24,9 @@
 #include <QVariant>
 #include <QPointer>
 
-#include "xlibandxrandr.h"
 #include "xrandrmode.h"
 #include "output.h"
+#include "../xcbwrapper.h"
 
 class XRandRConfig;
 class XRandRCrtc;
@@ -41,18 +41,18 @@ class XRandROutput : public QObject
     Q_OBJECT
 
 public:
-    typedef QMap<int, XRandROutput*> Map;
+    typedef QMap<xcb_randr_output_t, XRandROutput*> Map;
 
-    explicit XRandROutput(RROutput id, XRandRConfig *config);
+    explicit XRandROutput(xcb_randr_output_t id, XRandRConfig *config);
     virtual ~XRandROutput();
 
     void disabled();
     void disconnected();
 
     void update();
-    void update(RRCrtc crtc, RRMode mode, Connection conn, bool primary);
+    void update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_connection_t conn, bool primary);
 
-    RROutput id() const;
+    xcb_randr_output_t id() const;
     bool isEnabled() const;
     bool isConnected() const;
     bool isPrimary() const;
@@ -68,26 +68,26 @@ public:
     KScreen::OutputPtr toKScreenOutput() const;
 
 Q_SIGNALS:
-    void outputRemoved(int id);
+    void outputRemoved(xcb_randr_output_t id);
 
 private:
     void init();
-    void updateModes(const XRROutputInfo *outputInfo);
+    void updateModes(const XCB::OutputInfo &outputInfo);
 
-    static KScreen::Output::Type fetchOutputType(RROutput outputId, const QString &name);
+    static KScreen::Output::Type fetchOutputType(xcb_randr_output_t outputId, const QString &name);
     static KScreen::Output::Type typeFromName(const QString &name);
-    static QByteArray typeFromProperty(RROutput outputId);
+    static QByteArray typeFromProperty(xcb_randr_output_t outputId);
 
     XRandRConfig *m_config;
-    RROutput m_id;
+    xcb_randr_output_t m_id;
     QString m_name;
-    Connection m_connected;
+    xcb_randr_connection_t m_connected;
     KScreen::Output::Type m_type;
     QString m_icon;
     XRandRMode::Map m_modes;
     QStringList m_preferredModes;
     bool m_primary;
-    QList<int> m_clones;
+    QList<xcb_randr_output_t> m_clones;
     mutable QByteArray m_edid;
     unsigned int m_widthMm;
     unsigned int m_heightMm;

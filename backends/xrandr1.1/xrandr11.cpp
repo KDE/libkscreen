@@ -17,8 +17,7 @@
  *************************************************************************************/
 
 #include "xrandr11.h"
-#include "wrapper.h"
-#include "../xrandr/xrandrxcbhelper.h"
+#include "../xcbeventlistener.h"
 
 #include "config.h"
 #include "edid.h"
@@ -44,28 +43,32 @@ XRandR11::XRandR11()
 
     xcb_generic_error_t *error = 0;
     xcb_randr_query_version_reply_t* version;
-    version = xcb_randr_query_version_reply(connection(), xcb_randr_query_version(connection(), XCB_RANDR_MAJOR_VERSION, XCB_RANDR_MINOR_VERSION), &error);
+    version = xcb_randr_query_version_reply(XCB::connection(),
+        xcb_randr_query_version(XCB::connection(), XCB_RANDR_MAJOR_VERSION, XCB_RANDR_MINOR_VERSION), &error);
 
     if (!version || error) {
         free(error);
+        XCB::closeConnection();
         qCDebug(KSCREEN_XRANDR11) << "Can't get XRandR version";
         return;
     }
     if (version->major_version != 1 || version->minor_version != 1) {
+        XCB::closeConnection();
         qCDebug(KSCREEN_XRANDR11) << "This backend is only for XRandR 1.1, your version is: " << version->major_version << "." << version->minor_version;
         return;
     }
 
-    m_x11Helper = new XRandRXCBHelper();
+    m_x11Helper = new XCBEventListener();
 
-    connect(m_x11Helper, SIGNAL(outputsChanged()), SLOT(updateConfig()));
+    connect(m_x11Helper, &XCBEventListener::outputsChanged,
+            this, &XRandR11::updateConfig);
 
     m_valid = true;
 }
 
 XRandR11::~XRandR11()
 {
-    closeConnection();
+    XCB::closeConnection();
     delete m_x11Helper;
 }
 
@@ -90,9 +93,9 @@ KScreen::ConfigPtr XRandR11::config() const
     KScreen::ConfigPtr config(new KScreen::Config);
 
     const int screenId = QX11Info::appScreen();
-    xcb_screen_t* xcbScreen = screen_of_display(connection(), screenId);
-    const ScreenInfo info(xcbScreen->root);
-    const ScreenSize size(xcbScreen->root);
+    xcb_screen_t* xcbScreen = XCB::screenOfDisplay(XCB::connection(), screenId);
+    const XCB::ScreenInfo info(xcbScreen->root);
+    const XCB::ScreenSize size(xcbScreen->root);
 
     if (info->config_timestamp == m_currentTimestamp) {
         return m_currentConfig;
@@ -130,8 +133,8 @@ KScreen::ConfigPtr XRandR11::config() const
     KScreen::ModePtr mode;
     KScreen::ModeList modes;
 
-    xcb_randr_refresh_rates_iterator_t iter = xcb_randr_get_screen_info_rates_iterator(info.data());
-    xcb_randr_screen_size_t* sizes = xcb_randr_get_screen_info_sizes(info.data());
+    auto iter = xcb_randr_get_screen_info_rates_iterator(info);
+    xcb_randr_screen_size_t* sizes = xcb_randr_get_screen_info_sizes(info);
     for (int x = 0; x < info->nSizes; x++) {
         const xcb_randr_screen_size_t size = sizes[x];
         const uint16_t* rates = xcb_randr_refresh_rates_rates(iter.data);
@@ -164,18 +167,19 @@ void XRandR11::setConfig(const KScreen::ConfigPtr &config)
     const KScreen::ModePtr mode = output->currentMode();
 
     const int screenId = QX11Info::appScreen();
-    xcb_screen_t* xcbScreen = screen_of_display(connection(), screenId);
+    xcb_screen_t* xcbScreen = XCB::screenOfDisplay(XCB::connection(), screenId);
 
-    const ScreenInfo info(xcbScreen->root);
+    const XCB::ScreenInfo info(xcbScreen->root);
     xcb_generic_error_t *err;
-    xcb_randr_set_screen_config_cookie_t cookie;
-    xcb_randr_set_screen_config_reply_t *result;
     const int sizeId = mode->id().split("-").first().toInt();
-    cookie = xcb_randr_set_screen_config(connection(), xcbScreen->root, CurrentTime, info->config_timestamp, sizeId,
+    auto cookie = xcb_randr_set_screen_config(XCB::connection(), xcbScreen->root,
+                                         XCB_CURRENT_TIME, info->config_timestamp, sizeId,
                                          (short) output->rotation(), mode->refreshRate());
-    result = xcb_randr_set_screen_config_reply(connection(), cookie, &err);
-
-    delete result;
+    XCB::ScopedPointer<xcb_randr_set_screen_config_reply_t> reply(
+        xcb_randr_set_screen_config_reply(XCB::connection(), cookie, &err));
+    if (err) {
+        free(err);
+    }
 }
 
 void XRandR11::updateConfig()

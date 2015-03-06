@@ -19,55 +19,49 @@
 #ifndef XRANDRX11HELPER_H
 #define XRANDRX11HELPER_H
 
-#include <xcb/xcb.h>
 #include <QObject>
 #include <QLoggingCategory>
 #include <QAbstractNativeEventFilter>
-
-#include "xlibandxrandr.h"
-
 #include <QRect>
 
-class XRandRXCBHelper : public QObject, public QAbstractNativeEventFilter
+#include "xcbwrapper.h"
+
+class XCBEventListener : public QObject,
+                         public QAbstractNativeEventFilter
 {
     Q_OBJECT
 
     public:
-        XRandRXCBHelper();
-        virtual ~XRandRXCBHelper();
+        XCBEventListener();
+        ~XCBEventListener();
 
-        virtual bool nativeEventFilter(const QByteArray& eventType, void* message, long int* result) Q_DECL_OVERRIDE;
+        bool nativeEventFilter(const QByteArray& eventType, void* message, long int* result) Q_DECL_OVERRIDE;
+
     Q_SIGNALS:
         /* Emitted when only XRandR 1.1 or older is available */
-        void screenChanged(Rotation rotation, const QSize &sizePx, const QSize &sizeMm);
+        void screenChanged(xcb_randr_rotation_t rotation,
+                           const QSize &sizePx,
+                           const QSize &sizeMm);
         void outputsChanged();
 
         /* Emitted only when XRandR 1.2 or newer is available */
-        void crtcChanged(RRCrtc crtc, RRMode mode, Rotation rotation, const QRect &geom);
-        void outputChanged(RROutput output, RRCrtc crtc, RRMode mode, Connection connection);
-        void outputPropertyChanged(RROutput output);
+        void crtcChanged(xcb_randr_crtc_t crtc,
+                         xcb_randr_mode_t mode,
+                         xcb_randr_rotation_t rotation,
+                         const QRect &geom);
+        void outputChanged(xcb_randr_output_t output,
+                           xcb_randr_crtc_t crtc,
+                           xcb_randr_mode_t mode,
+                           xcb_randr_connection_t connection);
+        void outputPropertyChanged(xcb_randr_output_t output);
 
     private:
-        QString rotationToString(Rotation rotation);
-        QString connectionToString(Connection connection);
+        QString rotationToString(xcb_randr_rotation_t rotation);
+        QString connectionToString(xcb_randr_connection_t connection);
         void handleScreenChange(xcb_generic_event_t *e);
         void handleXRandRNotify(xcb_generic_event_t *e);
-        inline xcb_window_t rootWindow(xcb_connection_t *c, int screen)
-        {
-            xcb_screen_iterator_t iter = xcb_setup_roots_iterator(xcb_get_setup(c));
-            for (xcb_screen_iterator_t it = xcb_setup_roots_iterator(xcb_get_setup(c));
-                    it.rem;
-                    --screen, xcb_screen_next(&it)) {
-                if (screen == 0) {
-                    return iter.data->root;
-                }
-            }
-            return XCB_WINDOW_NONE;
-        }
 
     protected:
-        virtual bool x11Event(XEvent *);
-
         bool m_isRandrPresent;
         bool m_event11;
         int m_randrBase;

@@ -20,15 +20,8 @@ find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Core DBus Gui Test X11Ex
 
 find_package(XCB COMPONENTS XCB RANDR)
 set_package_properties(XCB PROPERTIES
-                       TYPE OPTIONAL
-                       PURPOSE "Required for building XRandR 1.1 backend"
-)
-
-find_package(X11)
-set_package_properties(X11 PROPERTIES DESCRIPTION "X11 libraries"
-                        URL "http://www.x.org"
-                        TYPE OPTIONAL
-                        PURPOSE "Required for building XRandR 1.2 backend"
+                       TYPE REQUIRED
+                       PURPOSE "Required for building XRandR backends"
 )
 
 set(KF5_VERSION ${PROJECT_VERSION}) #When we are happy with the api, we can sync with frameworks

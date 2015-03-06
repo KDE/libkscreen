@@ -19,8 +19,9 @@
 
 #include "xrandr.h"
 #include "xrandrconfig.h"
-#include "xrandrxcbhelper.h"
 #include "xrandrscreen.h"
+#include "../xcbwrapper.h"
+#include "../xcbeventlistener.h"
 
 #include "config.h"
 #include "output.h"
@@ -36,11 +37,8 @@
 #include <QX11Info>
 #include <QGuiApplication>
 
-#include <xcb/randr.h>
-
-Display* XRandR::s_display = 0;
-int XRandR::s_screen = 0;
-Window XRandR::s_rootWindow = 0;
+xcb_screen_t* XRandR::s_screen = 0;
+xcb_window_t XRandR::s_rootWindow = 0;
 XRandRConfig* XRandR::s_internalConfig = 0;
 int XRandR::s_randrBase = 0;
 int XRandR::s_randrError = 0;
@@ -60,18 +58,21 @@ XRandR::XRandR()
 {
     QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.xrandr.debug = true"));
 
-    qRegisterMetaType<RROutput>("RROutput");
-    qRegisterMetaType<RRCrtc>("RRCrtc");
+    qRegisterMetaType<xcb_randr_output_t>("xcb_randr_output_t");
+    qRegisterMetaType<xcb_randr_crtc_t>("xcb_randr_crtc_t");
+    qRegisterMetaType<xcb_randr_mode_t>("xcb_randr_mode_t");
+    qRegisterMetaType<xcb_randr_connection_t>("xcb_randr_connection_t");
+    qRegisterMetaType<xcb_randr_rotation_t>("xcb_randr_rotation_t");
 
     // Use our own connection to make sure that we won't mess up Qt's connection
     // if something goes wrong on our side.
     xcb_generic_error_t *error = 0;
     xcb_randr_query_version_reply_t* version;
-    xcb_connection_t *connection = xcb_connect(0, 0);
-    version = xcb_randr_query_version_reply(connection, xcb_randr_query_version(connection, XCB_RANDR_MAJOR_VERSION, XCB_RANDR_MINOR_VERSION), &error);
-    xcb_disconnect(connection);
+    XCB::connection();
+    version = xcb_randr_query_version_reply(XCB::connection(), xcb_randr_query_version(XCB::connection(), XCB_RANDR_MAJOR_VERSION, XCB_RANDR_MINOR_VERSION), &error);
 
     if (!version || error) {
+        XCB::closeConnection();
         free(error);
         return;
     }
@@ -79,16 +80,19 @@ XRandR::XRandR()
     if ((version->major_version > 1) || ((version->major_version == 1) && (version->minor_version >= 2))) {
         m_isValid = true;
     } else {
+        XCB::closeConnection();
         qCWarning(KSCREEN_XRANDR) << "XRandR extension not available or unsupported version";
         return;
     }
 
-    if (s_display == 0) {
-        s_display = QX11Info::display();
-        s_screen = DefaultScreen(s_display);
-        s_rootWindow = XRootWindow(s_display, s_screen);
+    if (s_screen == 0) {
+        s_screen = XCB::screenOfDisplay(XCB::connection(), QX11Info::appScreen());
+        s_rootWindow = s_screen->root;
 
-        XRRQueryExtension(s_display, &s_randrBase, &s_randrError);
+        xcb_prefetch_extension_data(XCB::connection(), &xcb_randr_id);
+        auto  reply = xcb_get_extension_data(XCB::connection(), &xcb_randr_id);
+        s_randrBase = reply->first_event;
+        s_randrError = reply->first_error;
     }
 
     XRandR::s_has_1_3 = (version->major_version > 1 || (version->major_version == 1 && version->minor_version >= 3));
@@ -98,14 +102,14 @@ XRandR::XRandR()
     }
 
     if (!s_monitorInitialized) {
-        m_x11Helper = new XRandRXCBHelper();
-        connect(m_x11Helper, &XRandRXCBHelper::outputChanged,
+        m_x11Helper = new XCBEventListener();
+        connect(m_x11Helper, &XCBEventListener::outputChanged,
                 this, &XRandR::outputChanged,
                 Qt::QueuedConnection);
-        connect(m_x11Helper, &XRandRXCBHelper::crtcChanged,
+        connect(m_x11Helper, &XCBEventListener::crtcChanged,
                 this, &XRandR::crtcChanged,
                 Qt::QueuedConnection);
-        connect(m_x11Helper, &XRandRXCBHelper::screenChanged,
+        connect(m_x11Helper, &XCBEventListener::screenChanged,
                 this, &XRandR::screenChanged,
                 Qt::QueuedConnection);
 
@@ -138,21 +142,23 @@ QString XRandR::serviceName() const
 }
 
 
-void XRandR::outputChanged(RROutput output, RRCrtc crtc, RRMode mode, Connection connection)
+void XRandR::outputChanged(xcb_randr_output_t output, xcb_randr_crtc_t crtc,
+                           xcb_randr_mode_t mode, xcb_randr_connection_t connection)
 {
     XRandROutput *xOutput = s_internalConfig->output(output);
-    const RROutput primary = XRRGetOutputPrimary(XRandR::display(), XRandR::rootWindow());
+    XCB::PrimaryOutput primary(XRandR::rootWindow());
     if (!xOutput) {
         s_internalConfig->addNewOutput(output);
     } else {
-        xOutput->update(crtc, mode, connection, (primary == output));
+        xOutput->update(crtc, mode, connection, (primary->output == output));
         qCDebug(KSCREEN_XRANDR) << "Output" << xOutput->id() << ": connected =" << xOutput->isConnected() << ", enabled =" << xOutput->isEnabled();
     }
 
     m_configChangeCompressor->start();
 }
 
-void XRandR::crtcChanged(RRCrtc crtc, RRMode mode, Rotation rotation, const QRect& geom)
+void XRandR::crtcChanged(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode,
+                         xcb_randr_rotation_t rotation, const QRect& geom)
 {
     XRandRCrtc *xCrtc = s_internalConfig->crtc(crtc);
     if (!xCrtc) {
@@ -164,7 +170,8 @@ void XRandR::crtcChanged(RRCrtc crtc, RRMode mode, Rotation rotation, const QRec
     m_configChangeCompressor->start();
 }
 
-void XRandR::screenChanged(Rotation rotation, const QSize &sizePx, const QSize &sizeMm)
+void XRandR::screenChanged(xcb_randr_rotation_t rotation,
+                           const QSize &sizePx, const QSize &sizeMm)
 {
     Q_UNUSED(rotation);
     Q_UNUSED(sizeMm);
@@ -208,47 +215,39 @@ bool XRandR::isValid() const
     return m_isValid;
 }
 
-quint8* XRandR::getXProperty(Display *dpy, RROutput output, Atom atom, size_t &len)
+quint8* XRandR::getXProperty(xcb_randr_output_t output, xcb_atom_t atom, size_t &len)
 {
-    unsigned char *prop = 0;
-    int actual_format;
-    unsigned long nitems, bytes_after;
-    Atom actual_type;
     quint8 *result;
 
-    XRRGetOutputProperty(dpy, output, atom,
-                         0, 100, false, false,
-                         AnyPropertyType,
-                         &actual_type, &actual_format,
-                         &nitems, &bytes_after, &prop);
-
-    if (actual_type == XA_INTEGER && actual_format == 8) {
-        result = new quint8[nitems];
-        memcpy(result, prop, nitems);
-        len = nitems;
+    auto cookie = xcb_randr_get_output_property(XCB::connection(), output, atom,
+                                                XCB_ATOM_ANY,
+                                                0, 100, false, false);
+    auto reply = xcb_randr_get_output_property_reply(XCB::connection(), cookie, NULL);
+    if (reply->type == XCB_ATOM_INTEGER && reply->format == 8) {
+        result = new quint8[reply->num_items];
+        memcpy(result, xcb_randr_get_output_property_data(reply), reply->num_items);
+        len = reply->num_items;
     } else {
-        result = NULL;
+        result = nullptr;
     }
 
-    XFree (prop);
+    free(reply);
     return result;
 }
 
-quint8 *XRandR::outputEdid(int outputId, size_t &len)
+quint8 *XRandR::outputEdid(xcb_randr_output_t outputId, size_t &len)
 {
-    Atom edid_atom;
     quint8 *result;
 
-    edid_atom = XInternAtom(QX11Info::display(), RR_PROPERTY_RANDR_EDID, false);
-    result = XRandR::getXProperty(QX11Info::display(), outputId, edid_atom, len);
+    auto edid_atom = XCB::InternAtom(false, 4, "EDID")->atom;
+    result = XRandR::getXProperty(outputId, edid_atom, len);
     if (result == NULL) {
-        edid_atom = XInternAtom(QX11Info::display(), "EDID_DATA", false);
-        result = XRandR::getXProperty(QX11Info::display(), outputId, edid_atom, len);
+        auto edid_atom = XCB::InternAtom(false, 9, "EDID_DATA")->atom;
+        result = XRandR::getXProperty(outputId, edid_atom, len);
     }
-
     if (result == NULL) {
-        edid_atom = XInternAtom(QX11Info::display(), "XFree86_DDC_EDID1_RAWDATA", false);
-        result = XRandR::getXProperty(QX11Info::display(), outputId, edid_atom, len);
+        auto edid_atom = XCB::InternAtom(false, 25, "XFree86_DDC_EDID1_RAWDATA")->atom;
+        result = XRandR::getXProperty(outputId, edid_atom, len);
     }
 
     if (result) {
@@ -263,57 +262,35 @@ quint8 *XRandR::outputEdid(int outputId, size_t &len)
     return 0;
 }
 
-XRRScreenResources* XRandR::screenResources()
+xcb_randr_get_screen_resources_reply_t* XRandR::screenResources()
 {
-    XRRScreenResources *resources;
-
     if (XRandR::s_has_1_3) {
         if (XRandR::s_xorgCacheInitialized) {
-            resources = XRRGetScreenResourcesCurrent(s_display, s_rootWindow);
+            // HACK: This abuses the fact that xcb_randr_get_screen_resources_reply_t
+            // and xcb_randr_get_screen_resources_current_reply_t are the same
+            return reinterpret_cast<xcb_randr_get_screen_resources_reply_t*>(
+                xcb_randr_get_screen_resources_current_reply(XCB::connection(),
+                    xcb_randr_get_screen_resources_current(XCB::connection(), XRandR::rootWindow()),
+                    NULL));
         } else {
             /* XRRGetScreenResourcesCurrent is faster then XRRGetScreenResources
              * because it returns cached values. However the cached values are not
              * available until someone calls XRRGetScreenResources first. In case
              * we happen to be the first ones, we need to fill the cache first. */
-            resources = XRRGetScreenResources(s_display, s_rootWindow);
             XRandR::s_xorgCacheInitialized = true;
         }
-    } else {
-        resources = XRRGetScreenResources(s_display, s_rootWindow);
     }
 
-    return resources;
+    return xcb_randr_get_screen_resources_reply(XCB::connection(),
+        xcb_randr_get_screen_resources(XCB::connection(), XRandR::rootWindow()), NULL);
 }
 
-XRROutputInfo* XRandR::XRROutput(int outputId)
-{
-    XRRScreenResources *resources = screenResources();
-    XRROutputInfo *info = XRRGetOutputInfo(s_display, resources, outputId);
-    XRRFreeScreenResources(resources);
-
-    return info;
-}
-
-XRRCrtcInfo* XRandR::XRRCrtc(int crtcId)
-{
-    XRRScreenResources *resources = screenResources();
-    XRRCrtcInfo *info = XRRGetCrtcInfo(s_display, resources, crtcId);
-    XRRFreeScreenResources(resources);
-
-    return info;
-}
-
-Display *XRandR::display()
-{
-    return s_display;
-}
-
-Window XRandR::rootWindow()
+xcb_window_t XRandR::rootWindow()
 {
     return s_rootWindow;
 }
 
-int XRandR::screen()
+xcb_screen_t* XRandR::screen()
 {
     return s_screen;
 }

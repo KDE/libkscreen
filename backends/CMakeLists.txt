@@ -1,6 +1,4 @@
 add_subdirectory(fake)
 add_subdirectory(qscreen)
 add_subdirectory(xrandr)
-# if (XCB_FOUND AND X11_XCB_FOUND)
-    add_subdirectory(xrandr1.1)
-# endif(XCB_FOUND AND X11_XCB_FOUND)
+add_subdirectory(xrandr1.1)

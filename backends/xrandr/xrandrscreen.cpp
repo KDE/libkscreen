@@ -19,15 +19,19 @@
 
 #include "xrandrscreen.h"
 #include "xrandrconfig.h"
-#include "xlibandxrandr.h"
-
 #include "screen.h"
 #include "config.h"
+
 #include <QX11Info>
+
+#include "../xcbwrapper.h"
 
 XRandRScreen::XRandRScreen(XRandRConfig *config)
     : QObject(config)
 {
+    XCB::ScreenSize size(XRandR::rootWindow());
+    m_maxSize = QSize(size->max_width, size->max_height);
+    m_minSize = QSize(size->min_width, size->min_height);
     update();
 }
 
@@ -37,14 +41,8 @@ XRandRScreen::~XRandRScreen()
 
 void XRandRScreen::update()
 {
-    Display *display = QX11Info::display();
-    const int screen = DefaultScreen(display);
-    const Window rootWindow = XRootWindow(display, screen);
-
-    XRRGetScreenSizeRange (display, rootWindow,
-                           &m_minSize.rwidth(), &m_minSize.rheight(),
-                           &m_maxSize.rwidth(), &m_maxSize.rheight());
-    m_currentSize = QSize(DisplayWidth(display, screen),DisplayHeight(display, screen));
+    xcb_screen_t *screen = XCB::screenOfDisplay(XCB::connection(), QX11Info::appScreen());
+    m_currentSize = QSize(screen->width_in_pixels, screen->height_in_pixels);
 }
 
 void XRandRScreen::update(const QSize &size)
@@ -64,7 +62,7 @@ KScreen::ScreenPtr XRandRScreen::toKScreenScreen() const
     kscreenScreen->setMaxSize(m_maxSize);
     kscreenScreen->setMinSize(m_minSize);
     kscreenScreen->setCurrentSize(m_currentSize);
-    kscreenScreen->setMaxActiveOutputsCount(XRandR::screenResources()->ncrtc);
+    kscreenScreen->setMaxActiveOutputsCount(XRandR::screenResources()->num_crtcs);
 
     return kscreenScreen;
 }
