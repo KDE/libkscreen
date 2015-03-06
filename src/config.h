@@ -66,8 +66,21 @@ class KSCREEN_EXPORT Config : public QObject
      * @arg config to be checked
      * @flags enable additional optional checks
      * @return true if the configuration can be applied, false if not.
+     * @since 5.3.0
      */
-    static bool canBeApplied(const ConfigPtr &config, ValidityFlags flags = ValidityFlag::None);
+    static bool canBeApplied(const ConfigPtr &config, ValidityFlags flags);
+
+    /**
+     * Validates that a config can be applied in the current system
+     *
+     * Each system has different constrains, this method will test
+     * the given config with those constrains to see if it
+     * can be applied.
+     *
+     * @arg config to be checked
+     * @return true if the configuration can be applied, false if not.
+     */
+    static bool canBeApplied(const ConfigPtr &config);
 
     /**
      * Instance an empty config

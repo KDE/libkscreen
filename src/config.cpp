@@ -51,6 +51,11 @@ class Config::Private
     OutputList outputs;
 };
 
+bool Config::canBeApplied(const ConfigPtr &config)
+{
+    return canBeApplied(config, ValidityFlag::None);
+}
+
 bool Config::canBeApplied(const ConfigPtr &config, ValidityFlags flags)
 {
     ConfigPtr currentConfig = BackendManager::instance()->config();
@@ -92,7 +97,6 @@ bool Config::canBeApplied(const ConfigPtr &config, ValidityFlags flags)
             qCDebug(KSCREEN) << "canBeApplied: The output:" << output->id() << "has no mode:" << output->currentModeId();
             return false;
         }
-
 
         const ModePtr currentMode = output->currentMode();
 
