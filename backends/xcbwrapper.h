@@ -41,15 +41,6 @@ xcb_connection_t *connection();
 void closeConnection();
 xcb_screen_t *screenOfDisplay(xcb_connection_t *c, int screen);
 
-namespace Detail {
-    template<typename ... Args>
-    constexpr xcb_window_t Window(const Args& ... args) {
-        return std::is_same<typename std::tuple_element<0, std::tuple<Args ...>>::type, xcb_window_t>::value
-                    ? std::get<0>(std::tuple<Args ...>(args ...))
-                    : static_cast<xcb_window_t>(XCB_WINDOW_NONE);
-    };
-}
-
 struct GrabServer
 {
     GrabServer();
@@ -76,7 +67,7 @@ public:
     explicit Wrapper(const RequestFuncArgs& ... args)
     : m_retrieved(false)
     , m_cookie(requestFunc(connection(), args ...))
-    , m_window(Detail::Window<RequestFuncArgs ...>(args ...))
+    , m_window(requestWindow<RequestFuncArgs ...>(args ...))
     , m_reply(Q_NULLPTR)
     {
     }
@@ -172,8 +163,13 @@ private:
             other.m_window = XCB_WINDOW_NONE;
         }
     }
-    std::function<Reply*(xcb_connection_t*, Cookie, xcb_generic_error_t**)> m_replyFunc;
-    std::function<Cookie(xcb_connection_t*, RequestFuncArgs ...)> m_requestFunc;
+    template<typename ... Args>
+    constexpr xcb_window_t requestWindow(const Args & ... args) {
+        return std::is_same<typename std::tuple_element<0, std::tuple<Args ...>>::type, xcb_window_t>::value
+                    ? std::get<0>(std::tuple<Args ...>(args ...))
+                    : static_cast<xcb_window_t>(XCB_WINDOW_NONE);
+    }
+
     mutable bool m_retrieved;
     Cookie m_cookie;
     xcb_window_t m_window;
