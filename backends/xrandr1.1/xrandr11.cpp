@@ -101,8 +101,13 @@ KScreen::ConfigPtr XRandR11::config() const
     KScreen::ScreenPtr screen(new KScreen::Screen);
     screen->setId(screenId);
     screen->setCurrentSize(QSize(xcbScreen->width_in_pixels, xcbScreen->height_in_pixels));
-    screen->setMaxSize(QSize(size->max_width, size->max_height));
-    screen->setMinSize(QSize(size->min_width, size->min_height));
+    if (size) { // RRGetScreenSize may file on VNC/RDP connections
+        screen->setMaxSize(QSize(size->max_width, size->max_height));
+        screen->setMinSize(QSize(size->min_width, size->min_height));
+    } else {
+        screen->setMaxSize(screen->currentSize());
+        screen->setMinSize(screen->currentSize());
+    }
     screen->setMaxActiveOutputsCount(1);
 
     config->setScreen(screen);
