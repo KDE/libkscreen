@@ -125,26 +125,28 @@ KScreen::ConfigPtr XRandR11::config() const
     KScreen::ModePtr mode;
     KScreen::ModeList modes;
 
-    xcb_randr_refresh_rates_iterator_t ite =  xcb_randr_get_screen_info_rates_iterator(info.data());
+    xcb_randr_refresh_rates_iterator_t iter = xcb_randr_get_screen_info_rates_iterator(info.data());
     xcb_randr_screen_size_t* sizes = xcb_randr_get_screen_info_sizes(info.data());
     for (int x = 0; x < info->nSizes; x++) {
-        const uint16_t* rates = xcb_randr_refresh_rates_rates(ite.data);
-        const int nrates = xcb_randr_refresh_rates_rates_length(ite.data);
+        const xcb_randr_screen_size_t size = sizes[x];
+        const uint16_t* rates = xcb_randr_refresh_rates_rates(iter.data);
+        const int nrates = xcb_randr_refresh_rates_rates_length(iter.data);
 
         for (int j = 0; j < nrates; j++) {
+            float rate = rates[j];
             mode = KScreen::ModePtr(new KScreen::Mode);
-            mode->setId(QString::number(x) + "-" + QString::number(j));
-            mode->setSize(QSize(sizes[x].width, sizes[x].height));
-            mode->setRefreshRate((float) rates[j]);
-            mode->setName(QString(QString::number(sizes[x].width) + "x" + QString::number(sizes[x].height)));
+            mode->setId(QString::fromLatin1("%1-%2").arg(x).arg(j));
+            mode->setSize(QSize(size.width, size.height));
+            mode->setRefreshRate(rate);
+            mode->setName(QString::fromLatin1("%1x%2").arg(size.width).arg(size.height));
 
-            if (x == info->sizeID && rates[j] == info->rate) {
+            if (x == info->sizeID && rate == info->rate) {
                 output->setCurrentModeId(mode->id());
             }
             modes.insert(mode->id(), mode);
         }
 
-        xcb_randr_refresh_rates_next(&ite);
+        xcb_randr_refresh_rates_next(&iter);
     }
 
     output->setModes(modes);
