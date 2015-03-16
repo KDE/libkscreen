@@ -104,7 +104,7 @@ bool ConfigOperation::exec()
                 Q_UNUSED(op);
                 loop.quit();
             });
-    loop.exec();
+    loop.exec(QEventLoop::ExcludeUserInputEvents);
 
     return !hasError();
 }
