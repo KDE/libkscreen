@@ -46,13 +46,20 @@ ScreenPtr QScreenScreen::toKScreenScreen() const
 
 void QScreenScreen::updateKScreenScreen(ScreenPtr &screen) const
 {
-    auto primary = QGuiApplication::primaryScreen();
-    QSize _s = primary->availableVirtualGeometry().size();
+    if (!screen) {
+        return;
+    }
 
-    screen->setCurrentSize(_s);
-    screen->setId(1);
-    screen->setMaxSize(_s);
-    screen->setMinSize(_s);
-    screen->setCurrentSize(_s);
-    screen->setMaxActiveOutputsCount(QGuiApplication::screens().count());
+    auto primary = QGuiApplication::primaryScreen();
+
+    if (primary) {
+        QSize _s = primary->availableVirtualGeometry().size();
+
+        screen->setCurrentSize(_s);
+        screen->setId(1);
+        screen->setMaxSize(_s);
+        screen->setMinSize(_s);
+        screen->setCurrentSize(_s);
+        screen->setMaxActiveOutputsCount(QGuiApplication::screens().count());
+    }
 }
