@@ -159,6 +159,7 @@ QSize ConfigSerializer::deserializeSize(const QDBusArgument &arg)
         }
         arg.endMapEntry();
     }
+    arg.endMap();
 
     return QSize(w, h);
 }
