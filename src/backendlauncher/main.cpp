@@ -30,7 +30,7 @@ int main(int argc, char **argv)
 {
     QGuiApplication app(argc, argv);
 
-    BackendLoader launcher;
+    BackendLoader *loader = new BackendLoader;
 
     QCommandLineOption backendOption(QLatin1String("backend"),
                                      QLatin1String("Backend to load. When not specified, BackendLauncher will "
@@ -44,9 +44,9 @@ int main(int argc, char **argv)
 
     bool success = false;
     if (parser.isSet(backendOption)) {
-        success = launcher.loadBackend(parser.value(backendOption));
+        success = loader->loadBackend(parser.value(backendOption));
     } else {
-        success = launcher.loadBackend();
+        success = loader->loadBackend();
     }
 
     // We failed to load any backend: abort immediatelly
@@ -56,15 +56,15 @@ int main(int argc, char **argv)
 
     // Create BackendDBusWrapper that takes implements the DBus interface and translates
     // DBus calls to backend implementations. It will also take care of terminating this
-    // launcher when no other KScreen-enabled processes are running
-    BackendDBusWrapper backendWrapper(launcher.backend());
+    // loader when no other KScreen-enabled processes are running
+    BackendDBusWrapper backendWrapper(loader->backend());
     if (!backendWrapper.init()) {
         // Loading failed, maybe it failed because another process is already running; if so we still want to print the path before we exit
         // Check if another Backend Launcher with this particular backend is already running
-        const bool alreadyRunning = launcher.checkIsAlreadyRunning();
+        const bool alreadyRunning = loader->checkIsAlreadyRunning();
         if (alreadyRunning) {
             // If it is, let caller now it's DBus service name and terminate
-            printf("%s", qPrintable(launcher.backend()->serviceName()));
+            printf("%s", qPrintable(loader->backend()->serviceName()));
             fflush(stdout);
             return BackendLoader::BackendAlreadyExists;
         }
@@ -72,9 +72,14 @@ int main(int argc, char **argv)
     }
 
     // Now let caller now what's our DBus service name, so it can connect to us
-    printf("%s", qPrintable(launcher.backend()->serviceName()));
+    printf("%s", qPrintable(loader->backend()->serviceName()));
     fflush(stdout);
 
     // And go!
-    return app.exec();
+    const int ret = app.exec();
+
+    // Make sure the backend is destroyed and unloaded before we return
+    delete loader;
+
+    return ret;
 }

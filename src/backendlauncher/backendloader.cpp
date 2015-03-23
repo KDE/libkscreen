@@ -33,11 +33,13 @@ Q_LOGGING_CATEGORY(KSCREEN_BACKEND_LAUNCHER, "kscreen.backendLauncher")
 
 BackendLoader::BackendLoader()
     : QObject()
+    , mBackend(0)
 {
 }
 
 BackendLoader::~BackendLoader()
 {
+    delete mBackend;
 }
 
 bool BackendLoader::loadBackend(const QString& backend)
