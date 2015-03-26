@@ -97,8 +97,6 @@ XRandRScreen* XRandRConfig::screen() const
 void XRandRConfig::addNewOutput(xcb_randr_output_t id)
 {
     XRandROutput *xOutput = new XRandROutput(id, this);
-    connect(xOutput, &XRandROutput::outputRemoved,
-            this, &XRandRConfig::outputRemovedSlot);
     m_outputs.insert(id, xOutput);
 }
 
@@ -107,10 +105,9 @@ void XRandRConfig::addNewCrtc(xcb_randr_crtc_t crtc)
     m_crtcs.insert(crtc, new XRandRCrtc(crtc, this));
 }
 
-void XRandRConfig::outputRemovedSlot(xcb_randr_output_t id)
+void XRandRConfig::removeOutput(xcb_randr_output_t id)
 {
-    m_outputs.remove(id);
-    Q_EMIT outputRemoved(id);
+    delete m_outputs.take(id);
 }
 
 KScreen::ConfigPtr XRandRConfig::toKScreenConfig() const

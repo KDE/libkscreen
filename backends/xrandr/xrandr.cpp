@@ -150,8 +150,22 @@ void XRandR::outputChanged(xcb_randr_output_t output, xcb_randr_crtc_t crtc,
     if (!xOutput) {
         s_internalConfig->addNewOutput(output);
     } else {
-        xOutput->update(crtc, mode, connection, (primary->output == output));
-        qCDebug(KSCREEN_XRANDR) << "Output" << xOutput->id() << ": connected =" << xOutput->isConnected() << ", enabled =" << xOutput->isEnabled();
+        switch (crtc == XCB_NONE && mode == XCB_NONE && connection == XCB_RANDR_CONNECTION_DISCONNECTED) {
+        case true: {
+            XCB::OutputInfo info(output, XCB_TIME_CURRENT_TIME);
+            if (info.isNull()) {
+                s_internalConfig->removeOutput(output);
+                qCDebug(KSCREEN_XRANDR) << "Output" << output << " removed";
+                break;
+            }
+            // info is valid: fall-through
+        }
+        case false: {
+            xOutput->update(crtc, mode, connection, (primary->output == output));
+            qCDebug(KSCREEN_XRANDR) << "Output" << xOutput->id() << ": connected =" << xOutput->isConnected() << ", enabled =" << xOutput->isEnabled();
+            break;
+        }
+        } // switch
     }
 
     m_configChangeCompressor->start();

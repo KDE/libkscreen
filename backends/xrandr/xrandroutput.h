@@ -67,9 +67,6 @@ public:
 
     KScreen::OutputPtr toKScreenOutput() const;
 
-Q_SIGNALS:
-    void outputRemoved(xcb_randr_output_t id);
-
 private:
     void init();
     void updateModes(const XCB::OutputInfo &outputInfo);

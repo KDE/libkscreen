@@ -48,6 +48,7 @@ public:
 
     void addNewOutput(xcb_randr_output_t id);
     void addNewCrtc(xcb_randr_crtc_t crtc);
+    void removeOutput(xcb_randr_output_t id);
 
     KScreen::ConfigPtr toKScreenConfig() const;
     void applyKScreenConfig(const KScreen::ConfigPtr &config);
@@ -70,12 +71,6 @@ private:
     XRandROutput::Map m_outputs;
     XRandRCrtc::Map m_crtcs;
     XRandRScreen *m_screen;
-
-Q_SIGNALS:
-    void outputRemoved(xcb_randr_output_t id);
-
-private Q_SLOTS:
-    void outputRemovedSlot(xcb_randr_output_t id);
 };
 
 #endif // XRANDRCONFIG_H
