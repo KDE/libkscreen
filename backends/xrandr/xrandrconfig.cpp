@@ -31,6 +31,7 @@
 
 #include <QX11Info>
 #include <QRect>
+#include <QScopedPointer>
 
 using namespace KScreen;
 
@@ -41,17 +42,16 @@ XRandRConfig::XRandRConfig()
 {
     m_screen = new XRandRScreen(this);
 
-    auto resources = XRandR::screenResources();
-    xcb_randr_crtc_t *crtcs = xcb_randr_get_screen_resources_crtcs(resources);
-    for (int i = 0, c = xcb_randr_get_screen_resources_crtcs_length(resources); i < c; ++i) {
+    XCB::ScopedPointer<xcb_randr_get_screen_resources_reply_t> resources(XRandR::screenResources());
+    xcb_randr_crtc_t *crtcs = xcb_randr_get_screen_resources_crtcs(resources.data());
+    for (int i = 0, c = xcb_randr_get_screen_resources_crtcs_length(resources.data()); i < c; ++i) {
         addNewCrtc(crtcs[i]);
     }
 
-    xcb_randr_output_t *outputs = xcb_randr_get_screen_resources_outputs(resources);
-    for (int i = 0, c = xcb_randr_get_screen_resources_outputs_length(resources); i < c; ++i) {
+    xcb_randr_output_t *outputs = xcb_randr_get_screen_resources_outputs(resources.data());
+    for (int i = 0, c = xcb_randr_get_screen_resources_outputs_length(resources.data()); i < c; ++i) {
         addNewOutput(outputs[i]);
     }
-    free(resources);
 
     Q_FOREACH (XRandROutput *output, m_outputs) {
         if (output->isPrimary()) {
