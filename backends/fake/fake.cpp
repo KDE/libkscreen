@@ -173,3 +173,18 @@ void Fake::setRotation(int outputId, int rotation)
     output->setRotation(rot);
     Q_EMIT configChanged(mConfig);
 }
+
+void Fake::addOutput(int outputId, const QString &name)
+{
+    KScreen::OutputPtr output(new KScreen::Output);
+    output->setId(outputId);
+    output->setName(name);
+    mConfig->addOutput(output);
+    Q_EMIT configChanged(mConfig);
+}
+
+void Fake::removeOutput(int outputId)
+{
+    mConfig->removeOutput(outputId);
+    Q_EMIT configChanged(mConfig);
+}

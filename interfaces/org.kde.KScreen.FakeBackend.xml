@@ -21,5 +21,12 @@
       <arg type="i" name="outputId" direction="in" />
       <arg type="i" name="rotation" direction="in" />
     </method>
+    <method name="addOutput">
+      <arg type="i" name="outputId" direction="in" />
+      <arg type="s" name="name" direction="in" />
+    </method>
+    <method name="removeOutput">
+      <arg type="i" name="outputId" direction="in" />
+    </method>
   </interface>
 </node>

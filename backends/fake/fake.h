@@ -45,6 +45,8 @@ public:
     void setPrimary(int outputId, bool primary);
     void setCurrentModeId(int outputId, const QString &modeId);
     void setRotation(int outputId, int rotation);
+    void addOutput(int outputId, const QString &name);
+    void removeOutput(int outputId);
 
 private Q_SLOTS:
     void delayedInit();
