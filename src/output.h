@@ -176,7 +176,6 @@ class KSCREEN_EXPORT Output : public QObject
         Private * const d;
 
         Output(Private *dd);
-
 };
 
 } //KScreen namespace

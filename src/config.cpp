@@ -28,27 +28,55 @@
 
 using namespace KScreen;
 
-class Config::Private
+class Config::Private : public QObject
 {
-  public:
-    Private():
-      valid(true)
+    Q_OBJECT
+public:
+    Private(Config *parent)
+        : QObject(parent)
+        , valid(true)
+        , q(parent)
     { }
 
-    Private(const Private &other):
-      valid(other.valid),
-      primaryOutput(other.primaryOutput)
+    Private(const Private *other, Config *parent)
+        : QObject(parent)
+        , valid(other->valid)
+        , primaryOutput(other->primaryOutput)
+        , q(parent)
     {
-      screen = other.screen->clone();
-      Q_FOREACH (const OutputPtr &otherOutput, other.outputs) {
-          outputs.insert(otherOutput->id(), otherOutput->clone());
-      }
+        screen = other->screen->clone();
+        Q_FOREACH (const OutputPtr &otherOutput, other->outputs) {
+            q->addOutput(otherOutput->clone());
+        }
+    }
+
+    KScreen::OutputPtr findPrimaryOutput() const
+    {
+        auto iter = std::find_if(outputs.constBegin(), outputs.constEnd(),
+                                 [](const KScreen::OutputPtr &output) -> bool {
+                                    return output->isPrimary();
+                                 });
+        return iter == outputs.constEnd() ? KScreen::OutputPtr() : iter.value();
+    }
+
+    void onPrimaryOutputChanged()
+    {
+        const KScreen::OutputPtr output(qobject_cast<KScreen::Output*>(sender()), [](void *) {});
+        Q_ASSERT(output);
+        if (output->isPrimary()) {
+            q->setPrimaryOutput(output);
+        } else {
+            q->setPrimaryOutput(findPrimaryOutput());
+        }
     }
 
     bool valid;
     ScreenPtr screen;
     OutputPtr primaryOutput;
     OutputList outputs;
+
+private:
+    Config *q;
 };
 
 bool Config::canBeApplied(const ConfigPtr &config)
@@ -153,13 +181,13 @@ bool Config::canBeApplied(const ConfigPtr &config, ValidityFlags flags)
 
 Config::Config()
  : QObject(0)
- , d(new Private())
+ , d(new Private(this))
 {
 }
 
-Config::Config(Config::Private *dd)
+Config::Config(const Config::Private *otherdd)
   : QObject()
-  , d(dd)
+  , d(new Private(otherdd, this))
 {
 }
 
@@ -171,7 +199,7 @@ Config::~Config()
 
 ConfigPtr Config::clone() const
 {
-    return ConfigPtr(new Config(new Private(*d)));
+    return ConfigPtr(new Config(d));
 }
 
 
@@ -214,35 +242,45 @@ OutputPtr Config::primaryOutput() const
         return d->primaryOutput;
     }
 
-    Q_FOREACH(const OutputPtr &output, d->outputs) {
-        if (output->isPrimary()) {
-            d->primaryOutput = output;
-            return d->primaryOutput;
-        }
-    }
-
-    return OutputPtr();
+    d->primaryOutput = d->findPrimaryOutput();
+    return d->primaryOutput;
 }
 
-void Config::setPrimaryOutput(const OutputPtr &output)
+void Config::setPrimaryOutput(const OutputPtr &newPrimary)
 {
-    if (primaryOutput() == output) {
+    // Don't call primaryOutput(): at this point d->primaryOutput is either
+    // initialized, or we need to look for the primary anyway
+    if (d->primaryOutput == newPrimary) {
         return;
     }
 
-    qDebug(KSCREEN) << "Primary output changed from" << d->primaryOutput
-                    << "(" << (d->primaryOutput.isNull() ? "none" : d->primaryOutput->name()) << ") to"
-                    << output << "(" << (output.isNull() ? "none" : output->name()) << ")";
-    d->primaryOutput = output;
+    qDebug(KSCREEN) << "Primary output changed from" << primaryOutput()
+                    << "(" << (primaryOutput().isNull() ? "none" : primaryOutput()->name()) << ") to"
+                    << newPrimary << "(" << (newPrimary.isNull() ? "none" : newPrimary->name()) << ")";
 
-    Q_EMIT primaryOutputChanged(output);
+    for (OutputPtr &output : d->outputs) {
+        disconnect(output.data(), &KScreen::Output::isPrimaryChanged,
+                d, &KScreen::Config::Private::onPrimaryOutputChanged);
+        output->setPrimary(output == newPrimary);
+        connect(output.data(), &KScreen::Output::isPrimaryChanged,
+                d, &KScreen::Config::Private::onPrimaryOutputChanged);
+    }
+
+    d->primaryOutput = newPrimary;
+    Q_EMIT primaryOutputChanged(newPrimary);
 }
 
 void Config::addOutput(const OutputPtr &output)
 {
     d->outputs.insert(output->id(), output);
+    connect(output.data(), &KScreen::Output::isPrimaryChanged,
+            d, &KScreen::Config::Private::onPrimaryOutputChanged);
 
     Q_EMIT outputAdded(output);
+
+    if (output->isPrimary()) {
+        setPrimaryOutput(output);
+    }
 }
 
 void Config::removeOutput(int outputId)
@@ -253,14 +291,20 @@ void Config::removeOutput(int outputId)
             setPrimaryOutput(OutputPtr());
         }
     }
+    output->disconnect(this);
 
     Q_EMIT outputRemoved(outputId);
 }
 
 void Config::setOutputs(OutputList outputs)
 {
-    d->primaryOutput.clear();
-    d->outputs = outputs;
+    for (const OutputPtr &output : d->outputs) {
+        removeOutput(output->id());
+    }
+
+    for (const OutputPtr &output : outputs) {
+        addOutput(output);
+    }
 }
 
 bool Config::isValid() const
@@ -294,16 +338,8 @@ void Config::apply(const ConfigPtr& other)
         }
     }
 
-    // Update primary output
-    KScreen::OutputPtr oldPrimary = d->primaryOutput;
-    d->primaryOutput = OutputPtr();
-    // Calling primaryOutput() when d->primaryOutput is null will force-check all
-    // outputs and will cache the new result in d->primaryOutput
-    if (oldPrimary != primaryOutput()) {
-        Q_EMIT primaryOutputChanged(d->primaryOutput);
-        qCDebug(KSCREEN) << "Primary output changed from" << oldPrimary << "to" << d->primaryOutput;
-    }
-
     // Update validity
     setValid(other->isValid());
 }
+
+#include "config.moc"
