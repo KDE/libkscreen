@@ -38,18 +38,6 @@ public:
         , q(parent)
     { }
 
-    Private(const Private *other, Config *parent)
-        : QObject(parent)
-        , valid(other->valid)
-        , primaryOutput(other->primaryOutput)
-        , q(parent)
-    {
-        screen = other->screen->clone();
-        Q_FOREACH (const OutputPtr &otherOutput, other->outputs) {
-            q->addOutput(otherOutput->clone());
-        }
-    }
-
     KScreen::OutputPtr findPrimaryOutput() const
     {
         auto iter = std::find_if(outputs.constBegin(), outputs.constEnd(),
@@ -68,6 +56,30 @@ public:
         } else {
             q->setPrimaryOutput(findPrimaryOutput());
         }
+    }
+
+    OutputList::Iterator removeOutput(OutputList::Iterator iter)
+    {
+        if (iter == outputs.end()) {
+            return iter;
+        }
+
+        OutputPtr output = iter.value();
+        if (!output) {
+            return outputs.erase(iter);
+        }
+
+        const int outputId = iter.key();
+        iter = outputs.erase(iter);
+
+        if (primaryOutput == output) {
+            q->setPrimaryOutput(OutputPtr());
+        }
+        output->disconnect(q);
+
+        Q_EMIT q->outputRemoved(outputId);
+
+        return iter;
     }
 
     bool valid;
@@ -185,12 +197,6 @@ Config::Config()
 {
 }
 
-Config::Config(const Config::Private *otherdd)
-  : QObject()
-  , d(new Private(otherdd, this))
-{
-}
-
 
 Config::~Config()
 {
@@ -199,7 +205,14 @@ Config::~Config()
 
 ConfigPtr Config::clone() const
 {
-    return ConfigPtr(new Config(d));
+    ConfigPtr newConfig(new Config());
+    newConfig->d->screen = d->screen->clone();
+    for (const OutputPtr &ourOutput : d->outputs) {
+        newConfig->addOutput(ourOutput->clone());
+    }
+    newConfig->d->primaryOutput = newConfig->d->findPrimaryOutput();
+
+    return newConfig;
 }
 
 
@@ -285,21 +298,14 @@ void Config::addOutput(const OutputPtr &output)
 
 void Config::removeOutput(int outputId)
 {
-    OutputPtr output = d->outputs.take(outputId);
-    if (output) {
-        if (d->primaryOutput == output) {
-            setPrimaryOutput(OutputPtr());
-        }
-    }
-    output->disconnect(this);
-
-    Q_EMIT outputRemoved(outputId);
+    d->removeOutput(d->outputs.find(outputId));
 }
 
 void Config::setOutputs(OutputList outputs)
 {
-    for (const OutputPtr &output : d->outputs) {
-        removeOutput(output->id());
+    for (auto iter = d->outputs.begin(), end = d->outputs.end(); iter != end; ) {
+        iter = d->removeOutput(iter);
+        end = d->outputs.end();
     }
 
     for (const OutputPtr &output : outputs) {

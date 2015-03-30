@@ -129,8 +129,6 @@ class KSCREEN_EXPORT Config : public QObject
 
     class Private;
     Private * const d;
-
-    Config(const Private *otherdd);
 };
 
 } //KScreen namespace
