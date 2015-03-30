@@ -53,7 +53,6 @@ public:
     KScreen::ConfigPtr toKScreenConfig() const;
     void applyKScreenConfig(const KScreen::ConfigPtr &config);
 
-    int m_primaryOutput;
 private:
     /**
      * We need to print stuff to discover the damn bug

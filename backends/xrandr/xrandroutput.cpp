@@ -130,6 +130,7 @@ void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_rand
     qCDebug(KSCREEN_XRANDR) << "\tCRTC:" << crtc;
     qCDebug(KSCREEN_XRANDR) << "\tMODE:" << mode;
     qCDebug(KSCREEN_XRANDR) << "\tConnection:" << conn;
+    qCDebug(KSCREEN_XRANDR) << "\tPrimary:" << primary;
 
     // Connected or disconnected
     if (isConnected() != (conn == XCB_RANDR_CONNECTION_CONNECTED)) {
@@ -169,6 +170,10 @@ void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_rand
     m_primary = primary;
 }
 
+void XRandROutput::setIsPrimary(bool primary)
+{
+    m_primary = primary;
+}
 
 
 void XRandROutput::init()

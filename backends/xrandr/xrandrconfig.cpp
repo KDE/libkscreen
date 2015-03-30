@@ -37,7 +37,6 @@ using namespace KScreen;
 
 XRandRConfig::XRandRConfig()
     : QObject()
-    , m_primaryOutput(-1)
     , m_screen(Q_NULLPTR)
 {
     m_screen = new XRandRScreen(this);
@@ -51,13 +50,6 @@ XRandRConfig::XRandRConfig()
     xcb_randr_output_t *outputs = xcb_randr_get_screen_resources_outputs(resources.data());
     for (int i = 0, c = xcb_randr_get_screen_resources_outputs_length(resources.data()); i < c; ++i) {
         addNewOutput(outputs[i]);
-    }
-
-    Q_FOREACH (XRandROutput *output, m_outputs) {
-        if (output->isPrimary()) {
-            m_primaryOutput = output->id();
-            break;
-        }
     }
 }
 
@@ -441,6 +433,10 @@ void XRandRConfig::setPrimaryOutput(xcb_randr_output_t outputId) const
     qCDebug(KSCREEN_XRANDR) << "RRSetOutputPrimary";
     qCDebug(KSCREEN_XRANDR) << "\tNew primary:" << outputId;
     xcb_randr_set_output_primary(XCB::connection(), XRandR::rootWindow(), outputId);
+
+    for (XRandROutput *output : m_outputs) {
+        output->setIsPrimary(output->id() == outputId);
+    }
 }
 
 bool XRandRConfig::disableOutput(const OutputPtr &kscreenOutput) const

@@ -52,6 +52,8 @@ public:
     void update();
     void update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_connection_t conn, bool primary);
 
+    void setIsPrimary(bool primary);
+
     xcb_randr_output_t id() const;
     bool isEnabled() const;
     bool isConnected() const;
