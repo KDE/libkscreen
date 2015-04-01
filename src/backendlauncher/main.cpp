@@ -28,6 +28,7 @@
 
 int main(int argc, char **argv)
 {
+    QGuiApplication::setDesktopSettingsAware(false);
     QGuiApplication app(argc, argv);
 
     BackendLoader *loader = new BackendLoader;
