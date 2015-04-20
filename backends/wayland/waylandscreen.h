@@ -19,7 +19,7 @@
 #ifndef KSCREEN_WAYLAND_SCREEN_H
 #define KSCREEN_WAYLAND_SCREEN_H
 
-#include "../abstractbackend.h"
+#include "abstractbackend.h"
 #include "config.h"
 #include "screen.h"
 

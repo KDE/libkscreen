@@ -21,7 +21,7 @@
 #ifndef WAYLAND_BACKEND_H
 #define WAYLAND_BACKEND_H
 
-#include "../abstractbackend.h"
+#include "abstractbackend.h"
 
 #include <QSize>
 #include <QLoggingCategory>
@@ -31,24 +31,24 @@ namespace KScreen
 class Output;
 class WaylandConfig;
 
-class WaylandBackend : public QObject, public AbstractBackend
+class WaylandBackend : public KScreen::AbstractBackend
 {
     Q_OBJECT
-    Q_INTERFACES(AbstractBackend)
     Q_PLUGIN_METADATA(IID "org.kf5.kscreen.backends.wayland")
 
 public:
-    explicit WaylandBackend(QObject *parent = 0);
+    explicit WaylandBackend();
     virtual ~WaylandBackend();
 
     static WaylandConfig *internalConfig();
 
     virtual QString name() const;
-    virtual KScreen::Config *config() const;
-    virtual void setConfig(KScreen::Config *config) const;
+
+    virtual KScreen::ConfigPtr config() const;
+    virtual void setConfig(const KScreen::ConfigPtr &config);
     virtual bool isValid() const;
-    virtual KScreen::Edid *edid(int outputId) const;
-    virtual void updateConfig(KScreen::Config *config) const;
+    //virtual KScreen::Edid *edid(int outputId) const;
+    virtual void updateConfig(KScreen::ConfigPtr &config);
 
 private:
     bool m_isValid;

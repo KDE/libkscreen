@@ -19,7 +19,7 @@
 #ifndef KSCREEN_WAYLAND_CONFIG_H
 #define KSCREEN_WAYLAND_CONFIG_H
 
-#include "../abstractbackend.h"
+#include "abstractbackend.h"
 #include "config.h"
 
 #include <QDir>
@@ -67,8 +67,8 @@ public:
     explicit WaylandConfig(QObject *parent = 0);
     virtual ~WaylandConfig();
 
-    KScreen::Config *toKScreenConfig() const;
-    void updateKScreenConfig(KScreen::Config *config) const;
+    KScreen::ConfigPtr toKScreenConfig() const;
+    void updateKScreenConfig(KScreen::ConfigPtr config) const;
 
     QMap<quint32, WaylandOutput *> outputMap() const;
     int outputId(KWayland::Client::Output *wlo);

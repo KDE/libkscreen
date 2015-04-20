@@ -32,8 +32,8 @@ Q_LOGGING_CATEGORY(KSCREEN_WAYLAND, "kscreen.wayland");
 
 WaylandConfig* WaylandBackend::s_internalConfig = 0;
 
-WaylandBackend::WaylandBackend(QObject *parent)
-    : QObject(parent)
+WaylandBackend::WaylandBackend()
+    : KScreen::AbstractBackend()
     , m_isValid(true)
 {
     QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.wayland.debug = true"));
@@ -58,12 +58,12 @@ QString WaylandBackend::name() const
     return QString("Wayland");
 }
 
-Config *WaylandBackend::config() const
+ConfigPtr WaylandBackend::config() const
 {
     return internalConfig()->toKScreenConfig();
 }
 
-void WaylandBackend::setConfig(Config *config) const
+void WaylandBackend::setConfig(const KScreen::ConfigPtr &config)
 {
     if (!config) {
         return;
@@ -74,23 +74,23 @@ void WaylandBackend::setConfig(Config *config) const
     qWarning() << "You can force another backend using the KSCREEN_BACKEND env var.";
 }
 
-Edid *WaylandBackend::edid(int outputId) const
-{
-    WaylandOutput *output = internalConfig()->outputMap().value(outputId);
-    if (!output) {
-        return 0;
-    }
-    return output->edid();
-
-    return 0;
-}
+// Edid *WaylandBackend::edid(int outputId) const
+// {
+//     WaylandOutput *output = internalConfig()->outputMap().value(outputId);
+//     if (!output) {
+//         return 0;
+//     }
+//     return output->edid();
+//
+//     return 0;
+// }
 
 bool WaylandBackend::isValid() const
 {
     return m_isValid;
 }
 
-void WaylandBackend::updateConfig(Config *config) const
+void WaylandBackend::updateConfig(ConfigPtr &config)
 {
     qDebug() << "Update config";
     Q_ASSERT(config != 0);

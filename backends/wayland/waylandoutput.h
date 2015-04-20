@@ -19,7 +19,7 @@
 #ifndef KSCREEN_WAYLAND_OUTPUT_H
 #define KSCREEN_WAYLAND_OUTPUT_H
 
-#include "../abstractbackend.h"
+#include "abstractbackend.h"
 
 #include "config.h"
 #include "output.h"
