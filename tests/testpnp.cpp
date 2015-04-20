@@ -24,6 +24,8 @@
 #include "../src/edid.h"
 #include "../src/mode.h"
 #include "../src/output.h"
+#include "../src/screen.h"
+#include "../src/getconfigoperation.h"
 
 #include <QGuiApplication>
 #include <QRect>
@@ -69,11 +71,11 @@ QString typetoString(const Output::Type& type)
     };
 }
 
-TestPnp::TestPnp(QObject *parent)
+TestPnp::TestPnp(bool monitor, QObject *parent)
     : QObject(parent)
+    , m_monitor(monitor)
 {
     init();
-    print();
 }
 
 TestPnp::~TestPnp()
@@ -82,17 +84,30 @@ TestPnp::~TestPnp()
 
 void TestPnp::init()
 {
-    m_config = KScreen::Config::current();
+    connect(new KScreen::GetConfigOperation(), &KScreen::GetConfigOperation::finished,
+            this, &TestPnp::configReady);
+}
+
+void TestPnp::configReady(KScreen::ConfigOperation *op)
+{
+    m_config = qobject_cast<KScreen::GetConfigOperation*>(op)->config();
     if (!m_config) {
         qDebug() << "Config is invalid, probably backend couldn't load";
         qApp->quit();
+        return;
     }
     if (!m_config->screen()) {
         qDebug() << "No screen in the configuration, broken backend";
         qApp->quit();
+        return;
     }
 
-    ConfigMonitor::instance()->addConfig(m_config);
+    print();
+    if (m_monitor) {
+        ConfigMonitor::instance()->addConfig(m_config);
+    } else {
+        qApp->quit();
+    }
 }
 
 void TestPnp::print()
@@ -102,8 +117,8 @@ void TestPnp::print()
     qDebug() << "\tminSize:" << m_config->screen()->minSize();
     qDebug() << "\tcurrentSize:" << m_config->screen()->currentSize();
 
-    OutputList outputs = m_config->outputs();
-    Q_FOREACH(Output *output, outputs) {
+    const OutputList outputs = m_config->outputs();
+    Q_FOREACH(const OutputPtr &output, outputs) {
         qDebug() << "\n-----------------------------------------------------\n";
         qDebug() << "Id: " << output->id();
         qDebug() << "Name: " << output->name();
@@ -130,12 +145,12 @@ void TestPnp::print()
         qDebug() << "Preferred modes: " << output->preferredModes();
         qDebug() << "Modes: ";
 
-        ModeList modes = output->modes();
-        Q_FOREACH(Mode* mode, modes) {
+        const ModeList modes = output->modes();
+        Q_FOREACH(const ModePtr &mode, modes) {
             qDebug() << "\t" << mode->id() << "  " << mode->name() << " " << mode->size() << " " << mode->refreshRate();
         }
 
-        Edid* edid = output->edid();
+        const Edid * const edid = output->edid();
         qDebug() << "EDID Info: ";
         if (edid && edid->isValid()) {
             qDebug() << "\tDevice ID: " << edid->deviceId();
@@ -156,7 +171,3 @@ void TestPnp::print()
         }
     }
 }
-
-
-#include "testpnp.moc"
-

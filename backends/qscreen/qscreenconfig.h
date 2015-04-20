@@ -19,7 +19,6 @@
 #ifndef QSCREEN_CONFIG_H
 #define QSCREEN_CONFIG_H
 
-#include "../abstractbackend.h"
 #include "config.h"
 
 #include <QScreen>
@@ -38,8 +37,8 @@ public:
     explicit QScreenConfig(QObject *parent = 0);
     virtual ~QScreenConfig();
 
-    KScreen::Config *toKScreenConfig() const;
-    void updateKScreenConfig(KScreen::Config *config) const;
+    KScreen::ConfigPtr toKScreenConfig() const;
+    void updateKScreenConfig(KScreen::ConfigPtr &config) const;
 
     QMap<int, QScreenOutput *> outputMap() const;
     int outputId(const QScreen *qscreen);
@@ -47,6 +46,9 @@ public:
 private Q_SLOTS:
     void screenAdded(const QScreen *qscreen);
     void screenDestroyed(QObject *qscreen = 0);
+
+Q_SIGNALS:
+    void configChanged(const KScreen::ConfigPtr &config);
 
 private:
     QMap<int, QScreenOutput *> m_outputMap;

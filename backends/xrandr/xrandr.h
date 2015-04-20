@@ -20,58 +20,63 @@
 #ifndef XRANDR_BACKEND_H
 #define XRANDR_BACKEND_H
 
-#include "xlibandxrandr.h"
-#include "../abstractbackend.h"
+#include "abstractbackend.h"
 
 #include <QtCore/QSize>
 #include <QLoggingCategory>
 
-class XRandRXCBHelper;
+#include "../xcbwrapper.h"
+
+class QRect;
+class QTimer;
+
+class XCBEventListener;
 class XRandRConfig;
 namespace KScreen {
     class Output;
 }
 
-class XRandR : public QObject, public AbstractBackend
+class XRandR : public KScreen::AbstractBackend
 {
     Q_OBJECT
-    Q_INTERFACES(AbstractBackend)
     Q_PLUGIN_METADATA(IID "org.kf5.kscreen.backends.xrandr")
 
     public:
-        explicit XRandR(QObject* parent = 0);
+        explicit XRandR();
         virtual ~XRandR();
 
         virtual QString name() const;
-        virtual KScreen::Config* config() const;
-        virtual void setConfig(KScreen::Config* config) const;
+        virtual QString serviceName() const;
+        virtual KScreen::ConfigPtr config() const;
+        virtual void setConfig(const KScreen::ConfigPtr &config);
         virtual bool isValid() const;
-        virtual KScreen::Edid *edid(int outputId) const;
-        virtual void updateConfig(KScreen::Config *config) const;
+        virtual QByteArray edid(int outputId) const;
 
-        static RRCrtc outputCrtc(int outputId);
-        static quint8 *outputEdid(int outputId, size_t &len);
-        static RRCrtc freeCrtc(int outputId);
-        static XRRScreenResources* screenResources();
-        static XRROutputInfo* XRROutput(int outputId);
-        static XRRCrtcInfo* XRRCrtc(int crtcId);
-        static Display* display();
-        static int screen();
-        static Window rootWindow();
+        static quint8 *outputEdid(xcb_randr_output_t outputId, size_t &len);
+        static xcb_randr_get_screen_resources_reply_t* screenResources();
+        static xcb_screen_t* screen();
+        static xcb_window_t rootWindow();
 
     private Q_SLOTS:
-        void updateConfig();
-        void outputRemovedSlot();
-
-        void updateOutput(RROutput output);
-        void updateCrtc(RRCrtc crtc);
+        void outputChanged(xcb_randr_output_t output,
+                           xcb_randr_crtc_t crtc,
+                           xcb_randr_mode_t mode,
+                           xcb_randr_connection_t connection);
+        void crtcChanged(xcb_randr_crtc_t crtc,
+                         xcb_randr_mode_t mode,
+                         xcb_randr_rotation_t rotation,
+                         const QRect &geom);
+        void screenChanged(xcb_randr_rotation_t rotation,
+                           const QSize &sizePx,
+                           const QSize &sizeMm);
 
     private:
-        static quint8* getXProperty(Display *dpy, RROutput output, Atom atom, size_t &len);
+        static quint8* getXProperty(xcb_randr_output_t output,
+                                    xcb_atom_t atom,
+                                    size_t &len);
 
-        static Display* s_display;
-        static int s_screen;
-        static Window s_rootWindow;
+        static xcb_screen_t *s_screen;
+        static xcb_window_t s_rootWindow;
         static XRandRConfig *s_internalConfig;
         static int s_randrBase;
         static int s_randrError;
@@ -79,8 +84,10 @@ class XRandR : public QObject, public AbstractBackend
         static bool s_has_1_3;
         static bool s_xorgCacheInitialized;
 
-        XRandRXCBHelper *m_x11Helper;
+        XCBEventListener *m_x11Helper;
         bool m_isValid;
+
+        QTimer *m_configChangeCompressor;
 };
 
 Q_DECLARE_LOGGING_CATEGORY(KSCREEN_XRANDR)

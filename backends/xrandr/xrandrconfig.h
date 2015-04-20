@@ -22,6 +22,7 @@
 #include <QObject>
 
 #include "xrandr.h"
+#include "xrandrcrtc.h"
 #include "xrandroutput.h"
 
 class XRandRScreen;
@@ -37,38 +38,38 @@ public:
     explicit XRandRConfig();
     virtual ~XRandRConfig();
 
-    void update();
-
     XRandROutput::Map outputs() const;
-    void addNewOutput(const RROutput id);
+    XRandROutput *output(xcb_randr_output_t output) const;
 
-    KScreen::Config *toKScreenConfig() const;
-    void updateKScreenConfig(KScreen::Config *config) const;
-    void applyKScreenConfig(KScreen::Config *config);
+    XRandRCrtc::Map crtcs() const;
+    XRandRCrtc *crtc(xcb_randr_crtc_t crtc) const;
 
-    int m_primaryOutput;
+    XRandRScreen *screen() const;
+
+    void addNewOutput(xcb_randr_output_t id);
+    void addNewCrtc(xcb_randr_crtc_t crtc);
+    void removeOutput(xcb_randr_output_t id);
+
+    KScreen::ConfigPtr toKScreenConfig() const;
+    void applyKScreenConfig(const KScreen::ConfigPtr &config);
+
 private:
     /**
      * We need to print stuff to discover the damn bug
      * where currentMode is null
      */
-    void printConfig(KScreen::Config* config) const;
+    void printConfig(const KScreen::ConfigPtr &config) const;
     void printInternalCond() const;
-    QSize screenSize(KScreen::Config* config) const;
-    bool setScreenSize(const QSize& size) const;
-    void setPrimaryOutput(int outputId) const;
-    bool disableOutput(KScreen::Output* output) const;
-    bool enableOutput(KScreen::Output* output) const;
-    bool changeOutput(KScreen::Output* output, int crtcId) const;
-    XRandROutput* createNewOutput(RROutput id, bool primary);
+    QSize screenSize(const KScreen::ConfigPtr &config) const;
+    bool setScreenSize(const QSize &size) const;
+    void setPrimaryOutput(xcb_randr_output_t outputId) const;
+    bool disableOutput(const KScreen::OutputPtr &output) const;
+    bool enableOutput(const KScreen::OutputPtr &output) const;
+    bool changeOutput(const KScreen::OutputPtr &output) const;
+
     XRandROutput::Map m_outputs;
+    XRandRCrtc::Map m_crtcs;
     XRandRScreen *m_screen;
-
-Q_SIGNALS:
-    void outputRemoved(int id);
-
-private Q_SLOTS:
-    void outputRemovedSlot(int id);
 };
 
 #endif // XRANDRCONFIG_H

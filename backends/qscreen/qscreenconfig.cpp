@@ -21,7 +21,6 @@
 #include "qscreenscreen.h"
 #include "qscreenbackend.h"
 
-#include <configmonitor.h>
 #include <mode.h>
 
 #include <QtCore/QRect>
@@ -49,10 +48,10 @@ QScreenConfig::~QScreenConfig()
     }
 }
 
-Config *QScreenConfig::toKScreenConfig() const
+ConfigPtr QScreenConfig::toKScreenConfig() const
 {
-    Config *config = new Config();
-    config->setScreen(m_screen->toKScreenScreen(config));
+    ConfigPtr config(new Config);
+    config->setScreen(m_screen->toKScreenScreen());
     updateKScreenConfig(config);
     return config;
 }
@@ -79,7 +78,7 @@ void QScreenConfig::screenAdded(const QScreen *qscreen)
     connect(qscreen, &QObject::destroyed, this, &QScreenConfig::screenDestroyed);
 
     if (!m_blockSignals) {
-        KScreen::ConfigMonitor::instance()->notifyUpdate();
+        Q_EMIT configChanged(toKScreenConfig());
     }
 }
 
@@ -95,40 +94,41 @@ void QScreenConfig::screenDestroyed(QObject *qscreen)
             delete output;
         }
     }
-    KScreen::ConfigMonitor::instance()->notifyUpdate();
+    Q_EMIT configChanged(toKScreenConfig());
 }
 
-void QScreenConfig::updateKScreenConfig(Config *config) const
+void QScreenConfig::updateKScreenConfig(ConfigPtr &config) const
 {
-    m_screen->updateKScreenScreen(config->screen());
+    KScreen::ScreenPtr screen = config->screen();
+    m_screen->updateKScreenScreen(screen);
+    config->setScreen(screen);
 
     //Removing removed outputs
     KScreen::OutputList outputs = config->outputs();
-    Q_FOREACH(KScreen::Output * output, outputs) {
+    Q_FOREACH(const KScreen::OutputPtr &output, outputs) {
         if (!m_outputMap.keys().contains(output->id())) {
             config->removeOutput(output->id());
         }
     }
 
     // Add KScreen::Outputs that aren't in the list yet, handle primaryOutput
-    foreach(auto output, m_outputMap.values()) {
-
-        KScreen::Output *kscreenOutput = config->output(output->id());
+    KScreen::OutputList kscreenOutputs = config->outputs();
+    foreach(QScreenOutput *output, m_outputMap.values()) {
+        KScreen::OutputPtr kscreenOutput = kscreenOutputs[output->id()];
 
         if (!kscreenOutput) {
-            kscreenOutput = output->toKScreenOutput(config);
-            config->addOutput(kscreenOutput);
+            kscreenOutput = output->toKScreenOutput();
+            kscreenOutputs.insert(kscreenOutput->id(), kscreenOutput);
         }
         output->updateKScreenOutput(kscreenOutput);
         if (QGuiApplication::primaryScreen() == output->qscreen()) {
             config->setPrimaryOutput(kscreenOutput);
         }
     }
+    config->setOutputs(kscreenOutputs);
 }
 
 QMap< int, QScreenOutput * > QScreenConfig::outputMap() const
 {
     return m_outputMap;
 }
-
-#include "qscreenconfig.moc"

@@ -19,15 +19,19 @@
 
 #include "xrandrscreen.h"
 #include "xrandrconfig.h"
-#include "xlibandxrandr.h"
-
 #include "screen.h"
 #include "config.h"
+
 #include <QX11Info>
+
+#include "../xcbwrapper.h"
 
 XRandRScreen::XRandRScreen(XRandRConfig *config)
     : QObject(config)
 {
+    XCB::ScreenSize size(XRandR::rootWindow());
+    m_maxSize = QSize(size->max_width, size->max_height);
+    m_minSize = QSize(size->min_width, size->min_height);
     update();
 }
 
@@ -37,38 +41,33 @@ XRandRScreen::~XRandRScreen()
 
 void XRandRScreen::update()
 {
-    Display *display = QX11Info::display();
-    int screen = DefaultScreen(display);
-    Window rootWindow = XRootWindow(display, screen);
+    xcb_screen_t *screen = XCB::screenOfDisplay(XCB::connection(), QX11Info::appScreen());
+    m_currentSize = QSize(screen->width_in_pixels, screen->height_in_pixels);
+}
 
-    XRRGetScreenSizeRange (display, rootWindow,
-                           &m_minSize.rwidth(), &m_minSize.rheight(),
-                           &m_maxSize.rwidth(), &m_maxSize.rheight());
-    m_currentSize = QSize(DisplayWidth(display, screen),DisplayHeight(display, screen));
+void XRandRScreen::update(const QSize &size)
+{
+    m_currentSize = size;
 }
 
 QSize XRandRScreen::currentSize()
 {
-    update();
     return m_currentSize;
 }
 
-KScreen::Screen *XRandRScreen::toKScreenScreen(KScreen::Config *parent) const
+KScreen::ScreenPtr XRandRScreen::toKScreenScreen() const
 {
-    KScreen::Screen *kscreenScreen = new KScreen::Screen(parent);
+    KScreen::ScreenPtr kscreenScreen(new KScreen::Screen);
     kscreenScreen->setId(m_id);
     kscreenScreen->setMaxSize(m_maxSize);
     kscreenScreen->setMinSize(m_minSize);
     kscreenScreen->setCurrentSize(m_currentSize);
-    kscreenScreen->setMaxActiveOutputsCount(XRandR::screenResources()->ncrtc);
+    kscreenScreen->setMaxActiveOutputsCount(XRandR::screenResources()->num_crtcs);
 
     return kscreenScreen;
 }
 
-void XRandRScreen::updateKScreenScreen(KScreen::Screen *screen) const
+void XRandRScreen::updateKScreenScreen(KScreen::ScreenPtr &screen) const
 {
     screen->setCurrentSize(m_currentSize);
 }
-
-
-#include "xrandrscreen.moc"

@@ -19,10 +19,11 @@
 #ifndef SCREEN_CONFIG_H
 #define SCREEN_CONFIG_H
 
+#include "types.h"
 #include "kscreen_export.h"
 
-#include <QtCore/QSize>
-#include <QtCore/QObject>
+#include <QSize>
+#include <QObject>
 
 namespace KScreen {
 
@@ -37,10 +38,10 @@ class KSCREEN_EXPORT Screen : public QObject
         Q_PROPERTY(QSize maxSize READ maxSize CONSTANT)
         Q_PROPERTY(int maxActiveOutputsCount READ maxActiveOutputsCount CONSTANT)
 
-        explicit Screen(QObject *parent = 0);
+        explicit Screen();
         virtual ~Screen();
 
-        Screen* clone() const;
+        ScreenPtr clone() const;
 
         /**
          * The id of this screen.
@@ -88,6 +89,8 @@ class KSCREEN_EXPORT Screen : public QObject
 
         int maxActiveOutputsCount() const;
         void setMaxActiveOutputsCount(int maxActiveOutputsCount);
+
+        void apply(const ScreenPtr &other);
 
     Q_SIGNALS:
         void currentSizeChanged();

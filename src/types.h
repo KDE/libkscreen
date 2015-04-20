@@ -1,5 +1,5 @@
 /*************************************************************************************
- *  Copyright (C) 2012 by Alejandro Fiestas Olivares <afiestas@kde.org>              *
+ *  Copyright 2014  Daniel Vrátil <dvratil@redhat.com>                               *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -16,23 +16,27 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
-#ifndef XLIBANDXCB_H
-#define XLIBANDXCB_H
+#ifndef KSCREEN_TYPES_H
+#define KSCREEN_TYPES_H
 
-extern "C"
+#include <QSharedPointer>
+#include <QMap>
+
+namespace KScreen
 {
-    #include <X11/Xlib.h>
-    #include <X11/Xatom.h>
-    #include <X11/Xlib-xcb.h>
-    #define INT8 _X11INT8
-    #define INT32 _X11INT32
-    #include <X11/Xproto.h>
-    #undef INT8
-    #undef INT32
 
-    #include <xcb/xcb.h>
+class Config;
+typedef QSharedPointer<KScreen::Config> ConfigPtr;
+class Screen;
+typedef QSharedPointer<KScreen::Screen> ScreenPtr;
+class Output;
+typedef QSharedPointer<KScreen::Output> OutputPtr;
+typedef QMap<int, KScreen::OutputPtr> OutputList;
+
+class Mode;
+typedef QSharedPointer<KScreen::Mode> ModePtr;
+typedef QMap<QString, KScreen::ModePtr> ModeList;
+
 }
 
-#include "fixx11h.h"
-
-#endif // XLIBANDXCB_H
+#endif

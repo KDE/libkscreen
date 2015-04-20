@@ -1,6 +1,6 @@
 /*************************************************************************************
  *   Copyright (C) 2012 by Daniel Nicoletti <dantti12@gmail.com>                     *
- *             (C) 2012, 2013 by Daniel Vrátil <dvratil@redhat.com>                  *
+ *             (C) 2012 - 2014 by Daniel Vrátil <dvratil@redhat.com>                 *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -43,8 +43,7 @@
 
 #define PNP_IDS "/usr/share/hwdata/pnp.ids"
 
-namespace KScreen {
-
+using namespace KScreen;
 
 class Edid::Private
 {
@@ -74,7 +73,7 @@ class Edid::Private
     {
     }
 
-    bool parse(const quint8 *data, size_t length);
+    bool parse(const QByteArray &data);
     int edidGetBit(int in, int bit) const;
     int edidGetBits(int in, int begin, int end) const;
     double edidDecodeFraction(int high, int low) const;
@@ -103,11 +102,11 @@ Edid::Edid()
 {
 }
 
-Edid::Edid(const quint8 *data, size_t length, QObject *parent)
+Edid::Edid(const QByteArray &data, QObject *parent)
   : QObject(parent)
   , d(new Private())
 {
-    d->parse(data, length);
+    d->parse(data);
 }
 
 Edid::Edid(Edid::Private *dd)
@@ -240,9 +239,11 @@ QQuaternion Edid::white() const
     return d->white;
 }
 
-bool Edid::Private::parse(const quint8 *data, size_t length)
+bool Edid::Private::parse(const QByteArray &rawData)
 {
     quint32 serial;
+    const quint8 *data = (quint8*) rawData.constData();
+    size_t length = rawData.length();
 
     /* check header */
     if (length < 128) {
@@ -416,7 +417,3 @@ QString Edid::Private::edidParseString(const quint8 *data) const
 
         return text;
 }
-
-} /* namespace KScreen */
-
-#include "edid.moc"

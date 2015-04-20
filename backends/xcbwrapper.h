@@ -3,6 +3,7 @@
  This file is part of the KDE project.
 
 Copyright (C) 2012, 2013 Martin Gräßlin <mgraesslin@kde.org>
+Copyright (C) 2015       Daniel Vrátil <dvratil@redhat.com>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,69 +19,63 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
 
-#include "xlibandxcb.h"
+#ifndef XCB_WRAPPER_H
+#define XCB_WRAPPER_H
 
-#include <xcb/randr.h>
+#include <functional>
+#include <type_traits>
+
 #include <QX11Info>
+#include <QScopedPointer>
 
-static xcb_connection_t *XRandR11XCBConnection = 0;
+#include <xcb/xcb.h>
+#include <xcb/randr.h>
 
-xcb_connection_t *connection()
+namespace XCB
 {
-    // Use our own connection to make sure that we won't mess up Qt's connection
-    // if something goes wrong on our side.
-    if (XRandR11XCBConnection == 0) {
-        XRandR11XCBConnection = xcb_connect(0, 0);
-    }
-    return XRandR11XCBConnection;
-}
 
-void closeConnection()
+template<typename T>
+using ScopedPointer = QScopedPointer<T, QScopedPointerPodDeleter>;
+
+xcb_connection_t *connection();
+void closeConnection();
+xcb_screen_t *screenOfDisplay(xcb_connection_t *c, int screen);
+
+struct GrabServer
 {
-    xcb_disconnect(XRandR11XCBConnection);
-    XRandR11XCBConnection = 0;
-}
-
-xcb_screen_t *screen_of_display (xcb_connection_t *c, int screen)
-{
-    xcb_screen_iterator_t iter;
-
-    iter = xcb_setup_roots_iterator (xcb_get_setup (c));
-    for (; iter.rem; --screen, xcb_screen_next (&iter))
-        if (screen == 0)
-            return iter.data;
-
-    return NULL;
-}
-
-typedef xcb_window_t WindowId;
+    GrabServer();
+    ~GrabServer();
+};
 
 template <typename Reply,
-typename Cookie,
-Reply *(*replyFunc)(xcb_connection_t*, Cookie, xcb_generic_error_t**),
-Cookie (*requestFunc)(xcb_connection_t*, xcb_window_t)>
+          typename Cookie,
+          typename ReplyFunc,
+          ReplyFunc replyFunc,
+          typename RequestFunc,
+          RequestFunc requestFunc,
+          typename ... RequestFuncArgs>
 class Wrapper
 {
 public:
     Wrapper()
     : m_retrieved(false)
     , m_window(XCB_WINDOW_NONE)
-    , m_reply(NULL)
+    , m_reply(Q_NULLPTR)
     {
         m_cookie.sequence = 0;
     }
-    explicit Wrapper(WindowId window)
+    explicit Wrapper(const RequestFuncArgs& ... args)
     : m_retrieved(false)
-    , m_cookie(requestFunc(connection(), window))
-    , m_window(window)
-    , m_reply(NULL)
+    , m_cookie(requestFunc(connection(), args ...))
+    , m_window(requestWindow<RequestFuncArgs ...>(args ...))
+    , m_reply(Q_NULLPTR)
     {
     }
     explicit Wrapper(const Wrapper &other)
     : m_retrieved(other.m_retrieved)
     , m_cookie(other.m_cookie)
     , m_window(other.m_window)
-    , m_reply(NULL)
+    , m_reply(Q_NULLPTR)
     {
         takeFromOther(const_cast<Wrapper&>(other));
     }
@@ -102,22 +97,26 @@ public:
         return *this;
     }
 
-    inline const Reply *operator->() {
+    inline operator const Reply*() const {
         getReply();
         return m_reply;
     }
-    inline bool isNull() {
+    inline const Reply* operator->() const {
+        getReply();
+        return m_reply;
+    }
+    inline bool isNull() const {
         getReply();
         return m_reply == NULL;
     }
-    inline operator bool() {
+    inline operator bool() const {
         return !isNull();
     }
-    inline const Reply *data() {
+    inline const Reply* data() const {
         getReply();
         return m_reply;
     }
-    inline WindowId window() const {
+    inline xcb_window_t window() const {
         return m_window;
     }
     inline bool isRetrieved() const {
@@ -133,13 +132,13 @@ public:
     inline Reply *take() {
         getReply();
         Reply *ret = m_reply;
-        m_reply = NULL;
+        m_reply = Q_NULLPTR;
         m_window = XCB_WINDOW_NONE;
         return ret;
     }
 
 protected:
-    void getReply() {
+    void getReply() const {
         if (m_retrieved || !m_cookie.sequence) {
             return;
         }
@@ -164,11 +163,49 @@ private:
             other.m_window = XCB_WINDOW_NONE;
         }
     }
-    bool m_retrieved;
+    template<typename ... Args>
+    constexpr xcb_window_t requestWindow(const Args & ... args) {
+        return std::is_same<typename std::tuple_element<0, std::tuple<Args ...>>::type, xcb_window_t>::value
+                    ? std::get<0>(std::tuple<Args ...>(args ...))
+                    : static_cast<xcb_window_t>(XCB_WINDOW_NONE);
+    }
+
+    mutable bool m_retrieved;
     Cookie m_cookie;
-    WindowId m_window;
-    Reply *m_reply;
+    xcb_window_t m_window;
+    mutable Reply *m_reply;
 };
 
-typedef Wrapper<xcb_randr_get_screen_size_range_reply_t, xcb_randr_get_screen_size_range_cookie_t, &xcb_randr_get_screen_size_range_reply, &xcb_randr_get_screen_size_range> ScreenSize;
-typedef Wrapper<xcb_randr_get_screen_info_reply_t, xcb_randr_get_screen_info_cookie_t, &xcb_randr_get_screen_info_reply, &xcb_randr_get_screen_info> ScreenInfo;
+#define XCB_DECLARE_TYPE(name, xcb_request, ...) \
+    typedef Wrapper<xcb_request##_reply_t, \
+                    xcb_request##_cookie_t, \
+                    decltype(&xcb_request##_reply), \
+                    xcb_request##_reply, \
+                    decltype(&xcb_request), \
+                    xcb_request, \
+                    ##__VA_ARGS__> name
+
+XCB_DECLARE_TYPE(ScreenInfo, xcb_randr_get_screen_info,
+                 xcb_window_t);
+
+XCB_DECLARE_TYPE(ScreenSize, xcb_randr_get_screen_size_range,
+                 xcb_window_t);
+
+XCB_DECLARE_TYPE(PrimaryOutput, xcb_randr_get_output_primary,
+                 xcb_window_t);
+
+XCB_DECLARE_TYPE(InternAtom, xcb_intern_atom,
+                 uint8_t, uint16_t, const char *);
+
+XCB_DECLARE_TYPE(OutputInfo, xcb_randr_get_output_info,
+                 xcb_randr_output_t, xcb_timestamp_t);
+
+XCB_DECLARE_TYPE(CRTCInfo, xcb_randr_get_crtc_info,
+                 xcb_randr_crtc_t, xcb_timestamp_t);
+
+XCB_DECLARE_TYPE(AtomName, xcb_get_atom_name,
+                 xcb_atom_t);
+
+}
+
+#endif

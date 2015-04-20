@@ -21,13 +21,14 @@
 #include "mode.h"
 #include "output.h"
 
-XRandRMode::XRandRMode(XRRModeInfo *modeInfo, XRandROutput *output)
+XRandRMode::XRandRMode(const xcb_randr_mode_info_t &modeInfo, XRandROutput *output)
     : QObject(output)
 {
-    m_id = modeInfo->id;
-    m_name = QString::fromUtf8(modeInfo->name);
-    m_size = QSize(modeInfo->width, modeInfo->height);
-    m_refreshRate = ((float) modeInfo->dotClock / ((float) modeInfo->hTotal * (float) modeInfo->vTotal));
+    m_id = modeInfo.id;
+    // FIXME XCB
+    //m_name = QString::fromUtf8(modeInfo->name);
+    m_size = QSize(modeInfo.width, modeInfo.height);
+    m_refreshRate = ((float) modeInfo.dot_clock / ((float) modeInfo.htotal * (float) modeInfo.vtotal));
 }
 
 
@@ -35,9 +36,9 @@ XRandRMode::~XRandRMode()
 {
 }
 
-KScreen::Mode *XRandRMode::toKScreenMode(KScreen::Output *parent)
+KScreen::ModePtr XRandRMode::toKScreenMode()
 {
-    KScreen::Mode *kscreenMode = new KScreen::Mode(parent);
+    KScreen::ModePtr kscreenMode(new KScreen::Mode);
 
     kscreenMode->setId(QString::number(m_id));
     kscreenMode->setName(m_name);
@@ -47,7 +48,7 @@ KScreen::Mode *XRandRMode::toKScreenMode(KScreen::Output *parent)
     return kscreenMode;
 }
 
-int XRandRMode::id() const
+xcb_randr_mode_t XRandRMode::id() const
 {
     return m_id;
 }
@@ -66,5 +67,3 @@ QString XRandRMode::name() const
 {
     return m_name;
 }
-
-#include "xrandrmode.moc"

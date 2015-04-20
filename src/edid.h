@@ -50,7 +50,7 @@ class KSCREEN_EXPORT Edid: public QObject
 
   public:
     explicit Edid();
-    explicit Edid(const quint8 *data, size_t length, QObject *parent = 0);
+    explicit Edid(const QByteArray &data, QObject *parent = 0);
     virtual ~Edid();
 
     Edid* clone() const;

@@ -24,57 +24,37 @@
 #include <QVariant>
 #include <QPointer>
 
-#include "xlibandxrandr.h"
 #include "xrandrmode.h"
 #include "output.h"
+#include "../xcbwrapper.h"
 
 class XRandRConfig;
+class XRandRCrtc;
 namespace KScreen
 {
 class Config;
 class Output;
-class Edid;
 }
 
 class XRandROutput : public QObject
 {
     Q_OBJECT
-    Q_FLAGS(Property Properties)
 
 public:
-    typedef QMap<int, XRandROutput*> Map;
+    typedef QMap<xcb_randr_output_t, XRandROutput*> Map;
 
-    enum Property {
-        PropertyNone            = 1 << 0,
-        PropertyId              = 1 << 1,
-        PropertyName            = 1 << 2,
-        PropertyIcon            = 1 << 3,
-        PropertyModes           = 1 << 4,
-        PropertyPos             = 1 << 5,
-        PropertyRotation        = 1 << 6,
-        PropertyCurrentMode     = 1 << 7,
-        PropertyConnected       = 1 << 8,
-        PropertyEnabled         = 1 << 9,
-        PropertyPrimary         = 1 << 10,
-        PropertyClones          = 1 << 11,
-        PropertyEdid            = 1 << 12,
-        PropertyPreferredMode   = 1 << 13
-    };
-
-    enum PrimaryChange {
-        NoChange = 0,
-        SetPrimary = 1,
-        UnsetPrimary = 2,
-    };
-
-    Q_DECLARE_FLAGS(Properties, Property)
-
-    explicit XRandROutput(int id, bool primary, XRandRConfig *config = 0);
+    explicit XRandROutput(xcb_randr_output_t id, XRandRConfig *config);
     virtual ~XRandROutput();
 
-    void update(PrimaryChange primary = NoChange);
+    void disabled();
+    void disconnected();
 
-    int id() const;
+    void update();
+    void update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_connection_t conn, bool primary);
+
+    void setIsPrimary(bool primary);
+
+    xcb_randr_output_t id() const;
     bool isEnabled() const;
     bool isConnected() const;
     bool isPrimary() const;
@@ -83,42 +63,34 @@ public:
     XRandRMode::Map modes() const;
     XRandRMode* currentMode() const;
     KScreen::Output::Rotation rotation() const;
-    inline bool isHorizontal() const { return ((m_rotation == KScreen::Output::None) || (m_rotation == KScreen::Output::Inverted)); }
-    KScreen::Edid* edid() const;
+    bool isHorizontal() const;
+    QByteArray edid() const;
+    XRandRCrtc* crtc() const;
 
-    KScreen::Output* toKScreenOutput(KScreen::Config *parent) const;
-    void updateKScreenOutput(KScreen::Output *output) const;
-
-    void updateModes(const XRROutputInfo *outputInfo);
-    void addNewOutput(const RROutput output);
-
-Q_SIGNALS:
-    void outputRemoved(int id);
+    KScreen::OutputPtr toKScreenOutput() const;
 
 private:
-    void updateOutput(const XRROutputInfo *outputInfo);
-    void fetchType();
-    KScreen::Output::Type typeFromName();
-    QByteArray typeFromProperty() const;
+    void init();
+    void updateModes(const XCB::OutputInfo &outputInfo);
 
-    int m_id;
+    static KScreen::Output::Type fetchOutputType(xcb_randr_output_t outputId, const QString &name);
+    static KScreen::Output::Type typeFromName(const QString &name);
+    static QByteArray typeFromProperty(xcb_randr_output_t outputId);
+
+    XRandRConfig *m_config;
+    xcb_randr_output_t m_id;
     QString m_name;
+    xcb_randr_connection_t m_connected;
     KScreen::Output::Type m_type;
     QString m_icon;
     XRandRMode::Map m_modes;
-    QPoint m_position;
-    KScreen::Output::Rotation m_rotation;
-    QString m_currentMode;
     QStringList m_preferredModes;
-    bool m_connected;
-    bool m_enabled;
     bool m_primary;
-    QList<int> m_clones;
-    mutable QPointer<KScreen::Edid> m_edid;
+    QList<xcb_randr_output_t> m_clones;
+    mutable QByteArray m_edid;
     unsigned int m_widthMm;
     unsigned int m_heightMm;
-
-    mutable int m_changedProperties;
+    XRandRCrtc *m_crtc;
 };
 
 Q_DECLARE_METATYPE(XRandROutput::Map)

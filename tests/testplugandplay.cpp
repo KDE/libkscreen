@@ -27,8 +27,6 @@ int main(int argc, char **argv)
 {
     QGuiApplication app(argc, argv);
 
-    new TestPnp();
-
     QCommandLineOption input = QCommandLineOption(QStringList() << QStringLiteral("m") << "monitor",
                                                   QStringLiteral("Keep running monitoring for changes"));
     QCommandLineParser parser;
@@ -36,10 +34,6 @@ int main(int argc, char **argv)
     parser.addOption(input);
     parser.process(app);
 
-    if (parser.isSet(input)) {
-        return app.exec();
-    } else {
-        return 0;
-    }
-
+    new TestPnp(parser.isSet(input));
+    return app.exec();
 }

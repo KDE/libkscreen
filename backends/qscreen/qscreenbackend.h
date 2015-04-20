@@ -21,7 +21,7 @@
 #ifndef QSCREEN_BACKEND_H
 #define QSCREEN_BACKEND_H
 
-#include "../abstractbackend.h"
+#include "abstractbackend.h"
 
 #include <QLoggingCategory>
 
@@ -30,22 +30,20 @@ namespace KScreen
 class Output;
 class QScreenConfig;
 
-class QScreenBackend : public QObject, public AbstractBackend
+class QScreenBackend : public KScreen::AbstractBackend
 {
     Q_OBJECT
-    Q_INTERFACES(AbstractBackend)
     Q_PLUGIN_METADATA(IID "org.kf5.kscreen.backends.qscreen")
 
 public:
-    explicit QScreenBackend(QObject *parent = 0);
+    explicit QScreenBackend();
     virtual ~QScreenBackend();
 
     virtual QString name() const;
-    virtual KScreen::Config *config() const;
-    virtual void setConfig(KScreen::Config *config) const;
+    virtual QString serviceName() const;
+    virtual KScreen::ConfigPtr config() const;
+    virtual void setConfig(const KScreen::ConfigPtr &config);
     virtual bool isValid() const;
-    virtual KScreen::Edid *edid(int outputId) const;
-    virtual void updateConfig(KScreen::Config *config) const;
 
 private:
     bool m_isValid;

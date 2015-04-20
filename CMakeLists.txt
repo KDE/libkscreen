@@ -1,8 +1,9 @@
 project(libkscreen)
+set(PROJECT_VERSION "5.3.90")
 
 cmake_minimum_required(VERSION 2.8.12)
 
-find_package(ECM 0.0.11 REQUIRED NO_MODULE)
+find_package(ECM 1.3.0 REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR})
 include(KDEInstallDirs)
 include(KDECompilerSettings)
@@ -15,7 +16,7 @@ include(FeatureSummary)
 include(CheckCXXCompilerFlag)
 
 set(REQUIRED_QT_VERSION 5.2.0)
-find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Core Gui Test X11Extras)
+find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Core DBus Gui Test X11Extras)
 
 find_package(Wayland 1.2 COMPONENTS Client Cursor)
 set_package_properties(Wayland PROPERTIES
@@ -38,22 +39,15 @@ endif()
 
 find_package(XCB COMPONENTS XCB RANDR)
 set_package_properties(XCB PROPERTIES
-                       TYPE OPTIONAL
-                       PURPOSE "Required for building XRandR 1.1 backend"
+                       TYPE REQUIRED
+                       PURPOSE "Required for building XRandR backends"
 )
 
-find_package(X11)
-set_package_properties(X11 PROPERTIES DESCRIPTION "X11 libraries"
-                        URL "http://www.x.org"
-                        TYPE OPTIONAL
-                        PURPOSE "Required for building XRandR 1.2 backend"
-)
-
-set(KF5_VERSION "5.0.91") #When we are happy with the api, we can sync with frameworks
+set(KF5_VERSION ${PROJECT_VERSION}) #When we are happy with the api, we can sync with frameworks
 ecm_setup_version(${KF5_VERSION} VARIABLE_PREFIX KSCREEN
                         VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/kscreen_version.h"
                         PACKAGE_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/KF5ScreenConfigVersion.cmake"
-                        SOVERSION 5)
+                        SOVERSION 6)
 
 check_cxx_compiler_flag(-fvisibility=hidden _HAVE_VISIBILITY)
 if (_HAVE_VISIBILITY AND NOT WIN32)

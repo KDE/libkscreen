@@ -21,28 +21,41 @@
 
 #include "config.h"
 #include "edid.h"
+#include <output.h>
 
 #include <stdlib.h>
 
-#include <QtCore/QFile>
-#include <QtCore/qplugin.h>
+#include <QFile>
+#include <QTimer>
 
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
 
+#include <QDBusConnection>
+
+#include "fakebackendadaptor.h"
+
 using namespace KScreen;
 
 Q_LOGGING_CATEGORY(KSCREEN_FAKE, "kscreen.fake")
 
-Fake::Fake(QObject* parent): QObject(parent)
+Fake::Fake()
+    : KScreen::AbstractBackend()
 {
     QLoggingCategory::setFilterRules(QStringLiteral("kscreen.fake.debug = true"));
+
+    QTimer::singleShot(0, this, SLOT(delayedInit()));
+}
+
+void Fake::delayedInit()
+{
+    new FakeBackendAdaptor(this);
+    QDBusConnection::sessionBus().registerObject(QLatin1String("/fake"), this);
 }
 
 Fake::~Fake()
 {
-
 }
 
 QString Fake::name() const
@@ -50,12 +63,25 @@ QString Fake::name() const
     return QString("Fake");
 }
 
-Config* Fake::config() const
+QString Fake::serviceName() const
 {
-    return Parser::fromJson(QString(qgetenv("TEST_DATA")));
+    if (!qgetenv("KSCREEN_TEST_INSTANCE").isEmpty()) {
+        return QString::fromLatin1("org.kde.KScreen.Backend.Fake.") + QString::fromLatin1(qgetenv("KSCREEN_TEST_INSTANCE"));
+    }
+
+    return QLatin1Literal("org.kde.KScreen.Backend.Fake");
 }
 
-void Fake::setConfig(Config* config) const
+ConfigPtr Fake::config() const
+{
+    if (mConfig.isNull()) {
+        mConfig = Parser::fromJson(QString(qgetenv("TEST_DATA")));
+    }
+
+    return mConfig;
+}
+
+void Fake::setConfig(const ConfigPtr &config)
 {
     Q_UNUSED(config)
 }
@@ -65,31 +91,100 @@ bool Fake::isValid() const
     return true;
 }
 
-Edid *Fake::edid(int outputId) const
+QByteArray Fake::edid(int outputId) const
 {
     Q_UNUSED(outputId);
     QFile file(QString(qgetenv("TEST_DATA")));
     file.open(QIODevice::ReadOnly);
 
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
-    QJsonObject json = jsonDoc.object();
+    const QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
+    const QJsonObject json = jsonDoc.object();
 
-    QJsonArray outputs = json["outputs"].toArray();
+    const QJsonArray outputs = json["outputs"].toArray();
     Q_FOREACH(const QJsonValue &value, outputs) {
-        QVariantMap output = value.toObject().toVariantMap();
+        const QVariantMap output = value.toObject().toVariantMap();
         if (output["id"].toInt() != outputId) {
             continue;
         }
 
-        QByteArray data = QByteArray::fromBase64(output["edid"].toByteArray());
-        return new Edid((quint8*)data.data(), data.length());
+        return QByteArray::fromBase64(output["edid"].toByteArray());
     }
-    return 0;
+    return QByteArray();
 }
 
-void Fake::updateConfig(Config *config) const
+void Fake::setConnected(int outputId, bool connected)
 {
-    Q_UNUSED(config);
+    KScreen::OutputPtr output = config()->output(outputId);
+    if (output->isConnected() == connected) {
+        return;
+    }
+
+    output->setConnected(connected);
+    Q_EMIT configChanged(mConfig);
 }
 
-#include "fake.moc"
+void Fake::setEnabled(int outputId, bool enabled)
+{
+    KScreen::OutputPtr output = config()->output(outputId);
+    if (output->isEnabled() == enabled) {
+        return;
+    }
+
+    output->setEnabled(enabled);
+    Q_EMIT configChanged(mConfig);
+}
+
+void Fake::setPrimary(int outputId, bool primary)
+{
+    KScreen::OutputPtr output = config()->output(outputId);
+    if (output->isPrimary() == primary) {
+        return;
+    }
+
+    Q_FOREACH (KScreen::OutputPtr output, config()->outputs()) {
+        if (output->id() == outputId) {
+            output->setPrimary(primary);
+        } else {
+            output->setPrimary(false);
+        }
+    }
+    Q_EMIT configChanged(mConfig);
+}
+
+void Fake::setCurrentModeId(int outputId, const QString &modeId)
+{
+    KScreen::OutputPtr output = config()->output(outputId);
+    if (output->currentModeId() == modeId) {
+        return;
+    }
+
+    output->setCurrentModeId(modeId);
+    Q_EMIT configChanged(mConfig);
+}
+
+void Fake::setRotation(int outputId, int rotation)
+{
+    KScreen::OutputPtr output = config()->output(outputId);
+    const KScreen::Output::Rotation rot = static_cast<KScreen::Output::Rotation>(rotation);
+    if (output->rotation() == rot) {
+        return;
+    }
+
+    output->setRotation(rot);
+    Q_EMIT configChanged(mConfig);
+}
+
+void Fake::addOutput(int outputId, const QString &name)
+{
+    KScreen::OutputPtr output(new KScreen::Output);
+    output->setId(outputId);
+    output->setName(name);
+    mConfig->addOutput(output);
+    Q_EMIT configChanged(mConfig);
+}
+
+void Fake::removeOutput(int outputId)
+{
+    mConfig->removeOutput(outputId);
+    Q_EMIT configChanged(mConfig);
+}

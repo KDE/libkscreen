@@ -22,6 +22,8 @@
 #include <QObject>
 #include <QSize>
 
+#include "types.h"
+
 class XRandRConfig;
 namespace KScreen
 {
@@ -37,10 +39,11 @@ public:
     explicit XRandRScreen(XRandRConfig *config = 0);
     virtual ~XRandRScreen();
 
-    KScreen::Screen *toKScreenScreen(KScreen::Config *parent) const;
-    void updateKScreenScreen(KScreen::Screen *screen) const;
+    KScreen::ScreenPtr toKScreenScreen() const;
+    void updateKScreenScreen(KScreen::ScreenPtr &screen) const;
 
     void update();
+    void update(const QSize &size);
     QSize currentSize();
 
 private:

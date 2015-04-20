@@ -24,6 +24,7 @@
 #include "../src/config.h"
 #include "../src/output.h"
 #include "../src/mode.h"
+#include "../src/getconfigoperation.h"
 
 using namespace KScreen;
 
@@ -46,14 +47,18 @@ void testXRandR::initTestCase()
 void testXRandR::singleOutput()
 {
     setenv("KSCREEN_BACKEND", "XRandR", 1);
-    Config *config = Config::current();
+
+    GetConfigOperation *op = new GetConfigOperation();
+    QVERIFY(op->exec());
+
+    const ConfigPtr config = op->config();
     if (!config) {
         QSKIP("XRandR X extension is not available", SkipAll);
     }
 
     QCOMPARE(config->outputs().count(), 1);
 
-    Output *output = config->outputs().take(327);
+    const OutputPtr output = config->outputs().take(327);
 
     QCOMPARE(output->name(), QString("default"));
     QCOMPARE(output->type(), Output::Unknown);
