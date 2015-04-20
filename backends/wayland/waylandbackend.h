@@ -43,7 +43,7 @@ public:
     static WaylandConfig *internalConfig();
 
     virtual QString name() const;
-
+    virtual QString serviceName() const;
     virtual KScreen::ConfigPtr config() const;
     virtual void setConfig(const KScreen::ConfigPtr &config);
     virtual bool isValid() const;

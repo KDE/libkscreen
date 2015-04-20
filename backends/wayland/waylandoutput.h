@@ -41,13 +41,13 @@ public:
     explicit WaylandOutput(QObject *parent = 0);
     virtual ~WaylandOutput();
 
-    KScreen::Output* toKScreenOutput(KScreen::Config *parent) const;
-    void updateKScreenOutput(KScreen::Output *output) const;
+    KScreen::OutputPtr toKScreenOutput(KScreen::ConfigPtr &parent) const;
+    void updateKScreenOutput(KScreen::OutputPtr &output) const;
 
     /**
      * Access to the Output's Edid object.
      */
-    KScreen::Edid *edid();
+    //KScreen::Edid edid();
 
     quint32 id() const;
     void setId(const quint32 newId);
@@ -65,7 +65,7 @@ private:
     void updateModes();
     QString modeName(const KWayland::Client::Output::Mode &m) const;
 
-    mutable QPointer<KScreen::Edid> m_edid;
+    mutable QSharedPointer<KScreen::Edid> m_edid;
     quint32 m_id;
 
     /** Check if we consider this object to be complete (i.e. done initializing).*/

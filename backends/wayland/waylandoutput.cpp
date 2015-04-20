@@ -56,17 +56,21 @@ void WaylandOutput::setId(const quint32 newId)
     m_id = newId;
 }
 
-KScreen::Edid *WaylandOutput::edid()
+/*
+KScreen::Edid WaylandOutput::edid()
 {
     if (!m_edid) {
-        m_edid = new KScreen::Edid(0, 0, this);
+        m_edid(new KScreen::Edid(QByteArray(), this));
     }
     return m_edid;
+    //return KScreen::Edid(QByteArray(), this);
+    return 0;
 }
+*/
 
-Output* WaylandOutput::toKScreenOutput(Config* parent) const
+KScreen::OutputPtr WaylandOutput::toKScreenOutput(KScreen::ConfigPtr &parent) const
 {
-    KScreen::Output *output = new KScreen::Output(parent);
+    KScreen::OutputPtr output(new KScreen::Output());
     output->setId(m_id);
     output->setName(QString::number(m_id));
     qCDebug(KSCREEN_WAYLAND) << "toKScreenOutput OUTPUT";
@@ -74,7 +78,7 @@ Output* WaylandOutput::toKScreenOutput(Config* parent) const
     return output;
 }
 
-void WaylandOutput::updateKScreenOutput(KScreen::Output* output) const
+void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output) const
 {
     qCDebug(KSCREEN_WAYLAND) << "updateKScreenOutput OUTPUT";
     // Initialize primary output
@@ -87,9 +91,9 @@ void WaylandOutput::updateKScreenOutput(KScreen::Output* output) const
     output->setSizeMm(physicalSize());
     //qCDebug(KSCREEN_WAYLAND) << "  ####### setSizeMm: " << physicalSize();
     output->setPos(globalPosition());
-    ModeList modeList;
+    KScreen::ModeList modeList;
     Q_FOREACH (const KWayland::Client::Output::Mode &m, modes()) {
-        KScreen::Mode *mode = new KScreen::Mode(output);
+        KScreen::ModePtr mode(new KScreen::Mode());
         const QString modename = modeName(m);
         mode->setId(modename);
         mode->setRefreshRate(m.refreshRate);

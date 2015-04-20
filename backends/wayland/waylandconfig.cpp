@@ -207,7 +207,7 @@ void WaylandConfig::updateKScreenConfig(KScreen::ConfigPtr &config) const
 
     //Removing removed outputs
     KScreen::OutputList outputs = config->outputs();
-    Q_FOREACH (KScreen::Output *output, outputs) {
+    Q_FOREACH (KScreen::OutputPtr output, outputs) {
         if (!m_outputMap.keys().contains(output->id())) {
             config->removeOutput(output->id());
         }
@@ -216,7 +216,7 @@ void WaylandConfig::updateKScreenConfig(KScreen::ConfigPtr &config) const
     // Add KScreen::Outputs that aren't in the list yet, handle primaryOutput
     Q_FOREACH (auto output, m_outputMap.values()) {
 
-        KScreen::Output *kscreenOutput = config->output(output->id());
+        KScreen::OutputPtr kscreenOutput(config->output(output->id()));
 
         if (!kscreenOutput) {
             kscreenOutput = output->toKScreenOutput(config);
