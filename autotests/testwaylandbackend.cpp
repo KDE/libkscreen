@@ -32,6 +32,8 @@
 #include <KWayland/Server/shell_interface.h>
 
 
+#include "../src/backendmanager_p.h"
+#include "../src/getconfigoperation.h"
 #include "../src/config.h"
 #include "../src/configmonitor.h"
 #include "../src/output.h"
@@ -67,7 +69,7 @@ private Q_SLOTS:
 
 private:
     QProcess m_process;
-    Config *m_config;
+    ConfigPtr m_config;
     QString m_backend;
 
     bool m_startServer;
@@ -92,12 +94,17 @@ testWaylandBackend::testWaylandBackend(QObject *parent)
 void testWaylandBackend::initTestCase()
 {
     setenv("KSCREEN_BACKEND", "wayland", 1);
+    KScreen::BackendManager::instance()->shutdownBackend();
     m_backend = qgetenv("KSCREEN_BACKEND").constData();
     m_startServer = QString::fromLocal8Bit(qgetenv("KSCREEN_EXTERNAL_WAYLAND_SERVER").constData()).isEmpty();
 
     // This is how KWayland will pick up the right socket,
     // and thus connect to our internal test server.
     setenv("WAYLAND_DISPLAY", s_socketName.toLocal8Bit(), 1);
+
+    GetConfigOperation *op = new GetConfigOperation();
+    op->exec();
+    m_config = op->config();
 }
 
 void testWaylandBackend::verifyDisco()
@@ -160,7 +167,9 @@ void testWaylandBackend::startWaylandServer()
 
 void testWaylandBackend::loadConfig()
 {
-    m_config = Config::current();
+    GetConfigOperation *op = new GetConfigOperation();
+    op->exec();
+    m_config = op->config();
     QVERIFY(m_config->isValid());
 }
 
@@ -174,8 +183,8 @@ void testWaylandBackend::verifyConfig()
 
 void testWaylandBackend::verifyScreen()
 {
-    Screen *screen = m_config->screen();
-    qDebug() << "Screen: " << screen;
+    ScreenPtr screen = m_config->screen();
+    //qDebug() << "Screen: " << screen;
 
     QVERIFY(screen->minSize().width() <= screen->maxSize().width());
     QVERIFY(screen->minSize().height() <= screen->maxSize().height());
@@ -194,7 +203,7 @@ void testWaylandBackend::verifyOutputs()
 
     //qDebug() << "Outputs: " << m_config->outputs();
     bool primaryFound = false;
-    foreach (const KScreen::Output* op, m_config->outputs()) {
+    foreach (const KScreen::OutputPtr op, m_config->outputs()) {
         //qDebug() << "CHecking at all";
         if (op->isPrimary()) {
             primaryFound = true;
@@ -204,7 +213,7 @@ void testWaylandBackend::verifyOutputs()
     QVERIFY(primaryFound);
     QVERIFY(m_config->outputs().count());
 
-    KScreen::Output *primary = m_config->primaryOutput();
+    KScreen::OutputPtr primary = m_config->primaryOutput();
     QVERIFY(primary->isEnabled());
     QVERIFY(primary->isConnected());
     //qDebug() << " prim modes: " << primary->modes();
@@ -233,7 +242,7 @@ void testWaylandBackend::verifyOutputs()
 
 void testWaylandBackend::verifyModes()
 {
-    KScreen::Output *primary = m_config->primaryOutput();
+    KScreen::OutputPtr primary = m_config->primaryOutput();
     QVERIFY(primary);
     QVERIFY(primary->modes().count() > 0);
 
@@ -268,7 +277,8 @@ void testWaylandBackend::cleanupTestCase()
     if (m_startServer) {
         QCOMPARE(m_config->outputs().count(), 0);
     }
-    delete m_config;
+    //delete m_config;
+    m_config->deleteLater();
 }
 
 QTEST_GUILESS_MAIN(testWaylandBackend)
