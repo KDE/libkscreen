@@ -36,10 +36,10 @@ WaylandScreen::~WaylandScreen()
 {
 }
 
-Screen* WaylandScreen::toKScreenScreen(Config* parent) const
+ScreenPtr WaylandScreen::toKScreenScreen(KScreen::ConfigPtr &parent) const
 {
-    KScreen::Screen *kscreenScreen = new KScreen::Screen(parent);
-    updateKScreenScreen(kscreenScreen);
+    KScreen::ScreenPtr kscreenScreen(new KScreen::Screen);
+    updateKScreenScreen(&kscreenScreen);
     return kscreenScreen;
 }
 
@@ -53,7 +53,7 @@ void WaylandScreen::setOutputs(const QList<WaylandOutput*> outputs)
     m_size = r.size();
 }
 
-void WaylandScreen::updateKScreenScreen(Screen* screen) const
+void WaylandScreen::updateKScreenScreen(KScreen::ScreenPtr &screen) const
 {
 //     screen->setCurrentSize(_s);
 //     screen->setId(1);

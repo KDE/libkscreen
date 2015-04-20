@@ -93,7 +93,8 @@ void WaylandConfig::disconnected()
     m_screen = new WaylandScreen(this);
 
     qDebug() << "WLC Notifying that we're gone";
-    ConfigMonitor::instance()->notifyUpdate();
+    //ConfigMonitor::instance()->notifyUpdate();
+    Q_EMIT configChanged(toKScreenConfig());
 }
 
 void WaylandConfig::setupRegistry()
@@ -141,7 +142,8 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
             m_initializingOutputs.removeAll(name);
             checkInitialized();
         } else {
-            KScreen::ConfigMonitor::instance()->notifyUpdate();
+            //KScreen::ConfigMonitor::instance()->notifyUpdate();
+            Q_EMIT configChanged(toKScreenConfig());
         }
     });
 }
@@ -157,9 +159,9 @@ void WaylandConfig::checkInitialized()
 }
 
 
-Config* WaylandConfig::toKScreenConfig() const
+KScreen::ConfigPtr WaylandConfig::toKScreenConfig() const
 {
-    Config *config = new Config();
+    KScreen::ConfigPtr config(new Config);
     config->setScreen(m_screen->toKScreenScreen(config));
     updateKScreenConfig(config);
     return config;
@@ -191,15 +193,17 @@ void WaylandConfig::removeOutput(quint32 id)
 //         }
     }
     if (!m_blockSignals) {
-        KScreen::ConfigMonitor::instance()->notifyUpdate();
+        //KScreen::ConfigMonitor::instance()->notifyUpdate();
+        Q_EMIT configChanged(toKScreenConfig());
     }
 }
 
-void WaylandConfig::updateKScreenConfig(Config* config) const
+void WaylandConfig::updateKScreenConfig(KScreen::ConfigPtr &config) const
 {
     qDebug() << "updateKScreenConfig!";
     config->setValid(m_connection->display());
-    m_screen->updateKScreenScreen(config->screen());
+    KScreen::ScreenPtr screen = config->screen();
+    m_screen->updateKScreenScreen(screen);
 
     //Removing removed outputs
     KScreen::OutputList outputs = config->outputs();

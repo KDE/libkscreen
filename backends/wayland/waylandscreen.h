@@ -39,8 +39,8 @@ public:
     explicit WaylandScreen(WaylandConfig *config);
     virtual ~WaylandScreen();
 
-    KScreen::Screen *toKScreenScreen(KScreen::Config *parent) const;
-    void updateKScreenScreen(KScreen::Screen *screen) const;
+    KScreen::ScreenPtr toKScreenScreen(KScreen::ConfigPtr &parent) const;
+    void updateKScreenScreen(KScreen::ScreenPtr &screen) const;
     void setOutputs(const QList<WaylandOutput*> outputs);
 
     void setSize(const QSize &size);

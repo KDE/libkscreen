@@ -68,7 +68,7 @@ public:
     virtual ~WaylandConfig();
 
     KScreen::ConfigPtr toKScreenConfig() const;
-    void updateKScreenConfig(KScreen::ConfigPtr config) const;
+    void updateKScreenConfig(KScreen::ConfigPtr &config) const;
 
     QMap<quint32, WaylandOutput *> outputMap() const;
     int outputId(KWayland::Client::Output *wlo);
@@ -77,6 +77,7 @@ public:
     void removeOutput(quint32 id);
 
 Q_SIGNALS:
+    void configChanged(const KScreen::ConfigPtr &config);
     void initialized();
 
 private Q_SLOTS:
