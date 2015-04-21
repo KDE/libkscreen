@@ -81,7 +81,7 @@ OutputInterface* WaylandTestServer::createOutput(const QVariantMap& outputConfig
     OutputInterface *output = m_display->createOutput(this);
 
     QByteArray data = QByteArray::fromBase64(outputConfig["edid"].toByteArray());
-    Edid edid((quint8*)data.data(), data.length());
+    Edid edid(data, this);
 
     qDebug() << "EDID Info: ";
     if (edid.isValid()) {
