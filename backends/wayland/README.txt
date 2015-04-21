@@ -30,18 +30,30 @@ is pure coincidence and is likely to break code assuming it.
                                                             <sebas@kde.org>
 
 
+QUESTIONS
+
+- Is the socket monitored for disappearing?
+- Where is the socket file cleaned up?
+- Can the ConnectionThread tell me when a Wayland server appears, or do we assume the server is always already there? (create client, then start server should work?)
+
+
 TODO
+
+- Watch for server appearing after config is initialized
+- Make case where server is started before anything else happens work
+- Make sure config is updated on server shutdown
+
 
 - WaylandScreen takes aggregate size of outputs for now (should ask compositor
   in the future?)
 - create Modes from wl_output callback
-- properly from wl_output callback
 - create Edid from output-internal information
-- try to keep wl_output* out of the API (except for WaylandOutput creation)
 - verify and fix m_outputMap
-- handle callback's Done signal? how to trigger?
+- handle callback's Done signal? how to trigger? >> interfacesAnnounced()?
 - update Output object
 - update Screen object
-- check with mgraesslin if GPL->LGPL for bits taken from wayland_backend.cpp is OK
-- delete wl_* objects in destructors
+o try to keep wl_output* out of the API (except for WaylandOutput creation)
+o properly from wl_output callback
+o check with mgraesslin if GPL->LGPL for bits taken from wayland_backend.cpp is OK
+o delete wl_* objects in destructors
 
