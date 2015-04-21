@@ -56,7 +56,6 @@ public:
 private Q_SLOTS:
     void initTestCase();
     void verifyDisco();
-    void startWaylandServer();
 
     void loadConfig();
     void verifyConfig();
@@ -64,10 +63,11 @@ private Q_SLOTS:
     void verifyModes();
     void verifyScreen();
 
-    void stopWaylandServer();
     void cleanupTestCase();
 
 private:
+    void startWaylandServer();
+    void stopWaylandServer();
     QProcess m_process;
     ConfigPtr m_config;
     QString m_backend;
@@ -279,6 +279,7 @@ void testWaylandBackend::cleanupTestCase()
     }
     //delete m_config;
     m_config->deleteLater();
+    KScreen::BackendManager::instance()->shutdownBackend();
 }
 
 QTEST_GUILESS_MAIN(testWaylandBackend)
