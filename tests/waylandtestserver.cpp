@@ -42,6 +42,10 @@ WaylandTestServer::WaylandTestServer(QObject *parent)
 
 WaylandTestServer::~WaylandTestServer()
 {
+
+    qDebug() << "Shutting down server";
+    m_display->terminate();
+    delete m_display;
 }
 
 void WaylandTestServer::init()
@@ -169,7 +173,4 @@ QRect WaylandTestServer::rectFromJson(const QVariant& data)
 
     return rect;
 }
-
-
-
 
