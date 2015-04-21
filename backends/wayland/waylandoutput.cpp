@@ -73,14 +73,14 @@ KScreen::OutputPtr WaylandOutput::toKScreenOutput(KScreen::ConfigPtr &parent) co
     KScreen::OutputPtr output(new KScreen::Output());
     output->setId(m_id);
     output->setName(QString::number(m_id));
-    qCDebug(KSCREEN_WAYLAND) << "toKScreenOutput OUTPUT";
+//     qCDebug(KSCREEN_WAYLAND) << "toKScreenOutput OUTPUT";
     //updateKScreenOutput(output); // Doesn't seem to be needed, but verify!
     return output;
 }
 
 void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output) const
 {
-    qCDebug(KSCREEN_WAYLAND) << "updateKScreenOutput OUTPUT";
+//     qCDebug(KSCREEN_WAYLAND) << "updateKScreenOutput OUTPUT";
     // Initialize primary output
     output->setEnabled(true);
     output->setConnected(true);
@@ -156,7 +156,7 @@ void WaylandOutput::flush()
             if (m.flags.testFlag(Output::Mode::Flag::Preferred)) {
                 modename = modename + " (Preferred)";
             }
-            qCDebug(KSCREEN_WAYLAND) << "            Mode : " << modename;
+            //qCDebug(KSCREEN_WAYLAND) << "            Mode : " << modename;
 
         }
 
