@@ -45,7 +45,7 @@ WaylandConfig::WaylandConfig(QObject *parent)
     connect(this, &WaylandConfig::initialized, &m_syncLoop, &QEventLoop::quit);
     initConnection();
     m_syncLoop.exec();
-    m_blockSignals = false;
+//    m_blockSignals = false;
 }
 
 WaylandConfig::~WaylandConfig()
@@ -108,9 +108,12 @@ void WaylandConfig::setupRegistry()
     connect(m_registry, &KWayland::Client::Registry::outputAnnounced, this, &WaylandConfig::addOutput, Qt::DirectConnection);
 
     connect(m_registry, &KWayland::Client::Registry::interfacesAnnounced, [=] {
-        //qDebug() << "Registry::Sync arrived in Backend!:";
+        qDebug() << "Registry::Sync arrived in Backend!:";
         m_registryInitialized = true;
+        m_blockSignals = false;
+        emit initialized();
         checkInitialized();
+        //Q_EMIT configChanged(toKScreenConfig());
     });
 
     m_registry->create(m_connection);
@@ -150,10 +153,10 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
 
 void WaylandConfig::checkInitialized()
 {
-    if (m_blockSignals && m_registryInitialized &&
+    if (!m_blockSignals && m_registryInitialized &&
         m_initializingOutputs.isEmpty() && m_outputMap.count()) {
 
-        qDebug() << "WaylandConfig is ready!!";
+        //qDebug() << "WaylandConfig is ready!!";
         emit initialized();
     };
 }
@@ -200,7 +203,7 @@ void WaylandConfig::removeOutput(quint32 id)
 
 void WaylandConfig::updateKScreenConfig(KScreen::ConfigPtr &config) const
 {
-    qDebug() << "updateKScreenConfig!";
+    //qDebug() << "updateKScreenConfig!";
     config->setValid(m_connection->display());
     KScreen::ScreenPtr screen = config->screen();
     m_screen->updateKScreenScreen(screen);
@@ -218,20 +221,21 @@ void WaylandConfig::updateKScreenConfig(KScreen::ConfigPtr &config) const
 
         KScreen::OutputPtr kscreenOutput(config->output(output->id()));
 
+        if (kscreenOutput && m_outputMap.count() == 1) {
+            // FIXME: primaryScreen?
+            kscreenOutput->setPrimary(true);
+        } else if (m_outputMap.count() > 1) {
+            //qWarning() << "Multiple outputs, but no way to figure out the primary one. :/";
+        } else {
+            qWarning() << "No outputs found. :(";
+        }
+
         if (!kscreenOutput) {
             kscreenOutput = output->toKScreenOutput(config);
             config->addOutput(kscreenOutput);
         }
         output->updateKScreenOutput(kscreenOutput);
 
-        if (m_outputMap.count() == 1) {
-            kscreenOutput->setPrimary(true);
-        } else if (m_outputMap.count() > 1) {
-            qWarning() << "Multiple outputs, but no way to figure out the primary one. :/";
-        } else {
-            qWarning() << "No outputs found. :(";
-        }
-        // FIXME: primaryScreen?
     }
 }
 
