@@ -21,6 +21,7 @@ kscreen_add_test(testconfigmonitor)
 if(ENABLE_WAYLAND)
     set(KSCREEN_WAYLAND_LIBS KF5::WaylandServer KF5::WaylandClient)
     kscreen_add_test(testwaylandbackend)
+    kscreen_add_test(testwlsetup)
     set(KSCREEN_WAYLAND_LIBS "")
 endif()
 
