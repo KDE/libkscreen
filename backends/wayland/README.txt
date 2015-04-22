@@ -32,26 +32,30 @@ is pure coincidence and is likely to break code assuming it.
 
 QUESTIONS
 
-- Is the socket monitored for disappearing?
+- Is the socket monitored for disappearing? -- nope, limitation in QFileSystemWatcher
 - Where is the socket file cleaned up?
-- Can the ConnectionThread tell me when a Wayland server appears, or do we assume the server is always already there? (create client, then start server should work?)
+- Can the ConnectionThread tell me when a Wayland server appears, or do we assume the server is always already there? (create client, then start server should work?) -- No, we assume the server is already there and doesn't die on us.
 
 
 TODO
 
-- Watch for server appearing after config is initialized
-- Make case where server is started before anything else happens work
+- Add modes to configwriter
+- Add more output data to configwriter
+- autotest for outputs
+- autotest for modes
+- waylandserver picks up config changes
+- autotest for server roundtrip with new config
 - Make sure config is updated on server shutdown
-
-
 - WaylandScreen takes aggregate size of outputs for now (should ask compositor
   in the future?)
-- create Modes from wl_output callback
-- create Edid from output-internal information
-- verify and fix m_outputMap
-- handle callback's Done signal? how to trigger? >> interfacesAnnounced()?
+- create Edid from output-internal information (which?)
 - update Output object
 - update Screen object
+o handle callback's Done signal? how to trigger? >> interfacesAnnounced()?
+o create Modes from wl_output callback
+o verify and fix m_outputMap
+o Watch for server appearing after config is initialized (out of scope)
+o Make case where server is started before anything else happens work
 o try to keep wl_output* out of the API (except for WaylandOutput creation)
 o properly from wl_output callback
 o check with mgraesslin if GPL->LGPL for bits taken from wayland_backend.cpp is OK
