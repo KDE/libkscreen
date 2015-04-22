@@ -29,13 +29,12 @@
 #include <KWayland/Server/shell_interface.h>
 
 
-
-
 namespace KScreen
 {
 class WaylandConfig;
 class WaylandOutput;
 
+//static const QString s_socketName = QStringLiteral("libkscreen-test-wayland-backend-0");
 static const QString s_socketName = QStringLiteral("libkscreen-test-wayland-backend-0");
 
 using namespace KWayland::Server;
@@ -48,11 +47,11 @@ public:
     explicit WaylandTestServer(QObject *parent = 0);
     virtual ~WaylandTestServer();
 
+    void init();
     void setConfig(const QString &configfile);
 
-    void init();
-
-    OutputInterface* createOutput(const QVariantMap &outputConfig);
+    static QList<KWayland::Server::OutputInterface*> outputsFromConfig(const QString &configfile, KWayland::Server::Display *display);
+    static OutputInterface* createOutput(const QVariantMap &outputConfig, KWayland::Server::Display *display);
 
 private:
     static QSize sizeFromJson(const QVariant& data);

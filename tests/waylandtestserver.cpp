@@ -66,6 +66,12 @@ void WaylandTestServer::init()
 
 void KScreen::WaylandTestServer::setConfig(const QString& configfile)
 {
+    m_outputs = outputsFromConfig(configfile, m_display);
+}
+
+QList<KWayland::Server::OutputInterface*> WaylandTestServer::outputsFromConfig(const QString& configfile, KWayland::Server::Display* display)
+{
+    QList<KWayland::Server::OutputInterface*> wloutputs;
     QFile file(configfile);
     file.open(QIODevice::ReadOnly);
 
@@ -75,17 +81,19 @@ void KScreen::WaylandTestServer::setConfig(const QString& configfile)
     QJsonArray outputs = json["outputs"].toArray();
     Q_FOREACH(const QJsonValue &value, outputs) {
         const QVariantMap &output = value.toObject().toVariantMap();
-        m_outputs << createOutput(output);
+        wloutputs << createOutput(output, display);
         qDebug() << "Output created: " << output["name"].toString();
     }
+    return wloutputs;
 }
 
-OutputInterface* WaylandTestServer::createOutput(const QVariantMap& outputConfig)
+
+OutputInterface* WaylandTestServer::createOutput(const QVariantMap& outputConfig, KWayland::Server::Display *display)
 {
-    OutputInterface *output = m_display->createOutput(this);
+    OutputInterface *output = display->createOutput(display);
 
     QByteArray data = QByteArray::fromBase64(outputConfig["edid"].toByteArray());
-    Edid edid(data, this);
+    Edid edid(data, display);
 
     qDebug() << "EDID Info: ";
     if (edid.isValid()) {
