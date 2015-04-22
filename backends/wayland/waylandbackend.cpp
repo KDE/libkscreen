@@ -20,6 +20,7 @@
 
 #include "waylandbackend.h"
 #include "waylandconfig.h"
+#include "waylandconfigwriter.h"
 #include "waylandoutput.h"
 
 #include <configmonitor.h>
@@ -74,9 +75,7 @@ void WaylandBackend::setConfig(const KScreen::ConfigPtr &config)
         return;
     }
 
-    qWarning() << "The Wayland backend for libkscreen is currently read-only,";
-    qWarning() << "setting a configuration is not supported.";
-    qWarning() << "You can force another backend using the KSCREEN_BACKEND env var.";
+    WaylandConfigWriter::write(config, "waylandconfigfile.json");
 }
 
 // Edid *WaylandBackend::edid(int outputId) const

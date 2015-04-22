@@ -1,5 +1,5 @@
 /*************************************************************************************
- *  Copyright 2014 Sebastian Kügler <sebas@kde.org>                                  *
+ *  Copyright 2014-2015 Sebastian Kügler <sebas@kde.org>                             *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -25,7 +25,7 @@
 #include <QJsonObject>
 #include <QFile>
 
-#include "../src/edid.h"
+#include "edid.h"
 
 using namespace KScreen;
 using namespace KWayland::Server;

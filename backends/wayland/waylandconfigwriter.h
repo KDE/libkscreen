@@ -1,5 +1,5 @@
 /*************************************************************************************
- *  Copyright 2014-2015 Sebastian Kügler <sebas@kde.org>                             *
+ *  Copyright 2015 Sebastian Kügler <sebas@kde.org>                                  *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -16,11 +16,14 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
-#ifndef KSCREEN_WAYLAND_CONFIGREADER_H
-#define KSCREEN_WAYLAND_CONFIGREADER_H
+#ifndef KSCREEN_WAYLAND_CONFIGWRITER_H
+#define KSCREEN_WAYLAND_CONFIGWRITER_H
 
 #include <QObject>
 #include <QRect>
+
+// libkscreen
+#include "screen.h"
 
 // KWayland
 #include <KWayland/Server/display.h>
@@ -29,21 +32,18 @@
 namespace KScreen
 {
 
-using namespace KWayland::Server;
-
-class WaylandConfigReader
+class WaylandConfigWriter
 {
 
 public:
-    static QList<KWayland::Server::OutputInterface*> outputsFromConfig(const QString &configfile, KWayland::Server::Display *display);
-    static OutputInterface* createOutput(const QVariantMap &outputConfig, KWayland::Server::Display *display);
+    static bool write(const KScreen::ConfigPtr& config, const QString& configfile);
 
 private:
-    static QSize sizeFromJson(const QVariant& data);
-    static QRect rectFromJson(const QVariant& data);
-    static QPoint pointFromJson(const QVariant& data);
+    static QVariantMap sizeToJson(const QSize& size);
+    static QVariantMap rectToJson(const QRect& rect);
+    static QVariantMap pointToJson(const QPoint& point);
 };
 
 } // namespace
 
-#endif // KSCREEN_WAYLAND_CONFIGREADER_H
+#endif // KSCREEN_WAYLAND_CONFIGWRITER_H
