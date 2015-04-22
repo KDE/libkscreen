@@ -16,54 +16,34 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
-#include "waylandconfig.h"
-#include "waylandscreen.h"
-#include "waylandoutput.h"
+#ifndef KSCREEN_WAYLAND_CONFIGREADER_H
+#define KSCREEN_WAYLAND_CONFIGREADER_H
 
-#include <mode.h>
+#include <QObject>
+#include <QRect>
 
+// KWayland
+#include <KWayland/Server/display.h>
+#include <KWayland/Server/output_interface.h>
 
-using namespace KScreen;
-
-WaylandScreen::WaylandScreen(WaylandConfig *config)
-    : QObject(config)
-    , m_size(QSize())
-    , m_outputCount(0)
+namespace KScreen
 {
-}
 
-WaylandScreen::~WaylandScreen()
+using namespace KWayland::Server;
+
+class WaylandConfigReader
 {
-}
 
-ScreenPtr WaylandScreen::toKScreenScreen(KScreen::ConfigPtr &parent) const
-{
-    KScreen::ScreenPtr kscreenScreen(new KScreen::Screen);
-    updateKScreenScreen(kscreenScreen);
-    return kscreenScreen;
-}
+public:
+    static QList<KWayland::Server::OutputInterface*> outputsFromConfig(const QString &configfile, KWayland::Server::Display *display);
+    static OutputInterface* createOutput(const QVariantMap &outputConfig, KWayland::Server::Display *display);
 
-void WaylandScreen::setOutputs(const QList<WaylandOutput*> outputs)
-{
-    m_outputCount = outputs.count();
-    QRect r;
-    Q_FOREACH (auto o, outputs) {
-        r |= QRect(o->globalPosition(), o->pixelSize());
-    }
-    m_size = r.size();
-}
+private:
+    static QSize sizeFromJson(const QVariant& data);
+    static QRect rectFromJson(const QVariant& data);
+    static QPoint pointFromJson(const QVariant& data);
+};
 
-void WaylandScreen::updateKScreenScreen(KScreen::ScreenPtr &screen) const
-{
-//     screen->setCurrentSize(_s);
-//     screen->setId(1);
-//     screen->setMaxSize(_s);
-//     screen->setMinSize(_s);
-//     screen->setCurrentSize(_s);
-//     screen->setMaxActiveOutputsCount(QGuiApplication::screens().count());
-    screen->setMinSize(QSize(0, 0));
-    screen->setMaxSize(QSize(64000, 64000));
-    screen->setCurrentSize(m_size);
-    screen->setMaxActiveOutputsCount(m_outputCount); // FIXME
-}
+} // namespace
 
+#endif // KSCREEN_WAYLAND_CONFIGREADER_H
