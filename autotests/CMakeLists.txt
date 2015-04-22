@@ -21,7 +21,13 @@ kscreen_add_test(testconfigmonitor)
 if(ENABLE_WAYLAND)
     set(KSCREEN_WAYLAND_LIBS KF5::WaylandServer KF5::WaylandClient)
     kscreen_add_test(testwaylandbackend)
-    kscreen_add_test(testwlsetup)
+
+    # For WaylandConfigWriter
+    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../backends/wayland)
+    add_executable(testwlsetup testwlsetup.cpp ${CMAKE_SOURCE_DIR}/backends/wayland/waylandconfigwriter.cpp)
+    target_link_libraries(testwlsetup Qt5::Core Qt5::Gui Qt5::Test Qt5::DBus KF5::Screen ${KSCREEN_WAYLAND_LIBS})
+    add_test(kscreen-testwlsetup testwlsetup)
+    ecm_mark_as_test(testwlsetup)
     set(KSCREEN_WAYLAND_LIBS "")
 endif()
 

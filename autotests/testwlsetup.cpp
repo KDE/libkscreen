@@ -31,6 +31,7 @@
 #include <KWayland/Server/seat_interface.h>
 #include <KWayland/Server/shell_interface.h>
 
+#include "waylandconfigwriter.h"
 
 #include "../src/backendmanager_p.h"
 #include "../src/getconfigoperation.h"
@@ -57,6 +58,7 @@ private Q_SLOTS:
     void initTestCase();
 
     void loadConfig();
+    void writeConfig();
 
     void cleanupTestCase();
 
@@ -184,6 +186,13 @@ void testWaylandSetup::cleanupTestCase()
     m_config->deleteLater();
     stopWaylandServer();
 }
+
+void testWaylandSetup::writeConfig()
+{
+    QVERIFY(WaylandConfigWriter::write(m_config, "waylandconfigfile.json"));
+
+}
+
 
 QTEST_GUILESS_MAIN(testWaylandSetup)
 
