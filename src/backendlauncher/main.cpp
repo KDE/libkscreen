@@ -50,7 +50,7 @@ int main(int argc, char **argv)
         success = loader->loadBackend();
     }
 
-    // We failed to load any backend: abort immediatelly
+    // We failed to load any backend: abort immediately
     if (!success) {
         return BackendLoader::BackendFailedToLoad;
     }
@@ -64,7 +64,7 @@ int main(int argc, char **argv)
         // Check if another Backend Launcher with this particular backend is already running
         const bool alreadyRunning = loader->checkIsAlreadyRunning();
         if (alreadyRunning) {
-            // If it is, let caller now it's DBus service name and terminate
+            // If it is, let caller know its DBus service name and terminate
             printf("%s", qPrintable(loader->backend()->serviceName()));
             fflush(stdout);
             return BackendLoader::BackendAlreadyExists;
