@@ -32,6 +32,7 @@
 #include <KWayland/Server/shell_interface.h>
 
 #include "waylandconfigwriter.h"
+#include "waylandconfigreader.h"
 
 #include "../src/backendmanager_p.h"
 #include "../src/getconfigoperation.h"
@@ -57,13 +58,15 @@ public:
 private Q_SLOTS:
     void initTestCase();
 
-    void loadConfig();
-    void writeConfig();
+    void testConfigs_data();
+    void testConfigs();
 
     void cleanupTestCase();
 
 private:
-    void startWaylandServer();
+    void loadConfig();
+    void writeConfig();
+    void startWaylandServer(const QString& configfile = QString());
     void stopWaylandServer();
     QProcess m_process;
     ConfigPtr m_config;
@@ -90,7 +93,6 @@ testWaylandSetup::testWaylandSetup(QObject *parent)
 
 void testWaylandSetup::initTestCase()
 {
-    startWaylandServer();
     setenv("KSCREEN_BACKEND", "wayland", 1);
     KScreen::BackendManager::instance()->shutdownBackend();
     m_backend = qgetenv("KSCREEN_BACKEND").constData();
@@ -100,13 +102,15 @@ void testWaylandSetup::initTestCase()
     // and thus connect to our internal test server.
     setenv("WAYLAND_DISPLAY", s_socketName.toLocal8Bit(), 1);
 
+    startWaylandServer();
+
     GetConfigOperation *op = new GetConfigOperation();
     op->exec();
     m_config = op->config();
 }
 
 
-void testWaylandSetup::startWaylandServer()
+void testWaylandSetup::startWaylandServer(const QString &configfile)
 {
     if (!m_startServer) {
         return;
@@ -124,40 +128,30 @@ void testWaylandSetup::startWaylandServer()
     //m_seat->create();
     //m_shell = m_display->createShell();
     //m_shell->create();
-
-    {
-        OutputInterface *output = m_display->createOutput(this);
-        output->addMode(QSize(800, 600), OutputInterface::ModeFlags(OutputInterface::ModeFlag::Preferred));
-        output->addMode(QSize(1024, 768));
-        output->addMode(QSize(1280, 1024), OutputInterface::ModeFlags(), 90000);
-        output->setCurrentMode(QSize(1024, 768));
-        output->setGlobalPosition(QPoint(0, 0));
-        output->setPhysicalSize(QSize(400, 300)); // FIXME mm?
-        output->setManufacturer("Darknet Industries");
-        output->setModel("Small old monitor");
-        output->create();
-        m_outputs << output;
+    QString cfg = configfile;
+    if (configfile.isEmpty()) {
+        cfg = TEST_DATA + QStringLiteral("default.json");
     }
-    {
-        auto output = m_display->createOutput(this);
-        output->addMode(QSize(1600, 1200), OutputInterface::ModeFlags(OutputInterface::ModeFlag::Preferred));
-        output->addMode(QSize(1920, 1080));
-        output->addMode(QSize(2840, 2160), OutputInterface::ModeFlags(), 100000);
-        output->setCurrentMode(QSize(1920, 1080));
-        output->setGlobalPosition(QPoint(1024, 0));
-        output->setPhysicalSize(QSize(1600, 900)); // FIXME mm?
-        output->setManufacturer("Shiny Electrics");
-        output->setModel("XXL Television");
-        output->create();
-        m_outputs << output;
-    }
+    qDebug() << "CONFIG: " << cfg;
 
-    QVERIFY(m_display->isRunning());
-    qDebug() << "Wayland server running.";
+    //configfile.append("/multipleoutput.json");
+    m_outputs = KScreen::WaylandConfigReader::outputsFromConfig(cfg, m_display);
+
+    qDebug() << "Wayland server running. Outputs: " << m_outputs.count();
+    QTimer t;
+    t.setSingleShot(true);
+    t.setInterval(500);
+
+    QSignalSpy s(&t, SIGNAL(timeout()));
+    t.start();
+    s.wait(3000);
+    //QVERIFY(m_display->isRunning());
+
 }
 
 void testWaylandSetup::loadConfig()
 {
+    return;
     GetConfigOperation *op = new GetConfigOperation();
     op->exec();
     m_config = op->config();
@@ -173,6 +167,15 @@ void testWaylandSetup::stopWaylandServer()
     // actually stop the Wayland server
     delete m_display;
     m_display = nullptr;
+
+    QTimer t;
+    t.setSingleShot(true);
+    t.setInterval(500);
+
+    QSignalSpy s(&t, SIGNAL(timeout()));
+    t.start();
+    s.wait(3000);
+
 }
 
 void testWaylandSetup::cleanupTestCase()
@@ -180,10 +183,7 @@ void testWaylandSetup::cleanupTestCase()
     if (m_startServer) {
         //QCOMPARE(m_config->outputs().count(), 0);
     }
-    //qDebug() << "Bla";
-    //delete m_config;
     KScreen::BackendManager::instance()->shutdownBackend();
-    m_config->deleteLater();
     stopWaylandServer();
 }
 
@@ -191,6 +191,40 @@ void testWaylandSetup::writeConfig()
 {
     QVERIFY(WaylandConfigWriter::write(m_config, "waylandconfigfile.json"));
 
+}
+
+void testWaylandSetup::testConfigs_data()
+{
+    QTest::addColumn<QString>("configfile");
+
+    QTest::newRow("default") << "default.json";
+    QTest::newRow("single") << "singleoutput.json";
+    QTest::newRow("multiple") << "multipleoutput.json";
+}
+
+void testWaylandSetup::testConfigs()
+{
+    QFETCH(QString, configfile);
+    QString cfg = TEST_DATA + configfile;
+    qDebug() << "Config file: " << cfg;
+    startWaylandServer(cfg);
+    //     return;
+
+
+    if (m_config) {
+        //m_config->deleteLater();
+//         m_config(nullptr);
+    }
+
+    GetConfigOperation *op = new GetConfigOperation();
+    op->exec();
+    m_config = op->config();
+
+    QVERIFY(m_config);
+    // Has outputs?
+    qDebug() << "Outputs for " << configfile << " " << m_config->outputs().count();
+    QVERIFY(m_config->outputs().count());
+    stopWaylandServer();
 }
 
 
