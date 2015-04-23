@@ -89,7 +89,7 @@ void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output) const
 
     // Physical size
     output->setSizeMm(physicalSize());
-    //qCDebug(KSCREEN_WAYLAND) << "  ####### setSizeMm: " << physicalSize();
+    //qCDebug(KSCREEN_WAYLAND) << "  ####### setSizeMm: " << physicalSize() << geometry();
     output->setPos(globalPosition());
     KScreen::ModeList modeList;
     Q_FOREACH (const KWayland::Client::Output::Mode &m, modes()) {

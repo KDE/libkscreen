@@ -43,8 +43,9 @@ QList<KWayland::Server::OutputInterface*> WaylandConfigReader::outputsFromConfig
     Q_FOREACH(const QJsonValue &value, outputs) {
         const QVariantMap &output = value.toObject().toVariantMap();
         wloutputs << createOutput(output, display);
-        qDebug() << "Output created: " << output["name"].toString();
+        qDebug() << "READER " << configfile << " Output created: " << output["name"].toString();
     }
+    qDebug() << "READER found " << wloutputs.count();
     return wloutputs;
 }
 
@@ -56,7 +57,7 @@ OutputInterface* WaylandConfigReader::createOutput(const QVariantMap& outputConf
     QByteArray data = QByteArray::fromBase64(outputConfig["edid"].toByteArray());
     Edid edid(data, display);
 
-    qDebug() << "EDID Info: ";
+//     qDebug() << "EDID Info: ";
     if (edid.isValid()) {
         qDebug() << "\tDevice ID: " << edid.deviceId();
         qDebug() << "\tName: " << edid.name();
@@ -64,8 +65,8 @@ OutputInterface* WaylandConfigReader::createOutput(const QVariantMap& outputConf
 //         qDebug() << "\tSerial: " << edid.serial();
 //         qDebug() << "\tEISA ID: " << edid.eisaId();
 //         qDebug() << "\tHash: " << edid.hash();
-//         qDebug() << "\tWidth: " << edid.width();
-//         qDebug() << "\tHeight: " << edid.height();
+        qDebug() << "\tWidth (mm): " << edid.width();
+        qDebug() << "\tHeight (mm): " << edid.height();
 //         qDebug() << "\tGamma: " << edid.gamma();
 //         qDebug() << "\tRed: " << edid.red();
 //         qDebug() << "\tGreen: " << edid.green();
@@ -74,8 +75,12 @@ OutputInterface* WaylandConfigReader::createOutput(const QVariantMap& outputConf
         output->setPhysicalSize(QSize(edid.width() * 10, edid.height() * 10));
         output->setManufacturer(edid.vendor());
         output->setModel(edid.name());
-    }
+    } else {
+        output->setPhysicalSize(sizeFromJson(outputConfig["sizeMM"]));
 
+        qDebug() << "EDID INVALDI" << output->physicalSize();
+
+    }
     int currentModeId = outputConfig["currentModeId"].toInt();
     QVariantList preferredModes = outputConfig["preferredModes"].toList();
 
@@ -90,7 +95,7 @@ OutputInterface* WaylandConfigReader::createOutput(const QVariantMap& outputConf
         bool isCurrent = currentModeId == mode["id"].toInt();
         bool isPreferred = preferredModes.contains(mode["id"]);
 
-        qDebug() << "Mode: " << _size << isCurrent << isPreferred;
+        //qDebug() << "Mode: " << _size << isCurrent << isPreferred;
         OutputInterface::ModeFlags flags;
         if (isPreferred) {
             flags &= OutputInterface::ModeFlags(OutputInterface::ModeFlag::Preferred);
