@@ -85,8 +85,7 @@ void WaylandConfig::disconnected()
     m_thread.wait();
 
     Q_FOREACH (auto o, m_outputMap.values()) {
-        qDebug() << "WLC delete output " << o->id();
-        //delete o; // FIXME: this hangs
+        delete o;
     }
     m_outputMap.clear();
     delete m_screen;
