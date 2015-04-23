@@ -34,7 +34,6 @@ namespace KScreen
 class WaylandConfig;
 class WaylandOutput;
 
-//static const QString s_socketName = QStringLiteral("libkscreen-test-wayland-backend-0");
 static const QString s_socketName = QStringLiteral("libkscreen-test-wayland-backend-0");
 
 using namespace KWayland::Server;
@@ -47,11 +46,14 @@ public:
     explicit WaylandTestServer(QObject *parent = 0);
     virtual ~WaylandTestServer();
 
-    void init();
     void setConfig(const QString &configfile);
+    void start();
+    void stop();
 
+    KWayland::Server::Display* display();
 private:
 
+    QString m_configFile;
     KWayland::Server::Display *m_display;
     KWayland::Server::CompositorInterface *m_compositor;
     QList<KWayland::Server::OutputInterface*> m_outputs;

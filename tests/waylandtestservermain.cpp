@@ -32,18 +32,19 @@ int main(int argc, char **argv)
     WaylandTestServer server;
 
     QCommandLineOption config = QCommandLineOption(QStringList() << QStringLiteral("c") << "config",
-                                                  QStringLiteral("Config file"));
+                                                  QStringLiteral("Config file"), "config");
     QCommandLineParser parser;
     parser.addHelpOption();
     parser.addOption(config);
     parser.process(app);
 
     if (parser.isSet(config)) {
-        qDebug() << "Creating Wayland server from " << parser.value("config");
-        server.setConfig(parser.value("config"));
+        qDebug() << "Creating Wayland server from " << parser.value(config);
+        server.setConfig(parser.value(config));
     } else {
         server.setConfig(QString::fromLocal8Bit(TEST_DATA)+"/multipleoutput.json");
         //    server.setConfig(QString::fromLocal8Bit(TEST_DATA)+"/singleoutput.json");
     }
+    server.start();
     return app.exec();
 }

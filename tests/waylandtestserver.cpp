@@ -38,19 +38,18 @@ WaylandTestServer::WaylandTestServer(QObject *parent)
     , m_seat(nullptr)
     , m_shell(nullptr)
 {
-    init();
 }
 
 WaylandTestServer::~WaylandTestServer()
 {
 
     qDebug() << "Shutting down server";
-    m_display->terminate();
     delete m_display;
 }
 
-void WaylandTestServer::init()
+void KScreen::WaylandTestServer::start()
 {
+    using namespace KWayland::Server;
     m_display = new KWayland::Server::Display(this);
     m_display->setSocketName(s_socketName);
     m_display->start();
@@ -63,9 +62,29 @@ void WaylandTestServer::init()
     m_seat->create();
     m_shell = m_display->createShell();
     m_shell->create();
+
+    m_outputs = KScreen::WaylandConfigReader::outputsFromConfig(m_configFile, m_display);
+
+    qDebug() << "Wayland server running. Outputs: " << m_outputs.count();
+}
+
+void WaylandTestServer::stop()
+{
+    for (auto o: m_outputs) {
+        delete o;
+    }
+    // actually stop the Wayland server
+    delete m_display;
+    m_display = nullptr;
+    m_outputs.clear();
+}
+
+KWayland::Server::Display* KScreen::WaylandTestServer::display()
+{
+    return m_display;
 }
 
 void KScreen::WaylandTestServer::setConfig(const QString& configfile)
 {
-    m_outputs = WaylandConfigReader::outputsFromConfig(configfile, m_display);
+    m_configFile = configfile;
 }
