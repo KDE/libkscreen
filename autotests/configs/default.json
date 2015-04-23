@@ -342,8 +342,8 @@
             "primary": false,
             "rotation": 1,
             "sizeMM": {
-                "height": 30,
-                "width": 20
+                "height": 300,
+                "width": 200
             },
             "type": 0
         },
