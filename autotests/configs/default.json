@@ -342,8 +342,8 @@
             "primary": false,
             "rotation": 1,
             "sizeMM": {
-                "height": 0,
-                "width": 0
+                "height": 30,
+                "width": 20
             },
             "type": 0
         },
@@ -367,8 +367,8 @@
             "primary": false,
             "rotation": 1,
             "sizeMM": {
-                "height": 0,
-                "width": 0
+                "height": 300,
+                "width": 200
             },
             "type": 0
         },
@@ -635,8 +635,8 @@
             "primary": false,
             "rotation": 1,
             "sizeMM": {
-                "height": 0,
-                "width": 0
+                "height": 400,
+                "width": 230
             },
             "type": 0
         }
