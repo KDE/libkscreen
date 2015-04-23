@@ -85,7 +85,7 @@ void WaylandConfig::disconnected()
     m_thread.wait();
 
     Q_FOREACH (auto o, m_outputMap.values()) {
-        delete o;
+        //delete o;
     }
     m_outputMap.clear();
     delete m_screen;
