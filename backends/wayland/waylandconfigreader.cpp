@@ -42,8 +42,10 @@ QList<KWayland::Server::OutputInterface*> WaylandConfigReader::outputsFromConfig
     QJsonArray outputs = json["outputs"].toArray();
     Q_FOREACH(const QJsonValue &value, outputs) {
         const QVariantMap &output = value.toObject().toVariantMap();
-        wloutputs << createOutput(output, display);
-        qDebug() << "READER " << configfile << " Output created: " << output["name"].toString();
+        if (output["connected"].toBool() && output["enabled"].toBool()) {
+            wloutputs << createOutput(output, display);
+            //qDebug() << "READER " << configfile << " Output created: " << output["name"].toString();
+        }
     }
     qDebug() << "READER found " << wloutputs.count();
     return wloutputs;
