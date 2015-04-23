@@ -42,9 +42,11 @@
 #include "../src/mode.h"
 #include "../src/edid.h"
 
+#include "../tests/waylandtestserver.h"
+
 Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.wayland");
 
-static const QString s_socketName = QStringLiteral("libkscreen-test-wayland-backend-0");
+//static const QString s_socketName = QStringLiteral("libkscreen-test-wayland-backend-0");
 
 using namespace KScreen;
 
@@ -66,29 +68,21 @@ private Q_SLOTS:
 private:
     void loadConfig();
     void writeConfig();
-    void startWaylandServer(const QString& configfile = QString());
-    void stopWaylandServer();
-    QProcess m_process;
+
     ConfigPtr m_config;
     QString m_backend;
 
     bool m_startServer;
-    KWayland::Server::Display *m_display;
-    KWayland::Server::CompositorInterface *m_compositor;
-    QList<KWayland::Server::OutputInterface*> m_outputs;
-    KWayland::Server::SeatInterface *m_seat;
-    KWayland::Server::ShellInterface *m_shell;
+    WaylandTestServer *m_server;
+
 };
 
 testWaylandSetup::testWaylandSetup(QObject *parent)
     : QObject(parent)
     , m_config(nullptr)
     , m_startServer(true)
-    , m_display(nullptr)
-    , m_compositor(nullptr)
-    , m_seat(nullptr)
-    , m_shell(nullptr)
 {
+    m_server = new WaylandTestServer(this);
 }
 
 void testWaylandSetup::initTestCase()
@@ -102,51 +96,11 @@ void testWaylandSetup::initTestCase()
     // and thus connect to our internal test server.
     setenv("WAYLAND_DISPLAY", s_socketName.toLocal8Bit(), 1);
 
-    startWaylandServer();
-
+//    startWaylandServer();
+/*
     GetConfigOperation *op = new GetConfigOperation();
     op->exec();
-    m_config = op->config();
-}
-
-
-void testWaylandSetup::startWaylandServer(const QString &configfile)
-{
-    if (!m_startServer) {
-        return;
-    }
-    using namespace KWayland::Server;
-    m_display = new KWayland::Server::Display(this);
-    m_display->setSocketName(s_socketName);
-    m_display->start();
-
-    // Enable once we actually use these things...
-    //m_display->createShm();
-    //m_compositor = m_display->createCompositor();
-    //m_compositor->create();
-    //m_seat = m_display->createSeat();
-    //m_seat->create();
-    //m_shell = m_display->createShell();
-    //m_shell->create();
-    QString cfg = configfile;
-    if (configfile.isEmpty()) {
-        cfg = TEST_DATA + QStringLiteral("default.json");
-    }
-    qDebug() << "CONFIG: " << cfg;
-
-    //configfile.append("/multipleoutput.json");
-    m_outputs = KScreen::WaylandConfigReader::outputsFromConfig(cfg, m_display);
-
-    qDebug() << "Wayland server running. Outputs: " << m_outputs.count();
-    QTimer t;
-    t.setSingleShot(true);
-    t.setInterval(500);
-
-    QSignalSpy s(&t, SIGNAL(timeout()));
-    t.start();
-    s.wait(3000);
-    //QVERIFY(m_display->isRunning());
-
+    m_config = op->config();*/
 }
 
 void testWaylandSetup::loadConfig()
@@ -158,33 +112,13 @@ void testWaylandSetup::loadConfig()
     QVERIFY(m_config->isValid());
 }
 
-void testWaylandSetup::stopWaylandServer()
-{
-    if (!m_startServer) {
-        return;
-    }
-
-    // actually stop the Wayland server
-    delete m_display;
-    m_display = nullptr;
-
-    QTimer t;
-    t.setSingleShot(true);
-    t.setInterval(500);
-
-    QSignalSpy s(&t, SIGNAL(timeout()));
-    t.start();
-    s.wait(3000);
-
-}
-
 void testWaylandSetup::cleanupTestCase()
 {
     if (m_startServer) {
         //QCOMPARE(m_config->outputs().count(), 0);
     }
     KScreen::BackendManager::instance()->shutdownBackend();
-    stopWaylandServer();
+    //m_server->stop();
 }
 
 void testWaylandSetup::writeConfig()
@@ -197,9 +131,9 @@ void testWaylandSetup::testConfigs_data()
 {
     QTest::addColumn<QString>("configfile");
 
-    QTest::newRow("default") << "default.json";
-    QTest::newRow("single") << "singleoutput.json";
-    QTest::newRow("multiple") << "multipleoutput.json";
+//    QTest::newRow("default") << "default.json";
+//     QTest::newRow("single") << "singleoutput.json";
+     QTest::newRow("multiple") << "multipleoutput.json";
 }
 
 void testWaylandSetup::testConfigs()
@@ -207,7 +141,9 @@ void testWaylandSetup::testConfigs()
     QFETCH(QString, configfile);
     QString cfg = TEST_DATA + configfile;
     qDebug() << "Config file: " << cfg;
-    startWaylandServer(cfg);
+
+    m_server->setConfig(cfg);
+    m_server->start();
     //     return;
 
 
@@ -224,7 +160,34 @@ void testWaylandSetup::testConfigs()
     // Has outputs?
     qDebug() << "Outputs for " << configfile << " " << m_config->outputs().count();
     QVERIFY(m_config->outputs().count());
-    stopWaylandServer();
+
+    QList<int> ids;
+    foreach (auto output, m_config->outputs()) {
+        //         qDebug() << " _____________________ Output: " << output;
+        //         qDebug() << "   output name: " << output->name();
+        //         qDebug() << "   output modes: " << output->modes().count() << output->modes();
+        //         qDebug() << "   output enabled: " << output->isEnabled();
+        //         qDebug() << "   output connect: " << output->isConnected();
+        //         qDebug() << "   output sizeMm : " << output->sizeMm();
+        QVERIFY(!output->name().isEmpty());
+        QVERIFY(output->id() > -1);
+        QVERIFY(output->isConnected());
+        QVERIFY(output->isEnabled());
+        QVERIFY(output->geometry() != QRectF(1,1,1,1));
+        QVERIFY(output->geometry() != QRectF());
+        if (configfile.endsWith("default.json")) {
+            //qDebug() << "Output MM" << output->name() << output->sizeMm();
+            QVERIFY(output->sizeMm() != QSize());
+        }
+        QVERIFY(output->edid() != 0);
+        QCOMPARE(output->rotation(), Output::None);
+        QVERIFY(!ids.contains(output->id()));
+        ids << output->id();
+    }
+    QCOMPARE(m_config->outputs().count(), m_server->display()->outputs().count());
+
+    delete m_config.data();
+    m_server->stop();
 }
 
 

@@ -27,6 +27,7 @@ if(ENABLE_WAYLAND)
     set(KSCREEN_WAYLAND_SRCS
         ${CMAKE_SOURCE_DIR}/backends/wayland/waylandconfigwriter.cpp
         ${CMAKE_SOURCE_DIR}/backends/wayland/waylandconfigreader.cpp
+        ${CMAKE_SOURCE_DIR}/tests/waylandtestserver.cpp
     )
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../backends/wayland)
 
