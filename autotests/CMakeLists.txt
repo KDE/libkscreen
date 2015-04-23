@@ -6,7 +6,7 @@ macro(KSCREEN_ADD_TEST)
     foreach(_testname ${ARGN})
         set(test_SRCS ${_testname}.cpp)
         qt5_add_dbus_interface(test_SRCS ${CMAKE_SOURCE_DIR}/interfaces/org.kde.KScreen.FakeBackend.xml fakebackendinterface)
-        add_executable(${_testname} ${test_SRCS})
+        add_executable(${_testname} ${test_SRCS} ${KSCREEN_WAYLAND_SRCS})
         target_link_libraries(${_testname} Qt5::Core Qt5::Gui Qt5::Test Qt5::DBus KF5::Screen ${KSCREEN_WAYLAND_LIBS})
         add_test(kscreen-${_testname} ${_testname})
         ecm_mark_as_test(${_testname})
@@ -19,16 +19,22 @@ kscreen_add_test(testconfigserializer)
 kscreen_add_test(testconfigmonitor)
 
 if(ENABLE_WAYLAND)
-    set(KSCREEN_WAYLAND_LIBS KF5::WaylandServer KF5::WaylandClient)
-    kscreen_add_test(testwaylandbackend)
+    set(KSCREEN_WAYLAND_LIBS
+        KF5::WaylandServer KF5::WaylandClient
+    )
 
-    # For WaylandConfigWriter
+    # For WaylandConfigWriter and -Reader
+    set(KSCREEN_WAYLAND_SRCS
+        ${CMAKE_SOURCE_DIR}/backends/wayland/waylandconfigwriter.cpp
+        ${CMAKE_SOURCE_DIR}/backends/wayland/waylandconfigreader.cpp
+    )
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../backends/wayland)
-    add_executable(testwlsetup testwlsetup.cpp ${CMAKE_SOURCE_DIR}/backends/wayland/waylandconfigwriter.cpp)
-    target_link_libraries(testwlsetup Qt5::Core Qt5::Gui Qt5::Test Qt5::DBus KF5::Screen ${KSCREEN_WAYLAND_LIBS})
-    add_test(kscreen-testwlsetup testwlsetup)
-    ecm_mark_as_test(testwlsetup)
+
+    kscreen_add_test(testwaylandbackend)
+    kscreen_add_test(testwlsetup)
+
     set(KSCREEN_WAYLAND_LIBS "")
+    set(KSCREEN_WAYLAND_SRCS "")
 endif()
 
 if (ENABLE_XRANDR_TESTS)
