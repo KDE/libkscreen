@@ -67,9 +67,7 @@ private Q_SLOTS:
     void cleanupTestCase();
 
 private:
-    QProcess m_process;
     ConfigPtr m_config;
-
     bool m_startServer;
     WaylandTestServer *m_server;
 
@@ -88,7 +86,7 @@ void testWaylandBackend::initTestCase()
 {
     setenv("KSCREEN_BACKEND", "wayland", 1);
     KScreen::BackendManager::instance()->shutdownBackend();
-    m_startServer = QString::fromLocal8Bit(qgetenv("KSCREEN_EXTERNAL_WAYLAND_SERVER").constData()).isEmpty();
+    m_startServer =  qgetenv("KSCREEN_EXTERNAL_WAYLAND_SERVER").isEmpty();
 
     // This is how KWayland will pick up the right socket,
     // and thus connect to our internal test server.
