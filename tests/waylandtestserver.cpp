@@ -50,7 +50,6 @@ WaylandTestServer::~WaylandTestServer()
 
 void KScreen::WaylandTestServer::start()
 {
-    using namespace KWayland::Server;
     m_display = new KWayland::Server::Display(this);
     m_display->setSocketName(s_socketName);
     m_display->start();
