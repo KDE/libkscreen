@@ -33,6 +33,7 @@ if(ENABLE_WAYLAND)
 
     kscreen_add_test(testwaylandbackend)
     kscreen_add_test(testwlsetup)
+    kscreen_add_test(testwlwrite)
 
     set(KSCREEN_WAYLAND_LIBS "")
     set(KSCREEN_WAYLAND_SRCS "")
