@@ -42,10 +42,9 @@
 
 #include "waylandconfigwriter.h"
 #include "waylandconfigreader.h"
+#include "../tests/waylandtestserver.h"
 
 Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.wayland");
-
-static const QString s_socketName = QStringLiteral("libkscreen-test-wayland-backend-0");
 
 using namespace KScreen;
 
@@ -68,29 +67,22 @@ private Q_SLOTS:
     void cleanupTestCase();
 
 private:
-    void startWaylandServer(const QString& configfile = QString());
-    void stopWaylandServer();
     QProcess m_process;
     ConfigPtr m_config;
     QString m_backend;
 
     bool m_startServer;
-    KWayland::Server::Display *m_display;
-    KWayland::Server::CompositorInterface *m_compositor;
-    QList<KWayland::Server::OutputInterface*> m_outputs;
-    KWayland::Server::SeatInterface *m_seat;
-    KWayland::Server::ShellInterface *m_shell;
+    WaylandTestServer *m_server;
+
 };
 
 testWaylandBackend::testWaylandBackend(QObject *parent)
     : QObject(parent)
     , m_config(nullptr)
     , m_startServer(true)
-    , m_display(nullptr)
-    , m_compositor(nullptr)
-    , m_seat(nullptr)
-    , m_shell(nullptr)
 {
+    m_server = new WaylandTestServer(this);
+    m_server->setConfig(TEST_DATA + QStringLiteral("default.json"));
 }
 
 void testWaylandBackend::initTestCase()
@@ -103,7 +95,9 @@ void testWaylandBackend::initTestCase()
     // This is how KWayland will pick up the right socket,
     // and thus connect to our internal test server.
     setenv("WAYLAND_DISPLAY", s_socketName.toLocal8Bit(), 1);
-    startWaylandServer();
+    if (m_startServer) {
+        m_server->start();
+    }
 
     GetConfigOperation *op = new GetConfigOperation();
     op->exec();
@@ -116,37 +110,6 @@ void testWaylandBackend::verifyDisco()
     //QCOMPARE(m_config->outputs().count(), 0);
     //delete m_config;
 
-}
-
-void testWaylandBackend::startWaylandServer(const QString &configfile)
-{
-    if (!m_startServer) {
-        return;
-    }
-    using namespace KWayland::Server;
-    m_display = new KWayland::Server::Display(this);
-    m_display->setSocketName(s_socketName);
-    m_display->start();
-
-    // Enable once we actually use these things...
-    //m_display->createShm();
-    //m_compositor = m_display->createCompositor();
-    //m_compositor->create();
-    //m_seat = m_display->createSeat();
-    //m_seat->create();
-    //m_shell = m_display->createShell();
-    //m_shell->create();
-    QString cfg = configfile;
-    if (configfile.isEmpty()) {
-        cfg = TEST_DATA + QStringLiteral("default.json");
-    }
-    qDebug() << "CONFIG: " << cfg;
-
-    //configfile.append("/multipleoutput.json");
-    m_outputs = KScreen::WaylandConfigReader::outputsFromConfig(cfg, m_display);
-
-    QVERIFY(m_display->isRunning());
-    qDebug() << "Wayland server running. Outputs: " << m_outputs.count();
 }
 
 void testWaylandBackend::loadConfig()
@@ -236,26 +199,6 @@ void testWaylandBackend::verifyModes()
             QVERIFY(mode->size() != QSize());
         }
     }
-}
-
-
-void testWaylandBackend::stopWaylandServer()
-{
-    if (!m_startServer) {
-        return;
-    }
-    KScreen::ConfigMonitor::instance()->addConfig(m_config);
-    QSignalSpy connectedSpy(ConfigMonitor::instance(), SIGNAL(configurationChanged()));
-    QVERIFY(connectedSpy.isValid());
-
-    // actually stop the Wayland server
-    delete m_display;
-    m_display = nullptr;
-
-    connectedSpy.wait(1000);
-
-    //     QVERIFY(connectedSpy.wait(1000));
-    //     QCOMPARE(connectedSpy.count(), 1);
 }
 
 void testWaylandBackend::cleanupTestCase()
