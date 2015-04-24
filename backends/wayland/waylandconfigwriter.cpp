@@ -36,12 +36,12 @@ bool WaylandConfigWriter::write(const ConfigPtr& config, const QString& configfi
 
 
     foreach (auto output, config->outputs()) {
-                qDebug() << " _____________________ Output: " << output;
-                qDebug() << "   output name: " << output->name();
-                qDebug() << "   output modes: " << output->modes().count() << output->modes();
-                qDebug() << "   output enabled: " << output->isEnabled();
-                qDebug() << "   output connect: " << output->isConnected();
-                qDebug() << "   output sizeMm : " << output->sizeMm();
+//                 qDebug() << " _____________________ Output: " << output;
+//                 qDebug() << "   output name: " << output->name();
+//                 qDebug() << "   output modes: " << output->modes().count() << output->modes();
+//                 qDebug() << "   output enabled: " << output->isEnabled();
+//                 qDebug() << "   output connect: " << output->isConnected();
+//                 qDebug() << "   output sizeMm : " << output->sizeMm();
 //         QVERIFY(!output->name().isEmpty());
 //         QVERIFY(output->id() > -1);
 //         QVERIFY(output->isConnected());

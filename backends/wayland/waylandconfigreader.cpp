@@ -44,10 +44,10 @@ QList<KWayland::Server::OutputInterface*> WaylandConfigReader::outputsFromConfig
         const QVariantMap &output = value.toObject().toVariantMap();
         if (output["connected"].toBool() && output["enabled"].toBool()) {
             wloutputs << createOutput(output, display);
-            //qDebug() << "READER " << configfile << " Output created: " << output["name"].toString();
+            qDebug() << "new Output created: " << output["name"].toString();
         }
     }
-    qDebug() << "READER found " << wloutputs.count();
+    //qDebug() << "READER found " << wloutputs.count();
     return wloutputs;
 }
 
@@ -61,14 +61,14 @@ OutputInterface* WaylandConfigReader::createOutput(const QVariantMap& outputConf
 
 //     qDebug() << "EDID Info: ";
     if (edid.isValid()) {
-        qDebug() << "\tDevice ID: " << edid.deviceId();
-        qDebug() << "\tName: " << edid.name();
-        qDebug() << "\tVendor: " << edid.vendor();
+//         qDebug() << "\tDevice ID: " << edid.deviceId();
+//         qDebug() << "\tName: " << edid.name();
+//         qDebug() << "\tVendor: " << edid.vendor();
 //         qDebug() << "\tSerial: " << edid.serial();
 //         qDebug() << "\tEISA ID: " << edid.eisaId();
 //         qDebug() << "\tHash: " << edid.hash();
-        qDebug() << "\tWidth (mm): " << edid.width();
-        qDebug() << "\tHeight (mm): " << edid.height();
+//         qDebug() << "\tWidth (mm): " << edid.width();
+//         qDebug() << "\tHeight (mm): " << edid.height();
 //         qDebug() << "\tGamma: " << edid.gamma();
 //         qDebug() << "\tRed: " << edid.red();
 //         qDebug() << "\tGreen: " << edid.green();
@@ -79,9 +79,6 @@ OutputInterface* WaylandConfigReader::createOutput(const QVariantMap& outputConf
         output->setModel(edid.name());
     } else {
         output->setPhysicalSize(sizeFromJson(outputConfig["sizeMM"]));
-
-        qDebug() << "EDID INVALDI" << output->physicalSize();
-
     }
     int currentModeId = outputConfig["currentModeId"].toInt();
     QVariantList preferredModes = outputConfig["preferredModes"].toList();
