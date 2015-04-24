@@ -15,6 +15,7 @@ add_library(KSC_Wayland MODULE ${wayland_SRCS})
 set_target_properties(KSC_Wayland PROPERTIES PREFIX "")
 target_link_libraries(KSC_Wayland Qt5::Core
                                   Qt5::Gui
+                                  Qt5::DBus
                                   Wayland::Client
                                   Wayland::Cursor
                                   KF5::Screen

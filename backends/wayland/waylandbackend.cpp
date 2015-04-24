@@ -26,6 +26,8 @@
 #include <configmonitor.h>
 #include <mode.h>
 
+#include <QSettings>
+#include <QStandardPaths>
 
 using namespace KScreen;
 
@@ -74,8 +76,26 @@ void WaylandBackend::setConfig(const KScreen::ConfigPtr &config)
     if (!config) {
         return;
     }
+    QString configfile = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation);
+    configfile.append("/waylandconfig.json");
+    WaylandConfigWriter::write(config, configfile);
 
-    WaylandConfigWriter::write(config, "waylandconfigfile.json");
+
+    /*
+    QSettings settings(configfile, QSettings::IniFormat);
+
+    qDebug() << "writing config to " << configfile;
+    foreach (auto output, config->outputs()) {
+        settings.beginGroup(output->name());
+        settings.setValue("ID", output->id());
+        settings.setValue(QStringLiteral("id"), output->id());
+        settings.setValue(QStringLiteral("width"), "1920");
+        settings.setValue(QStringLiteral("height"), "1080");
+        settings.setValue(QStringLiteral("x"), "4");
+        settings.setValue(QStringLiteral("y"), "7");
+    }
+    */
+
 }
 
 // Edid *WaylandBackend::edid(int outputId) const

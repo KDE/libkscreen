@@ -17,6 +17,7 @@
  *************************************************************************************/
 
 #include "waylandconfigwriter.h"
+#include <configserializer_p.h>
 
 #include "output.h"
 #include "config.h"
@@ -78,14 +79,14 @@ bool WaylandConfigWriter::write(const ConfigPtr& config, const QString& configfi
     }
 
     QJsonDocument jdoc;
-    QJsonObject jo;
-    jo["outputs"] = plugins;
+    QJsonObject jo = KScreen::ConfigSerializer::serializeConfigMinimal(config);
     jdoc.setObject(jo);
 
     QString destfile = configfile;
     const QFileInfo fi(configfile);
     if (!fi.isAbsolute()) {
-        //destfile = dir + '/' + dest;
+        destfile = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QLatin1Char('/') + dest;
+
     }
     QFile file(destfile);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {

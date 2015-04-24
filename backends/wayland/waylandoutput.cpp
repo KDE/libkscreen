@@ -87,6 +87,7 @@ void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output) const
     output->setPrimary(true); // FIXME
     // FIXME: Rotation
 
+    output->setName(model());
     // Physical size
     output->setSizeMm(physicalSize());
     //qCDebug(KSCREEN_WAYLAND) << "  ####### setSizeMm: " << physicalSize() << geometry();
