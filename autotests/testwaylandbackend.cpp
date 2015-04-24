@@ -69,7 +69,6 @@ private Q_SLOTS:
 private:
     QProcess m_process;
     ConfigPtr m_config;
-    QString m_backend;
 
     bool m_startServer;
     WaylandTestServer *m_server;
@@ -89,7 +88,6 @@ void testWaylandBackend::initTestCase()
 {
     setenv("KSCREEN_BACKEND", "wayland", 1);
     KScreen::BackendManager::instance()->shutdownBackend();
-    m_backend = qgetenv("KSCREEN_BACKEND").constData();
     m_startServer = QString::fromLocal8Bit(qgetenv("KSCREEN_EXTERNAL_WAYLAND_SERVER").constData()).isEmpty();
 
     // This is how KWayland will pick up the right socket,
