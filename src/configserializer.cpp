@@ -92,6 +92,45 @@ QJsonObject ConfigSerializer::serializeOutput(const OutputPtr &output)
     return obj;
 }
 
+QJsonObject ConfigSerializer::serializeConfigMinimal(const ConfigPtr &config)
+{
+    QJsonObject obj;
+
+    QJsonArray outputs;
+    Q_FOREACH (const OutputPtr &output, config->outputs()) {
+        if (output->isEnabled() && output->isConnected()) {
+            outputs.append(serializeOutputMinimal(output));
+        }
+    }
+    obj[QLatin1String("outputs")] = outputs;
+
+    return obj;
+}
+
+QJsonObject ConfigSerializer::serializeOutputMinimal(const OutputPtr &output)
+{
+    QJsonObject obj;
+
+    obj[QLatin1String("id")] = output->id();
+    obj[QLatin1String("name")] = output->name();
+    obj[QLatin1String("pos")] = serializePoint(output->pos());
+    obj[QLatin1String("rotation")] = static_cast<int>(output->rotation());
+    obj[QLatin1String("currentModeId")] = output->currentModeId();
+    obj[QLatin1String("clones")] = serializeList(output->clones());
+    obj[QLatin1String("sizeMM")] = serializeSize(output->sizeMm());
+
+    QJsonArray modes;
+    Q_FOREACH (const ModePtr &mode, output->modes()) {
+        if (mode->id() == output->currentModeId()) {
+            modes.append(serializeMode(mode));
+        }
+    }
+    obj[QLatin1String("modes")] = modes;
+
+    return obj;
+}
+
+
 QJsonObject ConfigSerializer::serializeMode(const ModePtr &mode)
 {
     QJsonObject obj;
