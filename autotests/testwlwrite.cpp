@@ -85,6 +85,8 @@ void testWaylandWrite::initTestCase()
     // This is how KWayland will pick up the right socket,
     // and thus connect to our internal test server.
     setenv("WAYLAND_DISPLAY", s_socketName.toLocal8Bit(), 1);
+
+    m_server->start();
 }
 
 void testWaylandWrite::cleanupTestCase()
