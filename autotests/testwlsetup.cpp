@@ -95,12 +95,6 @@ void testWaylandSetup::initTestCase()
     // This is how KWayland will pick up the right socket,
     // and thus connect to our internal test server.
     setenv("WAYLAND_DISPLAY", s_socketName.toLocal8Bit(), 1);
-
-//    startWaylandServer();
-/*
-    GetConfigOperation *op = new GetConfigOperation();
-    op->exec();
-    m_config = op->config();*/
 }
 
 void testWaylandSetup::loadConfig()
@@ -114,11 +108,7 @@ void testWaylandSetup::loadConfig()
 
 void testWaylandSetup::cleanupTestCase()
 {
-    if (m_startServer) {
-        //QCOMPARE(m_config->outputs().count(), 0);
-    }
     KScreen::BackendManager::instance()->shutdownBackend();
-    //m_server->stop();
 }
 
 void testWaylandSetup::writeConfig()
