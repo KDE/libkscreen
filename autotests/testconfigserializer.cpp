@@ -157,7 +157,7 @@ private Q_SLOTS:
         output->setClones(QList<int>() << 50 << 60);
         output->setSizeMm(QSize(310, 250));
 
-        const QJsonObject obj = KScreen::ConfigSerializer::serializeOutput(output);
+        QJsonObject obj = KScreen::ConfigSerializer::serializeOutput(output);
         QVERIFY(!obj.isEmpty());
 
         QCOMPARE(obj[QLatin1String("id")].toInt(), output->id());
@@ -167,7 +167,7 @@ private Q_SLOTS:
         const QJsonArray arr = obj[QLatin1String("modes")].toArray();
         QCOMPARE(arr.size(), output->modes().count());
 
-        const QJsonObject pos = obj[QLatin1String("pos")].toObject();
+        QJsonObject pos = obj[QLatin1String("pos")].toObject();
         QCOMPARE(pos[QLatin1String("x")].toInt(), output->pos().x());
         QCOMPARE(pos[QLatin1String("y")].toInt(), output->pos().y());
         QCOMPARE(static_cast<KScreen::Output::Rotation>(obj[QLatin1String("rotation")].toInt()), output->rotation());
@@ -183,6 +183,17 @@ private Q_SLOTS:
         const QJsonObject sizeMm = obj[QLatin1String("sizeMM")].toObject();
         QCOMPARE(sizeMm[QLatin1String("width")].toInt(), output->sizeMm().width());
         QCOMPARE(sizeMm[QLatin1String("height")].toInt(), output->sizeMm().height());
+
+        obj = KScreen::ConfigSerializer::serializeOutputMinimal(output);
+        QVERIFY(!obj.isEmpty());
+        QCOMPARE(obj[QLatin1String("id")].toInt(), output->id());
+        QCOMPARE(obj[QLatin1String("name")].toString(), output->name());
+        const QJsonArray ms = obj[QLatin1String("modes")].toArray();
+        QCOMPARE(ms.size(), 1);
+        pos = obj[QLatin1String("pos")].toObject();
+        QCOMPARE(pos[QLatin1String("x")].toInt(), output->pos().x());
+        QCOMPARE(pos[QLatin1String("y")].toInt(), output->pos().y());
+
     }
 };
 
