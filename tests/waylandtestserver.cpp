@@ -33,6 +33,7 @@ using namespace KWayland::Server;
 
 WaylandTestServer::WaylandTestServer(QObject *parent)
     : QObject(parent)
+    , m_configFile(TEST_DATA + QStringLiteral("default.json"))
     , m_display(nullptr)
     , m_compositor(nullptr)
     , m_seat(nullptr)
