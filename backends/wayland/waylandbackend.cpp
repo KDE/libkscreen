@@ -29,6 +29,9 @@
 #include <QSettings>
 #include <QStandardPaths>
 
+#include <KConfig>
+#include <KConfigGroup>
+
 using namespace KScreen;
 
 Q_LOGGING_CATEGORY(KSCREEN_WAYLAND, "kscreen.wayland");
@@ -77,9 +80,9 @@ void WaylandBackend::setConfig(const KScreen::ConfigPtr &config)
         return;
     }
     QString configfile = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation);
-    configfile.append("/waylandconfig.json");
-    WaylandConfigWriter::write(config, configfile);
 
+    WaylandConfigWriter::writeJson(config, configfile+"/waylandconfig.json");
+    WaylandConfigWriter::writeConfig(config, configfile+"/waylandconfigrc");
 
     /*
     QSettings settings(configfile, QSettings::IniFormat);
@@ -96,6 +99,21 @@ void WaylandBackend::setConfig(const KScreen::ConfigPtr &config)
     }
     */
 
+    /*
+
+    KConfig kconfig(configfile+"/waylandconfigrc");
+    foreach (auto output, config->outputs()) {
+        auto settings = kconfig.group(output->name());
+        settings.writeEntry(QStringLiteral("id"), output->id());
+        settings.writeEntry(QStringLiteral("width"), "1920");
+        settings.writeEntry(QStringLiteral("height"), "1080");
+        settings.writeEntry(QStringLiteral("x"), "4");
+        settings.writeEntry(QStringLiteral("y"), "7");
+
+    }
+    kconfig.sync();
+
+    */
 }
 
 // Edid *WaylandBackend::edid(int outputId) const
