@@ -68,7 +68,12 @@ bool BackendLoader::loadBackend(const QString& backend)
                 continue;
             }
 
-            // When not on X11, skip the XRandR backend, and fall back to QSCreen
+            if (backend.isEmpty() &&
+                    finfo.fileName().contains(QLatin1String("KSC_Wayland"))) {
+                continue;
+            }
+
+            // When not on X11, skip the XRandR backend, and fall back to QScreen
             // if not specified in KSCREEN_BACKEND
             if (backend.isEmpty() &&
                     finfo.fileName().contains(QLatin1String("KSC_XRandR")) &&
