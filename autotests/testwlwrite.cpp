@@ -102,7 +102,8 @@ void testWaylandWrite::writeConfig()
 
     QVERIFY(m_config);
 
-    QVERIFY(WaylandConfigWriter::write(m_config, "waylandconfigfile.json"));
+    //QVERIFY(WaylandConfigWriter::writeJson(m_config, "waylandconfigfile.json"));
+    QVERIFY(WaylandConfigWriter::writeConfig(m_config, "waylandconfigfilerc"));
 
 }
 

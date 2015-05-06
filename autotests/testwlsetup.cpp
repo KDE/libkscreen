@@ -113,7 +113,7 @@ void testWaylandSetup::cleanupTestCase()
 
 void testWaylandSetup::writeConfig()
 {
-    QVERIFY(WaylandConfigWriter::write(m_config, "waylandconfigfile.json"));
+    QVERIFY(WaylandConfigWriter::writeJson(m_config, "waylandconfigfile.json"));
 
 }
 
