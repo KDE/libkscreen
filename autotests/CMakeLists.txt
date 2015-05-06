@@ -33,7 +33,10 @@ if(ENABLE_WAYLAND)
 
     kscreen_add_test(testwaylandbackend)
     kscreen_add_test(testwlsetup)
-    kscreen_add_test(testwlwrite)
+    if (KF5Config_FOUND)
+        kscreen_add_test(testwlwrite)
+        target_link_libraries(testwlwrite KF5::ConfigCore)
+    endif()
 
     set(KSCREEN_WAYLAND_LIBS "")
     set(KSCREEN_WAYLAND_SRCS "")
