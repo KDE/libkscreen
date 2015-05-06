@@ -28,6 +28,7 @@
 #include <QJsonObject>
 #include <QFile>
 #include <QFileInfo>
+#include <QStandardPaths>
 
 using namespace KScreen;
 
@@ -85,7 +86,7 @@ bool WaylandConfigWriter::write(const ConfigPtr& config, const QString& configfi
     QString destfile = configfile;
     const QFileInfo fi(configfile);
     if (!fi.isAbsolute()) {
-        destfile = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QLatin1Char('/') + dest;
+        destfile = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QLatin1Char('/') + configfile;
 
     }
     QFile file(destfile);
