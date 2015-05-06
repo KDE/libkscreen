@@ -41,6 +41,7 @@ public Q_SLOTS:
 
 private:
     QString error;
+    bool isExec;
 
 protected:
     ConfigOperation * const q_ptr;
