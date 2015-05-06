@@ -233,14 +233,4 @@ void ConfigMonitor::removeConfig(const ConfigPtr &config)
     }
 }
 
-/*
-void ConfigMonitor::notifyUpdate()
-{
-    d->updateConfigs();
-    qDebug() << "ConfigMonitor::configurationChanged()!";
-
-    Q_EMIT configurationChanged();
-}
-*/
-
 #include "configmonitor.moc"
