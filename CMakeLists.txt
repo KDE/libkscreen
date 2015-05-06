@@ -35,9 +35,9 @@ find_package(KF5Config CONFIG)
 set_package_properties(KF5Config PROPERTIES
                        TYPE OPTIONAL
                       )
-add_feature_info("KF5Config" KF5Config_FOUND "Required for building libkscreen's Wayland backend")
+add_feature_info("KF5Config" KF5Config_FOUND "Required for building a test for libkscreen's Wayland backend")
 
-if(Wayland_Client_FOUND AND KF5Wayland_FOUND AND KF5Config_FOUND)
+if(Wayland_Client_FOUND AND KF5Wayland_FOUND)
     set(ENABLE_WAYLAND TRUE)
 else()
     set(ENABLE_WAYLAND FALSE)

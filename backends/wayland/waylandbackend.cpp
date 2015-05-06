@@ -29,9 +29,6 @@
 #include <QSettings>
 #include <QStandardPaths>
 
-#include <KConfig>
-#include <KConfigGroup>
-
 using namespace KScreen;
 
 Q_LOGGING_CATEGORY(KSCREEN_WAYLAND, "kscreen.wayland");
@@ -83,37 +80,6 @@ void WaylandBackend::setConfig(const KScreen::ConfigPtr &config)
 
     WaylandConfigWriter::writeJson(config, configfile+"/waylandconfig.json");
     WaylandConfigWriter::writeConfig(config, configfile+"/waylandconfigrc");
-
-    /*
-    QSettings settings(configfile, QSettings::IniFormat);
-
-    qDebug() << "writing config to " << configfile;
-    foreach (auto output, config->outputs()) {
-        settings.beginGroup(output->name());
-        settings.setValue("ID", output->id());
-        settings.setValue(QStringLiteral("id"), output->id());
-        settings.setValue(QStringLiteral("width"), "1920");
-        settings.setValue(QStringLiteral("height"), "1080");
-        settings.setValue(QStringLiteral("x"), "4");
-        settings.setValue(QStringLiteral("y"), "7");
-    }
-    */
-
-    /*
-
-    KConfig kconfig(configfile+"/waylandconfigrc");
-    foreach (auto output, config->outputs()) {
-        auto settings = kconfig.group(output->name());
-        settings.writeEntry(QStringLiteral("id"), output->id());
-        settings.writeEntry(QStringLiteral("width"), "1920");
-        settings.writeEntry(QStringLiteral("height"), "1080");
-        settings.writeEntry(QStringLiteral("x"), "4");
-        settings.writeEntry(QStringLiteral("y"), "7");
-
-    }
-    kconfig.sync();
-
-    */
 }
 
 // Edid *WaylandBackend::edid(int outputId) const
