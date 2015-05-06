@@ -31,8 +31,49 @@
 #include <QStandardPaths>
 
 using namespace KScreen;
+bool WaylandConfigWriter::writeConfig(const ConfigPtr& config, const QString& configfile)
+{
+    QString _all;
+    for (auto output: config->outputs()) {
+        QString _o;
+        _all.append(QString("[Output-%1]\n").arg(output->id()));
+        const int x = output->pos().x();
+        const int y = output->pos().y();
+        int width = -1;
+        int height = -1;
+        int refreshRate = -1;
+        for (auto mode: output->modes()) {
+            if (mode->id() == output->currentModeId()) {
+                width = mode->size().width();
+                height = mode->size().height();
+                refreshRate = mode->refreshRate();
+            }
+        }
+        _all.append(QString("x=%1\n").arg(QString::number(x)));
+        _all.append(QString("y=%1\n").arg(QString::number(y)));
+        _all.append(QString("width=%1\n").arg(QString::number(width)));
+        _all.append(QString("height=%1\n").arg(QString::number(height)));
+        _all.append(QString("refreshRate=%1\n").arg(QString::number(refreshRate)));
+    }
+    qDebug() << "CONFIG" << _all;
 
-bool WaylandConfigWriter::write(const ConfigPtr& config, const QString& configfile)
+    QString destfile = configfile;
+    const QFileInfo fi(configfile);
+    if (!fi.isAbsolute()) {
+        destfile = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation) + QLatin1Char('/') + configfile;
+
+    }
+    QFile file(destfile);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qWarning() << "Failed to open " << destfile;
+        return false;
+    }
+    qDebug() << "destfile" << destfile;
+    file.write(_all.toLocal8Bit());
+    return true;
+}
+
+bool WaylandConfigWriter::writeJson(const ConfigPtr& config, const QString& configfile)
 {
     QJsonArray plugins;
 

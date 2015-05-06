@@ -20,6 +20,7 @@ target_link_libraries(KSC_Wayland Qt5::Core
                                   Wayland::Cursor
                                   KF5::Screen
                                   KF5::WaylandClient
+                                  KF5::ConfigCore
 )
 
 install(TARGETS KSC_Wayland DESTINATION ${PLUGIN_INSTALL_DIR}/kf5/kscreen/)

@@ -36,7 +36,8 @@ class WaylandConfigWriter
 {
 
 public:
-    static bool write(const KScreen::ConfigPtr& config, const QString& configfile);
+    static bool writeJson(const KScreen::ConfigPtr& config, const QString& configfile);
+    static bool writeConfig(const KScreen::ConfigPtr& config, const QString& configfile);
 
 private:
     static QVariantMap sizeToJson(const QSize& size);
