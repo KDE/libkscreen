@@ -18,9 +18,9 @@ kscreen_add_test(testqscreenbackend)
 kscreen_add_test(testconfigserializer)
 kscreen_add_test(testconfigmonitor)
 
-if(ENABLE_WAYLAND)
+if(ENABLE_WAYLAND AND KF5Config_FOUND)
     set(KSCREEN_WAYLAND_LIBS
-        KF5::WaylandServer KF5::WaylandClient
+        KF5::WaylandServer KF5::WaylandClient KF5::ConfigCore
     )
 
     # For WaylandConfigWriter and -Reader
@@ -33,10 +33,7 @@ if(ENABLE_WAYLAND)
 
     kscreen_add_test(testwaylandbackend)
     kscreen_add_test(testwlsetup)
-    if (KF5Config_FOUND)
-        kscreen_add_test(testwlwrite)
-        target_link_libraries(testwlwrite KF5::ConfigCore)
-    endif()
+    kscreen_add_test(testwlwrite)
 
     set(KSCREEN_WAYLAND_LIBS "")
     set(KSCREEN_WAYLAND_SRCS "")

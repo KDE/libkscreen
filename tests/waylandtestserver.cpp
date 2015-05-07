@@ -29,7 +29,7 @@
 #include "../src/edid.h"
 
 using namespace KScreen;
-using namespace KWayland::Server;
+//using namespace KWayland::Server;
 
 WaylandTestServer::WaylandTestServer(QObject *parent)
     : QObject(parent)
@@ -84,7 +84,12 @@ KWayland::Server::Display* KScreen::WaylandTestServer::display()
     return m_display;
 }
 
-void KScreen::WaylandTestServer::setConfig(const QString& configfile)
+void WaylandTestServer::setConfig(const QString& configfile)
 {
     m_configFile = configfile;
+}
+
+void WaylandTestServer::pickupConfigFile(const QString& configfile)
+{
+
 }
