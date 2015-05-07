@@ -59,6 +59,7 @@ public:
     bool isConnected() const;
     bool isPrimary() const;
     QPoint position() const;
+    QSize size() const;
     QString currentModeId() const;
     XRandRMode::Map modes() const;
     XRandRMode* currentMode() const;

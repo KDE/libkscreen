@@ -48,6 +48,7 @@ class KSCREEN_EXPORT Output : public QObject
         Q_PROPERTY(QString icon READ icon WRITE setIcon NOTIFY outputChanged)
         Q_PROPERTY(ModeList modes READ modes CONSTANT)
         Q_PROPERTY(QPoint pos READ pos WRITE setPos NOTIFY posChanged)
+        Q_PROPERTY(QSize size READ size WRITE setSize NOTIFY sizeChanged)
         Q_PROPERTY(Rotation rotation READ rotation WRITE setRotation NOTIFY rotationChanged)
         Q_PROPERTY(QString currentModeId READ currentModeId WRITE setCurrentModeId NOTIFY currentModeIdChanged)
         Q_PROPERTY(QString preferredModeId READ preferredModeId CONSTANT)
@@ -122,6 +123,21 @@ class KSCREEN_EXPORT Output : public QObject
         QPoint pos() const;
         void setPos(const QPoint& pos);
 
+        /***
+         * Returns actual size being rendered in the output
+         *
+         * The returned valued is after transformations have been applied to
+         * the resolution of the current mode.
+         *
+         * For example if currentMode is 1280x800 but it is a vertical screen
+         * the returned size will be 800x1280.
+         *
+         * If that same resolution (1280x800) is transformed and scale x2, the
+         * value returned will be 2560x1600
+         */
+        QSize size() const;
+        void setSize(const QSize& size);
+
         Rotation rotation() const;
         void setRotation(Rotation rotation);
         /**
@@ -147,14 +163,18 @@ class KSCREEN_EXPORT Output : public QObject
         void setEdid(const QByteArray &rawData);
         Edid* edid() const;
 
+        /**
+         * Returns the physical size of the screen in milimeters
+         * @note it might happen that the value is in centimeters, at the moment
+         * wea re not sanitizing it.
+         */
         QSize sizeMm() const;
         void setSizeMm(const QSize &size);
 
         /**
          * Returns a rectangle containing the current output position and size.
          *
-         * The geometry takes rotation into account, so if an 1920x1200 output
-         * is rotated by 90 deg, the geometry will be (0, 0, 1200, 1920)!
+         * The returned rectangle size is whatever \size returns.
          */
         QRect geometry() const;
 
@@ -162,6 +182,7 @@ class KSCREEN_EXPORT Output : public QObject
     Q_SIGNALS:
         void outputChanged();
         void posChanged();
+        void sizeChanged();
         void currentModeIdChanged();
         void rotationChanged();
         void isConnectedChanged();

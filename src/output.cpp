@@ -52,9 +52,9 @@ class Output::Private
         currentMode(other.currentMode),
         preferredMode(other.preferredMode),
         preferredModes(other.preferredModes),
-        size(other.size),
         sizeMm(other.sizeMm),
         pos(other.pos),
+        size(other.size),
         rotation(other.rotation),
         connected(other.connected),
         enabled(other.enabled),
@@ -79,9 +79,9 @@ class Output::Private
     QString currentMode;
     QString preferredMode;
     QStringList preferredModes;
-    QSize size;
     QSize sizeMm;
     QPoint pos;
+    QSize size;
     Rotation rotation;
     bool connected;
     bool enabled;
@@ -313,6 +313,22 @@ void Output::setPos(const QPoint& pos)
     Q_EMIT posChanged();
 }
 
+QSize Output::size() const
+{
+    return d->size;
+}
+
+void Output::setSize(const QSize& size)
+{
+    if (d->size == size) {
+        return;
+    }
+
+    d->size = size;
+
+    Q_EMIT sizeChanged();
+}
+
 Output::Rotation Output::rotation() const
 {
     return d->rotation;
@@ -417,15 +433,7 @@ void Output::setSizeMm(const QSize &size)
 
 QRect Output::geometry() const
 {
-    if (!currentMode()) {
-        return QRect();
-    }
-
-    if (isHorizontal()) {
-        return QRect(pos(), currentMode()->size());
-    } else {
-        return QRect(pos(), QSize(currentMode()->size().height(), currentMode()->size().width()));
-    }
+    return QRect(d->pos, d->size);
 }
 
 void Output::apply(const OutputPtr& other)
