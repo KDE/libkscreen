@@ -88,8 +88,8 @@ OutputInterface* WaylandConfigReader::createOutput(const QVariantMap& outputConf
         const QSize _size = sizeFromJson(mode["size"]);
         int refresh = 60000;
 
-        if (outputConfig.keys().contains("refreshRate")) {
-            refresh = qRound(outputConfig["refreshRate"].toReal() * 1000);
+        if (mode.keys().contains("refreshRate")) {
+            refresh = qRound(mode["refreshRate"].toReal());
         }
         bool isCurrent = currentModeId == mode["id"].toInt();
         bool isPreferred = preferredModes.contains(mode["id"]);

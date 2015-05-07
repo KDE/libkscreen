@@ -41,7 +41,7 @@ bool WaylandConfigWriter::writeConfig(const ConfigPtr& config, const QString& co
         const int y = output->pos().y();
         int width = -1;
         int height = -1;
-        int refreshRate = -1;
+        float refreshRate = -1;
         for (auto mode: output->modes()) {
             if (mode->id() == output->currentModeId()) {
                 width = mode->size().width();
@@ -49,6 +49,7 @@ bool WaylandConfigWriter::writeConfig(const ConfigPtr& config, const QString& co
                 refreshRate = mode->refreshRate();
             }
         }
+        int refresh = qRound(refreshRate * 1000); // this is what KWayland deals with
         _all.append(QString("x=%1\n").arg(QString::number(x)));
         _all.append(QString("y=%1\n").arg(QString::number(y)));
         _all.append(QString("width=%1\n").arg(QString::number(width)));
