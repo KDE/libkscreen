@@ -24,7 +24,7 @@
 using namespace KScreen;
 
 ConfigOperationPrivate::ConfigOperationPrivate(ConfigOperation* qq)
-    : QObject(qq)
+    : QObject()
     , isExec(false)
     , q_ptr(qq)
 {
