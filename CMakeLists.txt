@@ -18,6 +18,8 @@ include(CheckCXXCompilerFlag)
 set(REQUIRED_QT_VERSION 5.2.0)
 find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Core DBus Gui Test X11Extras)
 
+# Wayland backend
+
 find_package(Wayland 1.2 COMPONENTS Client Cursor)
 set_package_properties(Wayland PROPERTIES
                        TYPE OPTIONAL
@@ -31,23 +33,36 @@ set_package_properties(KF5Wayland PROPERTIES
                       )
 add_feature_info("KF5Wayland" KF5Wayland_FOUND "Required for building libkscreen's Wayland backend")
 
+find_package(KF5CoreAddons CONFIG)
+set_package_properties(KF5CoreAddons PROPERTIES
+                       TYPE OPTIONAL
+                      )
+add_feature_info("KF5CoreAddons" KF5CoreAddons_FOUND "Required for building unit tests for libkscreen's Wayland backend")
+
 find_package(KF5Config CONFIG)
 set_package_properties(KF5Config PROPERTIES
                        TYPE OPTIONAL
                       )
-add_feature_info("KF5Config" KF5Config_FOUND "Required for building a test for libkscreen's Wayland backend")
+add_feature_info("KF5Config" KF5Config_FOUND "Required for building unit tests for libkscreen's Wayland backend")
 
+# KF5::CoreAddons and KF5::Config are only used under tests/ and autotests/
+# The backend itself can be built without these tests, the backend just requires
+# KF5::Wayland (kwayland) and wayland client libs
 if(Wayland_Client_FOUND AND KF5Wayland_FOUND)
     set(ENABLE_WAYLAND TRUE)
 else()
     set(ENABLE_WAYLAND FALSE)
 endif()
 
+# xrandr backend
+
 find_package(XCB COMPONENTS XCB RANDR)
 set_package_properties(XCB PROPERTIES
                        TYPE REQUIRED
                        PURPOSE "Required for building XRandR backends"
 )
+
+# library setup
 
 set(KF5_VERSION ${PROJECT_VERSION}) #When we are happy with the api, we can sync with frameworks
 ecm_setup_version(${KF5_VERSION} VARIABLE_PREFIX KSCREEN

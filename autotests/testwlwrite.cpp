@@ -144,6 +144,7 @@ void testWaylandWrite::changeConfig()
             qDebug() << "   m" << m->id();
         }
     }
+
     KScreen::OutputPtr o1 = outputs.first();
     QCOMPARE(o1->id(), 5);
     qDebug() << "setCurrentModeId" << o1->currentModeId();

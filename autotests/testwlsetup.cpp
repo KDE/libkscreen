@@ -81,6 +81,7 @@ testWaylandSetup::testWaylandSetup(QObject *parent)
     : QObject(parent)
     , m_config(nullptr)
     , m_startServer(true)
+    , m_server(nullptr)
 {
     m_server = new WaylandTestServer(this);
 }
@@ -99,7 +100,7 @@ void testWaylandSetup::initTestCase()
 
 void testWaylandSetup::loadConfig()
 {
-    return;
+    //return;
     GetConfigOperation *op = new GetConfigOperation();
     op->exec();
     m_config = op->config();
@@ -121,9 +122,9 @@ void testWaylandSetup::testConfigs_data()
 {
     QTest::addColumn<QString>("configfile");
 
-//    QTest::newRow("default") << "default.json";
+    QTest::newRow("default") << "default.json";
 //     QTest::newRow("single") << "singleoutput.json";
-     QTest::newRow("multiple") << "multipleoutput.json";
+//     QTest::newRow("multiple") << "multipleoutput.json";
 }
 
 void testWaylandSetup::testConfigs()
@@ -138,8 +139,8 @@ void testWaylandSetup::testConfigs()
 
 
     if (m_config) {
-        //m_config->deleteLater();
-//         m_config(nullptr);
+        m_config->deleteLater();
+        m_config.clear();
     }
 
     GetConfigOperation *op = new GetConfigOperation();
@@ -178,6 +179,7 @@ void testWaylandSetup::testConfigs()
 
     delete m_config.data();
     m_server->stop();
+    delete m_server;
 }
 
 
