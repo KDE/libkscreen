@@ -23,7 +23,7 @@ if(ENABLE_WAYLAND AND KF5Config_FOUND)
         KF5::WaylandServer KF5::WaylandClient KF5::ConfigCore
     )
 
-    # For WaylandConfigWriter and -Reader
+    # For WaylandConfigWriter and -Reader and TestServer
     set(KSCREEN_WAYLAND_SRCS
         ${CMAKE_SOURCE_DIR}/backends/wayland/waylandconfigwriter.cpp
         ${CMAKE_SOURCE_DIR}/backends/wayland/waylandconfigreader.cpp
