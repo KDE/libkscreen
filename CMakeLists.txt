@@ -58,7 +58,7 @@ endif()
 
 find_package(XCB COMPONENTS XCB RANDR)
 set_package_properties(XCB PROPERTIES
-                       TYPE REQUIRED
+                       TYPE OPTIONAL
                        PURPOSE "Required for building XRandR backends"
 )
 
