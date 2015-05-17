@@ -6,6 +6,8 @@
             "connected": true,
             "currentModeId": "73",
             "enabled": false,
+            "manufacturer": "Butterfly Visuals",
+            "model": "smaragd",
             "icon": "",
             "id": 66,
             "modes": [
@@ -99,6 +101,8 @@
             "type": 7
         },
         {
+            "manufacturer": "Octopus Graphics",
+            "model": "rubyled",
             "clones": [
             ],
             "connected": true,
@@ -323,6 +327,8 @@
             "type": 0
         },
         {
+            "manufacturer": "Gänseei",
+            "model": "Dotterfleck",
             "clones": [
             ],
             "connected": false,
@@ -348,6 +354,8 @@
             "type": 0
         },
         {
+            "manufacturer": "Anarchy Electronics",
+            "model": "Che",
             "clones": [
             ],
             "connected": false,
@@ -373,6 +381,8 @@
             "type": 0
         },
         {
+            "manufacturer": "Bonsai",
+            "model": "marina",
             "clones": [
                 71
             ],
@@ -616,6 +626,8 @@
             "type": 0
         },
         {
+            "manufacturer": "Tuna Pictures",
+            "model": "52-1337LED",
             "clones": [
             ],
             "connected": false,
