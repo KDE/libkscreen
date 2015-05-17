@@ -20,7 +20,7 @@ kscreen_add_test(testconfigmonitor)
 
 if(ENABLE_WAYLAND AND KF5Config_FOUND)
     set(KSCREEN_WAYLAND_LIBS
-        KF5::WaylandServer KF5::WaylandClient KF5::ConfigCore
+        KF5::WaylandServer KF5::WaylandClient KF5::CoreAddons KF5::ConfigCore
     )
 
     # For WaylandConfigWriter and -Reader and TestServer

@@ -19,6 +19,7 @@
 #include <QCoreApplication>
 #include <QtTest>
 #include <QObject>
+#include <QSignalSpy>
 
 #include <KSharedConfig>
 #include <KConfigGroup>
@@ -51,6 +52,7 @@ Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.wayland");
 
 //static const QString s_socketName = QStringLiteral("libkscreen-test-wayland-backend-0");
 
+static const QString s_outputConfig = QStringLiteral("waylandconfigtestrc");
 using namespace KScreen;
 
 class testWaylandWrite : public QObject
@@ -107,11 +109,11 @@ void testWaylandWrite::writeConfig()
     QVERIFY(m_config);
 
     //QVERIFY(WaylandConfigWriter::writeJson(m_config, "waylandconfigfile.json"));
-    QVERIFY(WaylandConfigWriter::writeConfig(m_config, "waylandconfigfilerc"));
+    QVERIFY(WaylandConfigWriter::writeConfig(m_config, s_outputConfig));
 
-    auto cfg = KSharedConfig::openConfig("waylandconfigfilerc", KConfig::SimpleConfig);
+    auto cfg = KSharedConfig::openConfig(s_outputConfig, KConfig::SimpleConfig);
 
-    qDebug() << "groups" << cfg->groupList();
+    //qDebug() << "groups" << cfg->groupList();
     QVERIFY(cfg->groupList().count() == 2);
 
     auto o1group = cfg->group("Output-5");
@@ -139,9 +141,9 @@ void testWaylandWrite::changeConfig()
      *                    "refreshRate": 74.984428405761719,
      */
     for (auto o: outputs) {
-        qDebug() << "o" << o->id();
+        //qDebug() << "o" << o->id();
         for (auto m: o->modes()) {
-            qDebug() << "   m" << m->id();
+            //qDebug() << "   m" << m->id();
         }
     }
 
@@ -150,9 +152,10 @@ void testWaylandWrite::changeConfig()
     qDebug() << "setCurrentModeId" << o1->currentModeId();
     o1->setCurrentModeId("800x600@0");
 
-    QVERIFY(WaylandConfigWriter::writeConfig(m_config, "waylandconfigfilerc"));
+    QSignalSpy syncSpy(m_server, SIGNAL(outputsChanged()));
+    QVERIFY(WaylandConfigWriter::writeConfig(m_config, s_outputConfig));
 
-    auto cfg = KSharedConfig::openConfig("waylandconfigfilerc", KConfig::SimpleConfig);
+    auto cfg = KSharedConfig::openConfig(s_outputConfig, KConfig::SimpleConfig);
     cfg->reparseConfiguration();
     auto o1group = cfg->group("Output-5");
     QCOMPARE(o1group.readEntry("x", -2), 1920);
@@ -160,6 +163,11 @@ void testWaylandWrite::changeConfig()
     QCOMPARE(o1group.readEntry("width", -2), 800);
     QCOMPARE(o1group.readEntry("height", -2), 600);
     QCOMPARE(o1group.readEntry("refreshRate", -2), 75);
+
+    m_server->pickupConfigFile(s_outputConfig);
+
+//     QVERIFY(syncSpy.wait());
+//     QCOMPARE(syncSpy.count(), 1);
 
 }
 
