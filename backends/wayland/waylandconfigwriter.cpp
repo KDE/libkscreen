@@ -36,7 +36,7 @@ bool WaylandConfigWriter::writeConfig(const ConfigPtr& config, const QString& co
     QString _all;
     for (auto output: config->outputs()) {
         QString _o;
-        _all.append(QString("[Output-%1]\n").arg(output->name()));
+        _all.append(QString("[%1]\n").arg(output->name()));
         const int x = output->pos().x();
         const int y = output->pos().y();
         int width = -1;
