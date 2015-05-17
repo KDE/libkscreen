@@ -25,6 +25,12 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QFile>
+#include <QStandardPaths>
+
+#include <KConfig>
+#include <KConfigGroup>
+#include <KSharedConfig>
+#include <KDirWatch>
 
 #include "../src/edid.h"
 
@@ -38,7 +44,13 @@ WaylandTestServer::WaylandTestServer(QObject *parent)
     , m_compositor(nullptr)
     , m_seat(nullptr)
     , m_shell(nullptr)
+    , m_configWatch(nullptr)
 {
+    QString m_outputConfigFile = QStandardPaths::writableLocation(
+                                 QStandardPaths::GenericConfigLocation) +
+                                 "/waylandconfigtestrc";
+    qDebug() << "m_outputConfigFile" << m_outputConfigFile;
+
 }
 
 WaylandTestServer::~WaylandTestServer()
@@ -48,7 +60,7 @@ WaylandTestServer::~WaylandTestServer()
     delete m_display;
 }
 
-void KScreen::WaylandTestServer::start()
+void WaylandTestServer::start()
 {
     m_display = new KWayland::Server::Display(this);
     m_display->setSocketName(s_socketName);
@@ -64,6 +76,12 @@ void KScreen::WaylandTestServer::start()
     m_shell->create();
 
     m_outputs = KScreen::WaylandConfigReader::outputsFromConfig(m_configFile, m_display);
+
+    m_configWatch = new KDirWatch(this);
+    m_configWatch->addFile(m_outputConfigFile);
+    connect(m_configWatch, &KDirWatch::dirty, this, &WaylandTestServer::pickupConfigFile);
+    connect(m_configWatch, &KDirWatch::created, this, &WaylandTestServer::pickupConfigFile);
+
 
     qDebug() << "Wayland server running. Outputs: " << m_outputs.count();
 }
@@ -91,5 +109,17 @@ void WaylandTestServer::setConfig(const QString& configfile)
 
 void WaylandTestServer::pickupConfigFile(const QString& configfile)
 {
+    qDebug() << "!!!!!!!!!!!!!!!!!! Updating outputs from config" << configfile;
+    //KConfig cfg(m_outputConfigFile, KConfig::SimpleConfig);
+    auto cfg = KSharedConfig::openConfig(configfile, KConfig::SimpleConfig);
+    cfg->reparseConfiguration();
+    qDebug() << "Groups:" << cfg->groupList();
 
+    for (auto o: m_outputs) {
+        qDebug() << " " << o->pixelSize();
+        qDebug() << " " << o->manufacturer();
+        qDebug() << " " << o->model();
+    }
+
+    emit outputsChanged();
 }

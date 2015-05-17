@@ -28,6 +28,7 @@
 #include <KWayland/Server/seat_interface.h>
 #include <KWayland/Server/shell_interface.h>
 
+class KDirWatch;
 
 namespace KScreen
 {
@@ -52,6 +53,10 @@ public:
     void pickupConfigFile(const QString &configfile);
 
     KWayland::Server::Display* display();
+
+Q_SIGNALS:
+    void outputsChanged();
+
 private:
 
     QString m_configFile;
@@ -60,6 +65,8 @@ private:
     QList<KWayland::Server::OutputInterface*> m_outputs;
     KWayland::Server::SeatInterface *m_seat;
     KWayland::Server::ShellInterface *m_shell;
+    KDirWatch *m_configWatch;
+    QString m_outputConfigFile;
 };
 
 } // namespace
