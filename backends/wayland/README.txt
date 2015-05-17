@@ -32,18 +32,19 @@ is pure coincidence and is likely to break code assuming it.
 
 TODO
 
-- Add modes to configwriter
-- Add more output data to configwriter
+- output rotation needs reading and writing code + unit tests
+- output scale needs reading and writing code + unit tests
 - waylandserver picks up config changes
 - autotest for server roundtrip with new config
-- WaylandScreen takes aggregate size of outputs for now (should ask compositor
-  in the future?)
+- WaylandScreen takes aggregate size of outputs
 - create Edid from output-internal information (which?)
 - update Output object
 - update Screen object
 
 DONE
 
+o Add modes to configwriter
+o Add more output data to configwriter
 o autotest for outputs
 o autotest for modes
 o Make sure config is updated on server shutdown
