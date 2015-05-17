@@ -116,14 +116,14 @@ void testWaylandWrite::writeConfig()
     //qDebug() << "groups" << cfg->groupList();
     QVERIFY(cfg->groupList().count() == 2);
 
-    auto o1group = cfg->group("Output-5");
+    auto o1group = cfg->group("Output-Octopus Graphics-rubyled");
     QCOMPARE(o1group.readEntry("x", -2), 1920);
     QCOMPARE(o1group.readEntry("y", -2), 0);
     QCOMPARE(o1group.readEntry("width", -2), 1680);
     QCOMPARE(o1group.readEntry("height", -2), 1050);
     QCOMPARE(o1group.readEntry("refreshRate", -2), 60);
 
-    auto o2group = cfg->group("Output-6");
+    auto o2group = cfg->group("Output-Bonsai-marina");
     QCOMPARE(o2group.readEntry("x", -2), 0);
     QCOMPARE(o2group.readEntry("y", -2), 0);
     QCOMPARE(o2group.readEntry("width", -2), 1920);
@@ -157,7 +157,7 @@ void testWaylandWrite::changeConfig()
 
     auto cfg = KSharedConfig::openConfig(s_outputConfig, KConfig::SimpleConfig);
     cfg->reparseConfiguration();
-    auto o1group = cfg->group("Output-5");
+    auto o1group = cfg->group("Output-Octopus Graphics-rubyled");
     QCOMPARE(o1group.readEntry("x", -2), 1920);
     QCOMPARE(o1group.readEntry("y", -2), 0);
     QCOMPARE(o1group.readEntry("width", -2), 800);
