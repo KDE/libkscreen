@@ -28,7 +28,6 @@
 #include "edid.h"
 
 using namespace KScreen;
-using namespace KWayland::Server;
 
 QList<KWayland::Server::OutputInterface*> WaylandConfigReader::outputsFromConfig(const QString& configfile, KWayland::Server::Display* display)
 {
@@ -54,7 +53,7 @@ QList<KWayland::Server::OutputInterface*> WaylandConfigReader::outputsFromConfig
 
 OutputInterface* WaylandConfigReader::createOutput(const QVariantMap& outputConfig, KWayland::Server::Display *display)
 {
-    OutputInterface *output = display->createOutput(display);
+    KWayland::Server::OutputInterface *output = display->createOutput(display);
 
     QByteArray data = QByteArray::fromBase64(outputConfig["edid"].toByteArray());
     Edid edid(data, display);
