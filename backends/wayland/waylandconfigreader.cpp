@@ -79,6 +79,8 @@ OutputInterface* WaylandConfigReader::createOutput(const QVariantMap& outputConf
         output->setModel(edid.name());
     } else {
         output->setPhysicalSize(sizeFromJson(outputConfig["sizeMM"]));
+        output->setManufacturer(outputConfig["manufacturer"].toString());
+        output->setModel(outputConfig["model"].toString());
     }
     int currentModeId = outputConfig["currentModeId"].toInt();
     QVariantList preferredModes = outputConfig["preferredModes"].toList();
