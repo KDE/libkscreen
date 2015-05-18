@@ -31,7 +31,7 @@ using namespace KScreen;
 
 WaylandOutput::WaylandOutput(QObject *parent)
     : KWayland::Client::Output(parent)
-    , m_edid(0)
+    , m_edid(new Edid(QByteArray(), this))
     , m_id(-1)
     , m_completed(false)
 {
