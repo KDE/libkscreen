@@ -210,26 +210,27 @@ void WaylandConfig::updateKScreenConfig(KScreen::ConfigPtr &config) const
     KScreen::ScreenPtr screen = config->screen();
     m_screen->updateKScreenScreen(screen);
 
+    qDebug() << "MAP: " << m_outputMap;
     //Removing removed outputs
     KScreen::OutputList outputs = config->outputs();
     Q_FOREACH (KScreen::OutputPtr output, outputs) {
         if (!m_outputMap.keys().contains(output->id())) {
             config->removeOutput(output->id());
+            qWarning() << " outputs removed from config" << m_outputMap.keys();
         }
     }
 
     // Add KScreen::Outputs that aren't in the list yet, handle primaryOutput
     Q_FOREACH (auto output, m_outputMap.values()) {
 
+        // FIXME: doesn't work
         KScreen::OutputPtr kscreenOutput(config->output(output->id()));
 
         if (kscreenOutput && m_outputMap.count() == 1) {
             // FIXME: primaryScreen?
             kscreenOutput->setPrimary(true);
         } else if (m_outputMap.count() > 1) {
-            //qWarning() << "Multiple outputs, but no way to figure out the primary one. :/";
-        } else {
-            qWarning() << "No outputs found. :(";
+            qWarning() << "Multiple outputs, but no way to figure out the primary one. :/";
         }
 
         if (!kscreenOutput) {
