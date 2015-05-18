@@ -44,10 +44,10 @@ BackendLoader::~BackendLoader()
 
 bool BackendLoader::loadBackend(const QString& backend)
 {
-    qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Requested backend:" << backend;
+    //qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Requested backend:" << backend;
     const QString backendFilter = QString::fromLatin1("KSC_%1*").arg(backend);
     const QStringList paths = QCoreApplication::libraryPaths();
-    qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Lookup paths: " << paths;
+    //qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Lookup paths: " << paths;
     Q_FOREACH (const QString &path, paths) {
         const QDir dir(path + QLatin1String("/kf5/kscreen/"),
                        backendFilter,
