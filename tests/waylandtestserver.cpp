@@ -73,6 +73,7 @@ void WaylandTestServer::start()
     m_display->start();
 
     // Enable once we actually use these things...
+    /*
     m_display->createShm();
     m_compositor = m_display->createCompositor();
     m_compositor->create();
@@ -80,7 +81,7 @@ void WaylandTestServer::start()
     m_seat->create();
     m_shell = m_display->createShell();
     m_shell->create();
-
+    */
     m_outputs = KScreen::WaylandConfigReader::outputsFromConfig(m_configFile, m_display);
 
     m_configWatch = new KDirWatch(this);
