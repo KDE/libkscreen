@@ -155,6 +155,7 @@ void testWaylandWrite::changeConfig()
     QSignalSpy syncSpy(m_server, SIGNAL(outputsChanged()));
     QVERIFY(WaylandConfigWriter::writeConfig(m_config, s_outputConfig));
 
+    // Check if config gets written correctly
     auto cfg = KSharedConfig::openConfig(s_outputConfig, KConfig::SimpleConfig);
     cfg->reparseConfiguration();
     auto o1group = cfg->group("Octopus Graphics-rubyled");
@@ -163,9 +164,13 @@ void testWaylandWrite::changeConfig()
     QCOMPARE(o1group.readEntry("width", -2), 800);
     QCOMPARE(o1group.readEntry("height", -2), 600);
     QCOMPARE(o1group.readEntry("refreshRate", -2), 75);
+
+    // make testserver reparse the config and update the outputs of the KWayland::Server
     m_server->pickupConfigFile(s_outputConfig);
     syncSpy.wait(10);
     QCOMPARE(syncSpy.count(), 1);
+
+    // Compare the output configuration
 
 }
 
