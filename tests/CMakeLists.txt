@@ -9,3 +9,4 @@ if (ENABLE_WAYLAND AND KF5Config_FOUND)
     target_link_libraries(waylandtestserver Qt5::Gui KF5::Screen KF5::WaylandServer KF5::CoreAddons KF5::ConfigCore)
 endif()
 
+add_subdirectory(drm)
