@@ -23,6 +23,8 @@
 #include <QObject>
 #include <QLoggingCategory>
 
+class QPluginLoader;
+
 namespace KScreen
 {
 class AbstractBackend;
@@ -49,7 +51,7 @@ public:
     KScreen::AbstractBackend* backend() const;
 
 private:
-
+    QPluginLoader *mLoader;
     KScreen::AbstractBackend* mBackend;
 };
 

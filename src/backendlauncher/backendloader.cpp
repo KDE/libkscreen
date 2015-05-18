@@ -26,13 +26,25 @@
 #include <QPluginLoader>
 #include <QX11Info>
 
+#include <memory>
+
 #include <QDBusConnection>
 #include <QDBusInterface>
 
 Q_LOGGING_CATEGORY(KSCREEN_BACKEND_LAUNCHER, "kscreen.backendLauncher")
 
+void pluginDeleter(QPluginLoader *p)
+{
+    if (p) {
+        qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Unloading" << p->fileName();
+        p->unload();
+        delete p;
+    }
+}
+
 BackendLoader::BackendLoader()
     : QObject()
+    , mLoader(0)
     , mBackend(0)
 {
 }
@@ -40,6 +52,8 @@ BackendLoader::BackendLoader()
 BackendLoader::~BackendLoader()
 {
     delete mBackend;
+    pluginDeleter(mLoader);
+    qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Backend loader destroyed";
 }
 
 bool BackendLoader::loadBackend(const QString& backend)
@@ -77,12 +91,11 @@ bool BackendLoader::loadBackend(const QString& backend)
             }
 
             qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Trying" << finfo.filePath();
-            QPluginLoader loader(finfo.filePath());
-            loader.load();
-            QObject *instance = loader.instance();
+            // Make sure we unload() and delete the loader whenever it goes out of scope here
+            std::unique_ptr<QPluginLoader, void(*)(QPluginLoader *)> loader(new QPluginLoader(finfo.filePath()), pluginDeleter);
+            QObject *instance = loader->instance();
             if (!instance) {
-                qCDebug(KSCREEN_BACKEND_LAUNCHER) << loader.errorString();
-                loader.unload();
+                qCDebug(KSCREEN_BACKEND_LAUNCHER) << loader->errorString();
                 continue;
             }
 
@@ -92,9 +105,12 @@ bool BackendLoader::loadBackend(const QString& backend)
                     qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Skipping" << mBackend->name() << "backend";
                     delete mBackend;
                     mBackend = 0;
-                    loader.unload();
                     continue;
                 }
+
+                // This is the only case we don't want to unload() and delete the loader, instead
+                // we store it and unload it when the backendloader terminates.
+                mLoader = loader.release();
                 qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Loading" << mBackend->name() << "backend";
                 return true;
             } else {
