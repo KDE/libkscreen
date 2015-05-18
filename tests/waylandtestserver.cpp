@@ -46,9 +46,10 @@ WaylandTestServer::WaylandTestServer(QObject *parent)
     , m_shell(nullptr)
     , m_configWatch(nullptr)
 {
-    QString m_outputConfigFile = QStandardPaths::writableLocation(
+    m_outputConfigFile = QStandardPaths::writableLocation(
                                  QStandardPaths::GenericConfigLocation) +
-                                 "/waylandconfigtestrc";
+                                 "/waylandconfigrc";
+                                 //"/waylandconfigtestrc";
     qDebug() << "m_outputConfigFile" << m_outputConfigFile;
 
 }
@@ -63,7 +64,12 @@ WaylandTestServer::~WaylandTestServer()
 void WaylandTestServer::start()
 {
     m_display = new KWayland::Server::Display(this);
-    m_display->setSocketName(s_socketName);
+    if (qgetenv("WAYLAND_DISPLAY").isEmpty()) {
+        m_display->setSocketName(s_socketName);
+    } else {
+        m_display->setSocketName(qgetenv("WAYLAND_DISPLAY").constData());
+
+    }
     m_display->start();
 
     // Enable once we actually use these things...
@@ -79,6 +85,7 @@ void WaylandTestServer::start()
 
     m_configWatch = new KDirWatch(this);
     m_configWatch->addFile(m_outputConfigFile);
+    qDebug() << "KDirWatch::Added: " << m_outputConfigFile;
     connect(m_configWatch, &KDirWatch::dirty, this, &WaylandTestServer::pickupConfigFile);
     connect(m_configWatch, &KDirWatch::created, this, &WaylandTestServer::pickupConfigFile);
 
@@ -107,19 +114,86 @@ void WaylandTestServer::setConfig(const QString& configfile)
     m_configFile = configfile;
 }
 
+bool WaylandTestServer::outputFromConfigGroup(const KConfigGroup& config, KWayland::Server::OutputInterface* output)
+{
+
+    bool changed = false;
+
+    const QSize ps = QSize(config.readEntry("width", -1), config.readEntry("height", -1));
+    const int refresh = config.readEntry("refreshRate", 60000);
+    if (ps != output->pixelSize() || refresh != output->refreshRate()) {
+        output->setCurrentMode(ps, refresh);
+        changed = true;
+    }
+
+    const QPoint pos = QPoint(config.readEntry("x", 0), config.readEntry("y", 0));
+    if (pos != output->globalPosition()) {
+        output->setGlobalPosition(pos);
+        changed = true;
+    }
+
+    // FIXME : rotation
+
+    return changed;
+}
+
 void WaylandTestServer::pickupConfigFile(const QString& configfile)
 {
-    qDebug() << "!!!!!!!!!!!!!!!!!! Updating outputs from config" << configfile;
+    bool changed = false;
     //KConfig cfg(m_outputConfigFile, KConfig::SimpleConfig);
     auto cfg = KSharedConfig::openConfig(configfile, KConfig::SimpleConfig);
     cfg->reparseConfiguration();
+    qDebug() << "===== Updating outputs from config" << configfile;
     qDebug() << "Groups:" << cfg->groupList();
-
+    QStringList os;
+    // Check for changed outputs
     for (auto o: m_outputs) {
-        qDebug() << " " << o->pixelSize();
-        qDebug() << " " << o->manufacturer();
-        qDebug() << " " << o->model();
+        // Note: this string concatenation is roughly what kwin does
+        // it should not be encoded in the backend since it is too fragile,
+        // but for tests it suffices
+        const QString oname = o->manufacturer() + QStringLiteral("-") + o->model();
+
+        qDebug() << " Before" << o->globalPosition() << o->pixelSize();
+
+        // Check for changed or removed outputs
+        if (cfg->groupList().contains(oname)) {
+            if (outputFromConfigGroup(cfg->group(oname), o)) {
+                changed = true;
+                qDebug() << " ***** " << oname << " :: " << o->manufacturer() << o->model();
+                qDebug() << " CHANGED! After" << o->globalPosition() << o->pixelSize();
+            }
+            os << oname;
+        } else {
+
+            qDebug() << " ---- " << oname << " :: " << o->manufacturer() << o->model();
+            qDebug() << " ++Output gone++";
+            m_outputs.removeAll(o);
+            m_display->removeOutput(o);
+            changed = true;
+            //delete o;
+        }
     }
 
-    emit outputsChanged();
+    // Check for added outputs
+    foreach (const QString& oname, cfg->groupList()) {
+        if (!os.contains(oname)) {
+
+            KWayland::Server::OutputInterface *o = m_display->createOutput(m_display);
+            o->setManufacturer(oname.split("-").at(0));
+            o->setModel(oname.split("-").at(1));
+            outputFromConfigGroup(cfg->group(oname), o);
+            qDebug() << " ***** " << oname << " :: " << o->manufacturer() << o->model();
+            qDebug() << " Added: " << o->globalPosition() << o->pixelSize();
+            m_outputs << o;
+
+            changed = true;
+        }
+    }
+
+
+    // Notify
+    if (changed) {
+        qDebug() << "Outputs: " << m_outputs.count();
+        emit outputsChanged();
+    }
 }

@@ -28,6 +28,9 @@
 #include <KWayland/Server/seat_interface.h>
 #include <KWayland/Server/shell_interface.h>
 
+// KConfigCore
+#include <KConfigGroup>
+
 class KDirWatch;
 
 namespace KScreen
@@ -58,6 +61,7 @@ Q_SIGNALS:
     void outputsChanged();
 
 private:
+    bool outputFromConfigGroup(const KConfigGroup& config, KWayland::Server::OutputInterface* output);
 
     QString m_configFile;
     KWayland::Server::Display *m_display;
