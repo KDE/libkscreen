@@ -122,6 +122,15 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
     const KScreen::OutputList kscreenOutputs = config->outputs();
     const QSize newScreenSize = screenSize(config);
     const QSize currentScreenSize = m_screen->currentSize();
+    // When the current screen configuration is bigger than the new size (like
+    // when rotating an output), the XSetScreenSize can fail or apply the smaller
+    // size only partially, because we apply the size (we have to) before the
+    // output changes. To prevent all kinds of weird screen sizes from happening,
+    // we initially set such screen size, that it can take the current as well
+    // as the new configuration, then we apply the output changes, and finally then
+    // (if necessary) we reduce the screen size to fix the new configuration precisely.
+    const QSize intermediateScreenSize = QSize(qMax(newScreenSize.width(), currentScreenSize.width()),
+                                               qMax(newScreenSize.height(), currentScreenSize.height()));
     int neededCrtcs = 0;
     xcb_randr_output_t primaryOutput = 0;
     xcb_randr_output_t oldPrimaryOutput = 0;
@@ -226,6 +235,7 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
     qCDebug(KSCREEN_XRANDR) << "\tChange Screen Size:" << (newScreenSize != currentScreenSize);
     if (newScreenSize != currentScreenSize) {
         qCDebug(KSCREEN_XRANDR) << "\t\tOld:" << currentScreenSize;
+        qCDebug(KSCREEN_XRANDR) << "\t\tIntermediate:" << intermediateScreenSize;
         qCDebug(KSCREEN_XRANDR) << "\t\tNew:" << newScreenSize;
     }
     qCDebug(KSCREEN_XRANDR) << "\tDisable outputs:" << !toDisable.isEmpty();
@@ -257,8 +267,8 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
         disableOutput(output);
     }
 
-    if (newScreenSize != currentScreenSize) {
-        setScreenSize(newScreenSize);
+    if (intermediateScreenSize != currentScreenSize) {
+        setScreenSize(intermediateScreenSize);
     }
 
     bool forceScreenSizeUpdate = false;
@@ -286,9 +296,14 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
         setPrimaryOutput(primaryOutput);
     }
 
-    if (forceScreenSizeUpdate) {
-        const QSize newSize = screenSize(config);
-        qCDebug(KSCREEN_XRANDR) << "forced to change screen size: " << newSize;
+    if (forceScreenSizeUpdate || intermediateScreenSize != newScreenSize) {
+        QSize newSize;
+        if (forceScreenSizeUpdate) {
+            newSize = screenSize(config);
+            qCDebug(KSCREEN_XRANDR) << "Forced to change screen size: " << newSize;
+        } else {
+            newSize = intermediateScreenSize;
+        }
         setScreenSize(newSize);
     }
 }
