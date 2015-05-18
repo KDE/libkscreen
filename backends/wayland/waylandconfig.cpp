@@ -104,7 +104,10 @@ void WaylandConfig::setupRegistry()
     m_registry = new KWayland::Client::Registry(this);
     m_registry->setEventQueue(m_queue);
 
-    connect(m_registry, &KWayland::Client::Registry::outputAnnounced, this, &WaylandConfig::addOutput, Qt::DirectConnection);
+    connect(m_registry, &KWayland::Client::Registry::outputAnnounced,
+            this, &WaylandConfig::addOutput, Qt::DirectConnection);
+    connect(m_registry, &KWayland::Client::Registry::outputRemoved,
+            this, &WaylandConfig::removeOutput, Qt::DirectConnection);
 
     connect(m_registry, &KWayland::Client::Registry::interfacesAnnounced, [=] {
         qDebug() << "Registry::Sync arrived in Backend!:";
@@ -187,12 +190,12 @@ void WaylandConfig::removeOutput(quint32 id)
     // Find output matching the QScreen object and remove it
     int removedOutputId = -1;
     Q_FOREACH (auto output, m_outputMap.values()) {
-//         if (output->qscreen() == qscreen) {
-//             qDebug() << "Found output matching the qscreen " << output;
-//             removedOutputId = output->id();
-//             m_outputMap.remove(removedOutputId);
-//             delete output;
-//         }
+        if (output->id() == id) {
+            qDebug() << " removing: Found output matching the kscreen-internal output " << output->id();
+            removedOutputId = output->id();
+            m_outputMap.remove(removedOutputId);
+            delete output;
+        }
     }
     if (!m_blockSignals) {
         //KScreen::ConfigMonitor::instance()->notifyUpdate();

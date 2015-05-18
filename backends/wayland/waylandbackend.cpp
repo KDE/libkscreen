@@ -78,7 +78,7 @@ void WaylandBackend::setConfig(const KScreen::ConfigPtr &config)
     }
     QString configfile = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation);
 
-    WaylandConfigWriter::writeJson(config, configfile+"/waylandconfig.json");
+    //WaylandConfigWriter::writeJson(config, configfile+"/waylandconfig.json");
     WaylandConfigWriter::writeConfig(config, configfile+"/waylandconfigrc");
 }
 

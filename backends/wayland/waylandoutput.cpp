@@ -39,6 +39,8 @@ WaylandOutput::WaylandOutput(QObject *parent)
             this, &WaylandOutput::update, Qt::QueuedConnection);
     connect(this, &KWayland::Client::Output::modeAdded,
             this, &WaylandOutput::updateModes, Qt::QueuedConnection);
+//     connect(this, &KWayland::Client::Output::modeAdded,
+//             this, &WaylandOutput::updateModes, Qt::QueuedConnection);
 }
 
 WaylandOutput::~WaylandOutput()

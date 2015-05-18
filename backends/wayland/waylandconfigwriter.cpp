@@ -35,6 +35,9 @@ bool WaylandConfigWriter::writeConfig(const ConfigPtr& config, const QString& co
 {
     QString _all;
     for (auto output: config->outputs()) {
+        if (!output->isEnabled() || !output->isConnected()) {
+            continue;
+        }
         QString _o;
         _all.append(QString("[%1]\n").arg(output->name()));
         const int x = output->pos().x();
@@ -55,6 +58,7 @@ bool WaylandConfigWriter::writeConfig(const ConfigPtr& config, const QString& co
         _all.append(QString("width=%1\n").arg(QString::number(width)));
         _all.append(QString("height=%1\n").arg(QString::number(height)));
         _all.append(QString("refreshRate=%1\n").arg(QString::number(refreshRate)));
+        _all.append("\n");
     }
     qDebug() << "CONFIG" << _all;
 
