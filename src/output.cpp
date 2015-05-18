@@ -433,7 +433,16 @@ void Output::setSizeMm(const QSize &size)
 
 QRect Output::geometry() const
 {
-    return QRect(d->pos, d->size);
+    if (!currentMode()) {
+        return QRect();
+    }
+
+    // We can't use QRect(d->pos, d->size), because d->size does not reflect the
+    // actual rotation() set by caller, it's only updated when we get update from
+    // KScreen, but not when user changes mode or rotation manually
+    return isHorizontal()
+            ? QRect(d->pos, currentMode()->size())
+            : QRect(d->pos, currentMode()->size().transposed());
 }
 
 void Output::apply(const OutputPtr& other)

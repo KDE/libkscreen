@@ -133,7 +133,13 @@ class KSCREEN_EXPORT Output : public QObject
          * the returned size will be 800x1280.
          *
          * If that same resolution (1280x800) is transformed and scale x2, the
-         * value returned will be 2560x1600
+         * value returned will be 2560x1600.
+         *
+         * This property reflects the currently active output configuration and
+         * is not affected by current mode or orientation change made by user
+         * until the config is applied.
+         *
+         * @since 5.4
          */
         QSize size() const;
         void setSize(const QSize& size);
@@ -164,17 +170,25 @@ class KSCREEN_EXPORT Output : public QObject
         Edid* edid() const;
 
         /**
-         * Returns the physical size of the screen in milimeters
-         * @note it might happen that the value is in centimeters, at the moment
-         * wea re not sanitizing it.
+         * Returns the physical size of the screen in milimeters.
+         *
+         * @note Some broken GPUs or monitors return the size in centimeters instead
+         * of millimeters. KScreen at the moment is not sanitizing the values.
          */
         QSize sizeMm() const;
         void setSizeMm(const QSize &size);
 
         /**
-         * Returns a rectangle containing the current output position and size.
+         * Returns a rectangle containing the currently set output position and
+         * size.
          *
-         * The returned rectangle size is whatever \size returns.
+         * The geometry also reflects current orientation (i.e. if current mode
+         * is 1920x1080 and orientation is @p KScreen::Output::Left, then the
+         * size of the returned rectangle will be 1080x1920.
+         *
+         * This property contains the current settings stored in the particular
+         * Output object, so it is updated even when user changes current mode
+         * or orientation without applying the whole config/
          */
         QRect geometry() const;
 
