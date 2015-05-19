@@ -1,5 +1,6 @@
 /*************************************************************************************
  *  Copyright 2015 Sebastian Kügler <sebas@kde.org>                                  *
+ *  Copyright 2015 Martin Gräßlin <mgraesslin@kde.org>                               *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -19,13 +20,19 @@
 #ifndef KSCREEN_DRM_BACKEND_H
 #define KSCREEN_DRM_BACKEND_H
 
-#include <QObject>
+#include "udev.h"
 
+
+#include <QObject>
+#include <QLoggingCategory>
+
+Q_DECLARE_LOGGING_CATEGORY(KSCREEN_WAYLAND)
 
 namespace KScreen
 {
 class WaylandConfig;
 class WaylandOutput;
+
 
 #define KSCREEN_SINGLETON_VARIABLE(ClassName, variableName) \
 public: \
@@ -38,6 +45,15 @@ public: \
 
 #define KSCREEN_SINGLETON(ClassName) KSCREEN_SINGLETON_VARIABLE(ClassName, s_self)
 
+template <typename Pointer, void (*cleanupFunc)(Pointer*)>
+struct DrmCleanup
+{
+    static inline void cleanup(Pointer *ptr)
+    {
+        cleanupFunc(ptr);
+    }
+};
+template <typename T, void (*cleanupFunc)(T*)> using ScopedDrmPointer = QScopedPointer<T, DrmCleanup<T, cleanupFunc>>;
 
 class DrmBackend : public QObject
 {
@@ -47,12 +63,17 @@ public:
     explicit DrmBackend(QObject *parent = 0);
     virtual ~DrmBackend();
 
+    int fd() const {
+        return m_fd;
+    }
+
     void start();
-    void openDrm();
 
 private:
-//     QScopedPointer<Udev> m_udev;
-//     QScopedPointer<UdevMonitor> m_udevMonitor;
+    void openDrm();
+    void queryResources();
+    QScopedPointer<Udev> m_udev;
+    QScopedPointer<UdevMonitor> m_udevMonitor;
     int m_fd = -1;
     int m_drmId = 0;
 

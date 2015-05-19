@@ -1,5 +1,6 @@
 /*************************************************************************************
  *  Copyright 2015 Sebastian Kügler <sebas@kde.org>                                  *
+ *  Copyright 2015 Martin Gräßlin <mgraesslin@kde.org>                               *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -20,22 +21,30 @@
 #include "logind.h"
 
 #include <QDebug>
+#include <QLoggingCategory>
 
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QFile>
+#include <QSocketNotifier>
 #include <QStandardPaths>
 
+// drm
+#include <xf86drm.h>
+#include <xf86drmMode.h>
+#include <libdrm/drm_mode.h>
 
-#include "../../src/edid.h"
 
 using namespace KScreen;
 
+Q_LOGGING_CATEGORY(KSCREEN_WAYLAND, "kscreen.wayland");
 
 DrmBackend::DrmBackend(QObject *parent)
     : QObject(parent)
-{
+    , m_udev(new Udev)
+    , m_udevMonitor(m_udev->monitor())
+    {
 }
 
 DrmBackend::~DrmBackend()
@@ -66,5 +75,144 @@ void DrmBackend::start()
 void DrmBackend::openDrm()
 {
     qDebug() << "Opening DRM";
+
+    //connect(LogindIntegration::self(), &LogindIntegration::sessionActiveChanged, this, &DrmBackend::activate);
+    //VirtualTerminal::self()->init();
+    UdevDevice::Ptr device = m_udev->primaryGpu();
+    if (!device) {
+        qCWarning(KSCREEN_WAYLAND) << "Did not find a GPU";
+        return;
+    }
+    int fd = LogindIntegration::self()->takeDevice(device->devNode());
+    if (fd < 0) {
+        qCWarning(KSCREEN_WAYLAND) << "failed to open drm device at" << device->devNode();
+        return;
+    }
+    m_fd = fd;
+    //m_active = true;
+    QSocketNotifier *notifier = new QSocketNotifier(m_fd, QSocketNotifier::Read, this);
+    connect(notifier, &QSocketNotifier::activated, this,
+            [this] {
+//                 if (!VirtualTerminal::self()->isActive()) {
+//                     return;
+//                 }
+                drmEventContext e;
+                memset(&e, 0, sizeof e);
+                e.version = DRM_EVENT_CONTEXT_VERSION;
+//                 e.page_flip_handler = pageFlipHandler;
+                drmHandleEvent(m_fd, &e);
+                qCDebug(KSCREEN_WAYLAND) << "drm event" << e.version;
+            }
+    );
+    m_drmId = device->sysNum();
+    queryResources();
+
+    // setup udevMonitor
+    if (m_udevMonitor) {
+        m_udevMonitor->filterSubsystemDevType("drm");
+        const int fd = m_udevMonitor->fd();
+        if (fd != -1) {
+            QSocketNotifier *notifier = new QSocketNotifier(fd, QSocketNotifier::Read, this);
+            connect(notifier, &QSocketNotifier::activated, this,
+                    [this] {
+                        auto device = m_udevMonitor->getDevice();
+                        if (!device) {
+                            return;
+                        }
+                        if (device->sysNum() != m_drmId) {
+                            return;
+                        }
+                        if (device->hasProperty("HOTPLUG", "1")) {
+                            qCDebug(KSCREEN_WAYLAND) << "Received hot plug event for monitored drm device";
+                            //queryResources();
+                            //m_cursorIndex = (m_cursorIndex + 1) % 2;
+                            //updateCursor();
+                        }
+                    }
+            );
+            m_udevMonitor->enable();
+        }
+    }
+    //setReady(true);
+
+
+//     qApp.quit();
+}
+
+void DrmBackend::queryResources()
+{
+    if (m_fd < 0) {
+        return;
+    }
+    ScopedDrmPointer<_drmModeRes, &drmModeFreeResources> resources(drmModeGetResources(m_fd));
+    if (!resources) {
+        qCWarning(KSCREEN_WAYLAND) << "drmModeGetResources failed";
+        return;
+    }
+
+    //QVector<DrmOutput*> connectedOutputs;
+    for (int i = 0; i < resources->count_connectors; ++i) {
+        const auto id = resources->connectors[i];
+        ScopedDrmPointer<_drmModeConnector, &drmModeFreeConnector> connector(drmModeGetConnector(m_fd, id));
+        qCDebug(KSCREEN_WAYLAND) << "Found DRM connector" << id;
+        if (!connector) {
+            continue;
+        }
+        if (connector->connection != DRM_MODE_CONNECTED) {
+            qCDebug(KSCREEN_WAYLAND) << "   Disconnected" << id;
+            continue;
+        }
+        qCDebug(KSCREEN_WAYLAND) << "   Modes" << connector->count_modes;
+        if (connector->count_modes == 0) {
+            continue;
+        }
+        /*
+        if (DrmOutput *o = findOutput(connector->connector_id)) {
+            connectedOutputs << o;
+            continue;
+        }
+        bool crtcFound = false;
+        const quint32 crtcId = findCrtc(resources.data(), connector.data(), &crtcFound);
+        if (!crtcFound) {
+            continue;
+        }
+        ScopedDrmPointer<_drmModeCrtc, &drmModeFreeCrtc> crtc(drmModeGetCrtc(m_fd, crtcId));
+        if (!crtc) {
+            continue;
+        }
+        DrmOutput *drmOutput = new DrmOutput(this);
+        drmOutput->m_crtcId = crtcId;
+        if (crtc->mode_valid) {
+            drmOutput->m_mode = crtc->mode;
+        } else {
+            drmOutput->m_mode = connector->modes[0];
+        }
+        drmOutput->m_connector = connector->connector_id;
+        drmOutput->init(connector.data());
+        connectedOutputs << drmOutput;
+        */
+    }
+    /*
+    // check for outputs which got removed
+    auto it = m_outputs.begin();
+    while (it != m_outputs.end()) {
+        if (connectedOutputs.contains(*it)) {
+            it++;
+            continue;
+        }
+        DrmOutput *removed = *it;
+        it = m_outputs.erase(it);
+        emit outputRemoved(removed);
+        delete removed;
+    }
+    for (auto it = connectedOutputs.constBegin(); it != connectedOutputs.constEnd(); ++it) {
+        if (!m_outputs.contains(*it)) {
+            emit outputAdded(*it);
+        }
+    }
+    m_outputs = connectedOutputs;
+
+    emit screensQueried();
+    */
 }
 

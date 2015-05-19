@@ -31,8 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <unistd.h>
 //#include "utils.h"
 #include <QLoggingCategory>
-
-Q_LOGGING_CATEGORY(KSCREEN_WAYLAND, "kscreen.wayland");
+//Q_LOGGING_CATEGORY(KSCREEN_WAYLAND, "kscreen.wayland");
 
 namespace KScreen
 {
