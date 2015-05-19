@@ -17,6 +17,7 @@
  *************************************************************************************/
 
 #include "drmbackend.h"
+#include "logind.h"
 
 #include <QDebug>
 
@@ -43,4 +44,27 @@ DrmBackend::~DrmBackend()
 
 void DrmBackend::start()
 {
+    LogindIntegration::create(this);
+    LogindIntegration *logind = LogindIntegration::self();
+    auto takeControl = [logind, this]() {
+        if (logind->hasSessionControl()) {
+            openDrm();
+        } else {
+            logind->takeControl();
+            connect(logind, &LogindIntegration::hasSessionControlChanged, this, &DrmBackend::openDrm);
+        }
+    };
+    if (logind->isConnected()) {
+        takeControl();
+    } else {
+        connect(logind, &LogindIntegration::connectedChanged, this, takeControl);
+    }
+//     auto v = VirtualTerminal::create(this);
+//     connect(v, &VirtualTerminal::activeChanged, this, &DrmBackend::activate);
 }
+
+void DrmBackend::openDrm()
+{
+    qDebug() << "Opening DRM";
+}
+
