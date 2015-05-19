@@ -17,20 +17,28 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
-#ifndef KWIN_LOGIND_H
-#define KWIN_LOGIND_H
-
-#include <kwinglobals.h>
+#ifndef KSCREEN_LOGIND_H
+#define KSCREEN_LOGIND_H
 
 #include <QDBusConnection>
 #include <QObject>
 
 class QDBusServiceWatcher;
 
-namespace KWin
+namespace KScreen
 {
+#define KSCREEN_SINGLETON_VARIABLE(ClassName, variableName) \
+public: \
+    static ClassName *create(QObject *parent = nullptr);\
+    static ClassName *self() { return variableName; }\
+    protected: \
+        explicit ClassName(QObject *parent = nullptr); \
+        private: \
+            static ClassName *variableName;
 
-class KWIN_EXPORT LogindIntegration : public QObject
+#define KSCREEN_SINGLETON(ClassName) KSCREEN_SINGLETON_VARIABLE(ClassName, s_self)
+
+class LogindIntegration : public QObject
 {
     Q_OBJECT
 public:
@@ -84,7 +92,7 @@ private:
     bool m_sessionControl;
     bool m_sessionActive;
     int m_vt = -1;
-    KWIN_SINGLETON(LogindIntegration)
+    KSCREEN_SINGLETON(LogindIntegration)
 };
 
 }

@@ -29,9 +29,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <sys/stat.h>
 #include <unistd.h>
-#include "utils.h"
+//#include "utils.h"
+#include <QLoggingCategory>
 
-namespace KWin
+Q_LOGGING_CATEGORY(KSCREEN_WAYLAND, "kscreen.wayland");
+
+namespace KScreen
 {
 
 const static QString s_login1Service = QStringLiteral("org.freedesktop.login1");
@@ -117,11 +120,11 @@ void LogindIntegration::logindServiceRegistered()
                 return;
             }
             if (!reply.isValid()) {
-                qCDebug(KWIN_CORE) << "The session is not registered with logind" << reply.error().message();
+                qCDebug(KSCREEN_WAYLAND) << "The session is not registered with logind" << reply.error().message();
                 return;
             }
             m_sessionPath = reply.value().path();
-            qCDebug(KWIN_CORE) << "Session path:" << m_sessionPath;
+            qCDebug(KSCREEN_WAYLAND) << "Session path:" << m_sessionPath;
             m_connected = true;
             connectSessionPropertiesChanged();
             getSessionActive();
@@ -165,7 +168,7 @@ void LogindIntegration::getSessionActive()
             QDBusPendingReply<QVariant> reply = *self;
             self->deleteLater();
             if (!reply.isValid()) {
-                qCDebug(KWIN_CORE) << "Failed to get Active Property of logind session:" << reply.error().message();
+                qCDebug(KSCREEN_WAYLAND) << "Failed to get Active Property of logind session:" << reply.error().message();
                 return;
             }
             const bool active = reply.value().toBool();
@@ -194,7 +197,7 @@ void LogindIntegration::getVirtualTerminal()
             QDBusPendingReply<QVariant> reply = *self;
             self->deleteLater();
             if (!reply.isValid()) {
-                qCDebug(KWIN_CORE) << "Failed to get VTNr Property of logind session:" << reply.error().message();
+                qCDebug(KSCREEN_WAYLAND) << "Failed to get VTNr Property of logind session:" << reply.error().message();
                 return;
             }
             const int vt = reply.value().toUInt();
@@ -230,11 +233,11 @@ void LogindIntegration::takeControl()
             QDBusPendingReply<void> reply = *self;
             self->deleteLater();
             if (!reply.isValid()) {
-                qCDebug(KWIN_CORE) << "Failed to get session control" << reply.error().message();
+                qCDebug(KSCREEN_WAYLAND) << "Failed to get session control" << reply.error().message();
                 emit hasSessionControlChanged(false);
                 return;
             }
-            qCDebug(KWIN_CORE) << "Gained session control";
+            qCDebug(KSCREEN_WAYLAND) << "Gained session control";
             m_sessionControl = true;
             emit hasSessionControlChanged(true);
             m_bus.connect(s_login1Service, m_sessionPath,
@@ -263,7 +266,7 @@ int LogindIntegration::takeDevice(const char *path)
 {
     struct stat st;
     if (stat(path, &st) < 0) {
-        qCDebug(KWIN_CORE) << "Could not stat the path";
+        qCDebug(KSCREEN_WAYLAND) << "Could not stat the path";
         return -1;
     }
     QDBusMessage message = QDBusMessage::createMethodCall(s_login1Service,
@@ -274,7 +277,7 @@ int LogindIntegration::takeDevice(const char *path)
     // intended to be a blocking call
     QDBusMessage reply = m_bus.call(message);
     if (reply.type() == QDBusMessage::ErrorMessage) {
-        qCDebug(KWIN_CORE) << "Could not take device" << path << ", cause: " << reply.errorMessage();
+        qCDebug(KSCREEN_WAYLAND) << "Could not take device" << path << ", cause: " << reply.errorMessage();
         return -1;
     }
     return dup(reply.arguments().first().value<QDBusUnixFileDescriptor>().fileDescriptor());
@@ -284,7 +287,7 @@ void LogindIntegration::releaseDevice(int fd)
 {
     struct stat st;
     if (fstat(fd, &st) < 0) {
-        qCDebug(KWIN_CORE) << "Could not stat the file descriptor";
+        qCDebug(KSCREEN_WAYLAND) << "Could not stat the file descriptor";
         return;
     }
     QDBusMessage message = QDBusMessage::createMethodCall(s_login1Service,
