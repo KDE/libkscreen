@@ -17,20 +17,19 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *********************************************************************/
-#ifndef KWIN_UDEV_H
-#define KWIN_UDEV_H
+#ifndef KSCREEN_UDEV_H
+#define KSCREEN_UDEV_H
 #include <memory>
-#include <kwin_export.h>
 
 struct udev;
 struct udev_device;
 struct udev_monitor;
 
-namespace KWin
+namespace KScreen
 {
 class Udev;
 
-class KWIN_EXPORT UdevDevice
+class UdevDevice
 {
 public:
     UdevDevice(udev_device *device);
@@ -54,7 +53,7 @@ private:
     udev_device *m_device;
 };
 
-class KWIN_EXPORT UdevMonitor
+class UdevMonitor
 {
 public:
     explicit UdevMonitor(Udev *udev);
@@ -73,7 +72,7 @@ private:
     udev_monitor *m_monitor;
 };
 
-class KWIN_EXPORT Udev
+class Udev
 {
 public:
     Udev();

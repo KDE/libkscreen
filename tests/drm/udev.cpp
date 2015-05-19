@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <libudev.h>
 #include <functional>
 
-namespace KWin
+namespace KScreen
 {
 
 Udev::Udev()
