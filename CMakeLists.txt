@@ -4,7 +4,8 @@ set(PROJECT_VERSION "5.3.90")
 cmake_minimum_required(VERSION 2.8.12)
 
 find_package(ECM 1.3.0 REQUIRED NO_MODULE)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR})
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
+
 include(KDEInstallDirs)
 include(KDECompilerSettings)
 include(KDECMakeSettings)
@@ -26,6 +27,25 @@ set_package_properties(Wayland PROPERTIES
                        PURPOSE "Required for building libkscreen with Wayland support"
                       )
 add_feature_info("Wayland-Client" Wayland_Client_FOUND "Required for building libkscreen's Wayland backend")
+
+find_package(Libdrm)
+set_package_properties(Libdrm PROPERTIES
+                       TYPE OPTIONAL
+                       PURPOSE "Required for drm output on Wayland.")
+add_feature_info("Libdrm" Libdrm_FOUND "Required for building libkscreen's Wayland backend")
+
+find_package(UDev)
+set_package_properties(UDev PROPERTIES  URL "http://www.freedesktop.org/software/systemd/libudev/"
+                       DESCRIPTION "Linux device library."
+                       TYPE OPTIONAL
+                       PURPOSE "Required for querying output on Wayland."
+                    )
+add_feature_info("UDev" UDEV_FOUND "Required for querying output in libkscreen's Wayland backend")
+
+set(HAVE_DRM FALSE)
+if(Libdrm_FOUND AND UDEV_FOUND)
+    set(HAVE_DRM TRUE)
+endif()
 
 find_package(KF5Wayland CONFIG)
 set_package_properties(KF5Wayland PROPERTIES
