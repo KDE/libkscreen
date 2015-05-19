@@ -21,16 +21,18 @@
 #define KSCREEN_DRM_BACKEND_H
 
 #include "udev.h"
-
+#include "drmoutput.h"
 
 #include <QObject>
 #include <QLoggingCategory>
+
+#include <xf86drmMode.h>
 
 Q_DECLARE_LOGGING_CATEGORY(KSCREEN_WAYLAND)
 
 namespace KScreen
 {
-class WaylandConfig;
+class DrmOutput;
 class WaylandOutput;
 
 
@@ -66,16 +68,23 @@ public:
     int fd() const {
         return m_fd;
     }
+    QVector<DrmOutput*> outputs() const {
+        return m_outputs;
+    }
 
     void start();
 
 private:
     void openDrm();
     void queryResources();
+    quint32 findCrtc(drmModeRes *res, drmModeConnector *connector, bool *ok = nullptr);
+    bool crtcIsUsed(quint32 crtc);
+    DrmOutput *findOutput(quint32 connector);
     QScopedPointer<Udev> m_udev;
     QScopedPointer<UdevMonitor> m_udevMonitor;
     int m_fd = -1;
     int m_drmId = 0;
+    QVector<DrmOutput*> m_outputs;
 
 };
 

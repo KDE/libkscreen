@@ -20,9 +20,14 @@
 #ifndef KSCREEN_DRM_OUTPUT_H
 #define KSCREEN_DRM_OUTPUT_H
 
+// own
 #include "drmbackend.h"
 #include "udev.h"
 
+// kscreen
+#include <edid.h>
+
+// drm
 #include <xf86drmMode.h>
 
 #include <QObject>
@@ -35,6 +40,8 @@ Q_DECLARE_LOGGING_CATEGORY(KSCREEN_WAYLAND)
 
 namespace KScreen
 {
+class DrmBackend;
+
 class DrmOutput
 {
 public:
@@ -57,6 +64,8 @@ public:
     QSize size() const;
     QRect geometry() const;
 
+    KScreen::Edid* edid();
+
 private:
     friend class DrmBackend;
     DrmOutput(DrmBackend *backend);
@@ -78,7 +87,8 @@ private:
             drmModeFreeCrtc(ptr);
         }
     };
-    Edid m_edid;
+    DrmOutput::Edid m_edid;
+    KScreen::Edid *m_kscreenEdid;
     QScopedPointer<_drmModeCrtc, CrtcCleanup> m_savedCrtc;
     //QScopedPointer<KWayland::Server::OutputInterface> m_waylandOutput;
 };

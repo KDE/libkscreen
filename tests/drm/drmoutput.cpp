@@ -35,7 +35,8 @@
 using namespace KScreen;
 
 DrmOutput::DrmOutput(DrmBackend *backend) :
-    m_backend(backend)
+    m_backend(backend),
+    m_kscreenEdid(0)
 
 {
     qCDebug(KSCREEN_WAYLAND) << "new DrmOutput";
@@ -45,7 +46,17 @@ DrmOutput::~DrmOutput()
 {
 //     hideCursor();
 //     cleanupBlackBuffer();
+    delete m_kscreenEdid;
 }
+
+KScreen::Edid* DrmOutput::edid()
+{
+    if (!m_kscreenEdid) {
+    }
+    return m_kscreenEdid;
+
+}
+
 
 void DrmOutput::hideCursor()
 {
@@ -134,24 +145,25 @@ void DrmOutput::init(drmModeConnector *connector)
 //     m_savedCrtc.reset(drmModeGetCrtc(m_backend->fd(), m_crtcId));
 //     blank();
     //m_waylandOutput.reset(waylandServer()->display()->createOutput());
+    QString manufacturer;
     if (!m_edid.eisaId.isEmpty()) {
-//         m_waylandOutput->setManufacturer(QString::fromLatin1(m_edid.eisaId));
+        manufacturer = QString::fromLatin1(m_edid.eisaId);
     } else {
-//         m_waylandOutput->setManufacturer(i18n("unknown"));
+        manufacturer = QStringLiteral("unknown");
     }
+    QString model;
     if (!m_edid.monitorName.isEmpty()) {
-        QString model = QString::fromLatin1(m_edid.monitorName);
+        model = QString::fromLatin1(m_edid.monitorName);
         if (!m_edid.serialNumber.isEmpty()) {
             model.append('/');
             model.append(QString::fromLatin1(m_edid.serialNumber));
         }
 //         m_waylandOutput->setModel(model);
     } else if (!m_edid.serialNumber.isEmpty()) {
-//         m_waylandOutput->setModel(QString::fromLatin1(m_edid.serialNumber));
+        model = QString::fromLatin1(m_edid.serialNumber);
     } else {
-//         m_waylandOutput->setModel(i18n("unknown"));
+        model = "unknown";
     }
-
     QSize physicalSize = !m_edid.physicalSize.isEmpty() ? m_edid.physicalSize : QSize(connector->mmWidth, connector->mmHeight);
     // the size might be completely borked. E.g. Samsung SyncMaster 2494HS reports 160x90 while in truth it's 520x292
     // as this information is used to calculate DPI info, it's going to result in everything being huge
@@ -167,6 +179,7 @@ void DrmOutput::init(drmModeConnector *connector)
 //     }
 //     m_waylandOutput->setPhysicalSize(physicalSize);
 
+    qDebug() << "   model: " << manufacturer << model << physicalSize << m_edid.monitorName << m_edid.serialNumber;
     // read in mode information
     for (int i = 0; i < connector->count_modes; ++i) {
         auto *m = &connector->modes[i];
@@ -190,9 +203,9 @@ void DrmOutput::init(drmModeConnector *connector)
         if (m->vscan > 1) {
             refreshRate /= m->vscan;
         }
-//         m_waylandOutput->addMode(QSize(m->hdisplay, m->vdisplay), flags, refreshRate);
+        qDebug() << "       Mode: " << QSize(m->hdisplay, m->vdisplay) << refreshRate;
+        //         m_waylandOutput->addMode(QSize(m->hdisplay, m->vdisplay), flags, refreshRate);
     }
-
 //     m_waylandOutput->create();
 }
 
@@ -393,4 +406,22 @@ void DrmOutput::initEdid(drmModeConnector *connector)
     extractMonitorDescriptorDescription(edid.data(), m_edid);
 
     m_edid.physicalSize = extractPhysicalSize(edid.data());
+
+    //const uint8_t *data = reinterpret_cast<uint8_t*>(edid->data);
+
+    QByteArray edid_data;
+    // Allow 7 extended edid blocks
+    size_t len = 1024;
+    quint8 *data = reinterpret_cast<uint8_t*>(edid->data);
+    if (data) {
+        edid_data = QByteArray((char *) data, len);
+        qCDebug(KSCREEN_WAYLAND) << " edid data" << edid_data;
+    } else {
+        edid_data = QByteArray();
+    }
+
+    m_kscreenEdid = new KScreen::Edid(edid_data, m_backend);
+    qCDebug(KSCREEN_WAYLAND) << " edid eisaId" << m_kscreenEdid->eisaId() << " (" << m_edid.eisaId << ")";
+    qCDebug(KSCREEN_WAYLAND) << " edid name" << m_kscreenEdid->name();
+    qCDebug(KSCREEN_WAYLAND) << " edid vendor" << m_kscreenEdid->vendor();
 }

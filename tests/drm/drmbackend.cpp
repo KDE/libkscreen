@@ -150,23 +150,23 @@ void DrmBackend::queryResources()
         return;
     }
 
-    //QVector<DrmOutput*> connectedOutputs;
+    QVector<DrmOutput*> connectedOutputs;
     for (int i = 0; i < resources->count_connectors; ++i) {
         const auto id = resources->connectors[i];
         ScopedDrmPointer<_drmModeConnector, &drmModeFreeConnector> connector(drmModeGetConnector(m_fd, id));
-        qCDebug(KSCREEN_WAYLAND) << "Found DRM connector" << id;
         if (!connector) {
             continue;
         }
         if (connector->connection != DRM_MODE_CONNECTED) {
-            qCDebug(KSCREEN_WAYLAND) << "   Disconnected" << id;
+//             qCDebug(KSCREEN_WAYLAND) << "   Disconnected" << id;
             continue;
         }
+        qCDebug(KSCREEN_WAYLAND) << "Found DRM connector" << id;
         qCDebug(KSCREEN_WAYLAND) << "   Modes" << connector->count_modes;
         if (connector->count_modes == 0) {
             continue;
         }
-        /*
+
         if (DrmOutput *o = findOutput(connector->connector_id)) {
             connectedOutputs << o;
             continue;
@@ -190,9 +190,8 @@ void DrmBackend::queryResources()
         drmOutput->m_connector = connector->connector_id;
         drmOutput->init(connector.data());
         connectedOutputs << drmOutput;
-        */
     }
-    /*
+
     // check for outputs which got removed
     auto it = m_outputs.begin();
     while (it != m_outputs.end()) {
@@ -202,17 +201,71 @@ void DrmBackend::queryResources()
         }
         DrmOutput *removed = *it;
         it = m_outputs.erase(it);
-        emit outputRemoved(removed);
+//         emit outputRemoved(removed);
         delete removed;
     }
     for (auto it = connectedOutputs.constBegin(); it != connectedOutputs.constEnd(); ++it) {
         if (!m_outputs.contains(*it)) {
-            emit outputAdded(*it);
+//             emit outputAdded(*it);
         }
     }
     m_outputs = connectedOutputs;
 
-    emit screensQueried();
-    */
+//     emit screensQueried();
 }
 
+DrmOutput *DrmBackend::findOutput(quint32 connector)
+{
+    auto it = std::find_if(m_outputs.constBegin(), m_outputs.constEnd(), [connector] (DrmOutput *o) {
+        return o->m_connector == connector;
+    });
+    if (it != m_outputs.constEnd()) {
+        return *it;
+    }
+    return nullptr;
+}
+
+quint32 DrmBackend::findCrtc(drmModeRes *res, drmModeConnector *connector, bool *ok)
+{
+    if (ok) {
+        *ok = false;
+    }
+    ScopedDrmPointer<_drmModeEncoder, &drmModeFreeEncoder> encoder(drmModeGetEncoder(m_fd, connector->encoder_id));
+    if (encoder) {
+        if (!crtcIsUsed(encoder->crtc_id)) {
+            if (ok) {
+                *ok = true;
+            }
+            return encoder->crtc_id;
+        }
+    }
+    // let's iterate over all encoders to find a suitable crtc
+    for (int i = 0; i < connector->count_encoders; ++i) {
+        ScopedDrmPointer<_drmModeEncoder, &drmModeFreeEncoder> encoder(drmModeGetEncoder(m_fd, connector->encoders[i]));
+        if (!encoder) {
+            continue;
+        }
+        for (int j = 0; j < res->count_crtcs; ++j) {
+            if (!(encoder->possible_crtcs & (1 << j))) {
+                continue;
+            }
+            if (!crtcIsUsed(res->crtcs[j])) {
+                if (ok) {
+                    *ok = true;
+                }
+                return res->crtcs[j];
+            }
+        }
+    }
+    return 0;
+}
+
+bool DrmBackend::crtcIsUsed(quint32 crtc)
+{
+    auto it = std::find_if(m_outputs.constBegin(), m_outputs.constEnd(),
+                           [crtc] (DrmOutput *o) {
+                               return o->m_crtcId == crtc;
+                           }
+    );
+    return it != m_outputs.constEnd();
+}
