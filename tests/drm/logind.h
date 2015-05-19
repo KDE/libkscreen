@@ -20,6 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef KSCREEN_LOGIND_H
 #define KSCREEN_LOGIND_H
 
+#include "drmbackend.h"
+
 #include <QDBusConnection>
 #include <QObject>
 
@@ -27,16 +29,6 @@ class QDBusServiceWatcher;
 
 namespace KScreen
 {
-#define KSCREEN_SINGLETON_VARIABLE(ClassName, variableName) \
-public: \
-    static ClassName *create(QObject *parent = nullptr);\
-    static ClassName *self() { return variableName; }\
-    protected: \
-        explicit ClassName(QObject *parent = nullptr); \
-        private: \
-            static ClassName *variableName;
-
-#define KSCREEN_SINGLETON(ClassName) KSCREEN_SINGLETON_VARIABLE(ClassName, s_self)
 
 class LogindIntegration : public QObject
 {

@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
 
-    DrmBackend server;
+    DrmBackend drmbackend;
 
     QCommandLineOption config = QCommandLineOption(QStringList() << QStringLiteral("c") << "config",
                                                   QStringLiteral("Config file"), "config");
@@ -38,6 +38,6 @@ int main(int argc, char **argv)
     parser.addOption(config);
     parser.process(app);
 
-    server.start();
+    drmbackend.start();
     return app.exec();
 }
