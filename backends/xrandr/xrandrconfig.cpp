@@ -297,12 +297,10 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
     }
 
     if (forceScreenSizeUpdate || intermediateScreenSize != newScreenSize) {
-        QSize newSize;
+        QSize newSize = newScreenSize;
         if (forceScreenSizeUpdate) {
             newSize = screenSize(config);
             qCDebug(KSCREEN_XRANDR) << "Forced to change screen size: " << newSize;
-        } else {
-            newSize = intermediateScreenSize;
         }
         setScreenSize(newSize);
     }
