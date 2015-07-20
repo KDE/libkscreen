@@ -6,7 +6,7 @@ macro(KSCREEN_TESTS)
         include_directories(${QT_INCLUDES} ${KDE4_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR} ${X11_Xrandr_INCLUDE_PATH})
         kde4_add_unit_test(${_testname} ${_testname}.cpp ${_testname}.moc)
         target_link_libraries(${_testname} ${QT_QTTEST_LIBRARY} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} kscreen)
-        add_test(${_testname} ${CMAKE_CURRENT_BINARY_DIR}/${_testname})
+        add_test(libkscreen-${_testname} ${CMAKE_CURRENT_BINARY_DIR}/${_testname})
     endforeach(_testname)
 endmacro(KSCREEN_TESTS)
 
