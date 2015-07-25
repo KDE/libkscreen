@@ -25,6 +25,7 @@
 #include "config.h"
 #include "output.h"
 #include "edid.h"
+#include <libkscreen-version.h>
 
 #include <QX11Info>
 #include <QRect>
