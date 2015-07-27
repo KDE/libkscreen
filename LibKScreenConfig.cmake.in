@@ -5,6 +5,9 @@
 # LibKScreen_LIBRARY - The library needed to use LibKScreen
 # LibKScreen_VERSION - The LibKScreen version
 
+# qjson's target name doesn't contain "::", so look for it explicitly
+find_package(QJSON REQUIRED)
+
 get_filename_component(_currentDir ${CMAKE_CURRENT_LIST_FILE} PATH) # The current directory
 get_filename_component(rootDir ${_currentDir}/@relInstallDir@ ABSOLUTE) # The install prefix
 
