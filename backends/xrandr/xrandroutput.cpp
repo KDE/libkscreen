@@ -68,6 +68,11 @@ QPoint XRandROutput::position() const
     return m_crtc ? m_crtc->geometry().topLeft() : QPoint();
 }
 
+QSize XRandROutput::size() const
+{
+    return m_crtc ? m_crtc->geometry().size() : QSize();
+}
+
 XRandRMode::Map XRandROutput::modes() const
 {
     return m_modes;
@@ -368,6 +373,7 @@ KScreen::OutputPtr XRandROutput::toKScreenOutput() const
         }(m_clones));
         kscreenOutput->setEnabled(isEnabled());
         if (isEnabled()) {
+            kscreenOutput->setSize(size());
             kscreenOutput->setPos(position());
             kscreenOutput->setRotation(rotation());
             kscreenOutput->setCurrentModeId(currentModeId());

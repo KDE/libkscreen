@@ -148,6 +148,7 @@ private Q_SLOTS:
         output->setIcon(QString());
         output->setModes(modes);
         output->setPos(QPoint(1280, 0));
+        output->setSize(mode->size());
         output->setRotation(KScreen::Output::None);
         output->setCurrentModeId(QLatin1String("1"));
         output->setPreferredModes(QStringList() << QLatin1String("1"));
@@ -170,6 +171,10 @@ private Q_SLOTS:
         QJsonObject pos = obj[QLatin1String("pos")].toObject();
         QCOMPARE(pos[QLatin1String("x")].toInt(), output->pos().x());
         QCOMPARE(pos[QLatin1String("y")].toInt(), output->pos().y());
+        const QJsonObject size = obj[QLatin1String("size")].toObject();
+        QCOMPARE(pos[QLatin1String("width")].toInt(), output->size().width());
+        QCOMPARE(pos[QLatin1String("height")].toInt(), output->size().height());
+
         QCOMPARE(static_cast<KScreen::Output::Rotation>(obj[QLatin1String("rotation")].toInt()), output->rotation());
         QCOMPARE(obj[QLatin1String("currentModeId")].toString(), output->currentModeId());
         QCOMPARE(obj[QLatin1String("connected")].toBool(), output->isConnected());

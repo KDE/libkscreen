@@ -56,6 +56,10 @@
                 "x" : 0,
                 "y" : 0
             },
+            "size" : {
+                "width" : 1280,
+                "height" : 800
+            },
             "currentModeId" : 3,
             "preferredModes" : [3],
             "rotation" : 1,

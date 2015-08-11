@@ -184,6 +184,11 @@ OutputPtr Parser::outputFromJson(QMap< QString, QVariant > map)
         map.remove(QLatin1Literal("pos"));
     }
 
+    if (map.contains("size")) {
+        output->setSize(Parser::sizeFromJson(map["size"].toMap()));
+        map.remove(QLatin1Literal("size"));
+    }
+
     //Remove some extra properties that we do not want or need special treatment
     map.remove(QLatin1Literal("edid"));
 

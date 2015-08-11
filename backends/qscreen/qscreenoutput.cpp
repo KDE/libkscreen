@@ -92,6 +92,7 @@ void QScreenOutput::updateKScreenOutput(OutputPtr &output) const
     mm.setHeight(qRound(physicalHeight));
     output->setSizeMm(mm);
     output->setPos(m_qscreen->availableGeometry().topLeft());
+    output->setSize(m_qscreen->availableGeometry().size());
 
     // Modes: we create a single default mode and go with that
     ModePtr mode(new Mode);

@@ -71,7 +71,9 @@ void GetConfigOperationPrivate::backendReady(org::kde::kscreen::Backend* backend
     }
 
     QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(backend->getConfig(), this);
-    watcher->setProperty("backend", QVariant::fromValue(backend));
+
+    const auto backendPointer = QPointer<org::kde::kscreen::Backend>(backend);
+    watcher->setProperty("backend", QVariant::fromValue(backendPointer));
     connect(watcher, &QDBusPendingCallWatcher::finished,
             this, &GetConfigOperationPrivate::onConfigReceived);
 }
@@ -101,7 +103,12 @@ void GetConfigOperationPrivate::onConfigReceived(QDBusPendingCallWatcher *watche
     }
 
     pendingEDIDs = 0;
-    org::kde::kscreen::Backend *backend = watcher->property("backend").value<org::kde::kscreen::Backend*>();
+    auto backend = watcher->property("backend").value<QPointer<org::kde::kscreen::Backend>>();
+    if (!backend) {
+        q->setError(tr("Backend invalidated"));
+        q->emitResult();
+        return;
+    }
     Q_FOREACH (const OutputPtr &output, config->outputs()) {
         if (!output->isConnected()) {
             continue;

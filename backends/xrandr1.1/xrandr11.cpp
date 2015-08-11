@@ -150,6 +150,7 @@ KScreen::ConfigPtr XRandR11::config() const
 
             if (x == info->sizeID && rate == info->rate) {
                 output->setCurrentModeId(mode->id());
+                output->setSize(mode->size());
             }
             modes.insert(mode->id(), mode);
         }

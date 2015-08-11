@@ -24,7 +24,8 @@
 using namespace KScreen;
 
 ConfigOperationPrivate::ConfigOperationPrivate(ConfigOperation* qq)
-    : QObject(0)
+    : QObject()
+    , isExec(false)
     , q_ptr(qq)
 {
 }
@@ -53,7 +54,16 @@ void ConfigOperationPrivate::doEmitResult()
     Q_Q(ConfigOperation);
 
     Q_EMIT q->finished(q);
-    q->deleteLater();
+
+    // Don't call deleteLater() when this operation is running from exec()
+    // because then the operation will be deleted when we return control to
+    // the nested QEventLoop in exec() (i.e. before loop.exec() returns)
+    // and subsequent hasError() call references deleted "this". Instead we
+    // shedule the operation for deletion manually in exec(), so that it will
+    // be deleted when control returns to parent event loop (or QApplication).
+    if (!isExec) {
+        q->deleteLater();
+    }
 }
 
 ConfigOperation::ConfigOperation(ConfigOperationPrivate* dd, QObject* parent)
@@ -98,13 +108,19 @@ void ConfigOperation::emitResult()
 
 bool ConfigOperation::exec()
 {
+    Q_D(ConfigOperation);
+
     QEventLoop loop;
     connect(this, &ConfigOperation::finished,
             [&](ConfigOperation *op) {
                 Q_UNUSED(op);
                 loop.quit();
             });
+
+    d->isExec = true;
     loop.exec(QEventLoop::ExcludeUserInputEvents);
 
+    // Schedule the operation for deletion, see doEmitResult()
+    deleteLater();
     return !hasError();
 }

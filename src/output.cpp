@@ -52,9 +52,9 @@ class Output::Private
         currentMode(other.currentMode),
         preferredMode(other.preferredMode),
         preferredModes(other.preferredModes),
-        size(other.size),
         sizeMm(other.sizeMm),
         pos(other.pos),
+        size(other.size),
         rotation(other.rotation),
         connected(other.connected),
         enabled(other.enabled),
@@ -79,9 +79,9 @@ class Output::Private
     QString currentMode;
     QString preferredMode;
     QStringList preferredModes;
-    QSize size;
     QSize sizeMm;
     QPoint pos;
+    QSize size;
     Rotation rotation;
     bool connected;
     bool enabled;
@@ -313,6 +313,22 @@ void Output::setPos(const QPoint& pos)
     Q_EMIT posChanged();
 }
 
+QSize Output::size() const
+{
+    return d->size;
+}
+
+void Output::setSize(const QSize& size)
+{
+    if (d->size == size) {
+        return;
+    }
+
+    d->size = size;
+
+    Q_EMIT sizeChanged();
+}
+
 Output::Rotation Output::rotation() const
 {
     return d->rotation;
@@ -421,11 +437,12 @@ QRect Output::geometry() const
         return QRect();
     }
 
-    if (isHorizontal()) {
-        return QRect(pos(), currentMode()->size());
-    } else {
-        return QRect(pos(), QSize(currentMode()->size().height(), currentMode()->size().width()));
-    }
+    // We can't use QRect(d->pos, d->size), because d->size does not reflect the
+    // actual rotation() set by caller, it's only updated when we get update from
+    // KScreen, but not when user changes mode or rotation manually
+    return isHorizontal()
+            ? QRect(d->pos, currentMode()->size())
+            : QRect(d->pos, currentMode()->size().transposed());
 }
 
 void Output::apply(const OutputPtr& other)
