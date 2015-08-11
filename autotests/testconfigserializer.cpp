@@ -172,8 +172,8 @@ private Q_SLOTS:
         QCOMPARE(pos[QLatin1String("x")].toInt(), output->pos().x());
         QCOMPARE(pos[QLatin1String("y")].toInt(), output->pos().y());
         const QJsonObject size = obj[QLatin1String("size")].toObject();
-        QCOMPARE(pos[QLatin1String("width")].toInt(), output->size().width());
-        QCOMPARE(pos[QLatin1String("height")].toInt(), output->size().height());
+        QCOMPARE(size[QLatin1String("width")].toInt(), output->size().width());
+        QCOMPARE(size[QLatin1String("height")].toInt(), output->size().height());
 
         QCOMPARE(static_cast<KScreen::Output::Rotation>(obj[QLatin1String("rotation")].toInt()), output->rotation());
         QCOMPARE(obj[QLatin1String("currentModeId")].toString(), output->currentModeId());
