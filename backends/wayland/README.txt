@@ -32,6 +32,11 @@ is pure coincidence and is likely to break code assuming it.
 
 TODO
 
+- remove serializeConfigMinimal
+- discuss with mgraesslin wether to move to kwaylandintegration or not
+    - disconnected outputs protocol easier to share?
+- port writeConfig to KConfig
+
 - output rotation needs reading and writing code + unit tests
 - output scale needs reading and writing code + unit tests
 - waylandserver picks up config changes
