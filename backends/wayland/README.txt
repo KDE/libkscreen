@@ -63,3 +63,15 @@ o properly from wl_output callback
 o check with mgraesslin if GPL->LGPL for bits taken from wayland_backend.cpp is OK
 o delete wl_* objects in destructors
 
+
+Disconnected screens protocol in kwayland[sebas/kwin]:
+* I don't see a need for the request get_disabled_outputs, when an interface gets connected the server starts to emit the state, that is announces all the outputs.  you don't have to care - you connect to the interface and state changes will be emitted, just like everywhere else
+* sebas: concerning the syncing: do it like in the output interface: emit all "appeared" on connection and then send the done once finished, if there are none from the start, just send done directly
+* on the server side I think you reversed the meaning of the created class. Normally a "request" ends up as a Q_SIGNAL on the server class, an event ends up as a method, sebas: e.g. KWin would have to call a method when a new output "appeared", which then triggers the event
+sebas: on the other hand a request ends in the static callback which then needs to notify somehow KWin, e.g. through a signal
+* the manufactorer and model doesn't make so much sense in the server's Private
+that sounds more like a list is needed
+* rename sync -> done
+* rename protocol to org_kde_kwin_screen_management
+* sebas: on client side I suggest to add a small wrapper for the Output information and then in the signal carry a pointer to a created object and on disappeared as well
+sebas: that might make it easier for a user to track the list of outputs
