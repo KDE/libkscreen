@@ -19,11 +19,11 @@ to be deleted by the user, the backend only takes ownership of its internal
 data representation objects.
 
 Note:
-In the Wayland backends, we're using the uint32_t name parameter passed by
+In the Wayland backend, we're using the uint32_t name parameter passed by
 the callbacks as ids for output. This eases administration, while providing
 a consistent set of ids. It means that we somehow have to fit the uint32 in
 the int field of libkscreen's APIs. This seems only a potential issue, and
-only applies to 32bits systems. Still thinking about this (potential,remote)
+only applies to 32bit systems. Still thinking about this (potential,remote)
 problem. This implementation detail should not be seen as an API promise, it
 is pure coincidence and is likely to break code assuming it.
 
@@ -65,13 +65,42 @@ o delete wl_* objects in destructors
 
 
 Disconnected screens protocol in kwayland[sebas/kwin]:
-* I don't see a need for the request get_disabled_outputs, when an interface gets connected the server starts to emit the state, that is announces all the outputs.  you don't have to care - you connect to the interface and state changes will be emitted, just like everywhere else
-* sebas: concerning the syncing: do it like in the output interface: emit all "appeared" on connection and then send the done once finished, if there are none from the start, just send done directly
-* on the server side I think you reversed the meaning of the created class. Normally a "request" ends up as a Q_SIGNAL on the server class, an event ends up as a method, sebas: e.g. KWin would have to call a method when a new output "appeared", which then triggers the event
-sebas: on the other hand a request ends in the static callback which then needs to notify somehow KWin, e.g. through a signal
-* the manufactorer and model doesn't make so much sense in the server's Private
-that sounds more like a list is needed
-* rename sync -> done
-* rename protocol to org_kde_kwin_screen_management
-* sebas: on client side I suggest to add a small wrapper for the Output information and then in the signal carry a pointer to a created object and on disappeared as well
-sebas: that might make it easier for a user to track the list of outputs
+
+
+Protocol:
+---------
+
+o done references no longer existing "get_disabled_outputs"
+o event names are camelcase, Wayland way is underscore
+
+Autotests:
+---------
+o extend registry test
+
+Server:
+------
+o do we want the name "KWin" in class name and file name? We don't do that for org_kde_kwin_idle and org_kde_kwin_fake_input
+o why private Q_SLOTS done? Why a private method in the public interface?
+o edid as QByteArray instead of QString?
+o struct DisabledOutput defined but not used anywhere in the public API
+o implementation used both Q_FOREACH and new C++11 for each loop, please pick one
+
+Client:
+-------
+o why org_kde_kwin_screen_management *screen_management()? Aren't the cast operators sufficient?
+o misses the release and destroy methods
+o why do the signals not carry the DisabledOutput?
+* why allow the setters in DisabledOutput? Why should a user of DisabledOutput be allowed to change them? If one wants to allow setting the values, it's missing changed signals
+o why is the ctor of DisabledOutput public? Why would one want to construct it? I would friend it with KWinScreenManagement
+
+
+* then in the signal carry a pointer to a created object of the Output wrapper and on disappeared as well, that might make it easier for a user to track the list of outputs
+
+o merge in registry changes from master
+o on client side I suggest to add a small wrapper for the Output information and
+o on the server side I think you reversed the meaning of the created class. Normally a "request" ends up as a Q_SIGNAL on the server class, an event ends up as a method, sebas: e.g. KWin would have to call a method when a new output "appeared", which then triggers the event, on the other hand a request ends in the static callback which then needs to notify somehow KWin, e.g. through a signal
+o I don't see a need for the request get_disabled_outputs, when an interface gets connected the server starts to emit the state, that is announces all the outputs.  you don't have to care - you connect to the interface and state changes will be emitted, just like everywhere else
+o concerning the syncing: do it like in the output interface: emit all "appeared" on connection and then send the done once finished, if there are none from the start, just send done directly
+o the manufactorer and model doesn't make so much sense in the server's Private, that sounds more like a list is needed
+o rename sync -> done
+o rename protocol to org_kde_kwin_screen_management
