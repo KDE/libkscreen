@@ -72,8 +72,8 @@ public:
     KScreen::ConfigPtr toKScreenConfig() const;
     void updateKScreenConfig(KScreen::ConfigPtr &config) const;
 
-    QMap<quint32, WaylandOutput *> outputMap() const;
-    int outputId(KWayland::Client::Output *wlo);
+    QMap<int, WaylandOutput *> outputMap() const;
+    int outputId(WaylandOutput *wlo);
 
     void addOutput(quint32 name, quint32 version);
     void removeOutput(quint32 id);
@@ -97,8 +97,8 @@ private:
     KWayland::Client::ScreenManagement *m_screen_management;
 
     QThread m_thread;
-    QMap<quint32, WaylandOutput *> m_outputMap;
-    QList<quint32> m_initializingOutputs;
+    QMap<int, WaylandOutput*> m_outputMap;
+    QList<int> m_initializingOutputs;
     bool m_registryInitialized;
     bool m_disabledOutputsDone;
     WaylandScreen *m_screen;

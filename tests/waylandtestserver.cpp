@@ -101,7 +101,7 @@ void WaylandTestServer::start()
     connect(m_configWatch, &KDirWatch::created, this, &WaylandTestServer::pickupConfigFile);
 
 
-    qDebug() << "Wayland server running. Outputs: " << m_outputs.count();
+    qDebug() << "Wayland server running. Outputs: " << m_outputs.count() << " + " << m_disabledOutputs.count() << " disabled.";
 }
 
 void WaylandTestServer::stop()

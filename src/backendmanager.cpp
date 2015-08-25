@@ -122,9 +122,9 @@ void BackendManager::startBackend(const QString &backend)
             this, &BackendManager::launcherDataAvailable);
     connect(mLauncher, &QProcess::readyReadStandardError,
             this, [&] () {
-                QString err = QString::fromLocal8Bit(mLauncher->readAllStandardError());
-                err.chop(1);
-                qCDebug(KSCREEN) << "BACKEND\nBACKEND\t" << err;
+                QString err = QString::fromUtf8(mLauncher->readAllStandardError());
+                //err.chop(1);
+                qCDebug(KSCREEN) << "\nBACKEND\t" << err;
             } );
 
     QString launcher = QString::fromLatin1(CMAKE_INSTALL_FULL_LIBEXECDIR_KF5 "/kscreen_backend_launcher");

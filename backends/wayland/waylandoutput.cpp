@@ -30,17 +30,15 @@
 using namespace KScreen;
 
 WaylandOutput::WaylandOutput(QObject *parent)
-    : KWayland::Client::Output(parent)
+    : QObject(parent)
     , m_edid(new Edid(QByteArray(), this))
     , m_id(-1)
     , m_completed(false)
+    , m_output(nullptr)
+    , m_protocolName(0)
+    , m_protocolVersion(0)
+    , m_disabledOutput(nullptr)
 {
-    connect(this, &KWayland::Client::Output::changed,
-            this, &WaylandOutput::update, Qt::QueuedConnection);
-    connect(this, &KWayland::Client::Output::modeAdded,
-            this, &WaylandOutput::updateModes, Qt::QueuedConnection);
-//     connect(this, &KWayland::Client::Output::modeAdded,
-//             this, &WaylandOutput::updateModes, Qt::QueuedConnection);
 }
 
 WaylandOutput::~WaylandOutput()
@@ -58,7 +56,36 @@ void WaylandOutput::setId(const quint32 newId)
     m_id = newId;
 }
 
-KWayland::Client::DisabledOutput* WaylandOutput::disabledOutput()
+bool WaylandOutput::enabled() const
+{
+    return m_output != nullptr;
+}
+
+
+KWayland::Client::Output* WaylandOutput::output() const
+{
+    return m_output;
+}
+
+void WaylandOutput::setOutput(KWayland::Client::Registry* registry, KWayland::Client::Output* op, quint32 name, quint32 version)
+{
+    if (m_output == op) {
+        return;
+    }
+    m_output = op;
+    disconnect(m_disabledOutput);
+    m_disabledOutput = nullptr;
+
+    connect(m_output, &KWayland::Client::Output::changed,
+            this, &WaylandOutput::update, Qt::QueuedConnection);
+    connect(m_output, &KWayland::Client::Output::modeAdded,
+            this, &WaylandOutput::updateModes, Qt::QueuedConnection);
+
+    m_output->setup(m_registry->bindOutput(m_protocolName, m_protocolVersion));
+    emit changed();
+}
+
+KWayland::Client::DisabledOutput* WaylandOutput::disabledOutput() const
 {
     return m_disabledOutput;
 }
@@ -69,8 +96,9 @@ void WaylandOutput::setDisabledOutput(KWayland::Client::DisabledOutput* op)
         return;
     }
     m_disabledOutput = op;
+    disconnect(m_output);
     m_output = nullptr;
-    emit changed();
+    update();
 }
 
 
@@ -100,31 +128,41 @@ void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output) const
 {
 //     qCDebug(KSCREEN_WAYLAND) << "updateKScreenOutput OUTPUT";
     // Initialize primary output
-    output->setEnabled(true);
-    output->setConnected(true);
-    output->setPrimary(true); // FIXME
-    // FIXME: Rotation
+    if (enabled()) {
+        output->setEnabled(true);
+        output->setConnected(true);
+        output->setPrimary(true); // FIXME
+        // FIXME: Rotation
 
-    output->setName(manufacturer() + QStringLiteral("-") + model());
-    // Physical size
-    output->setSizeMm(physicalSize());
-    //qCDebug(KSCREEN_WAYLAND) << "  ####### setSizeMm: " << physicalSize() << geometry();
-    output->setPos(globalPosition());
-    KScreen::ModeList modeList;
-    Q_FOREACH (const KWayland::Client::Output::Mode &m, modes()) {
-        KScreen::ModePtr mode(new KScreen::Mode());
-        const QString modename = modeName(m);
-        mode->setId(modename);
-        mode->setRefreshRate(m.refreshRate);
-        mode->setSize(m.size);
-        mode->setName(modename);
-        if (m.flags.testFlag(Output::Mode::Flag::Current)) {
-            output->setCurrentModeId(modename);
+        output->setName(m_output->manufacturer() + QStringLiteral("-") + m_output->model());
+        // Physical size
+        output->setSizeMm(m_output->physicalSize());
+        //qCDebug(KSCREEN_WAYLAND) << "  ####### setSizeMm: " << physicalSize() << geometry();
+        output->setPos(m_output->globalPosition());
+        KScreen::ModeList modeList;
+        Q_FOREACH (const KWayland::Client::Output::Mode &m, m_output->modes()) {
+            KScreen::ModePtr mode(new KScreen::Mode());
+            const QString modename = modeName(m);
+            mode->setId(modename);
+            mode->setRefreshRate(m.refreshRate);
+            mode->setSize(m.size);
+            mode->setName(modename);
+            if (m.flags.testFlag(KWayland::Client::Output::Mode::Flag::Current)) {
+                output->setCurrentModeId(modename);
+            }
+            modeList[modename] = mode;
         }
-        modeList[modename] = mode;
-    }
 
-    output->setModes(modeList);
+        output->setModes(modeList);
+    } else {
+        if (m_disabledOutput) {
+            output->setName(m_disabledOutput->name());
+            Edid* edid = new Edid(m_disabledOutput->edid().toLocal8Bit(), m_disabledOutput);
+            output->setEdid(m_disabledOutput->edid().toLocal8Bit());
+        } else {
+            qCWarning(KSCREEN_WAYLAND) << "WL Output not accounted for!!";
+        }
+    }
 }
 
 void WaylandOutput::update()
@@ -149,36 +187,43 @@ bool WaylandOutput::isComplete()
 {
     // FIXME: we want smarter tracking when the whole initialization storm is done and ...
     // the data structures are complete (for now).
-    return (m_id != -1 &&
-            modes().count() > 0);
+    return (m_id != -1 && m_output && m_output->modes().count() > 0);
 }
 
 void WaylandOutput::flush()
 {
-    if (isComplete() && !m_completed) {
-        m_completed = true;
+    if (enabled()) {
+        if (isComplete() && !m_completed) {
+            m_completed = true;
 
-//         qCDebug(KSCREEN_WAYLAND) << "_______________ " << (isValid() ? "Valid" : "Invalid");
-//         qCDebug(KSCREEN_WAYLAND) << "Output changes... ";
-//         qCDebug(KSCREEN_WAYLAND) << "  id:              " << id();
-//         qCDebug(KSCREEN_WAYLAND) << "  Pixel Size:      " << pixelSize();
-//         qCDebug(KSCREEN_WAYLAND) << "  Physical Size:   " << physicalSize();
-//         qCDebug(KSCREEN_WAYLAND) << "  Global Position: " << globalPosition();
-//         qCDebug(KSCREEN_WAYLAND) << "  Manufacturer   : " << manufacturer();
-//         qCDebug(KSCREEN_WAYLAND) << "  Model:           " << model();
+    //         qCDebug(KSCREEN_WAYLAND) << "_______________ " << (isValid() ? "Valid" : "Invalid");
+    //         qCDebug(KSCREEN_WAYLAND) << "Output changes... ";
+    //         qCDebug(KSCREEN_WAYLAND) << "  id:              " << id();
+    //         qCDebug(KSCREEN_WAYLAND) << "  Pixel Size:      " << pixelSize();
+    //         qCDebug(KSCREEN_WAYLAND) << "  Physical Size:   " << physicalSize();
+    //         qCDebug(KSCREEN_WAYLAND) << "  Global Position: " << globalPosition();
+    //         qCDebug(KSCREEN_WAYLAND) << "  Manufacturer   : " << manufacturer();
+    //         qCDebug(KSCREEN_WAYLAND) << "  Model:           " << model();
 
-        foreach (auto m, modes()) {
-            QString modename = modeName(m);
-            if (m.flags.testFlag(Output::Mode::Flag::Current)) {
-                modename = modename + " (current)";
+            foreach (auto m, m_output->modes()) {
+                QString modename = modeName(m);
+                if (m.flags.testFlag(KWayland::Client::Output::Mode::Flag::Current)) {
+                    modename = modename + " (current)";
+                }
+                if (m.flags.testFlag(KWayland::Client::Output::Mode::Flag::Preferred)) {
+                    modename = modename + " (Preferred)";
+                }
+                //qCDebug(KSCREEN_WAYLAND) << "            Mode : " << modename;
+
             }
-            if (m.flags.testFlag(Output::Mode::Flag::Preferred)) {
-                modename = modename + " (Preferred)";
-            }
-            //qCDebug(KSCREEN_WAYLAND) << "            Mode : " << modename;
 
+            emit complete();
         }
+    } else {
+        if (m_disabledOutput) {
 
-        emit complete();
+        } else {
+            qCWarning(KSCREEN_WAYLAND) << "WL Unbacked output!";
+        }
     }
 }

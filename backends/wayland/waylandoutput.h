@@ -28,13 +28,14 @@
 #include <QSize>
 #include <QLoggingCategory>
 #include <KWayland/Client/output.h>
+#include <KWayland/Client/registry.h>
 #include <KWayland/Client/disabledoutput.h>
 
 
 namespace KScreen
 {
 
-class WaylandOutput : public KWayland::Client::Output
+class WaylandOutput : public QObject
 {
     Q_OBJECT
 
@@ -54,10 +55,12 @@ public:
     void setId(const quint32 newId);
     void setEdid(const QString &edidstring);
 
-    KWayland::Client::Output* output();
-    void setOutput(KWayland::Client::Output* op);
+    bool enabled() const;
 
-    KWayland::Client::DisabledOutput* disabledOutput();
+    KWayland::Client::Output* output() const;
+    void setOutput(KWayland::Client::Registry* registry, KWayland::Client::Output* op, quint32 name, quint32 version);
+
+    KWayland::Client::DisabledOutput* disabledOutput() const;
     void setDisabledOutput(KWayland::Client::DisabledOutput* op);
 
 Q_SIGNALS:
@@ -85,6 +88,9 @@ private:
 
     KWayland::Client::Output* m_output;
     KWayland::Client::DisabledOutput* m_disabledOutput;
+    KWayland::Client::Registry* m_registry;
+    quint32 m_protocolName;
+    quint32 m_protocolVersion;
 };
 
 } // namespace
