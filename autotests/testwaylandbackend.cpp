@@ -30,6 +30,7 @@
 #include <KWayland/Server/output_interface.h>
 #include <KWayland/Server/seat_interface.h>
 #include <KWayland/Server/shell_interface.h>
+#include <KWayland/Server/screen_management_interface.h>
 
 
 #include "../src/backendmanager_p.h"

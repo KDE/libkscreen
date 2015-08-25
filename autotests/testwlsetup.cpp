@@ -175,7 +175,7 @@ void testWaylandSetup::testConfigs()
         QVERIFY(!ids.contains(output->id()));
         ids << output->id();
     }
-    QCOMPARE(m_config->outputs().count(), m_server->display()->outputs().count());
+    QCOMPARE(m_config->outputs().count(), m_server->outputCount());
 
     delete m_config.data();
     m_server->stop();
