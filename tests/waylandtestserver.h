@@ -27,6 +27,7 @@
 #include <KWayland/Server/output_interface.h>
 #include <KWayland/Server/seat_interface.h>
 #include <KWayland/Server/shell_interface.h>
+#include <KWayland/Server/screen_management_interface.h>
 
 // KConfigCore
 #include <KConfigGroup>
@@ -57,6 +58,8 @@ public:
 
     KWayland::Server::Display* display();
 
+    int outputCount() const;
+
 Q_SIGNALS:
     void outputsChanged();
 
@@ -69,6 +72,8 @@ private:
     QList<KWayland::Server::OutputInterface*> m_outputs;
     KWayland::Server::SeatInterface *m_seat;
     KWayland::Server::ShellInterface *m_shell;
+    KWayland::Server::ScreenManagementInterface *m_screen_management;
+    QList<KWayland::Server::ScreenManagementInterface::DisabledOutput> m_disabledOutputs;
     KDirWatch *m_configWatch;
     QString m_outputConfigFile;
 };

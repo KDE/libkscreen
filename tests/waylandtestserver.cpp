@@ -82,7 +82,17 @@ void WaylandTestServer::start()
     m_shell = m_display->createShell();
     m_shell->create();
     */
-    m_outputs = KScreen::WaylandConfigReader::outputsFromConfig(m_configFile, m_display);
+    m_screen_management = m_display->createScreenManagement();
+    m_screen_management->create();
+
+    KScreen::WaylandConfigReader::outputsFromConfig(m_configFile, m_display, m_outputs, m_disabledOutputs);
+
+    qDebug() << "WL m_outputs" << m_outputs.count();
+    qDebug() << "WL m_disabledOutputs" << m_disabledOutputs.count();
+
+    foreach (auto dop, m_disabledOutputs) {
+        m_screen_management->addDisabledOutput(dop);
+    }
 
     m_configWatch = new KDirWatch(this);
     m_configWatch->addFile(m_outputConfigFile);
@@ -198,3 +208,9 @@ void WaylandTestServer::pickupConfigFile(const QString& configfile)
         emit outputsChanged();
     }
 }
+
+int WaylandTestServer::outputCount() const
+{
+    return m_outputs.count() + m_disabledOutputs.count();
+}
+
