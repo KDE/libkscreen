@@ -29,27 +29,45 @@
 
 using namespace KScreen;
 
-QList<KWayland::Server::OutputInterface*> WaylandConfigReader::outputsFromConfig(const QString& configfile, KWayland::Server::Display* display)
+void WaylandConfigReader::outputsFromConfig(const QString& configfile, KWayland::Server::Display* display,
+                                            QList< KWayland::Server::OutputInterface* >& outputs,
+                                            QList< KWayland::Server::ScreenManagementInterface::DisabledOutput >& disabledOutputs)
 {
-    QList<KWayland::Server::OutputInterface*> wloutputs;
     QFile file(configfile);
     file.open(QIODevice::ReadOnly);
 
     QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
     QJsonObject json = jsonDoc.object();
 
-    QJsonArray outputs = json["outputs"].toArray();
-    Q_FOREACH(const QJsonValue &value, outputs) {
+    QJsonArray omap = json["outputs"].toArray();
+    Q_FOREACH(const QJsonValue &value, omap) {
         const QVariantMap &output = value.toObject().toVariantMap();
         if (output["connected"].toBool() && output["enabled"].toBool()) {
-            wloutputs << createOutput(output, display);
+            outputs << createOutput(output, display);
             qDebug() << "new Output created: " << output["name"].toString();
+        } else {
+            qDebug() << "WL Disconnected Output!!!";
+            disabledOutputs << createDisabledOutput(output);
         }
     }
-    //qDebug() << "READER found " << wloutputs.count();
-    return wloutputs;
+
 }
 
+KWayland::Server::ScreenManagementInterface::DisabledOutput WaylandConfigReader::createDisabledOutput(const QVariantMap& outputConfig)
+{
+    KWayland::Server::ScreenManagementInterface::DisabledOutput op;
+    QByteArray data = QByteArray::fromBase64(outputConfig["edid"].toByteArray());
+    Edid edid(data, 0);
+
+    qDebug() << "EDID Info: " << data;
+    op.edid = QString::fromLocal8Bit(data);
+    if (edid.isValid()) {
+        op.name = edid.name();
+    } else {
+        op.name = outputConfig["name"].toString();
+    }
+    return op;
+}
 
 OutputInterface* WaylandConfigReader::createOutput(const QVariantMap& outputConfig, KWayland::Server::Display *display)
 {

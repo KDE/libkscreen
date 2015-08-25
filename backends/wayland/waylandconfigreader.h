@@ -25,6 +25,7 @@
 // KWayland
 #include <KWayland/Server/display.h>
 #include <KWayland/Server/output_interface.h>
+#include <KWayland/Server/screen_management_interface.h>
 
 namespace KScreen
 {
@@ -35,8 +36,10 @@ class WaylandConfigReader
 {
 
 public:
-    static QList<KWayland::Server::OutputInterface*> outputsFromConfig(const QString &configfile, KWayland::Server::Display *display);
+    //static QList<KWayland::Server::OutputInterface*> outputsFromConfig(const QString &configfile, KWayland::Server::Display *display);
+    static void outputsFromConfig(const QString &configfile, KWayland::Server::Display *display, QList<KWayland::Server::OutputInterface*>& outputs, QList<KWayland::Server::ScreenManagementInterface::DisabledOutput>& disabledOutputs);
     static OutputInterface* createOutput(const QVariantMap &outputConfig, KWayland::Server::Display *display);
+    static KWayland::Server::ScreenManagementInterface::DisabledOutput createDisabledOutput(const QVariantMap &outputConfig);
 
 private:
     static QSize sizeFromJson(const QVariant& data);
