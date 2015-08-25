@@ -26,6 +26,7 @@
 #include <KWayland/Client/connection_thread.h>
 #include <KWayland/Client/event_queue.h>
 #include <KWayland/Client/registry.h>
+#include <KWayland/Client/screen_management.h>
 
 #include <configmonitor.h>
 #include <mode.h>
@@ -37,8 +38,10 @@ using namespace KScreen;
 WaylandConfig::WaylandConfig(QObject *parent)
     : QObject(parent)
     , m_screen(new WaylandScreen(this))
+    , m_screen_management(nullptr)
     , m_blockSignals(true)
     , m_registryInitialized(false)
+    , m_disabledOutputsDone(false)
 
 {
     qCDebug(KSCREEN_WAYLAND) << " Config creating.";
@@ -118,10 +121,31 @@ void WaylandConfig::setupRegistry()
         //Q_EMIT configChanged(toKScreenConfig());
     });
 
+    connect(m_registry, &KWayland::Client::Registry::screenManagementAnnounced, [=](quint32 name, quint32 version) {
+        qDebug() << "WL new screenManagementAnnounced";
+        m_screen_management = m_registry->createScreenManagement(name, version, m_registry);
+
+        connect(m_screen_management, &KWayland::Client::ScreenManagement::done, [=] {
+            qDebug() << "WL disabled outputs: " << m_screen_management->disabledOutputs().count();
+            m_disabledOutputsDone = true;
+            foreach (auto dop, m_screen_management->disabledOutputs()) {
+                addDisabledOutput(dop);
+            }
+        });
+    });
     m_registry->create(m_connection);
     m_registry->setup();
 }
 
+void WaylandConfig::addDisabledOutput(KWayland::Client::DisabledOutput* op)
+{
+    WaylandOutput *waylandoutput = new WaylandOutput(this);
+    waylandoutput->setId(m_newOutputId);
+    //waylandoutput->setName(op->name());
+    // ... more properties
+
+    m_outputMap[m_newOutputId] = waylandoutput;
+}
 
 void WaylandConfig::addOutput(quint32 name, quint32 version)
 {
@@ -155,7 +179,7 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
 
 void WaylandConfig::checkInitialized()
 {
-    if (!m_blockSignals && m_registryInitialized &&
+    if (!m_blockSignals && m_registryInitialized && m_disabledOutputsDone &&
         m_initializingOutputs.isEmpty() && m_outputMap.count()) {
 
         //qDebug() << "WaylandConfig is ready!!";

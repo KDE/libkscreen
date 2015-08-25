@@ -58,6 +58,22 @@ void WaylandOutput::setId(const quint32 newId)
     m_id = newId;
 }
 
+KWayland::Client::DisabledOutput* WaylandOutput::disabledOutput()
+{
+    return m_disabledOutput;
+}
+
+void WaylandOutput::setDisabledOutput(KWayland::Client::DisabledOutput* op)
+{
+    if (m_disabledOutput == op) {
+        return;
+    }
+    m_disabledOutput = op;
+    m_output = nullptr;
+    emit changed();
+}
+
+
 /*
 KScreen::Edid WaylandOutput::edid()
 {

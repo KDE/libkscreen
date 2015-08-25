@@ -34,9 +34,11 @@
 namespace KWayland {
     namespace Client {
         class ConnectionThread;
+        class DisabledOutput;
         class EventQueue;
         class Output;
         class Registry;
+        class ScreenManagement;
     }
 }
 
@@ -87,18 +89,24 @@ private Q_SLOTS:
 
 private:
     void initConnection();
+    void addDisabledOutput(KWayland::Client::DisabledOutput *op);
+
     KWayland::Client::ConnectionThread *m_connection;
     KWayland::Client::EventQueue *m_queue;
     KWayland::Client::Registry *m_registry;
+    KWayland::Client::ScreenManagement *m_screen_management;
 
     QThread m_thread;
     QMap<quint32, WaylandOutput *> m_outputMap;
     QList<quint32> m_initializingOutputs;
     bool m_registryInitialized;
+    bool m_disabledOutputsDone;
     WaylandScreen *m_screen;
     int m_lastOutputId = -1;
     bool m_blockSignals;
     QEventLoop m_syncLoop;
+
+    int m_newOutputId; // FIXME: not initializing just to get random ids, hope we're not colliding...
 };
 
 } // namespace

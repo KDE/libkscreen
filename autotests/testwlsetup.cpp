@@ -163,6 +163,9 @@ void testWaylandSetup::testConfigs()
         QVERIFY(!output->name().isEmpty());
         QVERIFY(output->id() > -1);
         QVERIFY(output->isConnected());
+        if (!output->isEnabled()) {
+            continue;
+        }
         QVERIFY(output->isEnabled());
         QVERIFY(output->geometry() != QRectF(1,1,1,1));
         QVERIFY(output->geometry() != QRectF());

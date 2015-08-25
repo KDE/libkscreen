@@ -28,6 +28,7 @@
 #include <QSize>
 #include <QLoggingCategory>
 #include <KWayland/Client/output.h>
+#include <KWayland/Client/disabledoutput.h>
 
 
 namespace KScreen
@@ -51,10 +52,19 @@ public:
 
     quint32 id() const;
     void setId(const quint32 newId);
+    void setEdid(const QString &edidstring);
 
+    KWayland::Client::Output* output();
+    void setOutput(KWayland::Client::Output* op);
+
+    KWayland::Client::DisabledOutput* disabledOutput();
+    void setDisabledOutput(KWayland::Client::DisabledOutput* op);
 
 Q_SIGNALS:
     void complete();
+
+    // only emitted after complete()
+    void changed();
 
 private:
     /**
@@ -72,6 +82,9 @@ private:
     bool isComplete();
     /** Track if we've emitted the complete() signal, as to not do it twice. */
     bool m_completed;
+
+    KWayland::Client::Output* m_output;
+    KWayland::Client::DisabledOutput* m_disabledOutput;
 };
 
 } // namespace
