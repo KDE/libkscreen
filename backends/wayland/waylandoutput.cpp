@@ -69,6 +69,7 @@ KWayland::Client::Output* WaylandOutput::output() const
 
 void WaylandOutput::setOutput(KWayland::Client::Registry* registry, KWayland::Client::Output* op, quint32 name, quint32 version)
 {
+    qDebug() << "WL setOUtput" << registry << op << name;
     if (m_output == op) {
         return;
     }
@@ -81,7 +82,8 @@ void WaylandOutput::setOutput(KWayland::Client::Registry* registry, KWayland::Cl
     connect(m_output, &KWayland::Client::Output::modeAdded,
             this, &WaylandOutput::updateModes, Qt::QueuedConnection);
 
-    m_output->setup(m_registry->bindOutput(m_protocolName, m_protocolVersion));
+    m_output->setup(registry->bindOutput(name, version));
+    qDebug() << "WL CLient::OUtput bound";
     emit changed();
 }
 
@@ -126,7 +128,7 @@ KScreen::OutputPtr WaylandOutput::toKScreenOutput(KScreen::ConfigPtr &parent) co
 
 void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output) const
 {
-//     qCDebug(KSCREEN_WAYLAND) << "updateKScreenOutput OUTPUT";
+    qCDebug(KSCREEN_WAYLAND) << "updateKScreenOutput OUTPUT";
     // Initialize primary output
     if (enabled()) {
         output->setEnabled(true);
@@ -192,18 +194,19 @@ bool WaylandOutput::isComplete()
 
 void WaylandOutput::flush()
 {
+    qCDebug(KSCREEN_WAYLAND) << "FLUSH" << (m_output->isValid() ? "Valid" : "Invalid");
     if (enabled()) {
         if (isComplete() && !m_completed) {
             m_completed = true;
 
-    //         qCDebug(KSCREEN_WAYLAND) << "_______________ " << (isValid() ? "Valid" : "Invalid");
-    //         qCDebug(KSCREEN_WAYLAND) << "Output changes... ";
-    //         qCDebug(KSCREEN_WAYLAND) << "  id:              " << id();
-    //         qCDebug(KSCREEN_WAYLAND) << "  Pixel Size:      " << pixelSize();
-    //         qCDebug(KSCREEN_WAYLAND) << "  Physical Size:   " << physicalSize();
-    //         qCDebug(KSCREEN_WAYLAND) << "  Global Position: " << globalPosition();
-    //         qCDebug(KSCREEN_WAYLAND) << "  Manufacturer   : " << manufacturer();
-    //         qCDebug(KSCREEN_WAYLAND) << "  Model:           " << model();
+            qCDebug(KSCREEN_WAYLAND) << "_______________ " << (m_output->isValid() ? "Valid" : "Invalid");
+            qCDebug(KSCREEN_WAYLAND) << "Output changes... ";
+            qCDebug(KSCREEN_WAYLAND) << "  id:              " << id();
+            qCDebug(KSCREEN_WAYLAND) << "  Pixel Size:      " << m_output->pixelSize();
+            qCDebug(KSCREEN_WAYLAND) << "  Physical Size:   " << m_output->physicalSize();
+            qCDebug(KSCREEN_WAYLAND) << "  Global Position: " << m_output->globalPosition();
+            qCDebug(KSCREEN_WAYLAND) << "  Manufacturer   : " << m_output->manufacturer();
+            qCDebug(KSCREEN_WAYLAND) << "  Model:           " << m_output->model();
 
             foreach (auto m, m_output->modes()) {
                 QString modename = modeName(m);
