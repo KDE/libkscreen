@@ -30,6 +30,54 @@ is pure coincidence and is likely to break code assuming it.
                                                             <sebas@kde.org>
 
 
+
+ScreenManagement protocol can be used for screen configuration.
+It  lists available outputs and allows to change them
+
+- provide info about all outputs, per output:
+    - id (int, unique and only handed out by kwin)
+    - edid: eisaId, monitorName, serialNumber, physicalSizeX, physicalSizeY
+    - primary
+    - modes: sizeX, sizeY, refreshRate
+    - resolution: resX, resY
+    - position: posX, posY
+    - orientation: degree
+    - enabled: bool
+- allows to set, per output:
+    - set enabled
+    - set mode
+    - set orientation
+    - set position
+    - set primary
+
+- keep protocol flat for simplicity, use id to tell which output this signal refers to
+- or: create distinct subinterfaces wrapping our output (seems unnecessarily complex)
+
+server:
+    - wayland_server.cpp gets a ScreenManagement interface
+    - initOutputs also triggers events in the screenmanagement interface
+    - announces the outputs on the ScreenManagementInterface when bound
+    - is responsible for state changes through backends
+    - decides what to do with the information
+
+client:
+    - connects to server
+    - receives the info about all the outputs
+    - ignores wl_output otherwise
+    - can set properties of outputs (enable/disable, mode, position, etc.)
+
+why?
+- keeps everything in one place
+- one interface for a specific purpose
+- bi-directional, so defined config interface, no config writing/picking up etc.
+- one place to housekeep ids
+- interface is purpose-made, not trying to shoe-horn kscreen in and around wl_output
+- server really seems to be the right place to keep state and logic
+- makes concertation less complex, since there's exactly one place to handle state, like mode, on/off, etc.
+
+
+
+
 TODO
 
 - remove serializeConfigMinimal
