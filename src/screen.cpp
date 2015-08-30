@@ -129,4 +129,5 @@ void Screen::apply(const ScreenPtr &other)
 {
     // Only set values that can change
     setMaxActiveOutputsCount(other->d->maxActiveOutputsCount);
+    setCurrentSize(other->d->currentSize);
 }
