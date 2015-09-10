@@ -30,8 +30,7 @@
 using namespace KScreen;
 
 void WaylandConfigReader::outputsFromConfig(const QString& configfile, KWayland::Server::Display* display,
-                                            QList< KWayland::Server::OutputInterface* >& outputs,
-                                            QList< KWayland::Server::ScreenManagementInterface::DisabledOutput >& disabledOutputs)
+                                            QList< KWayland::Server::OutputDeviceInterface* >& outputs)
 {
     QFile file(configfile);
     file.open(QIODevice::ReadOnly);
@@ -42,36 +41,17 @@ void WaylandConfigReader::outputsFromConfig(const QString& configfile, KWayland:
     QJsonArray omap = json["outputs"].toArray();
     Q_FOREACH(const QJsonValue &value, omap) {
         const QVariantMap &output = value.toObject().toVariantMap();
-        if (output["connected"].toBool() && output["enabled"].toBool()) {
-            outputs << createOutput(output, display);
+        if (output["connected"].toBool()) {
+            outputs << createOutputDevice(output, display);
             qDebug() << "new Output created: " << output["name"].toString();
-        } else {
-            qDebug() << "WL Disconnected Output!!!";
-            disabledOutputs << createDisabledOutput(output);
         }
     }
 
 }
 
-KWayland::Server::ScreenManagementInterface::DisabledOutput WaylandConfigReader::createDisabledOutput(const QVariantMap& outputConfig)
+OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap& outputConfig, KWayland::Server::Display *display)
 {
-    KWayland::Server::ScreenManagementInterface::DisabledOutput op;
-    QByteArray data = QByteArray::fromBase64(outputConfig["edid"].toByteArray());
-    Edid edid(data, 0);
-
-    qDebug() << "EDID Info: " << data;
-    op.edid = QString::fromLocal8Bit(data);
-    if (edid.isValid()) {
-        op.name = edid.name();
-    } else {
-        op.name = outputConfig["name"].toString();
-    }
-    return op;
-}
-
-OutputInterface* WaylandConfigReader::createOutput(const QVariantMap& outputConfig, KWayland::Server::Display *display)
-{
-    KWayland::Server::OutputInterface *output = display->createOutput(display);
+    KWayland::Server::OutputDeviceInterface *output = display->createOutputDevice(display);
 
     QByteArray data = QByteArray::fromBase64(outputConfig["edid"].toByteArray());
     Edid edid(data, display);
@@ -114,12 +94,12 @@ OutputInterface* WaylandConfigReader::createOutput(const QVariantMap& outputConf
         bool isPreferred = preferredModes.contains(mode["id"]);
 
         //qDebug() << "Mode: " << _size << isCurrent << isPreferred;
-        OutputInterface::ModeFlags flags;
+        OutputDeviceInterface::ModeFlags flags;
         if (isPreferred) {
-            flags &= OutputInterface::ModeFlags(OutputInterface::ModeFlag::Preferred);
+            flags &= OutputDeviceInterface::ModeFlags(OutputDeviceInterface::ModeFlag::Preferred);
         }
         if (isCurrent) {
-            flags &= OutputInterface::ModeFlags(OutputInterface::ModeFlag::Preferred);
+            flags &= OutputDeviceInterface::ModeFlags(OutputDeviceInterface::ModeFlag::Preferred);
         }
 
         output->addMode(_size, flags, refresh);
@@ -130,6 +110,7 @@ OutputInterface* WaylandConfigReader::createOutput(const QVariantMap& outputConf
     }
 
     output->setGlobalPosition(pointFromJson(outputConfig["pos"]));
+    output->setEnabled(outputConfig["enabled"].toBool());
     output->create();
 
     return output;
