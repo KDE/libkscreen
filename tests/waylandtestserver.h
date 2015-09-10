@@ -24,10 +24,10 @@
 // KWayland
 #include <KWayland/Server/compositor_interface.h>
 #include <KWayland/Server/display.h>
-#include <KWayland/Server/output_interface.h>
+#include <KWayland/Server/outputdevice_interface.h>
 #include <KWayland/Server/seat_interface.h>
 #include <KWayland/Server/shell_interface.h>
-#include <KWayland/Server/screen_management_interface.h>
+#include <KWayland/Server/outputmanagement_interface.h>
 
 // KConfigCore
 #include <KConfigGroup>
@@ -64,16 +64,15 @@ Q_SIGNALS:
     void outputsChanged();
 
 private:
-    bool outputFromConfigGroup(const KConfigGroup& config, KWayland::Server::OutputInterface* output);
+    bool outputFromConfigGroup(const KConfigGroup& config, KWayland::Server::OutputDeviceInterface* output);
 
     QString m_configFile;
     KWayland::Server::Display *m_display;
     KWayland::Server::CompositorInterface *m_compositor;
-    QList<KWayland::Server::OutputInterface*> m_outputs;
+    QList<KWayland::Server::OutputDeviceInterface*> m_outputs;
     KWayland::Server::SeatInterface *m_seat;
     KWayland::Server::ShellInterface *m_shell;
-    KWayland::Server::ScreenManagementInterface *m_screen_management;
-    QList<KWayland::Server::ScreenManagementInterface::DisabledOutput> m_disabledOutputs;
+    KWayland::Server::OutputManagementInterface *m_outputManagement;
     KDirWatch *m_configWatch;
     QString m_outputConfigFile;
 };

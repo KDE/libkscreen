@@ -82,17 +82,12 @@ void WaylandTestServer::start()
     m_shell = m_display->createShell();
     m_shell->create();
     */
-    m_screen_management = m_display->createScreenManagement();
-    m_screen_management->create();
+    m_outputManagement = m_display->createOutputManagement();
+    m_outputManagement->create();
 
-    KScreen::WaylandConfigReader::outputsFromConfig(m_configFile, m_display, m_outputs, m_disabledOutputs);
+    KScreen::WaylandConfigReader::outputsFromConfig(m_configFile, m_display, m_outputs);
 
     qDebug() << "WL m_outputs" << m_outputs.count();
-    qDebug() << "WL m_disabledOutputs" << m_disabledOutputs.count();
-
-    foreach (auto dop, m_disabledOutputs) {
-        m_screen_management->addDisabledOutput(dop);
-    }
 
     m_configWatch = new KDirWatch(this);
     m_configWatch->addFile(m_outputConfigFile);
@@ -101,7 +96,7 @@ void WaylandTestServer::start()
     connect(m_configWatch, &KDirWatch::created, this, &WaylandTestServer::pickupConfigFile);
 
 
-    qDebug() << "Wayland server running. Outputs: " << m_outputs.count() << " + " << m_disabledOutputs.count() << " disabled.";
+    qDebug() << "Wayland server running. Outputs: " << m_outputs.count();
 }
 
 void WaylandTestServer::stop()
@@ -125,7 +120,7 @@ void WaylandTestServer::setConfig(const QString& configfile)
     m_configFile = configfile;
 }
 
-bool WaylandTestServer::outputFromConfigGroup(const KConfigGroup& config, KWayland::Server::OutputInterface* output)
+bool WaylandTestServer::outputFromConfigGroup(const KConfigGroup& config, KWayland::Server::OutputDeviceInterface* output)
 {
 
     bool changed = false;
@@ -179,7 +174,7 @@ void WaylandTestServer::pickupConfigFile(const QString& configfile)
             qDebug() << " ---- " << oname << " :: " << o->manufacturer() << o->model();
             qDebug() << " ++Output gone++";
             m_outputs.removeAll(o);
-            m_display->removeOutput(o);
+            m_display->removeOutputDevice(o);
             changed = true;
             //delete o;
         }
@@ -189,7 +184,7 @@ void WaylandTestServer::pickupConfigFile(const QString& configfile)
     foreach (const QString& oname, cfg->groupList()) {
         if (!os.contains(oname)) {
 
-            KWayland::Server::OutputInterface *o = m_display->createOutput(m_display);
+            KWayland::Server::OutputDeviceInterface *o = m_display->createOutputDevice(m_display);
             o->setManufacturer(oname.split("-").at(0));
             o->setModel(oname.split("-").at(1));
             outputFromConfigGroup(cfg->group(oname), o);
@@ -211,6 +206,6 @@ void WaylandTestServer::pickupConfigFile(const QString& configfile)
 
 int WaylandTestServer::outputCount() const
 {
-    return m_outputs.count() + m_disabledOutputs.count();
+    return m_outputs.count();
 }
 
