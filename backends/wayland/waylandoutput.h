@@ -27,9 +27,8 @@
 #include <QScreen>
 #include <QSize>
 #include <QLoggingCategory>
-#include <KWayland/Client/output.h>
+#include <KWayland/Client/outputdevice.h>
 #include <KWayland/Client/registry.h>
-#include <KWayland/Client/disabledoutput.h>
 
 
 namespace KScreen
@@ -57,11 +56,8 @@ public:
 
     bool enabled() const;
 
-    KWayland::Client::Output* output() const;
-    void setOutput(KWayland::Client::Registry* registry, KWayland::Client::Output* op, quint32 name, quint32 version);
-
-    KWayland::Client::DisabledOutput* disabledOutput() const;
-    void setDisabledOutput(KWayland::Client::DisabledOutput* op);
+    KWayland::Client::OutputDevice* output() const;
+    void setOutput(KWayland::Client::Registry* registry, KWayland::Client::OutputDevice* op, quint32 name, quint32 version);
 
 Q_SIGNALS:
     void complete();
@@ -76,7 +72,7 @@ private:
     void flush();
     void update();
     void updateModes();
-    QString modeName(const KWayland::Client::Output::Mode &m) const;
+    QString modeName(const KWayland::Client::OutputDevice::Mode &m) const;
 
     mutable QSharedPointer<KScreen::Edid> m_edid;
     quint32 m_id;
@@ -86,8 +82,7 @@ private:
     /** Track if we've emitted the complete() signal, as to not do it twice. */
     bool m_completed;
 
-    KWayland::Client::Output* m_output;
-    KWayland::Client::DisabledOutput* m_disabledOutput;
+    KWayland::Client::OutputDevice* m_output;
     KWayland::Client::Registry* m_registry;
     quint32 m_protocolName;
     quint32 m_protocolVersion;

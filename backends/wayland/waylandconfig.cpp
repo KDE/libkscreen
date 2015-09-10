@@ -26,7 +26,8 @@
 #include <KWayland/Client/connection_thread.h>
 #include <KWayland/Client/event_queue.h>
 #include <KWayland/Client/registry.h>
-#include <KWayland/Client/screen_management.h>
+#include <KWayland/Client/outputdevice.h>
+#include <KWayland/Client/outputmanagement.h>
 
 #include <configmonitor.h>
 #include <mode.h>
@@ -38,11 +39,9 @@ using namespace KScreen;
 WaylandConfig::WaylandConfig(QObject *parent)
     : QObject(parent)
     , m_screen(new WaylandScreen(this))
-    , m_screen_management(nullptr)
+    , m_outputManagement(nullptr)
     , m_blockSignals(true)
     , m_registryInitialized(false)
-    , m_disabledOutputsDone(false)
-
 {
     qCDebug(KSCREEN_WAYLAND) << " Config creating.";
     connect(this, &WaylandConfig::initialized, &m_syncLoop, &QEventLoop::quit);
@@ -121,46 +120,14 @@ void WaylandConfig::setupRegistry()
         //Q_EMIT configChanged(toKScreenConfig());
     });
 
-    connect(m_registry, &KWayland::Client::Registry::screenManagementAnnounced, [=](quint32 name, quint32 version) {
-        qDebug() << "WL new screenManagementAnnounced";
-        m_screen_management = m_registry->createScreenManagement(name, version, m_registry);
-
-        connect(m_screen_management, &KWayland::Client::ScreenManagement::done, [=] {
-            qDebug() << "WL disabled outputs: " << m_screen_management->disabledOutputs().count();
-            m_disabledOutputsDone = true;
-            foreach (auto dop, m_screen_management->disabledOutputs()) {
-                addDisabledOutput(dop);
-            }
-        });
+    connect(m_registry, &KWayland::Client::Registry::outputManagementAnnounced, [=](quint32 name, quint32 version) {
+        qDebug() << "WL new outputManagementAnnounced";
+        m_outputManagement = m_registry->createOutputManagement(name, version, m_registry);
+        // FIXME: bind outputmanagement
+        m_outputManagement->setup(m_registry->bindOutputManagement(name, version));
     });
     m_registry->create(m_connection);
     m_registry->setup();
-}
-
-void WaylandConfig::addDisabledOutput(KWayland::Client::DisabledOutput* op)
-{
-    return;
-    WaylandOutput *waylandoutput = new WaylandOutput(this);
-    waylandoutput->setId(outputId(waylandoutput));
-    waylandoutput->setDisabledOutput(op);
-//     //waylandoutput->setName(op->name());
-//     // ... more properties
-//
-    m_outputMap[waylandoutput->id()] = waylandoutput;
-    connect(waylandoutput, &WaylandOutput::complete, [=]{
-        m_outputMap[waylandoutput->id()] = waylandoutput;
-        qCDebug(KSCREEN_WAYLAND) << "New Output complete";
-        m_screen->setOutputs(m_outputMap.values());
-
-        Q_EMIT configChanged(toKScreenConfig());
-//         if (m_blockSignals) {
-//             //m_initializingOutputs.removeAll(name);
-//             checkInitialized();
-//         } else {
-//             //KScreen::ConfigMonitor::instance()->notifyUpdate();
-//             Q_EMIT configChanged(toKScreenConfig());
-//         }
-    });
 }
 
 void WaylandConfig::addOutput(quint32 name, quint32 version)
@@ -174,7 +141,7 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
         return;
     }
 
-    auto op = new KWayland::Client::Output(this);
+    auto op = new KWayland::Client::OutputDevice(this);
     WaylandOutput *waylandoutput = new WaylandOutput(this);
     waylandoutput->setId(outputId(waylandoutput)); // Gives us a new id
     waylandoutput->setOutput(m_registry, op, name, version);
@@ -197,7 +164,7 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
 
 void WaylandConfig::checkInitialized()
 {
-    if (!m_blockSignals && m_registryInitialized && m_disabledOutputsDone &&
+    if (!m_blockSignals && m_registryInitialized &&
         m_initializingOutputs.isEmpty() && m_outputMap.count()) {
 
         //qDebug() << "WaylandConfig is ready!!";

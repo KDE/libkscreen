@@ -34,11 +34,10 @@
 namespace KWayland {
     namespace Client {
         class ConnectionThread;
-        class DisabledOutput;
         class EventQueue;
-        class Output;
+        class OutputDevice;
         class Registry;
-        class ScreenManagement;
+        class OutputManagement;
     }
 }
 
@@ -89,18 +88,16 @@ private Q_SLOTS:
 
 private:
     void initConnection();
-    void addDisabledOutput(KWayland::Client::DisabledOutput *op);
 
     KWayland::Client::ConnectionThread *m_connection;
     KWayland::Client::EventQueue *m_queue;
     KWayland::Client::Registry *m_registry;
-    KWayland::Client::ScreenManagement *m_screen_management;
+    KWayland::Client::OutputManagement *m_outputManagement;
 
     QThread m_thread;
     QMap<int, WaylandOutput*> m_outputMap;
     QList<int> m_initializingOutputs;
     bool m_registryInitialized;
-    bool m_disabledOutputsDone;
     WaylandScreen *m_screen;
     int m_lastOutputId = -1;
     bool m_blockSignals;
