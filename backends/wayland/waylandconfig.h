@@ -91,10 +91,14 @@ private:
 
     KWayland::Client::ConnectionThread *m_connection;
     KWayland::Client::EventQueue *m_queue;
+    QThread *m_thread;
+
     KWayland::Client::Registry *m_registry;
     KWayland::Client::OutputManagement *m_outputManagement;
 
-    QThread m_thread;
+
+
+
     QMap<int, WaylandOutput*> m_outputMap;
     QList<int> m_initializingOutputs;
     bool m_registryInitialized;

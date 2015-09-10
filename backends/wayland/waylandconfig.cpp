@@ -29,6 +29,9 @@
 #include <KWayland/Client/outputdevice.h>
 #include <KWayland/Client/outputmanagement.h>
 
+// Wayland
+#include <wayland-client-protocol.h>
+
 #include <configmonitor.h>
 #include <mode.h>
 
@@ -55,15 +58,66 @@ WaylandConfig::~WaylandConfig()
     Q_FOREACH (auto output, m_outputMap.values()) {
         delete output;
     }
-    m_thread.quit();
-    m_thread.wait();
+    m_thread->quit();
+    m_thread->wait();
 }
 
 void WaylandConfig::initConnection()
 {
+
+    // setup connection
     m_connection = new KWayland::Client::ConnectionThread;
-    m_connection->moveToThread(&m_thread);
-    m_thread.start();
+    //QSignalSpy connectedSpy(m_connection, &KWayland::Client::ConnectionThread::connected);
+    //m_connection->setSocketName(s_socketName);
+
+    m_thread = new QThread(this);
+    m_connection->moveToThread(m_thread);
+    m_thread->start();
+
+    m_connection->initConnection();
+    //connectedSpy.wait();
+    //m_syncLoop.quit();
+
+
+    m_queue = new KWayland::Client::EventQueue(this);
+
+
+    connect(m_connection, &KWayland::Client::ConnectionThread::connected,
+            this, &WaylandConfig::setupRegistry, Qt::QueuedConnection);
+
+    connect(m_connection, &KWayland::Client::ConnectionThread::connectionDied,
+            this, &WaylandConfig::disconnected, Qt::QueuedConnection);
+
+    connect(m_connection, &KWayland::Client::ConnectionThread::failed, [=] {
+        qDebug() << "Failed to connect to Wayland server at socket:" << m_connection->socketName();
+        m_syncLoop.quit();
+        m_thread->quit();
+        m_thread->wait();
+    });
+    qDebug() << "Done.";
+    return;
+    // setup connection
+    m_connection = new KWayland::Client::ConnectionThread;
+    //QSignalSpy connectedSpy(m_connection, SIGNAL(connected()));
+    //m_connection->setSocketName(m_so);
+
+    m_thread = new QThread(this);
+    m_connection->moveToThread(m_thread);
+    m_thread->start();
+
+    m_connection->initConnection();
+    //QVERIFY(connectedSpy.wait());
+
+    //m_queue = new KWayland::Client::EventQueue(this);
+    //QVERIFY(!m_queue->isValid());
+    //m_queue->setup(m_connection);
+    //QVERIFY(m_queue->isValid());
+
+
+
+    //m_connection = new KWayland::Client::ConnectionThread;
+    //m_connection->moveToThread(&m_thread);
+    //m_thread.start();
 
     connect(m_connection, &KWayland::Client::ConnectionThread::connected,
             this, &WaylandConfig::setupRegistry, Qt::QueuedConnection);
@@ -73,18 +127,18 @@ void WaylandConfig::initConnection()
     connect(m_connection, &KWayland::Client::ConnectionThread::failed, [=] {
         qDebug() << "Failed to connect to Wayland server at socket:" << m_connection->socketName();
         m_syncLoop.quit();
-        m_thread.quit();
-        m_thread.wait();
+        m_thread->quit();
+        m_thread->wait();
     });
-    m_connection->initConnection();
+    //m_connection->initConnection();
 }
 
 void WaylandConfig::disconnected()
 {
     qDebug() << "Wayland disconnected, cleaning up.";
     // Clean up
-    m_thread.quit();
-    m_thread.wait();
+    m_thread->quit();
+    m_thread->wait();
 
     Q_FOREACH (auto o, m_outputMap.values()) {
         //delete o;
@@ -100,45 +154,58 @@ void WaylandConfig::disconnected()
 
 void WaylandConfig::setupRegistry()
 {
+//     m_registry.create(m_connection->display());
+//     QVERIFY(m_registry.isValid());
+//     m_registry.setEventQueue(m_queue);
+//     m_registry.setup();
+//     wl_display_flush(m_connection->display());
+//
+    qDebug() << "setup registry";
     m_queue = new KWayland::Client::EventQueue(this);
     m_queue->setup(m_connection);
 
     m_registry = new KWayland::Client::Registry(this);
     m_registry->setEventQueue(m_queue);
 
-    connect(m_registry, &KWayland::Client::Registry::outputAnnounced,
+    connect(m_registry, &KWayland::Client::Registry::outputDeviceAnnounced,
             this, &WaylandConfig::addOutput, Qt::DirectConnection);
-    connect(m_registry, &KWayland::Client::Registry::outputRemoved,
+    connect(m_registry, &KWayland::Client::Registry::outputDeviceRemoved,
             this, &WaylandConfig::removeOutput, Qt::DirectConnection);
 
+    connect(m_registry, &KWayland::Client::Registry::outputManagementAnnounced, [=](quint32 name, quint32 version) {
+        qDebug() << "====> WL new outputManagementAnnounced";
+        m_outputManagement = m_registry->createOutputManagement(name, version, m_registry);
+        // FIXME: bind outputmanagement
+        //m_outputManagement->setup(m_registry->bindOutputManagement(name, version));
+        //m_outputManagement.setup(m_registry.bindOutputManagement(m_announcedSpy->first().first().value<quint32>(),
+        checkInitialized();
+    });
+
     connect(m_registry, &KWayland::Client::Registry::interfacesAnnounced, [=] {
-        qDebug() << "Registry::Sync arrived in Backend!:";
+        qDebug() << "Registry::Sync arrived in Backend!:" << m_outputMap.count();
         m_registryInitialized = true;
         m_blockSignals = false;
-        emit initialized();
+        //emit initialized();
         checkInitialized();
         //Q_EMIT configChanged(toKScreenConfig());
     });
 
-    connect(m_registry, &KWayland::Client::Registry::outputManagementAnnounced, [=](quint32 name, quint32 version) {
-        qDebug() << "WL new outputManagementAnnounced";
-        m_outputManagement = m_registry->createOutputManagement(name, version, m_registry);
-        // FIXME: bind outputmanagement
-        m_outputManagement->setup(m_registry->bindOutputManagement(name, version));
-    });
     m_registry->create(m_connection);
     m_registry->setup();
+    wl_display_flush(m_connection->display());
+
+    //qDebug() << " REG DONE: " << m_registry->outputs().count() << m_registry->outputDevices().count();
 }
 
 void WaylandConfig::addOutput(quint32 name, quint32 version)
 {
     qDebug() << "WL Adding output" << name;
-    if (!m_blockSignals) {
-        m_initializingOutputs << name;
-    }
     if (m_outputMap.keys().contains(name)) {
         qDebug() << "Output already known";
         return;
+    }
+    if (!m_initializingOutputs.contains(name)) {
+        m_initializingOutputs << name;
     }
 
     auto op = new KWayland::Client::OutputDevice(this);
@@ -150,10 +217,11 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
     connect(waylandoutput, &WaylandOutput::complete, [=]{
         m_outputMap[waylandoutput->id()] = waylandoutput;
         qCDebug(KSCREEN_WAYLAND) << "New Output complete" << name;
+        m_initializingOutputs.removeAll(name);
+        checkInitialized();
         m_screen->setOutputs(m_outputMap.values());
 
         if (m_blockSignals) {
-            m_initializingOutputs.removeAll(name);
             checkInitialized();
         } else {
             //KScreen::ConfigMonitor::instance()->notifyUpdate();
@@ -164,8 +232,9 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
 
 void WaylandConfig::checkInitialized()
 {
+    qDebug() << "CHECK: " << !m_blockSignals << m_registryInitialized << m_initializingOutputs.isEmpty() << m_outputMap.count() << (m_outputManagement != nullptr);
     if (!m_blockSignals && m_registryInitialized &&
-        m_initializingOutputs.isEmpty() && m_outputMap.count()) {
+        m_initializingOutputs.isEmpty() && m_outputMap.count() && m_outputManagement != nullptr) {
 
         //qDebug() << "WaylandConfig is ready!!";
         emit initialized();
@@ -218,7 +287,7 @@ void WaylandConfig::updateKScreenConfig(KScreen::ConfigPtr &config) const
     KScreen::ScreenPtr screen = config->screen();
     m_screen->updateKScreenScreen(screen);
 
-    qDebug() << "MAP: " << m_outputMap;
+    //qDebug() << "MAP: " << m_outputMap;
     //Removing removed outputs
     KScreen::OutputList outputs = config->outputs();
     Q_FOREACH (KScreen::OutputPtr output, outputs) {
@@ -238,7 +307,7 @@ void WaylandConfig::updateKScreenConfig(KScreen::ConfigPtr &config) const
             // FIXME: primaryScreen?
             kscreenOutput->setPrimary(true);
         } else if (m_outputMap.count() > 1) {
-            qWarning() << "Multiple outputs, but no way to figure out the primary one. :/";
+            //qWarning() << "Multiple outputs, but no way to figure out the primary one. :/";
         }
 
         if (!kscreenOutput) {

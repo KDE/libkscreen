@@ -68,7 +68,7 @@ KWayland::Client::OutputDevice* WaylandOutput::output() const
 
 void WaylandOutput::setOutput(KWayland::Client::Registry* registry, KWayland::Client::OutputDevice* op, quint32 name, quint32 version)
 {
-    qDebug() << "WL setOUtput" << registry << op << name;
+    //qDebug() << "WL setOUtput" << registry << op << name;
     if (m_output == op) {
         return;
     }
@@ -80,7 +80,7 @@ void WaylandOutput::setOutput(KWayland::Client::Registry* registry, KWayland::Cl
             this, &WaylandOutput::updateModes, Qt::QueuedConnection);
 
     m_output->setup(registry->bindOutputDevice(name, version));
-    qDebug() << "WL Client::OutputDevice bound";
+    //qDebug() << "WL Client::OutputDevice bound";
     emit changed();
 }
 
@@ -109,7 +109,7 @@ KScreen::OutputPtr WaylandOutput::toKScreenOutput(KScreen::ConfigPtr &parent) co
 
 void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output) const
 {
-    qCDebug(KSCREEN_WAYLAND) << "updateKScreenOutput OUTPUT";
+    //qCDebug(KSCREEN_WAYLAND) << "updateKScreenOutput OUTPUT";
     // Initialize primary output
     output->setEnabled(m_output->enabled());
     output->setConnected(true);
@@ -165,10 +165,10 @@ bool WaylandOutput::isComplete()
 
 void WaylandOutput::flush()
 {
-    qCDebug(KSCREEN_WAYLAND) << "FLUSH" << (m_output->isValid() ? "Valid" : "Invalid");
+    //qCDebug(KSCREEN_WAYLAND) << "FLUSH" << (m_output->isValid() ? "Valid" : "Invalid");
     if (isComplete() && !m_completed) {
         m_completed = true;
-
+        /*
         qCDebug(KSCREEN_WAYLAND) << "_______________ " << (m_output->isValid() ? "Valid" : "Invalid");
         qCDebug(KSCREEN_WAYLAND) << "Output changes... ";
         qCDebug(KSCREEN_WAYLAND) << "  id:              " << id();
@@ -177,7 +177,7 @@ void WaylandOutput::flush()
         qCDebug(KSCREEN_WAYLAND) << "  Global Position: " << m_output->globalPosition();
         qCDebug(KSCREEN_WAYLAND) << "  Manufacturer   : " << m_output->manufacturer();
         qCDebug(KSCREEN_WAYLAND) << "  Model:           " << m_output->model();
-
+        */
         foreach (auto m, m_output->modes()) {
             QString modename = modeName(m);
             if (m.flags.testFlag(KWayland::Client::OutputDevice::Mode::Flag::Current)) {
