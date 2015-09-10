@@ -34,10 +34,12 @@ is pure coincidence and is likely to break code assuming it.
 ScreenManagement protocol can be used for screen configuration.
 It  lists available outputs and allows to change them
 
-- provide info about all outputs, per output:
-    - id (int, unique and only handed out by kwin)
+- outputs are called "OutputDevice" for clarity's sake (on top of the different namespace)
+
+- provide info about all outputs, per OutputDevice:
+    - id (unique int, only handed out by kwin, used to identify and refer to an OD throughout the protocol)
     - edid: eisaId, monitorName, serialNumber, physicalSizeX, physicalSizeY
-    - primary
+    - primary: bool
     - modes: sizeX, sizeY, refreshRate
     - resolution: resX, resY
     - position: posX, posY
@@ -118,6 +120,35 @@ Disconnected screens protocol in kwayland[sebas/kwin]:
 Protocol:
 ---------
 
+- create copy of wl_output, + enabled + edid => org_kwin_outputdevice
+- ScreenManagement => OutputManagement
+- implement protocol:
+
+OutputManagement (wl_global)
+--------------------------
+request:
+* createConfiguration -> OutputConfiguration (wl_resource)
+
+* outputDeviceAnnounced
+* outputDeviceRemoved
+* client API: OutputManagement::outputDevices();
+
+
+
+OutputConfiguration (wl_resource)
+--------------------------
+requests:
+* enable(output, bool)
+* mode(output, mode_id)
+* transformation(output, flag)
+* position(output, x, y)
+* apply
+
+events:
+* applied
+* failed
+
+
 o done references no longer existing "get_disabled_outputs"
 o event names are camelcase, Wayland way is underscore
 
@@ -138,11 +169,11 @@ Client:
 o why org_kde_kwin_screen_management *screen_management()? Aren't the cast operators sufficient?
 o misses the release and destroy methods
 o why do the signals not carry the DisabledOutput?
-* why allow the setters in DisabledOutput? Why should a user of DisabledOutput be allowed to change them? If one wants to allow setting the values, it's missing changed signals
+o why allow the setters in DisabledOutput? Why should a user of DisabledOutput be allowed to change them? If one wants to allow setting the values, it's missing changed signals
 o why is the ctor of DisabledOutput public? Why would one want to construct it? I would friend it with KWinScreenManagement
 
 
-* then in the signal carry a pointer to a created object of the Output wrapper and on disappeared as well, that might make it easier for a user to track the list of outputs
+o then in the signal carry a pointer to a created object of the Output wrapper and on disappeared as well, that might make it easier for a user to track the list of outputs
 
 o merge in registry changes from master
 o on client side I suggest to add a small wrapper for the Output information and
@@ -152,3 +183,729 @@ o concerning the syncing: do it like in the output interface: emit all "appeared
 o the manufactorer and model doesn't make so much sense in the server's Private, that sounds more like a list is needed
 o rename sync -> done
 o rename protocol to org_kde_kwin_screen_management
+
+
+
+
+Email from Martin Gräßlin, Fri, 28-8-2015
+
+I already spent some thoughts on output management and came up with an idea
+how to implement the configuration aspect. I'll outline:
+
+OutputManagement (wl_global)
+--------------------------
+request:
+* createConfiguration -> OutputConfiguration (wl_resource)
+
+OutputConfiguration (wl_resource)
+--------------------------
+requests:
+* enable(output, bool)
+* mode(output, mode_id)
+* transformation(output, flag)
+* position(output, x, y)
+* apply
+
+events:
+* applied
+* failed
+
+The idea is that we register one OutputManagement as a global. When KScreen
+wants to configure it calls createConfiguration which provides a resource
+referencing an OutputConfiguration for one-time configuration. That way we can
+easily group all requests and know on the server which one belong together. On
+the OutputConfiguration it calls for each Output whether it's enabled, which
+mode to use (by referencing the mode from the list of announced modes) and the
+global position. Once all outputs are configured that way, it calls apply.  At
+that point and not earlier the server emits a signal to KWin with the complete
+wanted configuration which KWin can then try to apply. If that succeeds it
+emits the applied signal, otherwise the failed. So even KScreen can know about
+it.
+
+That interface is nicely atomic (as KWin only gets the apply for everything
+setup), it solves the 1:n mapping problem: each OutputConfiguration is only a
+1:1 mapping, and we do not need to copy all the requests again by just
+referencing a mode id.
+
+What it doesn't solve yet is the other direction: how to announce all outputs.
+Here I think we need to introduce the org_kde_kwin_output which is a copy of
+wl_output with edid and enabled added. I would like to just have an extension
+to wl_output to add it, but I doubt that this is possible as we need the
+enabled flag and that significantly changes the semantics of an Output
+
+Chat from 3-9-2015 with Martin Gräßlin:
+
+15:49:31 <sebas> mgraesslin: I've got 3 interfaces now, OutputDevice (wl_output clone), OutputManagement (the global), and OutputConfiguration
+15:50:00 <sebas> you call OutputManagement->createConfiguration, and then an OutputConfiguration appears in Registry
+15:50:41 <sebas> I don't quite understand how I can make one a wl_global, and the other a wl_resource
+15:51:44 <sebas> code is pushed to kwayland[sebas/kwin]
+15:51:57 <mgraesslin> sebas: that's actually quite easy: if it derives from Global it's a wl_global, if it's derived Resource it's a wl_resource
+15:52:19 <sebas> on which side?
+15:52:28 <mgraesslin> sebas: that was server side
+15:52:37 <mgraesslin> sebas: on the client side a global needs to be bound through the Registry, while a resource needs to be bound by a global
+15:53:43 <mgraesslin> sebas: otherwise wait another day or two and there will be a handy tool to generate all of it
+15:54:19 <sebas> mgraesslin: ah ... I think I got that wrong
+15:54:21 <kbroulik> all I want it so remove a bunch of items from a json array that match a criteria :(
+15:54:30 <sebas> the OutputDevice derives from QObject
+15:54:52 <mgraesslin> sebas: on Client or Server? On Client everything derives from QObject
+15:55:11 <sebas> hah, no ... on the server, all three derive from Global (which would be wrong)
+15:55:19 <sebas> on the client ... all QObject indeed
+15:57:11 <mgraesslin> sebas: right OutputConfigurationInterface needs to be derived from Resource - it gets created by the OutputManagementInterface
+15:57:26 <-- sitter (~me@kde/developer/sitter) has quit (Ping timeout: 244 seconds)
+15:57:31 <sebas> mgraesslin: so my outputdevice and outputconfiguration resources should derive from Resource and then be bound by the outputmanagement?
+15:57:50 <sebas> it gets created in Registry right now ... is that correct?
+15:57:53 <mgraesslin> sebas: no the outputdevice is a global
+15:58:03 <mgraesslin> sebas: outputdevice is like output - output is global
+15:58:32 <mgraesslin> sebas: outputconfiguration does not get created by registry, but by ouputmanagement
+15:59:21 <sebas> mgraesslin: how would that look like? the interfaces should all be created in Registry, no?
+15:59:38 <mgraesslin> sebas: no, only the outputdevice and outputmanagement are created in Registry
+15:59:56 <mgraesslin> kbroulik: what?
+16:00:04 <sebas> is there an example for that?
+16:00:27 <mgraesslin> sebas: sure, Compositor creates Surface, BlurManager creates Blur
+16:00:30 <sebas> OutputManagement then gets the logic for housekeeping the outputconfigs?
+16:00:39 <sebas> ah, cool
+16:01:07 <sebas> mgraesslin: ok, I think I can work with this
+16:01:23 <sebas> thanks!
+16:01:30 <mgraesslin> you're welcome
+16:01:34 <mgraesslin> and wait for the tool!
+16:01:51 <sebas> ETA? :)
+16:02:44 <mgraesslin> sebas: boiler plate for global in client is already finished and now I'm starting to parse the xml file
+16:03:14 <sebas> mgraesslin: k, I'll switch to docs for now and will continue here next week
+16:04:00 <mgraesslin> sebas: all right
+
+
+Chat from 28-8-2015 with Martin Gräßlin:
+
+13:09:56 <sebas> mgraesslin: can you have a look at src/client/protocols/screen-management.xml in my branch?
+13:10:16 <sebas> new idea: let's ignore wl_output for my purposes
+13:10:39 <mgraesslin> so a dedicated interface for kscreen ignoring whether it's enabled or not?
+13:11:21 <sebas> a bit more, the interface is made for screen configuration
+13:11:33 <sebas> it lists enabled and disabled screens
+13:12:01 <sebas> this design feels so much cleaner to me
+13:12:15 <sebas> and it's bi-di
+13:12:37 --> Jucato (~jucato@kde/developer/jucato) has joined #plasma
+13:13:16 <sebas> I've looked into the drm backend to see what and how it does
+13:13:22 <sebas> and then compared to what we need in kscreen
+13:13:49 <sebas> this protocol design should match both sides
+13:18:37 <htietze> bshah nothing changed manually
+13:18:52 <mgraesslin> sebas: is quickgit up to date? My branch has too many uncommitted changed to pull your branch
+13:19:08 <sebas> let me check
+13:19:33 <htietze> bshah oups... was set to high. no problem with middle
+13:19:43 <bshah> yep
+13:21:28 <mgraesslin> sebas: please model it more after output - the protocol looks like being something between a global and a resource
+13:21:41 <mgraesslin> sebas: I think you want to have that to be a global
+13:21:48 <sebas> mgraesslin: https://quickgit.kde.org/?p=kwayland.git&a=blob&h=3efa03e821acca3253ff99e3399322af96715ae8&hb=85d010a163bbd86f9e089bd990d8b15b12d96476&f=src%2Fclient%2Fprotocols%2Fscreen-management.xml this is up to date
+13:21:55 <sebas> mgraesslin: details?
+13:22:13 <sebas> I'm not very familiar with globals and resources
+13:22:30 <mgraesslin> sebas: you are mixing information about multiple objects in one interface
+13:23:12 <sebas> I think it's an advantage to not have it be modeled after wl_output
+13:23:24 <mgraesslin> sebas: and you introduced stuff like the "id" to work around that - this just isn't a wayland protocol
+13:23:25 --> beleg_cuthalion (~roeland@84.245.33.176) has joined #plasma
+13:23:25 <sebas> this is, to me, the easiest way to handle it on either side
+13:23:54 <mgraesslin> sebas: no, you added another layer of indirection which needs then to be represented in the API
+13:24:10 <-> bcooksley is now known as bcooksley-away
+13:24:13 <-- darkbasic (~quassel@niko.linuxsystems.it) has quit (Quit: No Ping reply in 180 seconds.)
+13:24:19 <sebas> so how could that look like?
+13:24:45 <sebas> I guess the output, edid and mode should all go into the same "object", but then how do I do such an object?
+13:25:13 <mgraesslin> sebas: as I said: model it after output: each of the objects become a global
+13:25:20 <mgraesslin> that is the registry will announce them
+13:25:39 <sebas> do you have an example for a global?
+13:25:46 --> darkbasic (~quassel@niko.linuxsystems.it) has joined #plasma
+13:25:59 <sebas> Like an OutputDeviceInterface?
+13:26:15 <mgraesslin> sebas: wl_output is an output
+13:26:17 <mgraesslin> global
+13:26:23 <-- XenoPL (~Xeno@159-205-131-84.adsl.inetia.pl) has quit (Ping timeout: 256 seconds)
+13:26:27 <mgraesslin> wl_seat is a global
+13:26:33 <sebas> sounds like I'd be littering the Registry API with that, then
+13:26:35 <sebas> ok
+13:26:42 <mgraesslin> sebas: your signals disabledoutput added and removed just become a flag whether it's enabled/disabled
+13:26:46 <mgraesslin> that remvoes all of that
+13:27:08 <sebas> the disabledoutput stuff just goes away completely, enabled becomes a bool in outputdevice
+13:27:18 <mgraesslin> yeah
+13:27:23 <sebas> didn't note that in the protocol, just left it in for now to verify tests still pass
+13:28:06 <sebas> so registry gets outputdevice_added and outputdevice_removed, mode and edid go into outputdevice?
+13:28:32 <sebas> and the server keeps a list of OutputDeviceInterfaces?
+13:28:42 <mgraesslin> sebas: basically you copy wl_output, add edid and enabled and be done with the protocol
+13:29:16 <sebas> Hm, where's the xml for wl_output?
+13:29:19 <mgraesslin> sebas: let's first get the protocol done, then think about the next step
+13:29:26 <mgraesslin> sebas: in Wayland sources
+13:29:39 <sebas> ah
+13:30:19 <sebas> what I don't like about this is that it has a larger footprint on the Registry API
+13:30:41 <sebas> my last night's design minimizes that, but it's more free-style than wl_output
+13:30:42 <mgraesslin> well that be it
+13:31:02 <sebas> I understand that the id stuff is ultimately a workaround, but then I need the id anyway
+13:31:03 <mgraesslin> I want KWayland to look like we understand Wayland
+13:31:09 <sebas> k
+13:31:24 <mgraesslin> and I care significantly more about the server than the client part
+13:31:44 <sebas> so, what does it look like on the server-side then?
+13:31:59 <mgraesslin> sebas: ideally we just merge it with the existing OutputInterface
+13:32:00 <sebas> list of OutputDeviceInterface in WL::Server?
+13:32:39 <sebas> the client side, I have mostly figured out if we do it wl_output-like
+13:32:55 --> jemand (~quassel@2a02:8109:80c0:25a8:428:7fac:5687:10cc) has joined #plasma
+13:32:57 <mgraesslin> sebas: e.g. I'm just writing the DPMS interface, from API side I add that to OutputInterface, to have it a sane API
+13:33:27 <sebas> makes sense
+13:33:49 <sebas> that's also the idea, a way to do output specific stuff that's not in the wayland protocol
+13:33:59 <mgraesslin> so in the end I want it from server side that all we do in KWin is marking it as enabled/disabled and everything else is handled internally
+13:34:09 <sebas> enabling / disabling also may want to use the DPMS things (either explicitely or in the background)
+13:34:17 <sebas> so you disable, and kwin switches the thing off altogether
+13:34:27 <sebas> yes, exactly
+13:34:32 <mgraesslin> that's not DPMS
+13:34:48 <mgraesslin> there's a difference (AFAIU) between DPMS and disabling an output
+13:35:00 <sebas> well, my point is there should not be
+13:35:09 <sebas> disable an output switches it off
+13:35:17 <sebas> why would you want a disabled output waste power?
+13:35:18 <mgraesslin> from KWin side that's a huge difference
+13:35:32 <sebas> yes, that's why I put the control in kwin's hands
+13:35:50 <mgraesslin> from KWin side it's also a difference whether DPMS or turn off is requested
+13:35:59 <mgraesslin> a HUGE difference
+13:36:10 <sebas> well, from DPMS side, yes
+13:36:24 <sebas> from screen configuration side,  kwin may switch off alongside disabling
+13:36:38 <mgraesslin> if we disconnect, it gets turned off anyway
+13:36:40 <mgraesslin> it's not DPMS
+13:36:46 <sebas> that's configuration doing the right thing using power management features
+13:36:59 <mgraesslin> if we disconnect, it gets turned off
+13:36:59 <sebas> we don't disconect, we tell kwin to not use this output
+13:37:05 <sebas> keeps being plugged in
+13:37:06 <mgraesslin> that is disconnect
+13:37:14 <mgraesslin> disable, whatever
+13:37:19 <sebas> right
+13:37:24 <mgraesslin> but it's NOT DPMS
+13:37:30 <sebas> disable = it's still an outputdevice
+13:37:31 <mgraesslin> we need to keep that separate
+13:37:39 <mgraesslin> DPMS is a power management feature
+13:37:41 <sebas> disconnect / unplug = it's gone as outputdevice
+13:37:43 <notmart> mgraesslin: a test (or maybe even autotest) for the blur stuff may be an application that sets a region for the blur of a window, then reads it with the server part then compares the two?
+13:37:45 <mgraesslin> the other is a screen management feature
+13:38:02 <mgraesslin> notmart: sounds right
+13:39:07 <kbroulik> wtf, I have a 1000 ms timer and it runs much faster than that
+13:39:42 <sebas> kbroulik: https://blog.qt.io/blog/2010/07/13/when-being-wrong-is-right/
+13:39:46 <notmart> kbroulik: maybe you are traveling at relativistic speeds compared to it
+13:39:51 <kbroulik> notmart: xD
+13:40:12 <sebas> notmart: I'd say it's kbroulik's gravity causing this
+13:40:14 <kbroulik> sebas: yes but it looks like 500ms
+13:40:17 <kbroulik> pff :D
+13:40:19 <sebas> (it's friday, might aswell be offensive)
+13:42:10 <-- darkbasic (~quassel@niko.linuxsystems.it) has quit (Quit: No Ping reply in 180 seconds.)
+13:42:14 <-- tajidinabd (~tajidinab@unaffiliated/tajidinabd) has quit (Quit: Konversation quit on me!)
+13:42:34 --> darkbasic (~quassel@niko.linuxsystems.it) has joined #plasma
+13:42:37 <-- htietze (~htietze@p3E9D358B.dip0.t-ipconnect.de) has quit (Quit: Konversation terminated!)
+13:43:30 --> htietze (~htietze@p3E9D358B.dip0.t-ipconnect.de) has joined #plasma
+13:43:55 --> stikonas (~gentoo@wesnoth/translator/stikonas) has joined #plasma
+13:44:12 <sebas> mgraesslin: so, copy output, add id, enabled and edid
+13:44:32 <sebas> keep the rest as compatible as possible with wl_output, even duplicating its stuff
+13:44:32 <mgraesslin> sebas: why Id?
+13:44:38 <notmart> mgraesslin: for autotests can i copy the structure of the others? ie those that manually start weston, will it work for our protocols as well?
+13:44:42 <sebas> I need a unique identifier on the client side
+13:45:01 <mgraesslin> sebas: you get that implicitly
+13:45:26 <mgraesslin> notmart: use one which doesn't start weston - we only have one which starts weston, so ignore that one
+13:45:26 <sebas> as a uint32?
+13:45:35 <mgraesslin> sebas: yes
+13:45:42 <sebas> kscreen uses int for that, and I've been losing precision
+13:45:56 <sebas> it's a bug with the current design that I could not fix
+13:45:58 <mgraesslin> sebas: you know what I will answer to that
+13:46:12 <sebas> that answer doesn't solve my problem
+13:46:18 <notmart> so would need a kwin wayland running, or the bare communication protocol will work without a compositor as well?
+13:46:25 <mgraesslin> sebas: then cast the uint32 to an int and cast it back
+13:46:43 <mgraesslin> notmart: the autotests start their own server
+13:46:49 <sebas> mgraesslin: who guarantees that this doesn't generate clashes?
+13:46:54 <sebas> imagine a negative id
+13:47:08 <mgraesslin> sebas: so what? 32 bits are 32 bits
+13:47:44 <sebas> well, I can't put every possible uint into an int, no?
+13:47:45 <mgraesslin> sebas: and in practice the ids will be less than 100
+13:47:58 <mgraesslin> sebas: of course you can
+13:48:26 <mgraesslin> sebas: if you cast a large uint to int, the int will be negative, but will still have the same bits
+13:48:35 <mgraesslin> sebas: it's just a different representation of the bits
+13:48:43 <mgraesslin> sebas: for your id it will still work
+13:48:53 <sebas> hm, I thought it would overflow
+13:49:16 <mgraesslin> give it a try ;-)
+13:49:20 <sebas> but good, I'll move the id management to the client
+13:49:42 <sebas> yeah, well, if you say so, that's fine and makes things easier for me
+13:50:09 <sebas> I didn't think of casting it back as well, so I got precision problems
+13:51:25 <sebas> mgraesslin: set calls go where?
+13:51:29 <sebas> (next topic)
+13:51:49 <sebas> I'd like to be able to bundle them and commit at once (on the server side)
+13:51:59 <-- darkbasic (~quassel@niko.linuxsystems.it) has quit (Ping timeout: 250 seconds)
+13:52:07 <mgraesslin> sebas: didn't we say you write to config and we read back from there?
+13:52:15 <sebas> mgraesslin: yes, I don't want that
+13:52:31 <mgraesslin> sebas: but how does KWin set it correctly on startup then?
+13:52:36 <sebas> we may just put that into the screen management interface as well
+13:52:43 <sebas> kwin keeps config
+13:53:12 <sebas> we may write a config in the server, but I don't want to use a config for IPC
+13:53:52 --> darkbasic (~quassel@niko.linuxsystems.it) has joined #plasma
+13:54:15 <mgraesslin> sebas: but from KWin side the config would be better, otherwise we don't get it atomic. You would call it on one output, then on the next and kwin would start to shuffle things around
+13:54:24 <-- hualet_deepin (~hualet@59.173.241.82) has quit (Ping timeout: 264 seconds)
+13:54:35 <sebas> mgraesslin: hence the apply method
+13:54:43 <sebas> that makes it atomic
+13:55:10 <mgraesslin> and where to put that? Then we need another dedicated protocol to add that
+13:55:12 <sebas> it's basically the done signal, but the other way round
+13:55:16 <mgraesslin> keep state track, etc.
+13:55:31 <mgraesslin> sebas: but the done is per output, not per all outputs
+13:55:34 <sebas> well, we litter the registry with that as well then
+13:55:35 <mgraesslin> that makes it complex
+13:55:52 <sebas> no, done is global, not per output (in my design)
+13:56:00 <-- htietze (~htietze@p3E9D358B.dip0.t-ipconnect.de) has quit (Quit: Konversation terminated!)
+13:56:06 <mgraesslin> but that doesn't work that way
+13:56:12 <mgraesslin> we have one global per output
+13:56:15 <sebas> outputdevice can't somehow be a sub object?
+13:56:18 <mgraesslin> so the configure requests would go there
+13:56:41 <sebas> that's why I wanted to just ignore wl_output
+13:56:49 <mgraesslin> I didn't succeed with server generated objects
+13:57:00 <mgraesslin> server generated objects seem to be globals
+13:57:02 <sebas> because the outputs are not that separate in this usecase
+13:57:20 <sebas> the config is global, and outputs are details within that global screen config
+13:57:32 <sebas> that's different from wl_output semantically
+13:57:44 <mgraesslin> but Wayland protocols don't work that way :-(
+13:57:47 <sebas> ok, bummer
+13:57:59 <sebas> well, that's why we can write our own protocol
+13:58:00 <mgraesslin> I tried that with PlasmaWindowManager
+13:58:07 <mgraesslin> with the result of wonderful crashes
+13:58:17 <sebas> it's why I wanted to ignore wl_output entirely
+13:58:44 <sebas> it allows us to put everything semantically connected to screen management into one interface, encapsulated and all
+13:58:58 <mgraesslin> but KWin will have problems with that
+13:59:03 <mgraesslin> imagine you change the config
+13:59:11 <mgraesslin> through the interface
+13:59:20 <mgraesslin> at the same time you apply a change in kwin
+13:59:25 <mgraesslin> triggering to reload the config
+13:59:38 <mgraesslin> and kwin will reset your outputs to the outdated value from config
+13:59:53 <mgraesslin> if something triggers a config re-read in kwin, everything gets reconfigured
+13:59:57 <mgraesslin> that will include screens
+14:00:18 <sebas> well, we control what kwin sets, and when, and kwin can decide what to do
+14:00:25 <mgraesslin> given that, I would prefer from KWin side to have the configuration handled like everything else
+14:00:36 <mgraesslin> which is the dbus signal to trigger a config reload in kwin
+14:00:53 <mgraesslin> which I need to do anyway, because that's how KWin internally works
+14:00:56 <-- stikonas (~gentoo@wesnoth/translator/stikonas) has quit (Quit: Konversation terminated!)
+14:01:01 <mgraesslin> otherwise we are not able to load config on startup
+14:01:16 <mgraesslin> so we intrdocue a deliberate race if we go for config through interface
+14:01:34 <mgraesslin> in addition to making everything more complicated, because we need to write all the stupid wayland wrappers
+14:01:40 <sebas> in my design, the kscreen client sets properties of the output, say resolution and enabled, when it's done setting all its new config, it calls apply and then on the server side, kwin reacts to that and looks into the screen management interface what to apply
+14:01:43 <-- ksinny (quassel@kde/sinnykumari) has quit (Remote host closed the connection)
+14:02:06 <sebas> at that point, it may ignore screen managment for whatever reason, as apply is really just a suggestion
+14:02:33 <mgraesslin> but it means tracking the suggested changes - it's really tricky
+14:02:42 <mgraesslin> because KScreen might not be the only one setting values there
+14:02:45 <sebas> it's tracked anyway
+14:02:53 <sebas> even in the current form with disabledoutputs
+14:03:13 <mgraesslin> the client suggested changes need to be tracked
+14:03:23 <mgraesslin> and that needs to be tracked per client connecting to the interface
+14:03:33 <mgraesslin> it's not 1:1 from kwin perspective - it's 1:n
+14:03:43 <sebas> they are tracked, that's what screenmanagement does
+14:03:46 <mgraesslin> which one to apply if there are n configurations?
+14:03:53 <sebas> the last one set
+14:04:02 <mgraesslin> and how does one know that?
+14:04:05 <sebas> you catch apply, and then look at what's set
+14:04:32 <mgraesslin> I really don't get why you want to make that protocol so complicated
+14:04:37 <sebas> apply is called on the screen management interface
+14:04:44 <mgraesslin> yes
+14:05:00 <sebas> so, on the server side, there's just one screen management interface
+14:05:00 <mgraesslin> but for which of the n bound output configurations is it?
+14:05:06 <mgraesslin> NO!
+14:05:15 <mgraesslin> on the server side there is one screen management interface
+14:05:22 <mgraesslin> but multiple clients might have bound it
+14:05:35 <mgraesslin> even kscreen might have bound it multiple times
+14:06:01 <sebas> the interface internal data is there just once, no?
+14:06:08 <mgraesslin> no
+14:06:10 <mgraesslin> it's per client
+14:06:38 <sebas> Hm
+14:07:25 <sebas> that's not how we did it so far
+14:07:35 <sebas>     QList<DisabledOutput> disabledOutputs;
+14:07:42 <sebas> ScreenManagementInterface has this ^
+14:07:58 <sebas> that's only there once, since there's just one SM interface
+14:08:02 <mgraesslin> sebas: the server announces one global
+14:08:07 <sebas> it multiplexes to all clients
+14:08:18 --> hualet_deepin (~hualet@59.173.241.82) has joined #plasma
+14:08:21 <mgraesslin> sebas: but each time a client binds to it a dedicated wl_resource is created
+14:08:37 <mgraesslin> sebas: the apply method is not on the wl_global, it's on the wl_resource
+14:08:51 <sebas> not in my design?
+14:08:56 <mgraesslin> the set calls on the Outputs are not on the one global, but on the wl_resource
+14:09:07 <mgraesslin> sebas: maybe not in your design, but in Waylands
+14:09:20 <sebas> well, you see how my design makes sense for the purpose? :P
+14:09:31 <mgraesslin> sebas: no it wouldn't fix it
+14:09:43 <sebas> it would effectively prevent it
+14:09:55 <sebas> really, the apply is not much different from writing out the config
+14:10:08 <sebas> I did it in fact to have similar semantics
+14:10:12 <mgraesslin> it is, because we don't have multiple clients then
+14:10:44 <sebas> no multiple clients would be fine, but they are operating on a global context
+14:10:50 <sebas> which the whole thing does anyway, in the end
+14:11:16 <mgraesslin> also with your design we still have multiple clients which could call apply and it needs to be tracked per client what it calls set on
+14:11:18 <sebas> so you get timing problems if you chose to use different clients, but the behaviour is still defined and clear
+14:11:36 <mgraesslin> we would be able to match the apply to a set of calls - at least that
+14:11:41 <mgraesslin> but otherwise not much changes
+14:11:41 <sebas> yes, hence the outputdevice's id
+14:12:05 <mgraesslin> anyway: I think you make your life much more difficult if you go bi-di
+14:12:16 <sebas> I call set_enabled(id, true) and then apply()
+14:12:17 <mgraesslin> because you need to write the complete interface with all those callbacks
+14:12:38 <mgraesslin> if I were you I wouldn't want to do that
+14:12:39 <sebas> yes, it's 4 calls with one arg each + apply
+14:12:42 <sebas> big deal
+14:12:48 <sebas> also, easy to test
+14:13:16 <mgraesslin> sebas: I have done many interfaces over the last half year: as soon as there are callbacks the problem starts to happen
+14:13:18 --> darkbasic_ (~quassel@niko.linuxsystems.it) has joined #plasma
+14:13:21 <mgraesslin> you need to track it per client
+14:13:26 <mgraesslin> you need to properly clean up
+14:13:28 <mgraesslin> it's a mess
+14:13:32 <-- darkbasic (~quassel@niko.linuxsystems.it) has quit (Read error: Connection reset by peer)
+14:13:37 <mgraesslin> trust me on the experience on that one
+14:14:02 <sebas> mgraesslin: doesn't make a difference to me, I need to handle this anyway, either in kscreen or here
+14:14:17 <sebas> and then I'd vastly prefer here since it's actually less racy
+14:14:34 <mgraesslin> if you do it in KWayland you need to make the whole thing double buffered state handling
+14:14:56 <sebas> because between loading the devices, changing in the UI, and catching a change in kwin, there's a huge gap where things go racy
+14:15:12 <mgraesslin> and how would that change it?
+14:15:17 <mgraesslin> it's still async
+14:15:38 <sebas> if I do it in kwin, it's a suggestion and kwin can go "ah, so you want me to change res of that output, but I know that this output has just been unplugged, so I can ignore it"
+14:15:43 <sebas> for example
+14:15:59 <sebas> otherwise, I'd have to do this policy decision in kscreen
+14:16:01 <mgraesslin> that's the same with config
+14:16:04 <sebas> which knows a lot less
+14:16:21 <mgraesslin> I really don't see a difference there
+14:16:41 <sebas> also, why would I want to do IPC over a config when we're using a proper protocol for the communication already?
+14:17:03 <sebas> that really feels clunky
+14:17:11 <mgraesslin> we are not doing IPC over a config
+14:17:19 <mgraesslin> it's just the way how kwin configuration works
+14:17:23 <sebas> kwin should just write out the config it uses for the next startup, the rest happens at runtime
+14:17:26 <mgraesslin> another process changes kwin's config
+14:17:30 <mgraesslin> and triggers a reload in kwin
+14:17:39 <mgraesslin> no, no, no, no
+14:17:48 <mgraesslin> we need a complete list of all the possible modes
+14:17:59 <mgraesslin> we need to be able to do the smart things kscreen currently does
+14:18:03 <sebas> which kwin has...
+14:18:16 <sebas> kscreen doesn't do smart things
+14:18:16 <mgraesslin> and kwin never writes it's config
+14:18:20 <sebas> which do you mean?
+14:18:28 <mgraesslin> what it does on X11
+14:18:33 <sebas> like ...?
+14:18:41 <mgraesslin> when it starts with two screens it sets them up correctly
+14:18:59 <mgraesslin> I don't need to go into the config interface and make them unclone each time I start the system
+14:19:04 <mgraesslin> that's logic kscreen applies
+14:19:15 <mgraesslin> and I want that information in KWin
+14:19:25 <sebas> that's perhaps done in the xrandr backend
+14:19:27 <mgraesslin> because otherwise we don't get a flickerfree screen
+14:19:48 <sebas> yes, it's exactly the reason why those decisions should be made by kwin
+14:20:03 <mgraesslin> yes and that's why the config needs to be written
+14:20:06 <sebas> kwin can apply a config after seeing that it makes sense and then write it for the next startup
+14:20:16 <sebas> and on next startup again, first check if it makes sense
+14:20:36 <sebas> then start with the "sanitized" config that now makes sense
+14:20:38 <mgraesslin> no, KWin should not write a config for next startup
+14:20:41 <sebas> -> no flicker
+14:20:44 <mgraesslin> we need the same logic kscreen has
+14:20:51 <sebas> kscreen does not have logic
+14:20:58 <mgraesslin> of course it has
+14:21:05 <sebas> which?
+14:21:07 <mgraesslin> kscreen remembers the screens and what you configured for them
+14:21:16 <mgraesslin> it's not about the next startup
+14:21:28 <mgraesslin> it's about all combinations of known outputs
+14:21:39 --> XenoPL (~Xeno@ipl138.internetdsl.tpnet.pl) has joined #plasma
+14:22:01 <mgraesslin> and KWin shouldn't write that config, because KWin is not able to determine then what got configured and what is self-applied
+14:23:29 <sebas> ok, there's logic in kscreen's kded
+14:23:48 <sebas> which is the point where I think "Hm, a kded module for that, I want to kill it"
+14:24:47 <sebas> so here's the kicker ... the kded module changes the config if necessary before it's applied
+14:25:09 <sebas> so no problem at all, because you get a sanitized config from kscreen
+14:25:13 <pursuivant> plasma-desktop (master) v5.4.0-41-g7864435 * Jeremy Whiting: kcms/access/accessibility.ui
+14:25:14 <pursuivant> Shorten labels of QCheckBox so the accessibility kcm won't need a scrollbar.
+14:25:15 <pursuivant> BUG:339407
+14:25:15 <bugbot> KDE bug 339407 in systemsettings (kcm_accessibility) "In Plasma 5 the contents of the 'Bell' and 'Keyboard filters' tabs in System Settings>Desktop Behaviour>Accessibility are unnecessarily wide resulting in needless horizontal scrollbars at the default window size" [Normal,Resolved: fixed] http://bugs.kde.org/339407
+14:25:15 <pursuivant> REVIEW:124959
+14:25:16 <pursuivant> http://commits.kde.org/plasma-desktop/78644357249af839cecc421f25b557e32ea2345b
+14:25:53 <mgraesslin> sebas: I don't want the kded to modify kwin's runtime at startup - the initial setup needs to be done by kwin correctly, otherwise flicker on startup
+14:25:55 <sebas> also, it shows me that I forgot a clone property
+14:26:04 <sebas> which can easily be done by using the id
+14:26:30 <sebas> mgraesslin: can't guarantee that
+14:26:34 --> stikonas (~gentoo@wesnoth/translator/stikonas) has joined #plasma
+14:26:46 <sebas> I can make sure the config makes sense at the time of applying
+14:27:34 <-- stikonas (~gentoo@wesnoth/translator/stikonas) has quit (Remote host closed the connection)
+14:27:37 <mgraesslin> sebas: there is no clone </jedihandmove> ;-)
+14:27:56 <sebas> the best kwin can do is "try to follow" what kscreen suggests (after sanitizing)
+14:28:05 <mgraesslin> sure, just like X
+14:28:12 <sebas> that's no different to writing a config
+14:28:32 <sebas> well, there will be clone if you want feature parity with X on that front
+14:28:43 <mgraesslin> there won't be any clone
+14:28:53 <mgraesslin> clone is two screens put on top of each other
+14:28:58 <mgraesslin> but no clone in the X sense
+14:30:03 <sebas> ah, no new property then
+14:30:14 <sebas> I'll just set the same position, and good
+14:30:24 <mgraesslin> same positon and trying to get same resolution
+14:30:31 <mgraesslin> which in most cases is not possible
+14:30:38 <mgraesslin> at that point clone wouldn't work
+14:30:46 <mgraesslin> so better not trying to pretend it would work ;-)
+14:31:01 <sebas> I like the geometry providing clone implicitely
+14:31:42 <-- darkbasic_ (~quassel@niko.linuxsystems.it) has quit (Quit: No Ping reply in 180 seconds.)
+14:31:56 <sebas> the other bits you suggest, I'm rather unconvinced
+14:32:00 --> stochastix (~stochasti@unaffiliated/stochastix) has joined #plasma
+14:32:02 --> stikonas (~gentoo@wesnoth/translator/stikonas) has joined #plasma
+14:32:09 --> darkbasic (~quassel@niko.linuxsystems.it) has joined #plasma
+14:32:22 <mgraesslin> well I think you make your life needlessly more complicated by adding a bi-di
+14:32:40 <sebas> even if it feels less waylandish what I came up with, it solves the problems I ran into
+14:32:50 <-- fbeutel (~Thunderbi@p2003007AAB4576970224D7FFFEC6470C.dip0.t-ipconnect.de) has quit (Ping timeout: 246 seconds)
+14:32:57 <mgraesslin> but I want KWayland to be a supreme framework for Wayland users
+14:32:59 <sebas> I think making it bi-di is making it a lot less complex
+14:33:17 <mgraesslin> but how?
+14:33:19 <sebas> I can clearly see how to do it on the client and on the server side
+14:33:31 <mgraesslin> how is that less complicated to writing out the config and trigger a config reload
+14:33:47 <sebas> because the protocol is modeled after how kscreen and screen configuration actually works
+14:33:57 <mgraesslin> and your config isn't?
+14:34:07 <mgraesslin> after all the config is what kwin needs anyway for startup
+14:34:09 <sebas> and the policy decisions are put where they can best be decided, namely where there's more information available (on the server)
+14:34:23 <mgraesslin> sure, but that's the same with the config
+14:34:26 <-- turgay (~deneme@95.13.77.213) has quit (Ping timeout: 240 seconds)
+14:34:36 <sebas> the config is an implementation detail, not an interface anymore
+14:35:03 <mgraesslin> you lost me there
+14:35:22 <mgraesslin> to me it's just the way kwin gets configured
+14:35:30 <sebas> I don't see any advantages by using a config, just disadvantages, it's slower, it's racier (KFileWatch) and it non-compiled interface that breaks if untested
+14:35:58 <mgraesslin> I can say the same for the wayland interface
+14:36:04 <mgraesslin> I only see disadvantages there
+14:36:31 <-- jemand (~quassel@2a02:8109:80c0:25a8:428:7fac:5687:10cc) has quit (Ping timeout: 252 seconds)
+14:37:15 <mgraesslin> how is config slower? Given that screen changes needs several seconds on hardware anyway?
+14:37:37 <mgraesslin> how is it racier?
+14:37:49 <mgraesslin> I see that we need config anyway
+14:37:58 <mgraesslin> but I don't see that we need the interface anyway
+14:38:02 <sebas> it uses kconfig, serialization, disk io and fs notifications
+14:38:06 <mgraesslin> why make two ways, if one would be enough
+14:38:22 <mgraesslin> but we need to write it to config anyway
+14:38:23 <sebas> just setting stuff through a wl protocol is surely faster than that
+14:38:38 <mgraesslin> compared to the 10 sec the screens need for changing the mode?
+14:38:56 <mgraesslin> and as said: we need to write the config anyway
+14:39:02 <mgraesslin> it's not like that is not needed
+14:39:06 <-- fewcha (~sanjiban@182.73.91.22) has quit (Ping timeout: 250 seconds)
+14:39:10 <mgraesslin> it is, because kwin needs it on next startup
+14:39:16 <sebas> and you can totally do that, and even write a correct one if modeset fails
+14:39:45 <sebas> kwin writing its own config seems a lot saner than someone else doing it
+14:39:57 <mgraesslin> well kwin never writes it's own config
+14:40:01 <mgraesslin> it's always other processes
+14:40:13 <sebas> and kscreen never writes a kwin config, that's how it's now
+14:40:20 <sebas> I'd rather change that assumption in kwin
+14:40:28 <mgraesslin> because kwin doesn't do screen management yet
+14:40:48 <sebas> and if we don't add it, it never will. what's your point?
+14:41:15 <mgraesslin> that having config outside of kwin doesn't look any more or less sane to me
+14:41:24 <mgraesslin> I just answered to your point
+14:41:47 <mgraesslin> point is: currently configuration is handled by kcms and then  kwin is notified on changes
+14:41:57 <mgraesslin> I don't see why we want to change that
+14:42:27 <mgraesslin> I also don't see why kwin should write the sanitized config - that's not what the user selected after all
+14:42:58 <sebas> with my design, configuration suggestion is sent to the screen management interface, and kwin is notified on change
+14:43:01 <mgraesslin> but I don't think it makes sense to continue the discussion - we go around in circles
+14:43:11 <sebas> sounds a lot more applicable and useful to other compositors as well
+14:43:14 <mgraesslin> sebas: your design is not Wayland style
+14:43:29 <sebas> "You want kscreen to work with your wl compositor? here's the protocol to implement."
+14:43:36 <mgraesslin> sebas: such a design will not be accepted by any other compositors because it's not Wayland style
+14:44:04 <sebas> sounds like a rather fuzzy argument to me
+14:44:19 <mgraesslin> sebas: I would prefer if we could show that we write awesome wayland protocols, that we are THE Wayland experts on Linux desktop
+14:44:38 <sebas> I would prefer something that works and is easy to understand
+14:44:42 <mgraesslin> sebas: even more I want all our interfaced to be upstreamable
+14:44:50 <mgraesslin> sebas: then go for a dbus interface
+14:45:32 <sebas> I proposed that ... how many months ago?
+14:45:58 <sebas> (i'm fine with using dbus for this, really, protocol would look pretty similar to what I suggest above)
+14:46:18 <mgraesslin> sebas: on Wayland information for different objects is not bundles in one interface, so let's not do that - if we want to use Wayland lets use it properly
+14:47:01 <sebas> we just went over that and disagree on the priorities for such an interface
+14:47:18 <mgraesslin> sebas: but with DBus you will run into similar issues, especially how to make it atomic
+14:47:34 <sebas> so, dbus ... means that you'll get dbus stuff in wayland server, and you'll have the same complaints as months ago: you want to read a config, not a dbus interface
+14:47:45 <mgraesslin> yeah
+14:47:55 <sebas> I don't see how that gets us any further
+14:47:59 <mgraesslin> esepcially on DBus I don't see how to make it atomic
+14:48:18 <sebas> again, an apply signal
+14:48:30 <sebas> eeh, method ... signal on the server side
+14:48:49 <mgraesslin> but how would the server know what was from one set of calls
+14:48:50 <sebas> same semantics as screen-management.xml, really
+14:48:54 <mgraesslin> it's not peer-to-peer
+14:49:10 <sebas> you said you want dbus then, not me
+14:49:21 <mgraesslin> no I didn't say I want DBus
+14:49:27 <mgraesslin> I suggested it as an alternative
+14:49:32 <sebas> one can add more complexity, hand out client cookies or somesuch, but it's not beautiful
+14:49:53 <mgraesslin> in the end I think we see that IPC is not suited for config updates
+14:50:19 <mgraesslin> we get to the point where we realize that neither Wayland or DBus allow us to design an interface which would suit it
+14:50:56 <sebas> imo, it doesn't make a difference who writes the config, just allows to group code that belongs together semantically in one place and not introduce fuziness of config serialization and change notification
+14:51:21 <sebas> everytime I add a filesystem watch to a config file, I kill a kitten
+14:51:35 <mgraesslin> we don't need filesystem watch fot that
+14:51:41 <mgraesslin> we never have in the case of KWin
+14:51:45 <sebas> mgraesslin: and then we get to the point that we accept some degree of non-waylandishness
+14:52:04 <mgraesslin> sorry, don't understand what you mean by that
+14:52:05 <sebas> which is the point I reached yesterday, and you haven't (yet!)
+14:52:19 <sebas> screen-management.xml in my branch, basically
+14:52:47 <sebas> IMO, it's really an improvement to how it works on X, btw
+14:53:00 <sebas> since kwin now receives all the calls X got earlier
+14:53:34 <sebas> which means that we can actually intercept what's going on there and don't have to wait for a crapload of "X has changed in this and that way now and it might or might not be done"
+14:53:51 <sebas> one interface to suggest changes
+14:54:17 <mgraesslin> but how does that one interface fix that?
+14:54:23 <mgraesslin> it's still an async thing
+14:54:28 <sebas> and one place to decide what makes sense and what doesn't (kwin's Wayland::Server implementation, or perhaps Wayland::Server itself, don't care)
+14:54:29 <mgraesslin> where then "magic" happens in kwin
+14:54:46 <mgraesslin> and then at some point kwin sends out events to inform what happened - just like X
+14:54:57 <sebas> yes
+14:55:04 <sebas> and that's what kscreen picks up then
+14:55:19 <mgraesslin> sure, but what does the interface help?
+14:55:35 <mgraesslin> in the end it's "pass kwin a config" and let it apply it
+14:55:47 <sebas> it creates clear fracture lines between semantic topics
+14:56:00 <sebas> i.e. suggesting changes, applying changes, remembering changes
+14:56:03 <mgraesslin> sorry don't get that argument
+14:56:24 <mgraesslin> ah so you want to only have valid configs saved?
+14:56:48 <sebas> at the time of config saving, yes, only saves what makes sense
+14:57:02 <sebas> but really, kwin gets suggestions and can do whatever it wants with that
+14:57:10 <mgraesslin> meh, don't care about that one. I'm happy to take whatever the user suggested
+14:57:14 <kbroulik> mgraesslin: installNativeEventFilter(new FoucsOutEventFilter); ← doesn't that leak?
+14:57:30 <sebas> you can still take whatever the user suggested
+14:57:51 <mgraesslin> kbroulik: yes, no - as it is created by the application it will only leak on shutdown
+14:57:55 <sebas> but you can actually do sanitizing, or perhaps even shortcuts between changes
+14:58:03 <kbroulik> ok
+14:58:16 <mgraesslin> sebas: ok, that is stuff which we might consider doing in a few years ;-)
+14:58:27 <sebas> yep
+14:59:04 <sebas> most importantly, it can apply stuff atomically (in either design), so no flickerfest
+14:59:11 <pursuivant> plasma-nm (master) v5.3.95-8-g7fa933e * Jan Grulich: libs/editor/widgets/passwordfield.cpp
+14:59:11 <pursuivant> The icon name for password field was changed to 'visibility'
+14:59:12 <pursuivant> http://commits.kde.org/plasma-nm/7fa933e92432a4f15bba6381d14933cded9eed38
+15:00:02 <mgraesslin> sebas: ok, I think I start to understand what you want to get at
+15:00:27 <mgraesslin> sebas: I think you don't want to store any configuration in kscreen any more but let kwin handle it
+15:00:34 <sebas> mgraesslin: yes
+15:00:49 <sebas> (not to suggest to dump that as task on you, btw)
+15:00:49 <mgraesslin> sebas: I come from the positon that "Kscreen passes me the config anyway" and kwin only applies what kscreen provided
+15:01:06 <mgraesslin> which means we were not on the same level
+15:01:17 <mgraesslin> which means I didn't get why you want to call interfaces in kwin
+15:01:31 <sebas> mgraesslin: what I'm thinking is that kscreen may not even do anything hardwarey in the future, just asks kwin what it has and tells kwin what it wants
+15:01:31 <mgraesslin> to me it was "kscreen saves config anyway", just pass that to kwin
+15:01:46 <mgraesslin> ok
+15:01:57 <sebas> ow, sorry if I haven't made myself clear then
+15:02:21 <mgraesslin> so we just discussed different things over the last hour
+15:02:24 <sebas> I actually want kscreen to do as little as possible
+15:02:36 <sebas> mgraesslin: hour and 20 minutes, if that makes you feel better ;-)
+15:02:40 <mgraesslin> and I wan KWin to do as little as possible ;-)
+15:03:04 <sebas> I can put it into ScreenManagement, but at some point kwin has to do something
+15:03:26 <mgraesslin> sebas: let's kind of get back to the drawing board
+15:03:31 <sebas> so instead of just reading a config (who knows if it makes sense?) it receives a new config and sanitizes and then applies
+15:03:47 <mgraesslin> I think kscreen still needs to apply logic
+15:03:52 <-- HuntsMan (~hunts@130.225.93.171) has quit (Read error: Connection reset by peer)
+15:03:56 <mgraesslin> we can assume a few things:
+15:04:01 <mgraesslin> a) the modes kwin provide will work
+15:04:06 --> HuntsMan (~hunts@130.225.93.171) has joined #plasma
+15:04:21 <mgraesslin> b) as there is no cloning, setting screens won't fail
+15:04:33 <sebas> kscreen *can* provide logic, but kwin shouldn't trust it (in my world)
+15:04:59 <mgraesslin> we need to apply some constraints in the UI to have a good experience
+15:05:04 <mgraesslin> a) screens my overlap
+15:05:11 --> fewcha (~sanjiban@182.73.91.22) has joined #plasma
+15:05:16 <mgraesslin> b) no gaps between screens
+15:05:19 <sebas> yup, sure
+15:06:08 <mgraesslin> my thought so far was that what comes from kscreen applies to these four things, so it's save to use
+15:06:39 <mgraesslin> if KWin doesn't trust kscreen we start to duplicate the logic
+15:06:57 <mgraesslin> because any logic kwin applies needs to be applied in KScreen to have good user experience
+15:07:04 <sebas> it still will, and in principle you can assume that (that's not backend specific if I'm not mistaken), so kscreen won't serve you that
+15:07:24 <sebas> so, if you're lenient, just trust kscreen, if not, check what it tells you
+15:07:45 <-- HuntsMan (~hunts@130.225.93.171) has quit (Read error: Connection reset by peer)
+15:07:58 --> HuntsMan (~hunts@130.225.93.171) has joined #plasma
+15:08:09 <sebas> cloning, I'll have to check, but I can probably make sure it routes those through coordinates and size
+15:08:36 <mgraesslin> so if KWin trusts kscreen it could just use it's config
+15:08:50 <mgraesslin> if it doesn't trust kscreen it needs to save config
+15:09:02 <sebas> no, it can trust (and will do so for now), but it doesn't have to
+15:09:10 <sebas> kind of the point of a config interface
+15:09:21 <sebas> kscreen itself checks if it makes sense
+15:09:45 <mgraesslin> so, do I want to have kwin write the config?
+15:09:57 <sebas> kwin checks if it produces fatal problems (safety belt) and still applies (perhaps an output is unplugged 1ms after the user hit apply enabling it)
+15:09:58 <mgraesslin> actually no, because that slows down startup ;-)
+15:10:10 <sebas> Huh?
+15:10:16 <sebas> you don't write it on startup .. ?
+15:10:22 <mgraesslin> well one code path
+15:10:25 <sebas> you'll need to read it on startup anyway
+15:10:32 <mgraesslin> I need to read
+15:10:47 <mgraesslin> but that means going into screen config mode, which would save it at the end
+15:11:02 <sebas> uhm, why would it?
+15:11:16 <sebas> it's saved as a result of the apply call through the SM interface
+15:11:34 <mgraesslin> it would be saved as a result to the first successful mode set with the config
+15:12:07 <mgraesslin> so it would be something like: configureScreens() -> tryModeSetting() -> save()
+15:12:13 --> gengisdave (~davide@host103-222-dynamic.8-87-r.retail.telecomitalia.it) has joined #plasma
+15:12:13 --> srxavi (~quassel@81.184.6.141) has joined #plasma
+15:12:17 <sebas> that can happen async, of course, and you can do it in a number of ways
+15:12:28 <mgraesslin> as during startup we would also go into configurScreens() we also go in the same code path
+15:12:52 <sebas> I imagined it like so:
+15:13:07 <sebas> - kwin starts up, finds a bunch of outputs connected
+15:13:44 <sebas> - for each output, it looks into the config file if there's any settings to apply to it (say, custom resolution or rotation)
+15:14:19 <sebas> - it changes the output like the config says (may or may not keep track if the suggested config failed or succeeded to apply)
+15:14:20 <-> rasdark is now known as rasdark|aw
+15:14:23 <sebas> - startup complete!
+15:14:31 <mgraesslin> yeah
+15:14:43 <mgraesslin> and for configure at runtime I want to go through the same code path
+15:14:53 <sebas> - if config failed to apply, it could save the new config, or assume the config is OK and try again on next startup (really, kwin's call)
+15:15:00 <mgraesslin> code sharing to ensure it behaves the same way
+15:15:20 <-- Haudegen (~quassel@85.124.51.57) has quit (Remote host closed the connection)
+15:15:29 <mgraesslin> that's probably why I want to have it in a config
+15:15:51 <mgraesslin> to have code sharing between runtime config and save time config
+15:15:53 <sebas> that's like 4 properties, can be wrapped and it's safe and easy to autotest
+15:16:10 <mgraesslin> how do I autotest modesetting? ;-)
+15:16:26 <-- srxavi (~quassel@81.184.6.141) has quit (Ping timeout: 240 seconds)
+15:16:37 <sebas> I'll write these tests for you into my fakewaylandtestserver
+15:16:48 <mgraesslin> that's not what I meant
+15:16:51 <sebas> can even put in a bullshit modesetting that should fail just to make sure
+15:16:58 <mgraesslin> I don't care whether the config is wrote out correctly
+15:17:13 <mgraesslin> I care whether it actually does what it's supposed to do
+15:17:23 <mgraesslin> the latter one we cannot autotest as it is hardware dependent
+15:17:41 <sebas> that problem is not unique to this protocol design, is it?
+15:18:05 <mgraesslin> no, but it's why I want to use the same code path for startup and runtime config
+15:18:20 <sebas> that's a very small portion
+15:18:32 <mgraesslin> actually I think it's the most important one
+15:19:31 <sebas> I don't see the problem here, though ... it's setting mode on an output in the backend, whether that's in a callback or in a method reading a config from a callback doesn't really matter
+15:20:31 <mgraesslin> well in the one time we look up a config read from disk which can be then in a different order of outputs to enable then what comes through the interface
+15:20:52 <mgraesslin> if the order in what way ever matters to whether the whole thing succeeds or fails, it becomes a difference
+15:20:59 <mgraesslin> and unfortunately with drm the order matters
+15:21:04 <-- HuntsMan (~hunts@130.225.93.171) has quit (Read error: Connection reset by peer)
+15:21:13 --> HuntsMan (~hunts@130.225.93.171) has joined #plasma
+15:21:16 <mgraesslin> one has a list of possible connector-encoder pairs
+15:21:29 <mgraesslin> and you cannot match all
+15:21:46 <sebas> then still, it's four calls
+15:22:03 <mgraesslin> so if we have one which serves two outputs, but one which only serves one output it can end up in a situation where we cannot configure one screen depending on the order
+15:22:13 <sebas> can even be encapsulatd (I was thinking of doing a proper wrapper on the server side as well, it could go in there then)
+15:22:14 <-- jensreu (~jens@213.80.106.100) has quit (Quit: Konversation terminated!)
+15:22:17 <mgraesslin> so going through the same code path ensures we at least always fail or never fail
+15:23:16 <sebas> so you create a ServerSideOutputDeviceWrapper which an be constructed from a runtime call or from the config reading, but it does the same when being applied to the hardware (i.e. modeset and these calls in the exact same order)
+15:23:33 <mgraesslin> no, that's not what I mean
+15:23:46 <sebas> then I don't understand what you say could fail
+15:24:06 <mgraesslin> the ordering of the outputs to configure matters
+15:24:25 <sebas> we can control that (apply is a global, not per output)
+15:24:28 <mgraesslin> so if it comes through an interface it will not necessarily have the same ordering as KConfig would give me
+15:25:02 <sebas> KConfig's ordering also depends on something ...
+15:25:11 <mgraesslin> it's just an additional level of differences which could result in issues
+15:25:26 <mgraesslin> which means I want to keep the differences of the code paths as small as possible
+15:25:30 <mgraesslin> ideally as non existing
+15:25:33 <sebas> I can make sure outputs are sorted the same everytime, that's really easy
+15:25:53 <sebas> should be easy to get very close to non-existing
+15:26:45 <mgraesslin> so given that, that I want to share the code path I would probably write it to KConfig before applying
+15:27:00 <mgraesslin> but that's implementation detail
+15:27:53 <sebas> we can either sort by whatever is used as group name for an output, or keep track of ordering, but ensuring ordering is the same is easy anyway (fine as a requirement, and as long as I know about that, easy to satisfy)
+15:28:55 <pursuivant> kwayland (mart/blurProtocol) v5.3.95-14-g2642958 * Marco Martin: src (2 files in 2 dirs)
+15:28:56 <pursuivant> install headers
+15:28:56 <pursuivant> http://commits.kde.org/kwayland/2642958e057235ac2bcbad91939c79f4bd884c76
+15:29:03 <pursuivant> kwayland (mart/blurProtocol) v5.3.95-15-ga5cb6ac * Marco Martin: autotests/client (2 files)
+15:29:04 <pursuivant> add a basic autotest for blur
+15:29:05 <pursuivant> doesn't work yet
+15:29:05 <pursuivant> http://commits.kde.org/kwayland/a5cb6ac70fe98f0a33499e2b3b989cf00d6fd15e
+15:30:06 <mgraesslin> sebas: concerning the setting protocol - let's talk about it on Monday, I need to think about it. To me the big problem is that it's not 1:1 and that will have significant impact on how we design the protocol
+15:30:50 <sebas> mgraesslin: yes, I realize it's an architectural change and impacts how we do things
+15:31:21 <mgraesslin> and I'm not sure whether we can achieve that with an IPC - as they are 1:n and not 1:1
+15:31:38 <sebas> but then, this is what I came up with when not looking at current implementations (or taste of wayland developers ;)) and trying to do what I'd do if designed from scratch
+15:32:11 <mgraesslin> yeah but that design just ignored the 1:n problem ;-)
+15:32:14 <notmart> when the fooAnnounched signals are emitted in kwayland client?
+15:32:16 <sebas> well, in principle, kconfig just fakes the 1:1, anyone can write configs, you just can't tell who did it
+15:32:31 <sebas> the problem is there, you just don't know about it so you have to ignore it
+15:32:40 <mgraesslin> right
+15:32:58 <sebas> But, let's have the idea sink in over the weekend
+15:33:02 <mgraesslin> and in fact that problem just continues to exist no matter what we do
+15:33:09 <sebas> it's less than 24hrs old on my side
+15:33:12 <mgraesslin> because anyone can write kwin's config and trigger a reload
+15:33:17 <sebas> yes
+15:33:28 <sebas> we just assume this doesn't go wrong and cross fingers
+15:33:34 <sebas> not much difference really
+15:33:37 <mgraesslin> true
+15:33:52 <mgraesslin> well with the protocols it's different, because they are designed for 1:n
+15:34:03 <mgraesslin> and in the case of Wayland at least it makes things awkward to use
+15:34:13 <sebas> let's drag it over the weekend and we can share thoughts on monday
+15:34:36 <mgraesslin> notmart: in the registry? When the server did a createFoo on the Display and flushed the client
+15:34:41 --> xliiv (~xliiv@d218-169.icpnet.pl) has joined #plasma
+15:34:58 <sebas> I was going for rudely just assuming "last call wins" in case of conflict (pretty much what we do implicitely now)
+15:34:59 <-> tanghus_ is now known as tanghus
+15:35:43 <sebas> kscreen backends are singletons, btw
+15:35:44 <mgraesslin> well that bites with what looks like a well designed Wayland protocol
+15:35:50 <mgraesslin> every frame perfect and so on
+15:36:06 <mgraesslin> we cannot assume that only kscreen binds the interface
+15:36:20 <mgraesslin> if we make it public API it needs to work for non-kscreen and non-kwin
+15:36:26 <sebas> we can say "sorry, config interface already bound, you're out of luck" and tell clients to fsck off in that case ;)
+15:36:40 <mgraesslin> yes that would be a valid solution
+15:36:55 <-- hualet_deepin (~hualet@59.173.241.82) has quit (Remote host closed the connection)
+15:37:01 <sebas> and an excellent opportunity to put profanity in an API! ;)
+15:37:36 <mgraesslin> luckily that will not pass code review ;-)
+15:38:16 <sebas> E_ENCULE_TOI wouldn't pass review? :P
+15:38:25 <notmart> lol
+15:38:28 <sebas> (French, so it's not quite as obvious)
+15:38:36 <sebas> or E_POMPINO
+15:38:58 <sebas> but anyway, let's reconvene on Monday
+15:39:10 <sebas> thanks for the time, thought and input, mgraesslin
