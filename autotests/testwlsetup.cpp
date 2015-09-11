@@ -72,7 +72,7 @@ private:
     void loadConfig();
     void writeConfig();
 
-    ConfigPtr m_config;
+    //ConfigPtr m_config;
     QString m_backend;
 
     bool m_startServer;
@@ -81,7 +81,7 @@ private:
 
 testWaylandSetup::testWaylandSetup(QObject *parent)
     : QObject(parent)
-    , m_config(nullptr)
+//     , m_config(nullptr)
     , m_startServer(true)
     , m_server(nullptr)
 {
@@ -103,10 +103,10 @@ void testWaylandSetup::initTestCase()
 void testWaylandSetup::loadConfig()
 {
     return;
-    GetConfigOperation *op = new GetConfigOperation();
-    op->exec();
-    m_config = op->config();
-    QVERIFY(m_config->isValid());
+//     GetConfigOperation *op = new GetConfigOperation();
+//     op->exec();
+//     m_config = op->config();
+//     QVERIFY(m_config->isValid());
 }
 
 void testWaylandSetup::cleanupTestCase()
@@ -116,7 +116,7 @@ void testWaylandSetup::cleanupTestCase()
 
 void testWaylandSetup::writeConfig()
 {
-    QVERIFY(WaylandConfigWriter::writeJson(m_config, "waylandconfigfile.json"));
+    //QVERIFY(WaylandConfigWriter::writeJson(m_config, "waylandconfigfile.json"));
 
 }
 
@@ -134,6 +134,7 @@ void testWaylandSetup::cleanup()
 //     QSignalSpy done(this, &QObject::destroyed);
 //     done.wait(100);
     qDebug() << "====> server stopped";
+    KScreen::BackendManager::instance()->shutdownBackend();
 }
 
 

@@ -20,6 +20,9 @@
 #include <QtTest>
 #include <QObject>
 #include <QSignalSpy>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 #include <KSharedConfig>
 #include <KConfigGroup>
@@ -38,6 +41,7 @@
 #include "waylandconfigwriter.h"
 #include "waylandconfigreader.h"
 
+
 #include "../src/backendmanager_p.h"
 #include "../src/getconfigoperation.h"
 #include "../src/config.h"
@@ -55,42 +59,38 @@ Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.wayland");
 static const QString s_outputConfig = QStringLiteral("waylandconfigtestrc");
 using namespace KScreen;
 
-class testWaylandWrite : public QObject
+class TestWaylandOutputs : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit testWaylandWrite(QObject *parent = nullptr);
+    explicit TestWaylandOutputs(QObject *parent = nullptr);
 
 private Q_SLOTS:
     void init();
     void cleanup();
+    void cleanupTestCase();
 
     void testConfigs_data();
     void testConfigs();
 
 private:
-    void writeConfig();
-    void changeConfig();
-    void addOutput();
-    void changeOutput();
-
-    void removeOutput();
-
-private:
+    void readConfig(const QString &jsonFile);
+    QJsonArray jsonOutputs;
+    void showJsonOutput(const QVariantMap &o);
 
     ConfigPtr m_config;
     WaylandTestServer *m_server;
 
 };
 
-testWaylandWrite::testWaylandWrite(QObject *parent)
+TestWaylandOutputs::TestWaylandOutputs(QObject *parent)
     : QObject(parent)
     , m_config(nullptr)
 {
 }
 
-void testWaylandWrite::init()
+void TestWaylandOutputs::init()
 {
     setenv("KSCREEN_BACKEND", "wayland", 1);
     KScreen::BackendManager::instance()->shutdownBackend();
@@ -103,44 +103,103 @@ void testWaylandWrite::init()
     //m_server->start();
 }
 
-void testWaylandWrite::cleanup()
+void TestWaylandOutputs::cleanup()
 {
     KScreen::BackendManager::instance()->shutdownBackend();
     delete m_server;
 }
 
-void testWaylandWrite::testConfigs_data()
+void TestWaylandOutputs::testConfigs_data()
 {
     QTest::addColumn<QString>("configfile");
 
-    QTest::newRow("default.json") << "default.json";
-    QTest::newRow("multipleoutput.json") << "multipleoutput.json";
-    QTest::newRow("multipleclone.json") << "multipleclone.json";
-    QTest::newRow("singleoutput.json") << "singleoutput.json";
-    QTest::newRow("singleoutputBroken.json") << "singleoutputBroken.json";
-    QTest::newRow("singleOutputWithoutPreferred.json") << "singleOutputWithoutPreferred.json";
-    QTest::newRow("tooManyOutputs.json") << "tooManyOutputs.json";
+    QTest::newRow("wayland.json") << "wayland.json";
 }
 
 
-void testWaylandWrite::testConfigs()
+void TestWaylandOutputs::readConfig(const QString& jsonFile)
+{
+    QFile file(jsonFile);
+    file.open(QIODevice::ReadOnly);
+
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
+    QJsonObject json = jsonDoc.object();
+
+    QJsonArray omap = json["outputs"].toArray();
+    Q_FOREACH(const QJsonValue &value, omap) {
+        const QVariantMap &output = value.toObject().toVariantMap();
+        if (output["connected"].toBool()) {
+            jsonOutputs << value;
+            showJsonOutput(output);
+        }
+    }
+    qDebug() << "Parsed " << jsonOutputs.count() << "outputs.";
+
+}
+
+void TestWaylandOutputs::showJsonOutput(const QVariantMap& o)
+{
+    qDebug() << "________________________________________________________";
+    qDebug() << "           Name:" << o["name"].toString();
+    qDebug() << "          Model:" << o["model"].toString();
+    qDebug() << "   Manufacturer:" << o["manufacturer"].toString();
+    qDebug() << "        Enabled:" << o["enabled"].toBool();
+    qDebug() << "       Position:" << KScreen::WaylandConfigReader::pointFromJson(o["pos"]);
+    qDebug() << "     Resolution:" << KScreen::WaylandConfigReader::sizeFromJson(o["size"]);
+    qDebug() << "       Rotation:" << o["rotation"].toInt();
+    qDebug() << "  Physical size:" << KScreen::WaylandConfigReader::sizeFromJson(o["sizeMM"]);
+
+    auto ee = new Edid(o["edid"].toByteArray(), this); // FIXME: doesn't work
+    qDebug() << "      Edid size:" << o["edid"].toString().size();
+    qDebug() << " Edid device ID:" << ee->deviceId();
+    qDebug() << "    Edid vendor:" << ee->vendor();
+    qDebug() << "      Edid size:" << QSize(ee->width(), ee->height());
+    qDebug() << "    Edid serial:" << ee->serial();
+
+    QString _ms;
+    foreach (auto v, o["modes"].toList()) {
+        auto m = v.toMap();
+        if (m["id"].toInt() == o["currentModeId"].toInt()) {
+            _ms.append("->");
+        }
+        if (o["preferredModes"].toList().contains(m["id"])) {
+            _ms.append("*");
+        }
+        _ms.append(m["name"].toString());
+        _ms.append(" ");
+    }
+    _ms.chop(1);
+    qDebug() << "          Modes:" << _ms;
+
+    qDebug() << "========================================================";
+}
+
+
+
+void TestWaylandOutputs::testConfigs()
 {
     QFETCH(QString, configfile);
     QString cfg = TEST_DATA + configfile;
     //qDebug() << "Config file: " << cfg;
-
+    readConfig(cfg);
+    //return;
     m_server->setConfig(cfg);
     m_server->start();
+
+    QVERIFY(m_server->outputCount() == jsonOutputs.count());
 
     GetConfigOperation *op = new GetConfigOperation();
     op->exec();
     m_config = op->config();
 
     QVERIFY(m_config);
+    QCOMPARE(m_config->outputs().count(), jsonOutputs.count());
 
+    //return;
     QVERIFY(m_config->outputs().count());
     QList<int> ids;
     foreach (auto output, m_config->outputs()) {
+        //continue;
         //         qDebug() << " _____________________ Output: " << output;
         //         qDebug() << "   output name: " << output->name();
         //         qDebug() << "   output modes: " << output->modes().count() << output->modes();
@@ -153,7 +212,7 @@ void testWaylandWrite::testConfigs()
         if (!output->isEnabled()) {
             continue;
         }
-        QVERIFY(output->isEnabled());
+        //QVERIFY(output->isEnabled());
         QVERIFY(output->geometry() != QRectF(1,1,1,1));
         QVERIFY(output->geometry() != QRectF());
         if (configfile.endsWith("default.json")) {
@@ -165,67 +224,16 @@ void testWaylandWrite::testConfigs()
         QVERIFY(!ids.contains(output->id()));
         ids << output->id();
     }
-    QCOMPARE(m_config->outputs().count(), m_server->outputCount());
 
 }
 
-void testWaylandWrite::writeConfig()
+void TestWaylandOutputs::cleanupTestCase()
 {
-    m_server->start();
-    GetConfigOperation *op = new GetConfigOperation();
-    op->exec();
-    m_config = op->config();
-
-    QVERIFY(m_config);
-
-}
-
-void testWaylandWrite::changeConfig()
-{
-    m_server->start();
-    GetConfigOperation *op = new GetConfigOperation();
-    op->exec();
-    m_config = op->config();
-
-    QVERIFY(m_config);
-
-}
-
-void testWaylandWrite::removeOutput()
-{
-    m_server->start();
-    GetConfigOperation *op = new GetConfigOperation();
-    op->exec();
-    m_config = op->config();
-
-    QVERIFY(m_config);
-
-}
-
-void testWaylandWrite::addOutput()
-{
-    m_server->start();
-    GetConfigOperation *op = new GetConfigOperation();
-    op->exec();
-    m_config = op->config();
-
-    QVERIFY(m_config);
-
-}
-
-void testWaylandWrite::changeOutput()
-{
-    m_server->start();
-    GetConfigOperation *op = new GetConfigOperation();
-    op->exec();
-    m_config = op->config();
-
-    QVERIFY(m_config);
-
+    m_config->deleteLater();
+    KScreen::BackendManager::instance()->shutdownBackend();
 }
 
 
+QTEST_GUILESS_MAIN(TestWaylandOutputs)
 
-QTEST_GUILESS_MAIN(testWaylandWrite)
-
-#include "testwlwrite.moc"
+#include "testwloutputs.moc"

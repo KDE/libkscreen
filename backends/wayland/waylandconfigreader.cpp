@@ -46,7 +46,6 @@ void WaylandConfigReader::outputsFromConfig(const QString& configfile, KWayland:
             //qDebug() << "new Output created: " << output["name"].toString();
         }
     }
-
 }
 
 OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap& outputConfig, KWayland::Server::Display *display)

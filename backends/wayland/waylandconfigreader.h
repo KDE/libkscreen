@@ -39,7 +39,6 @@ public:
     static void outputsFromConfig(const QString &configfile, KWayland::Server::Display *display, QList<KWayland::Server::OutputDeviceInterface*>& outputs);
     static OutputDeviceInterface* createOutputDevice(const QVariantMap &outputConfig, KWayland::Server::Display *display);
 
-private:
     static QSize sizeFromJson(const QVariant& data);
     static QRect rectFromJson(const QVariant& data);
     static QPoint pointFromJson(const QVariant& data);
