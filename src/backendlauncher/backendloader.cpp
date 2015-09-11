@@ -95,7 +95,7 @@ bool BackendLoader::loadBackend(const QString& backend)
                 continue;
             }
 
-            qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Trying" << finfo.filePath();
+            //qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Trying" << finfo.filePath();
             // Make sure we unload() and delete the loader whenever it goes out of scope here
             std::unique_ptr<QPluginLoader, void(*)(QPluginLoader *)> loader(new QPluginLoader(finfo.filePath()), pluginDeleter);
             QObject *instance = loader->instance();
@@ -116,7 +116,7 @@ bool BackendLoader::loadBackend(const QString& backend)
                 // This is the only case we don't want to unload() and delete the loader, instead
                 // we store it and unload it when the backendloader terminates.
                 mLoader = loader.release();
-                qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Loading" << mBackend->name() << "backend";
+                //qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Loading" << mBackend->name() << "backend";
                 return true;
             } else {
                 qCDebug(KSCREEN_BACKEND_LAUNCHER) << finfo.fileName() << "does not provide valid KScreen backend";

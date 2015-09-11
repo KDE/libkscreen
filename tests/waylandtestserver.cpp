@@ -25,6 +25,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QFile>
+#include <QSignalSpy>
 #include <QStandardPaths>
 
 #include <KConfig>
@@ -50,19 +51,20 @@ WaylandTestServer::WaylandTestServer(QObject *parent)
                                  QStandardPaths::GenericConfigLocation) +
                                  "/waylandconfigrc";
                                  //"/waylandconfigtestrc";
-    qDebug() << "m_outputConfigFile" << m_outputConfigFile;
+    //qDebug() << "m_outputConfigFile" << m_outputConfigFile;
 
 }
 
 WaylandTestServer::~WaylandTestServer()
 {
-
-    qDebug() << "Shutting down server";
-    delete m_display;
+    stop();
+    qDebug() << "Shutting down server" << (m_display != nullptr);
 }
 
 void WaylandTestServer::start()
 {
+    using namespace KWayland::Server;
+    delete m_display;
     m_display = new KWayland::Server::Display(this);
     if (qgetenv("WAYLAND_DISPLAY").isEmpty()) {
         m_display->setSocketName(s_socketName);
@@ -87,13 +89,13 @@ void WaylandTestServer::start()
 
     KScreen::WaylandConfigReader::outputsFromConfig(m_configFile, m_display, m_outputs);
 
-    qDebug() << "WL m_outputs" << m_outputs.count();
-
-    m_configWatch = new KDirWatch(this);
-    m_configWatch->addFile(m_outputConfigFile);
-    qDebug() << "KDirWatch::Added: " << m_outputConfigFile;
-    connect(m_configWatch, &KDirWatch::dirty, this, &WaylandTestServer::pickupConfigFile);
-    connect(m_configWatch, &KDirWatch::created, this, &WaylandTestServer::pickupConfigFile);
+//     qDebug() << "WL m_outputs" << m_outputs.count();
+//
+//     m_configWatch = new KDirWatch(this);
+//     m_configWatch->addFile(m_outputConfigFile);
+//     qDebug() << "KDirWatch::Added: " << m_outputConfigFile;
+//     connect(m_configWatch, &KDirWatch::dirty, this, &WaylandTestServer::pickupConfigFile);
+//     connect(m_configWatch, &KDirWatch::created, this, &WaylandTestServer::pickupConfigFile);
 
 
     qDebug() << "Wayland server running. Outputs: " << m_outputs.count();
@@ -104,10 +106,10 @@ void WaylandTestServer::stop()
     for (auto o: m_outputs) {
         delete o;
     }
+    m_outputs.clear();
     // actually stop the Wayland server
     delete m_display;
     m_display = nullptr;
-    m_outputs.clear();
 }
 
 KWayland::Server::Display* KScreen::WaylandTestServer::display()
@@ -122,7 +124,7 @@ void WaylandTestServer::setConfig(const QString& configfile)
 
 bool WaylandTestServer::outputFromConfigGroup(const KConfigGroup& config, KWayland::Server::OutputDeviceInterface* output)
 {
-
+    return true;
     bool changed = false;
 
     const QSize ps = QSize(config.readEntry("width", -1), config.readEntry("height", -1));
@@ -145,6 +147,7 @@ bool WaylandTestServer::outputFromConfigGroup(const KConfigGroup& config, KWayla
 
 void WaylandTestServer::pickupConfigFile(const QString& configfile)
 {
+    return;
     bool changed = false;
     //KConfig cfg(m_outputConfigFile, KConfig::SimpleConfig);
     auto cfg = KSharedConfig::openConfig(configfile, KConfig::SimpleConfig);

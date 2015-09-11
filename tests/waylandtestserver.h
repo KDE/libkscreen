@@ -63,6 +63,8 @@ public:
 Q_SIGNALS:
     void outputsChanged();
 
+    void started();
+
 private:
     bool outputFromConfigGroup(const KConfigGroup& config, KWayland::Server::OutputDeviceInterface* output);
 

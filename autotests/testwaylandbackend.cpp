@@ -80,7 +80,8 @@ testWaylandBackend::testWaylandBackend(QObject *parent)
     , m_startServer(true)
 {
     m_server = new WaylandTestServer(this);
-    m_server->setConfig(TEST_DATA + QStringLiteral("default.json"));
+    m_server->setConfig(TEST_DATA + QStringLiteral("multipleoutput.json"));
+    m_server->setConfig(TEST_DATA + QStringLiteral("singleoutput.json"));
 }
 
 void testWaylandBackend::initTestCase()

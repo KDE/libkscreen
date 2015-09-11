@@ -224,7 +224,7 @@ void BackendManager::launcherDataAvailable()
 {
     mLauncher->setReadChannel(QProcess::StandardOutput);
     const QByteArray service = mLauncher->readLine();
-    qCDebug(KSCREEN) << "launcherDataAvailable:" << service;
+   // qCDebug(KSCREEN) << "launcherDataAvailable:" << service;
     mBackendService = QString::fromLatin1(service);
 
     mInterface = new org::kde::kscreen::Backend(mBackendService,

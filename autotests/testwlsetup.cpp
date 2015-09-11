@@ -60,6 +60,9 @@ public:
 private Q_SLOTS:
     void initTestCase();
 
+    void init();
+    void cleanup();
+
     void testConfigs_data();
     void testConfigs();
 
@@ -74,7 +77,6 @@ private:
 
     bool m_startServer;
     WaylandTestServer *m_server;
-
 };
 
 testWaylandSetup::testWaylandSetup(QObject *parent)
@@ -100,7 +102,7 @@ void testWaylandSetup::initTestCase()
 
 void testWaylandSetup::loadConfig()
 {
-    //return;
+    return;
     GetConfigOperation *op = new GetConfigOperation();
     op->exec();
     m_config = op->config();
@@ -118,42 +120,62 @@ void testWaylandSetup::writeConfig()
 
 }
 
+void testWaylandSetup::init()
+{
+    m_server = new WaylandTestServer(this);
+
+}
+
+void testWaylandSetup::cleanup()
+{
+    m_server->stop();
+    delete m_server;
+
+//     QSignalSpy done(this, &QObject::destroyed);
+//     done.wait(100);
+    qDebug() << "====> server stopped";
+}
+
+
+
 void testWaylandSetup::testConfigs_data()
 {
     QTest::addColumn<QString>("configfile");
 
-    QTest::newRow("default") << "default.json";
-//     QTest::newRow("single") << "singleoutput.json";
-//     QTest::newRow("multiple") << "multipleoutput.json";
+    QTest::newRow("default.json") << "default.json";
+//     QTest::newRow("multipleoutput.json") << "multipleoutput.json";
+//     QTest::newRow("multipleclone.json") << "multipleclone.json";
+//     QTest::newRow("singleoutput.json") << "singleoutput.json";
+//     QTest::newRow("singleoutputBroken.json") << "singleoutputBroken.json";
+//     QTest::newRow("singleOutputWithoutPreferred.json") << "singleOutputWithoutPreferred.json";
+//     QTest::newRow("tooManyOutputs.json") << "tooManyOutputs.json";
 }
+
 
 void testWaylandSetup::testConfigs()
 {
     QFETCH(QString, configfile);
     QString cfg = TEST_DATA + configfile;
-    qDebug() << "Config file: " << cfg;
+    //qDebug() << "Config file: " << cfg;
 
     m_server->setConfig(cfg);
+    qDebug() << "set config" << cfg;
     m_server->start();
-    //     return;
-
-
-    if (m_config) {
-        m_config->deleteLater();
-        m_config.clear();
-    }
-
+    qDebug() << "start";
     GetConfigOperation *op = new GetConfigOperation();
+    qDebug() << "exec";
     op->exec();
-    m_config = op->config();
+    auto config = op->config();
 
-    QVERIFY(m_config);
+    QVERIFY(config);
+    //config = nullptr;
+    //config.clear();
     // Has outputs?
-    qDebug() << "Outputs for " << configfile << " " << m_config->outputs().count();
-    QVERIFY(m_config->outputs().count());
+    //qDebug() << "Outputs for " << configfile << " client / server " << config->outputs().count() << m_server->outputCount();
+    QVERIFY(config->outputs().count());
 
     QList<int> ids;
-    foreach (auto output, m_config->outputs()) {
+    foreach (auto output, config->outputs()) {
         //         qDebug() << " _____________________ Output: " << output;
         //         qDebug() << "   output name: " << output->name();
         //         qDebug() << "   output modes: " << output->modes().count() << output->modes();
@@ -178,11 +200,9 @@ void testWaylandSetup::testConfigs()
         QVERIFY(!ids.contains(output->id()));
         ids << output->id();
     }
-    QCOMPARE(m_config->outputs().count(), m_server->outputCount());
-
-    delete m_config.data();
-    m_server->stop();
-    delete m_server;
+    QCOMPARE(config->outputs().count(), m_server->outputCount());
+    //delete config.data();
+    qDebug() << "OK " << cfg;
 }
 
 

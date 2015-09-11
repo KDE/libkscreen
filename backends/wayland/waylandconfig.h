@@ -80,6 +80,7 @@ public:
 Q_SIGNALS:
     void configChanged(const KScreen::ConfigPtr &config);
     void initialized();
+    void gone();
 
 private Q_SLOTS:
     void setupRegistry();

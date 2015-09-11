@@ -6,6 +6,6 @@ if (ENABLE_WAYLAND AND KF5Config_FOUND)
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../backends/wayland)
 
     add_executable(waylandtestserver waylandtestserver.cpp waylandtestservermain.cpp ${CMAKE_SOURCE_DIR}/backends/wayland/waylandconfigreader.cpp)
-    target_link_libraries(waylandtestserver Qt5::Gui KF5::Screen KF5::WaylandServer KF5::CoreAddons KF5::ConfigCore)
+    target_link_libraries(waylandtestserver Qt5::Gui Qt5::Test KF5::Screen KF5::WaylandServer KF5::CoreAddons KF5::ConfigCore)
 endif()
 

@@ -43,7 +43,7 @@ void WaylandConfigReader::outputsFromConfig(const QString& configfile, KWayland:
         const QVariantMap &output = value.toObject().toVariantMap();
         if (output["connected"].toBool()) {
             outputs << createOutputDevice(output, display);
-            qDebug() << "new Output created: " << output["name"].toString();
+            //qDebug() << "new Output created: " << output["name"].toString();
         }
     }
 
