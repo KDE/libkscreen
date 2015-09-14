@@ -160,24 +160,25 @@ bool WaylandOutput::isComplete()
 {
     // FIXME: we want smarter tracking when the whole initialization storm is done and ...
     // the data structures are complete (for now).
-    return (m_id != -1 && m_output && m_output->modes().count() > 0);
+    return (m_id != -1 && m_output && (!m_output->enabled() || m_output->modes().count() > 0));
 }
 
 void WaylandOutput::flush()
 {
-    //qCDebug(KSCREEN_WAYLAND) << "FLUSH" << (m_output->isValid() ? "Valid" : "Invalid");
+    qCDebug(KSCREEN_WAYLAND) << "FLUSH" << m_id << (m_output->isValid() ? "Valid" : "Invalid") << m_id << m_output->enabled() << m_output->modes().count();
     if (isComplete() && !m_completed) {
         m_completed = true;
-        /*
-        qCDebug(KSCREEN_WAYLAND) << "_______________ " << (m_output->isValid() ? "Valid" : "Invalid");
-        qCDebug(KSCREEN_WAYLAND) << "Output changes... ";
-        qCDebug(KSCREEN_WAYLAND) << "  id:              " << id();
-        qCDebug(KSCREEN_WAYLAND) << "  Pixel Size:      " << m_output->pixelSize();
-        qCDebug(KSCREEN_WAYLAND) << "  Physical Size:   " << m_output->physicalSize();
-        qCDebug(KSCREEN_WAYLAND) << "  Global Position: " << m_output->globalPosition();
-        qCDebug(KSCREEN_WAYLAND) << "  Manufacturer   : " << m_output->manufacturer();
-        qCDebug(KSCREEN_WAYLAND) << "  Model:           " << m_output->model();
-        */
+//         qCDebug(KSCREEN_WAYLAND) << "FLUSH DONE! " << m_id;
+        if (true) {
+            qCDebug(KSCREEN_WAYLAND) << "_______________ " << (m_output->isValid() ? "Valid" : "Invalid");
+            qCDebug(KSCREEN_WAYLAND) << "Output changes... ";
+            qCDebug(KSCREEN_WAYLAND) << "  id:              " << id();
+            qCDebug(KSCREEN_WAYLAND) << "  Pixel Size:      " << m_output->pixelSize();
+            qCDebug(KSCREEN_WAYLAND) << "  Physical Size:   " << m_output->physicalSize();
+            qCDebug(KSCREEN_WAYLAND) << "  Global Position: " << m_output->globalPosition();
+            qCDebug(KSCREEN_WAYLAND) << "  Manufacturer   : " << m_output->manufacturer();
+            qCDebug(KSCREEN_WAYLAND) << "  Model:           " << m_output->model();
+        }
         foreach (auto m, m_output->modes()) {
             QString modename = modeName(m);
             if (m.flags.testFlag(KWayland::Client::OutputDevice::Mode::Flag::Current)) {
