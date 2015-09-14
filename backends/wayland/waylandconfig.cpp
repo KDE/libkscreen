@@ -32,6 +32,10 @@
 // Wayland
 #include <wayland-client-protocol.h>
 
+
+// Qt
+#include <QTimer>
+
 #include <configmonitor.h>
 #include <mode.h>
 
@@ -48,9 +52,17 @@ WaylandConfig::WaylandConfig(QObject *parent)
 {
     qDebug() << " Config creating.";
     connect(this, &WaylandConfig::initialized, &m_syncLoop, &QEventLoop::quit);
+    QTimer::singleShot(2000, [=] {
+        qWarning() << "Connection to Wayland server at socket:" << m_connection->socketName() << "timed out.";
+        m_syncLoop.quit();
+        m_thread->quit();
+        m_thread->wait();
+    });
     initConnection();
     m_syncLoop.exec();
 //    m_blockSignals = false;
+    qDebug() << "Syncloop done, config initialized";
+
 }
 
 WaylandConfig::~WaylandConfig()
@@ -154,7 +166,7 @@ void WaylandConfig::setupRegistry()
 
 void WaylandConfig::addOutput(quint32 name, quint32 version)
 {
-    //qDebug() << "WL Adding output" << name;
+    qDebug() << "WL Adding output" << name;
     if (m_outputMap.keys().contains(name)) {
         qDebug() << "Output already known";
         return;
@@ -171,7 +183,7 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
 
     connect(waylandoutput, &WaylandOutput::complete, [=]{
         m_outputMap[waylandoutput->id()] = waylandoutput;
-        //qCDebug(KSCREEN_WAYLAND) << "New Output complete" << name;
+        qCDebug(KSCREEN_WAYLAND) << "New Output complete" << name;
         m_initializingOutputs.removeAll(name);
         checkInitialized();
         m_screen->setOutputs(m_outputMap.values());

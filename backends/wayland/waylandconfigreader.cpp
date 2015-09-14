@@ -100,7 +100,7 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
         if (isCurrent) {
             flags &= OutputDeviceInterface::ModeFlags(OutputDeviceInterface::ModeFlag::Preferred);
         }
-
+        qDebug() << "add mode for " << output->model() << _size << refresh;
         output->addMode(_size, flags, refresh);
 
         if (isCurrent) {
