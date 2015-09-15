@@ -87,7 +87,7 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
         int refresh = 60000;
 
         if (mode.keys().contains("refreshRate")) {
-            refresh = qRound(mode["refreshRate"].toReal());
+            refresh = qRound(mode["refreshRate"].toReal() * 1000); // config has it in Hz
         }
         bool isCurrent = currentModeId == mode["id"].toInt();
         bool isPreferred = preferredModes.contains(mode["id"]);
@@ -100,7 +100,7 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
         if (isCurrent) {
             flags &= OutputDeviceInterface::ModeFlags(OutputDeviceInterface::ModeFlag::Preferred);
         }
-        qDebug() << "add mode for " << output->model() << _size << refresh;
+        //qDebug() << "add mode for " << output->model() << _size << refresh;
         output->addMode(_size, flags, refresh);
 
         if (isCurrent) {
@@ -110,7 +110,7 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
 
     output->setGlobalPosition(pointFromJson(outputConfig["pos"]));
     output->setEnabled(outputConfig["enabled"].toBool());
-    qDebug() << "enabled? " << output->enabled();
+    //qDebug() << "enabled? " << output->enabled();
     output->create();
 
     return output;

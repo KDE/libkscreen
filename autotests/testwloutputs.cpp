@@ -194,8 +194,7 @@ void TestWaylandOutputs::testConfigs()
 
     QVERIFY(m_config);
     QCOMPARE(m_config->outputs().count(), jsonOutputs.count());
-    qDebug() << "bla";
-    return;
+
     QVERIFY(m_config->outputs().count());
     QList<int> ids;
     foreach (auto output, m_config->outputs()) {
