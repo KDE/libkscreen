@@ -31,6 +31,7 @@
 #include <KWayland/Client/connection_thread.h>
 #include <KWayland/Client/event_queue.h>
 #include <KWayland/Client/registry.h>
+#include <KWayland/Client/outputdevice.h>
 
 #include <KWayland/Server/compositor_interface.h>
 #include <KWayland/Server/display.h>
@@ -76,18 +77,33 @@ private Q_SLOTS:
 
 private:
     void readConfig(const QString &jsonFile);
+
     QJsonArray jsonOutputs;
     void showJsonOutput(const QVariantMap &o);
 
     ConfigPtr m_config;
     WaylandTestServer *m_server;
 
+    QMap<KWayland::Client::OutputDevice::Transform, QString> m_transformMap;
+    QMap<KScreen::Output::Rotation, QString> m_rotationMap;
 };
 
 TestWaylandOutputs::TestWaylandOutputs(QObject *parent)
     : QObject(parent)
     , m_config(nullptr)
 {
+    m_transformMap[KWayland::Client::OutputDevice::Transform::Normal] = "KScreen::Output::None";
+    m_transformMap[KWayland::Client::OutputDevice::Transform::Rotated90] = "KScreen::Output::Right";
+    m_transformMap[KWayland::Client::OutputDevice::Transform::Rotated180] = "KScreen::Output::Inverted";
+    m_transformMap[KWayland::Client::OutputDevice::Transform::Rotated270] = "KScreen::Output::Left";
+    m_transformMap[KWayland::Client::OutputDevice::Transform::Flipped] = "KScreen::Output::None";
+    m_transformMap[KWayland::Client::OutputDevice::Transform::Flipped90] = "KScreen::Output::Right";
+    m_transformMap[KWayland::Client::OutputDevice::Transform::Flipped180] = "KScreen::Output::Inverted";
+    m_transformMap[KWayland::Client::OutputDevice::Transform::Flipped270] = "KScreen::Output::Left";
+    m_rotationMap[KScreen::Output::None] = "KScreen::Output::None";
+    m_rotationMap[KScreen::Output::Left] = "KScreen::Output::Left";
+    m_rotationMap[KScreen::Output::Right] = "KScreen::Output::Right";
+    m_rotationMap[KScreen::Output::Inverted] = "KScreen::Output::Inverted";
 }
 
 void TestWaylandOutputs::init()
@@ -114,6 +130,8 @@ void TestWaylandOutputs::testConfigs_data()
     QTest::addColumn<QString>("configfile");
 
     QTest::newRow("wayland.json") << "wayland.json";
+    //QTest::newRow("default.json") << "default.json";
+    //QTest::newRow("multipleoutput.json") << "multipleoutput.json";
 }
 
 
@@ -133,7 +151,7 @@ void TestWaylandOutputs::readConfig(const QString& jsonFile)
             //showJsonOutput(output);
         }
     }
-    qDebug() << "Parsed " << jsonOutputs.count() << "outputs.";
+    qDebug() << "ID Parsed " << jsonOutputs.count() << "outputs.";
 
 }
 
@@ -186,44 +204,50 @@ void TestWaylandOutputs::testConfigs()
     m_server->setConfig(cfg);
     m_server->start();
 
-    QVERIFY(m_server->outputCount() == jsonOutputs.count());
+    QCOMPARE(m_server->outputCount(), jsonOutputs.count());
 
     GetConfigOperation *op = new GetConfigOperation();
     op->exec();
     m_config = op->config();
 
     QVERIFY(m_config);
-    QCOMPARE(m_config->outputs().count(), jsonOutputs.count());
+    //QCOMPARE(m_config->outputs().count(), jsonOutputs.count());
 
     QVERIFY(m_config->outputs().count());
     QList<int> ids;
     foreach (auto output, m_config->outputs()) {
         //continue;
-        qDebug() << " _____________________ Output: " << output;
+        qDebug() << " _____________________ Output: " << output << output->id();
         qDebug() << "   output name: " << output->name();
-        qDebug() << "   output modes: " << output->modes().count() << output->modes();
+        qDebug() << "   output modes: " << output->modes().count() << output->modes().keys();
         qDebug() << "   output enabled: " << output->isEnabled();
         qDebug() << "   output connect: " << output->isConnected();
         qDebug() << "   output sizeMm : " << output->sizeMm();
+        qDebug() << "   output rotation: " << m_rotationMap[output->rotation()];
         QVERIFY(!output->name().isEmpty());
         QVERIFY(output->id() > -1);
+        QVERIFY(!ids.contains(output->id()));
+        ids << output->id();
         QVERIFY(output->isConnected());
-        if (!output->isEnabled()) {
-            continue;
+        QVERIFY(output->edid() != 0);
+        if (output->id() == 71) {
+            QCOMPARE(output->rotation(), Output::Left);
+            QCOMPARE(output->isEnabled(), false);
+        } else {
+            QCOMPARE(output->rotation(), Output::None);
+            QCOMPARE(output->isEnabled(), true);
         }
-        //QVERIFY(output->isEnabled());
         QVERIFY(output->geometry() != QRectF(1,1,1,1));
         QVERIFY(output->geometry() != QRectF());
         if (configfile.endsWith("default.json")) {
             //qDebug() << "Output MM" << output->name() << output->sizeMm();
             QVERIFY(output->sizeMm() != QSize());
         }
-        QVERIFY(output->edid() != 0);
-        QCOMPARE(output->rotation(), Output::None);
-        QVERIFY(!ids.contains(output->id()));
-        ids << output->id();
+        if (!output->isEnabled()) {
+            continue;
+        }
+        //QVERIFY(output->isEnabled());
     }
-
 }
 
 void TestWaylandOutputs::cleanupTestCase()

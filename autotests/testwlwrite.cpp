@@ -153,7 +153,7 @@ void testWaylandWrite::testConfigs()
         if (!output->isEnabled()) {
             continue;
         }
-        QVERIFY(output->isEnabled());
+        //QVERIFY(output->isEnabled());
         QVERIFY(output->geometry() != QRectF(1,1,1,1));
         QVERIFY(output->geometry() != QRectF());
         if (configfile.endsWith("default.json")) {
@@ -161,7 +161,7 @@ void testWaylandWrite::testConfigs()
             QVERIFY(output->sizeMm() != QSize());
         }
         QVERIFY(output->edid() != 0);
-        QCOMPARE(output->rotation(), Output::None);
+        //QCOMPARE(output->rotation(), Output::None);
         QVERIFY(!ids.contains(output->id()));
         ids << output->id();
     }
