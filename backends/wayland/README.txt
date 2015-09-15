@@ -29,6 +29,26 @@ is pure coincidence and is likely to break code assuming it.
 
                                                             <sebas@kde.org>
 
+outputdevice.xml
+
+* outputdevice ID becomes char* and md5 string
+* update docs: relationship to wl_output
+* drop version of interface
+* EDID only has raw data
+* enum for enabled event to prevent boolean trap
+
+outputmanagement.xml
+
+* the summary of the description elements is not yet updated to reflect
+current change
+* for mode I suggest to include a unique mode id in output device and refer to
+that id. Otherwise I'm not sure whether we can 100 % identify the requested
+mode
+* position: please extend the documentation to say that this is for the top-
+left position and that the top-left position of the overall system is 0/0.
+Also maybe add that the outputs need to border (no gaps)
+* for all requests: add that they are only applied once apply is called.
+
 
 
 ScreenManagement protocol can be used for screen configuration.
