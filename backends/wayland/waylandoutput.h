@@ -70,7 +70,7 @@ private:
     QString modeName(const KWayland::Client::OutputDevice::Mode &m) const;
 
     mutable QSharedPointer<KScreen::Edid> m_edid;
-    quint32 m_id;
+//     quint32 m_id;
 
     KWayland::Client::OutputDevice* m_output;
     KWayland::Client::Registry* m_registry;

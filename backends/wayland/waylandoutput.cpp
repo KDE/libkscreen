@@ -32,7 +32,6 @@ using namespace KScreen;
 WaylandOutput::WaylandOutput(QObject *parent)
     : QObject(parent)
     , m_edid(new Edid(QByteArray(), this))
-    , m_id(-1)
     , m_output(nullptr)
     , m_protocolName(0)
     , m_protocolVersion(0)
@@ -74,12 +73,8 @@ WaylandOutput::~WaylandOutput()
 
 quint32 WaylandOutput::id() const
 {
-    return m_id;
-}
-
-void WaylandOutput::setId(const quint32 newId)
-{
-    m_id = newId;
+    Q_ASSERT(m_output);
+    return m_output->id();
 }
 
 bool WaylandOutput::enabled() const
@@ -124,10 +119,6 @@ KScreen::Edid WaylandOutput::edid()
 KScreen::OutputPtr WaylandOutput::toKScreenOutput(KScreen::ConfigPtr &parent) const
 {
     KScreen::OutputPtr output(new KScreen::Output());
-    output->setId(m_id);
-    output->setName(QString::number(m_id));
-//     qCDebug(KSCREEN_WAYLAND) << "toKScreenOutput OUTPUT";
-    //updateKScreenOutput(output); // Doesn't seem to be needed, but verify!
     return output;
 }
 
@@ -135,10 +126,10 @@ void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output) const
 {
     //qCDebug(KSCREEN_WAYLAND) << "updateKScreenOutput OUTPUT";
     // Initialize primary output
+    output->setId(m_output->id());
     output->setEnabled(m_output->enabled());
     output->setConnected(true);
     output->setPrimary(true); // FIXME
-    // FIXME: Rotation
 
     output->setName(m_output->manufacturer() + QStringLiteral("-") + m_output->model());
     // Physical size

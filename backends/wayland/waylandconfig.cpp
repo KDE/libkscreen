@@ -60,7 +60,7 @@ WaylandConfig::WaylandConfig(QObject *parent)
     });
     initConnection();
     m_syncLoop.exec();
-//    m_blockSignals = false;
+    m_blockSignals = false;
     qDebug() << "Syncloop done, config initialized";
 
 }
@@ -166,7 +166,7 @@ void WaylandConfig::setupRegistry()
 
 void WaylandConfig::addOutput(quint32 name, quint32 version)
 {
-    qDebug() << "WL Adding output" << name;
+    //qDebug() << "WL Adding output" << name;
     if (m_outputMap.keys().contains(name)) {
         qDebug() << "Output already known";
         return;
@@ -177,18 +177,18 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
 
     auto op = new KWayland::Client::OutputDevice(this);
     WaylandOutput *waylandoutput = new WaylandOutput(this);
-    waylandoutput->setId(outputId(waylandoutput)); // Gives us a new id
+    //waylandoutput->setId(outputId(waylandoutput)); // Gives us a new id
     waylandoutput->setOutput(m_registry, op, name, version);
     //waylandoutput->setup(m_registry->bindOutput(name, version));
 
     connect(waylandoutput, &WaylandOutput::complete, [=]{
         m_outputMap[waylandoutput->id()] = waylandoutput;
-        qCDebug(KSCREEN_WAYLAND) << "New Output complete" << name;
+        qCDebug(KSCREEN_WAYLAND) << "New Output complete" << waylandoutput->id() << name << m_outputMap.count();
         m_initializingOutputs.removeAll(name);
+        qCDebug(KSCREEN_WAYLAND) << "Initializing: " << m_initializingOutputs;
         checkInitialized();
-        m_screen->setOutputs(m_outputMap.values());
 
-        if (!m_blockSignals) {
+        if (!m_blockSignals && m_initializingOutputs.empty()) {
             //KScreen::ConfigMonitor::instance()->notifyUpdate();
             Q_EMIT configChanged(toKScreenConfig());
         }
@@ -200,7 +200,8 @@ void WaylandConfig::checkInitialized()
     //qDebug() << "CHECK: " << !m_blockSignals << m_registryInitialized << m_initializingOutputs.isEmpty() << m_outputMap.count() << (m_outputManagement != nullptr);
     if (!m_blockSignals && m_registryInitialized &&
         m_initializingOutputs.isEmpty() && m_outputMap.count() && m_outputManagement != nullptr) {
-        qDebug() << "config initialized";
+        qDebug() << "config initialized.";
+        m_screen->setOutputs(m_outputMap.values());
         emit initialized();
     };
 }

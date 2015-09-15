@@ -29,6 +29,8 @@
 
 using namespace KScreen;
 
+static QList<int> s_outputIds;
+
 void WaylandConfigReader::outputsFromConfig(const QString& configfile, KWayland::Server::Display* display,
                                             QList< KWayland::Server::OutputDeviceInterface* >& outputs)
 {
@@ -46,6 +48,8 @@ void WaylandConfigReader::outputsFromConfig(const QString& configfile, KWayland:
             //qDebug() << "new Output created: " << output["name"].toString();
         }
     }
+
+    s_outputIds.clear();
 }
 
 OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap& outputConfig, KWayland::Server::Display *display)
@@ -120,6 +124,16 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
 
     output->setGlobalPosition(pointFromJson(outputConfig["pos"]));
     output->setEnabled(outputConfig["enabled"].toBool());
+
+    int _id = outputConfig["id"].toInt();
+    qDebug() << "read ID" << _id << s_outputIds;
+    while (s_outputIds.contains(_id)) {
+        _id = _id + 1000;
+    }
+    s_outputIds << _id;
+    qDebug() << "SETTING ID" << _id;
+
+    output->setId(_id);
     //qDebug() << "enabled? " << output->enabled();
     output->create();
 
