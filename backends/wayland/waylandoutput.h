@@ -66,21 +66,11 @@ Q_SIGNALS:
     void changed();
 
 private:
-    /**
-     * Notify users after changes have been applied.
-     */
-    void flush();
-    void update();
-    void updateModes();
+    void showOutput();
     QString modeName(const KWayland::Client::OutputDevice::Mode &m) const;
 
     mutable QSharedPointer<KScreen::Edid> m_edid;
     quint32 m_id;
-
-    /** Check if we consider this object to be complete (i.e. done initializing).*/
-    bool isComplete();
-    /** Track if we've emitted the complete() signal, as to not do it twice. */
-    bool m_completed;
 
     KWayland::Client::OutputDevice* m_output;
     KWayland::Client::Registry* m_registry;

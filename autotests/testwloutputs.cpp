@@ -130,7 +130,7 @@ void TestWaylandOutputs::readConfig(const QString& jsonFile)
         const QVariantMap &output = value.toObject().toVariantMap();
         if (output["connected"].toBool()) {
             jsonOutputs << value;
-            showJsonOutput(output);
+            //showJsonOutput(output);
         }
     }
     qDebug() << "Parsed " << jsonOutputs.count() << "outputs.";
@@ -194,18 +194,18 @@ void TestWaylandOutputs::testConfigs()
 
     QVERIFY(m_config);
     QCOMPARE(m_config->outputs().count(), jsonOutputs.count());
-
-    //return;
+    qDebug() << "bla";
+    return;
     QVERIFY(m_config->outputs().count());
     QList<int> ids;
     foreach (auto output, m_config->outputs()) {
         //continue;
-        //         qDebug() << " _____________________ Output: " << output;
-        //         qDebug() << "   output name: " << output->name();
-        //         qDebug() << "   output modes: " << output->modes().count() << output->modes();
-        //         qDebug() << "   output enabled: " << output->isEnabled();
-        //         qDebug() << "   output connect: " << output->isConnected();
-        //         qDebug() << "   output sizeMm : " << output->sizeMm();
+        qDebug() << " _____________________ Output: " << output;
+        qDebug() << "   output name: " << output->name();
+        qDebug() << "   output modes: " << output->modes().count() << output->modes();
+        qDebug() << "   output enabled: " << output->isEnabled();
+        qDebug() << "   output connect: " << output->isConnected();
+        qDebug() << "   output sizeMm : " << output->sizeMm();
         QVERIFY(!output->name().isEmpty());
         QVERIFY(output->id() > -1);
         QVERIFY(output->isConnected());

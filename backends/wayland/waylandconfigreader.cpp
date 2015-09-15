@@ -110,6 +110,7 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
 
     output->setGlobalPosition(pointFromJson(outputConfig["pos"]));
     output->setEnabled(outputConfig["enabled"].toBool());
+    qDebug() << "enabled? " << output->enabled();
     output->create();
 
     return output;
