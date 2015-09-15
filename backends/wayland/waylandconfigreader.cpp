@@ -78,6 +78,16 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
         output->setManufacturer(outputConfig["manufacturer"].toString());
         output->setModel(outputConfig["model"].toString());
     }
+
+    QMap <int, KWayland::Server::OutputDeviceInterface::Transform> transformMap;
+    transformMap[0] = KWayland::Server::OutputDeviceInterface::Transform::Normal;
+    transformMap[1] = KWayland::Server::OutputDeviceInterface::Transform::Normal;
+    transformMap[2] = KWayland::Server::OutputDeviceInterface::Transform::Rotated270;
+    transformMap[3] = KWayland::Server::OutputDeviceInterface::Transform::Rotated180;
+    transformMap[4] = KWayland::Server::OutputDeviceInterface::Transform::Rotated90;
+
+
+    output->setTransform(transformMap[outputConfig["rotation"].toInt()]);
     int currentModeId = outputConfig["currentModeId"].toInt();
     QVariantList preferredModes = outputConfig["preferredModes"].toList();
 

@@ -37,6 +37,34 @@ WaylandOutput::WaylandOutput(QObject *parent)
     , m_protocolName(0)
     , m_protocolVersion(0)
 {
+    /*
+    enum class Transform {
+        Normal,
+        Rotated90,
+        Rotated180,
+        Rotated270,
+        Flipped,
+        Flipped90,
+        Flipped180,
+        Flipped270
+    };
+
+    enum Rotation {
+        None = 1,
+        Left = 2,
+        Inverted = 4,
+        Right = 8
+    };
+    */
+
+    m_rotationMap[KWayland::Client::OutputDevice::Transform::Normal] = KScreen::Output::None;
+    m_rotationMap[KWayland::Client::OutputDevice::Transform::Rotated90] = KScreen::Output::Right;
+    m_rotationMap[KWayland::Client::OutputDevice::Transform::Rotated180] = KScreen::Output::Inverted;
+    m_rotationMap[KWayland::Client::OutputDevice::Transform::Rotated270] = KScreen::Output::Left;
+    m_rotationMap[KWayland::Client::OutputDevice::Transform::Flipped] = KScreen::Output::None;
+    m_rotationMap[KWayland::Client::OutputDevice::Transform::Flipped90] = KScreen::Output::Right;
+    m_rotationMap[KWayland::Client::OutputDevice::Transform::Flipped180] = KScreen::Output::Inverted;
+    m_rotationMap[KWayland::Client::OutputDevice::Transform::Flipped270] = KScreen::Output::Left;
 }
 
 WaylandOutput::~WaylandOutput()
@@ -117,6 +145,7 @@ void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output) const
     output->setSizeMm(m_output->physicalSize());
     //qCDebug(KSCREEN_WAYLAND) << "  ####### setSizeMm: " << physicalSize() << geometry();
     output->setPos(m_output->globalPosition());
+    output->setRotation(m_rotationMap[m_output->transform()]);
     KScreen::ModeList modeList;
     Q_FOREACH (const KWayland::Client::OutputDevice::Mode &m, m_output->modes()) {
         KScreen::ModePtr mode(new KScreen::Mode());
