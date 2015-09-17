@@ -31,23 +31,28 @@ is pure coincidence and is likely to break code assuming it.
 
 outputdevice.xml
 
+o drop version of interface
+o EDID only has raw data
+o enum for enabled event to prevent boolean trap
+o outputdeviceinterface caches and applies changes in two steps
 * outputdevice ID becomes char* and md5 string
+
+docs:
 * update docs: relationship to wl_output
-* drop version of interface
-* EDID only has raw data
-* enum for enabled event to prevent boolean trap
 
 outputmanagement.xml
 
-* the summary of the description elements is not yet updated to reflect
-current change
-* for mode I suggest to include a unique mode id in output device and refer to
+o for mode I suggest to include a unique mode id in output device and refer to
 that id. Otherwise I'm not sure whether we can 100 % identify the requested
-mode
+mode (replied by email)
+
+docs:
 * position: please extend the documentation to say that this is for the top-
 left position and that the top-left position of the overall system is 0/0.
 Also maybe add that the outputs need to border (no gaps)
 * for all requests: add that they are only applied once apply is called.
+* the summary of the description elements is not yet updated to reflect
+current change
 
 
 
@@ -204,7 +209,114 @@ o the manufactorer and model doesn't make so much sense in the server's Private,
 o rename sync -> done
 o rename protocol to org_kde_kwin_screen_management
 
+Chat with Martin Gräßlin, 15-9-2015
 
+
+<sebas> mgraesslin: writing you a reply now, btw
+<sebas> thanks for the review comments
+<mgraesslin> sebas: so I just enabled ipv6 on your system? Welcome to *the future*
+<sebas> \o/
+<-- sitter (~me@kde/developer/sitter) has quit (Quit: Konversation terminated!)
+<sebas> mgraesslin: you have email
+<mgraesslin> sebas: your object you create has an id
+<sebas> Uh ... how do I get at it? (it's not persistant, I guess?)
+<sebas> is that the "name" of the name, version pair in the callbacks?
+<mgraesslin> what do you mean with persistant? It won't change for kscreens connection to Wayland
+<mgraesslin> sebas: no, the OutputDevice you create gets a unique id
+<sebas> across restarts
+<sebas> so you can use it for config saving
+<mgraesslin> oh unique id persistent over restarts?
+<mgraesslin> I never got that you want that
+<sebas> yes
+<sebas> we want to save config, and then it's going to be very useful
+<mgraesslin> ok, if you want a unique id then an id makes sense
+<mgraesslin> just call it uuid
+<mgraesslin> and it might not be needed
+<sebas> ok, cool
+<mgraesslin> we have things like edid
+--> sitter (~me@kde/developer/sitter) has joined #netrunnerlinux
+<sebas> it's not necessary for the protocol, indeed, more like API candy
+<mgraesslin> if you want a uuid, make it obvious that it's not a Wayland id
+<sebas> also it really helps with testing
+<mgraesslin> change the type to char* and define it as a md5 some
+<mgraesslin> sum
+<sebas> uuid as name + docs suffices?
+<sebas> md5sum of what? (thought of it, already, but couldn't come up with what to hash)
+<mgraesslin> maybe edid
+<sebas> makes sense, will do that
+<mgraesslin> or edid + connector
+<-- jensreu (~jens@213.80.106.100) has quit (Quit: Konversation terminated!)
+<sebas> there is no connector
+<mgraesslin> but in kwin
+--> jensreut (~quassel@213.80.106.100) has joined #netrunnerlinux
+<sebas> that's in the abstractbackend part?
+<mgraesslin> sebas: maybe we should expose connector name in outputdevice?
+<sebas> my idea was to leave it to the compositor entirely
+<sebas> I can do that, could make sense
+<mgraesslin> sebas: connector is kind of known to the drmbackend - just not yet exposed
+<sebas> then I'd pick EDID, so you can switch connectors and it'll still be able to remember config ... neat!
+<mgraesslin> not sure if we want that
+<mgraesslin> I mean if I plug in to a different connector it's a different setup, isn't it?
+<sebas> mgraesslin: would be up to the compositor, it can md5sum edid + connector or just edid
+<sebas> I'd keep the "how do you come up with a uuid" out of the protocol for that reason
+<sebas> nicer for human readable names as well
+<mgraesslin> well we can change that anyway as the md5 sum will be calculated by kwin
+<sebas> yes, exactly
+<mgraesslin> yeah I agree on keeping it out of the protocol
+<mgraesslin> "unique identifier consisting of lenght(md5)"
+<sebas> k, cool
+<-- jensreut (~quassel@213.80.106.100) has quit (Remote host closed the connection)
+<sebas> mgraesslin: btw ... the set calls immediately change the resources, the apply is only to notify the compositor, right?
+--> jensreut (~quassel@213.80.106.100) has joined #netrunnerlinux
+<sebas> or do you want to hold back all changes until apply is sent?
+<mgraesslin> sebas: all changes wait for apply
+<sebas> then I'll need some kind of cache on the server side
+<mgraesslin> sebas: we cannot apply the set directly as we could end up in undefined behavior
+<mgraesslin> sure you do ;-)
+<mgraesslin> sebas: look at surfaceinterface
+<sebas> well, OutputDevice could be that cache
+<sebas> but OK, makes sense both ways
+<mgraesslin> no, no, OutputDevice is only filled in from KWin, not from the client
+<sebas> I'm filling it from outputmanagement right now
+<sebas> but yeah, arguable, kwin does that
+<sebas> (my logic was that kwin will look at the outputdeviceinterfaces and apply the settings, then call success or failed
+<sebas> and possibly reset the outputdevices
+<-- jensreut (~quassel@213.80.106.100) has quit (Remote host closed the connection)
+<mgraesslin> no, the idea I had was that kwin gets the configuration and reads from there
+<sebas> (because changes are going to be applied to wl_output for real, in a way outputdevice is already our cache)
+<mgraesslin> from kwin side I don't want to care about the output device
+<mgraesslin> it's just writing to a KWayland::Server::OutputInterface -> the mapping to wl_output and org_kde_kwin_outputdevice should be completely internal to KWayland
+--> jensreut (~quassel@213.80.106.100) has joined #netrunnerlinux
+<sebas> ok, so I send changes from the client, record them, wait for apply from client, wait for succeeded from kwin, then change OutputDevices according to my change recording?
+<mgraesslin> kwin will feed the new settings into KWayland::Server::OutputInterface, from there it needs to be propagated to OutputDeviceInterface
+<mgraesslin> when OutputDeviceInterface changes the changes are pushed to the client
+<mgraesslin> so OutputDevice gets updated
+<mgraesslin> it's just like the initial push of values
+<sebas> so we need a mapping Output -> OutputDevice, and the ones that are not mapped are disabled
+<sebas> esp the latter case it a bit tricky
+<sebas> I'd rather keep them separate and have kwin set the properties on both, output and outputdevice
+<sebas> it has to do so on initialization anyway
+<mgraesslin> we can get that
+<sebas> as there may be more outputdevices than outputs
+<mgraesslin> I'm confident that it'
+<mgraesslin> s doable to do it in kwayland
+<mgraesslin> it's not that difficult
+<sebas> ok, let me do the other changes first, then this becomes a bit clearer
+<mgraesslin> we add an setEnabled(bool) to KWayland::Server::OutputInterface
+<mgraesslin> if that changes to false, we delete the wl_output
+<mgraesslin> if it goes to true, we add it again
+<sebas> sounds messy to me
+<mgraesslin> though we might need some intermediate class
+<mgraesslin> as OutputInterface derives from Global
+<sebas> I'll think of a mechanism a bit, we can discuss this tomorrow
+<mgraesslin> sure, that also doesn't hurry
+<mgraesslin> from KWin side I want to keep the change minimal
+<sebas> yup, doesn't really affect the other bits
+<sebas> Hm, perhaps it should be the other way round
+<sebas> kwin creates outputdevices, and if enabled, these outputdevices create Outputs (and delete them accordingly)
+<sebas> then we don't get the problem that the gone output has to do stuff with the not-gone outputdevice
+<mgraesslin> yes that would work as well
+<sebas> k, sounds muchos less messy to me
 
 
 Email from Martin Gräßlin, Fri, 28-8-2015
