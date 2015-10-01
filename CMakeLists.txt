@@ -1,5 +1,5 @@
 project(libkscreen)
-set(PROJECT_VERSION "5.4.1")
+set(PROJECT_VERSION "5.4.2")
 
 cmake_minimum_required(VERSION 2.8.12)
 
