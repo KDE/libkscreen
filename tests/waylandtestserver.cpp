@@ -125,6 +125,7 @@ void WaylandTestServer::setConfig(const QString& configfile)
 bool WaylandTestServer::outputFromConfigGroup(const KConfigGroup& config, KWayland::Server::OutputDeviceInterface* output)
 {
     return true;
+    /*
     bool changed = false;
 
     const QSize ps = QSize(config.readEntry("width", -1), config.readEntry("height", -1));
@@ -143,6 +144,7 @@ bool WaylandTestServer::outputFromConfigGroup(const KConfigGroup& config, KWayla
     // FIXME : rotation
 
     return changed;
+    */
 }
 
 void WaylandTestServer::pickupConfigFile(const QString& configfile)

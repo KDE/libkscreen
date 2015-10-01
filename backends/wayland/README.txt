@@ -29,16 +29,59 @@ is pure coincidence and is likely to break code assuming it.
 
                                                             <sebas@kde.org>
 
+Review from 09/18/15 16:25 by Martin Gräßlin:
+
+
+
+OutputManagementInterface:
+* I suggest to not emit the signal configurationCreated (not really
+interesting for KWin), but instead emit a signal carrying the object when it
+requests apply
+
+OutputConfigurationInterface;
+*no need to include global.h in outputconfiguration_interface.h
+* no need to forward declare Display
+* yes you want that metatype which is commented, but for the pointer type
+* needs to expose information for the compositor to actually know what it
+should do
+* applyRequested might not be needed in case it's change like suggested above
+* in OutputConfigurationInterface::Private::modeCallback break once you find
+the modeValid. Personally I don't like the foreach and prefer to use either
+the new for loop or a nice helper from the std algorithms. E.g. for this case:
+modeValid = std::any_of(output->modes().constBegin(), output-
+>modes().constEnd(), [mode_id] (const Mode &m) { return m.id == mode_id; ));
+see [1]. Reading further your code you probably do not even want the variable
+modeValid at all, but rather just use std::none_of
+
+* I don't think we need the pendingChangesChanged() signal. Normally we are
+not interested in the not yet committed state.
+* The applyCallback should swap the pending state to the current state
+* There shouldn't be a need to do the applyPendingChanges from
+OutputConfigurationInterface. OutputDeviceInterface will be filled in from
+KWin anyway before the applied will be set
+* general coding style comment: please pick either Q_FOREACH or foreach, but
+not both. Ideally get rid of them, it's an ugly macro which has a replacement
+as a core language feature (granted you need to make sure it doesn't copy).
+
+* General comment: I think tracking the suggested changes in the
+OutputDeviceInterface is wrong. The idea was that the client can setup in a
+1:1 mapping with the server. By tracking it in the OutputDeviceInterface you
+broke that. Now it's possible that n clients modify 1 OutputDeviceInterface
+again. Thus what the server in the end applies might not be what the client
+submitted. The state needs to be tracked in the OutputConfigurationInterface.
+
+
+
 outputdevice.xml
 
 o drop version of interface
 o EDID only has raw data
 o enum for enabled event to prevent boolean trap
 o outputdeviceinterface caches and applies changes in two steps
-* outputdevice ID becomes char* and md5 string
+o outputdevice ID becomes char* and md5 string
 
 docs:
-* update docs: relationship to wl_output
+o update docs: relationship to wl_output
 
 outputmanagement.xml
 
@@ -47,7 +90,7 @@ that id. Otherwise I'm not sure whether we can 100 % identify the requested
 mode (replied by email)
 
 docs:
-* position: please extend the documentation to say that this is for the top-
+o position: please extend the documentation to say that this is for the top-
 left position and that the top-left position of the overall system is 0/0.
 Also maybe add that the outputs need to border (no gaps)
 * for all requests: add that they are only applied once apply is called.
