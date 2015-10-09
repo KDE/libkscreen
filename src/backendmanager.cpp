@@ -19,7 +19,6 @@
 
 #include "backendmanager_p.h"
 #include "backendinterface.h"
-#include "backendlauncher/backendloader.h"
 #include "debug_p.h"
 #include "getconfigoperation.h"
 #include "configserializer_p.h"
@@ -30,15 +29,7 @@
 #include <QDBusPendingReply>
 #include <QDBusConnectionInterface>
 #include <QStandardPaths>
-
-#include "config-libkscreen.h"
-
-#include <QProcess>
-
-#ifdef Q_OS_UNIX
-#include <sys/wait.h>
-#include <signal.h>
-#endif
+#include <QThread>
 
 using namespace KScreen;
 
@@ -61,7 +52,6 @@ BackendManager::BackendManager()
     : QObject()
     , mInterface(0)
     , mCrashCount(0)
-    , mLauncher(0)
     , mShuttingDown(false)
     , mRequestsCounter(0)
 {
@@ -97,7 +87,20 @@ void BackendManager::requestBackend()
     }
     ++mRequestsCounter;
 
-    startBackend(QString::fromLatin1(qgetenv("KSCREEN_BACKEND")));
+    const QByteArray args = qgetenv("KSCREEN_BACKEND_ARGS");
+    QVariantMap arguments;
+    if (!args.isEmpty()) {
+        QList<QByteArray> arglist = args.split(';');
+        Q_FOREACH (const QByteArray &arg, arglist) {
+            const int pos = arg.indexOf('=');
+            if (pos == -1) {
+                continue;
+            }
+            arguments.insert(arg.left(pos), arg.mid(pos + 1));
+        }
+    }
+
+    startBackend(QString::fromLatin1(qgetenv("KSCREEN_BACKEND")), arguments);
 }
 
 void BackendManager::emitBackendReady()
@@ -109,139 +112,61 @@ void BackendManager::emitBackendReady()
     }
 }
 
-void BackendManager::startBackend(const QString &backend)
+void BackendManager::startBackend(const QString &backend, const QVariantMap &arguments)
 {
-    if (mLauncher && mLauncher->state() == QProcess::Running) {
-        mLauncher->terminate();
-    }
-
-    mLauncher = new QProcess(this);
-    connect(mLauncher, static_cast<void(QProcess::*)(int,QProcess::ExitStatus)>(&QProcess::finished),
-            this, &BackendManager::launcherFinished);
-    connect(mLauncher, &QProcess::readyReadStandardOutput,
-            this, &BackendManager::launcherDataAvailable);
-
-    QString launcher = QString::fromLatin1(CMAKE_INSTALL_FULL_LIBEXECDIR_KF5 "/kscreen_backend_launcher");
-    if (!QFile::exists(launcher)) {
-        launcher = QStandardPaths::findExecutable("kscreen_backend_launcher");
-        if (launcher.isEmpty()) {
-            qCWarning(KSCREEN) << "Failed to locate kscreen_backend_launcher, KScreen will be useless";
-            invalidateInterface();
-            delete mLauncher;
-            mLauncher = 0;
-            QMetaObject::invokeMethod(this, "emitBackendReady", Qt::QueuedConnection);
-            return;
-        }
-    }
-
-    mLauncher->setProgram(launcher);
-    if (!backend.isEmpty()) {
-        mLauncher->setArguments(QStringList() << "--backend" << backend);
-    }
-
-    mLauncher->start();
-    if (!qgetenv("KSCREEN_BACKEND_DEBUG").isEmpty()) {
-        pid_t pid = mLauncher->pid();
-        qCDebug(KSCREEN) << "==================================";
-        qCDebug(KSCREEN) << "KScreen BackendManager: Suspending backend launcher";
-        qCDebug(KSCREEN) << "'gdb --pid" << pid << "' to debug";
-        qCDebug(KSCREEN) << "'kill -SIGCONT" << pid << "' to continue";
-        qCDebug(KSCREEN) << "==================================";
-        qCDebug(KSCREEN);
-        kill(pid, SIGSTOP);
-    }
-
-    mResetCrashCountTimer.start();
+    // This will autostart the launcher if it's not running already, calling
+    // requestBackend(backend) will:
+    //   a) if the launcher is started it will force it to load the correct backend,
+    //   b) if the launcher is already running it will make sure it's running with
+    //      the same backend as the one we requested and send an error otherwise
+    QDBusConnection conn = QDBusConnection::sessionBus();
+    QDBusMessage call = QDBusMessage::createMethodCall(QStringLiteral("org.kde.KScreen"),
+                                                       QStringLiteral("/"),
+                                                       QStringLiteral("org.kde.KScreen"),
+                                                       QStringLiteral("requestBackend"));
+    call.setArguments({ backend, arguments });
+    QDBusPendingCall pending = conn.asyncCall(call);
+    QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(pending);
+    connect(watcher, &QDBusPendingCallWatcher::finished,
+            this, &BackendManager::onBackendRequestDone);
 }
 
-void BackendManager::launcherFinished(int exitCode, QProcess::ExitStatus exitStatus)
+void BackendManager::onBackendRequestDone(QDBusPendingCallWatcher *watcher)
 {
-    qCDebug(KSCREEN) << "Launcher finished with exit code" << exitCode << ", status" << exitStatus;
-
-    // Stop the timer if it's running, otherwise the number would get reset to 0
-    // anyway even if we reached the sMaxCrashCount, and then the backend would
-    // be restarted again anyway.
-    mResetCrashCountTimer.stop();
-
-    if (exitStatus == QProcess::CrashExit) {
-        // Backend has crashed: restart it
-        invalidateInterface();
-        if (!mShuttingDown) {
-            if (++mCrashCount <= sMaxCrashCount) {
-                requestBackend();
-            } else {
-                qCWarning(KSCREEN) << "Launcher has crashed too many times: not restarting";
-                mLauncher->deleteLater();
-                mLauncher = 0;
-            }
-        }
-        mShuttingDown = false;
-        return;
-    }
-
-    switch (exitCode) {
-    case BackendLoader::BackendLoaded:
-        // This means that the launcher has terminated successfully after doing
-        // what it was asked to do, so delete the interface, but don't emit signals
-        invalidateInterface();
-        break;
-
-    case BackendLoader::BackendFailedToLoad:
-        // Launcher terminated immediatelly because there was no backend, this
-        // means that we didn't try before and someone is probably waiting for
-        // the signal
-        qCWarning(KSCREEN) << "Launcher failed to load any backend: KScreen will be useless";
+    QDBusPendingReply<bool> reply = *watcher;
+    // Most probably we requested an explicit backend that is different than the
+    // one already loaded in the launcher
+    if (reply.isError()) {
+        qCWarning(KSCREEN) << "Failed to request backend:" << reply.error().name() << ":" << reply.error().message();
         invalidateInterface();
         emitBackendReady();
-        break;
-
-    case BackendLoader::BackendAlreadyExists:
-        // The launcher wrote service name to stdout, so backendReady() was emitted
-        // from launcherDataAvailable(), nothing else to do here
-        qCDebug(KSCREEN) << "Service for requested backend already running";
-        break;
-
-    case BackendLoader::LauncherStopped:
-        // The launcher has been stopped on request, probably by someone calling
-        // shutdownBackend()
-        qCDebug(KSCREEN) << "Backend launcher terminated on requested";
-        invalidateInterface();
-        break;
-    }
-
-    mShuttingDown = false;
-    mLauncher->deleteLater();
-    mLauncher = 0;
-};
-
-void BackendManager::launcherDataAvailable()
-{
-    mLauncher->setReadChannel(QProcess::StandardOutput);
-    const QByteArray service = mLauncher->readLine();
-    qCDebug(KSCREEN) << "launcherDataAvailable:" << service;
-    mBackendService = QString::fromLatin1(service);
-
-    mInterface = new org::kde::kscreen::Backend(mBackendService,
-                                                QLatin1String("/"),
-                                                QDBusConnection::sessionBus(),
-                                                this);
-    if (!mInterface->isValid()) {
-        QDBusServiceWatcher *watcher = new QDBusServiceWatcher(mBackendService,
-                                                               QDBusConnection::sessionBus());
-        connect(watcher, &QDBusServiceWatcher::serviceOwnerChanged,
-                [&](const QString &service, const QString &oldOwner, const QString &newOwner) {
-                    qDebug() << service << newOwner << oldOwner;
-                    if (newOwner == mBackendService) {
-                        backendServiceReady();
-                    }
-                });
         return;
     }
-    backendServiceReady();
-}
 
-void BackendManager::backendServiceReady()
-{
+    // Most probably request and explicit backend which is not available or failed
+    // to initialize, or the launcher did not find any suitable backend for the
+    // current platform.
+    if (!reply.value()) {
+        qCWarning(KSCREEN) << "Failed to request backend: unknown error";
+        invalidateInterface();
+        emitBackendReady();
+        return;
+    }
+
+    // The launcher has successfully loaded the backend we wanted and registered
+    // it to DBus (hopefuly), let's try to get an interface for the backend.
+    mInterface = new org::kde::kscreen::Backend(QStringLiteral("org.kde.KScreen"),
+                                                QStringLiteral("/backend"),
+                                                QDBusConnection::sessionBus());
+    if (!mInterface->isValid()) {
+        qCWarning(KSCREEN) << "Backend successfully requested, but we failed to obtain a valid DBus interface for it";
+        invalidateInterface();
+        emitBackendReady();
+        return;
+    }
+
+    // The backend is GO, so let's watch for it's possible disappearance, so we
+    // can invalidate the interface
     mServiceWatcher.addWatchedService(mBackendService);
 
     // Immediatelly request config
@@ -249,6 +174,7 @@ void BackendManager::backendServiceReady()
             [&](ConfigOperation *op) {
                 mConfig = qobject_cast<GetConfigOperation*>(op)->config();
             });
+    // And listen for its change.
     connect(mInterface, &org::kde::kscreen::Backend::configChanged,
             [&](const QVariantMap &newConfig) {
                 mConfig = KScreen::ConfigSerializer::deserializeConfig(newConfig);
@@ -283,23 +209,24 @@ void BackendManager::shutdownBackend()
         return;
     }
 
+    // If there are some currently pending requests, then wait for them to
+    // finish before quitting
     while (mRequestsCounter > 0) {
         mShutdownLoop.exec();
     }
 
     mServiceWatcher.removeWatchedService(mBackendService);
     mShuttingDown = true;
-    const QDBusReply<uint> reply = QDBusConnection::sessionBus().interface()->servicePid(mInterface->service());
 
+    QDBusMessage call = QDBusMessage::createMethodCall(QStringLiteral("org.kde.KScreen"),
+                                                       QStringLiteral("/"),
+                                                       QStringLiteral("org.kde.KScreen"),
+                                                       QStringLiteral("quit"));
     // Call synchronously
-    mInterface->quit().waitForFinished();
+    QDBusConnection::sessionBus().call(call);
     invalidateInterface();
 
-    if (mLauncher) {
-        mLauncher->waitForFinished(5000);
-        // This will ensure that launcherFinished() is called, which will take care
-        // of deleting the QProcess
-    } else {
-        // ... ?
+    while (QDBusConnection::sessionBus().interface()->isServiceRegistered(QStringLiteral("org.kde.KScreen"))) {
+        QThread::msleep(100);
     }
 }

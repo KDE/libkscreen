@@ -21,6 +21,5 @@
       <arg type="ay" direction="out" />
     </method>
 
-    <method name="quit" />
   </interface>
 </node>

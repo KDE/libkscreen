@@ -20,6 +20,8 @@
 #include "backenddbuswrapper.h"
 #include "backendloader.h"
 #include "backendadaptor.h"
+#include "debug_p.h"
+
 #include "src/configserializer_p.h"
 #include "src/config.h"
 #include "src/abstractbackend.h"
@@ -48,14 +50,8 @@ BackendDBusWrapper::~BackendDBusWrapper()
 bool BackendDBusWrapper::init()
 {
     QDBusConnection dbus = QDBusConnection::sessionBus();
-    if (!dbus.registerService(mBackend->serviceName())) {
-        qCWarning(KSCREEN_BACKEND_LAUNCHER) << "Failed to register as DBus service: another launcher already running?";
-        qCWarning(KSCREEN_BACKEND_LAUNCHER) << dbus.lastError().message();
-        return false;
-    }
-
     new BackendAdaptor(this);
-    if (!dbus.registerObject(QLatin1String("/"), this, QDBusConnection::ExportAdaptors)) {
+    if (!dbus.registerObject(QLatin1String("/backend"), this, QDBusConnection::ExportAdaptors)) {
         qCWarning(KSCREEN_BACKEND_LAUNCHER) << "Failed to export backend to DBus: another launcher already running?";
         qCWarning(KSCREEN_BACKEND_LAUNCHER) << dbus.lastError().message();
         return false;
@@ -105,12 +101,6 @@ QByteArray BackendDBusWrapper::getEdid(int output) const
     }
 
     return edidData;
-}
-
-void BackendDBusWrapper::quit()
-{
-    qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Launcher termination requested";
-    qApp->exit(BackendLoader::LauncherStopped);
 }
 
 void BackendDBusWrapper::backendConfigChanged(const KScreen::ConfigPtr &config)

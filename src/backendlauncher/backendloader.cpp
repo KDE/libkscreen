@@ -18,6 +18,9 @@
  */
 
 #include "backendloader.h"
+#include "backendloaderadaptor.h"
+#include "backenddbuswrapper.h"
+#include "debug_p.h"
 #include "src/abstractbackend.h"
 
 #include <QCoreApplication>
@@ -31,8 +34,6 @@
 #include <QDBusConnection>
 #include <QDBusInterface>
 
-Q_LOGGING_CATEGORY(KSCREEN_BACKEND_LAUNCHER, "kscreen.backendLauncher")
-
 void pluginDeleter(QPluginLoader *p)
 {
     if (p) {
@@ -44,8 +45,9 @@ void pluginDeleter(QPluginLoader *p)
 
 BackendLoader::BackendLoader()
     : QObject()
-    , mLoader(0)
-    , mBackend(0)
+    , QDBusContext()
+    , mLoader(Q_NULLPTR)
+    , mBackend(Q_NULLPTR)
 {
 }
 
@@ -56,10 +58,64 @@ BackendLoader::~BackendLoader()
     qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Backend loader destroyed";
 }
 
-bool BackendLoader::loadBackend(const QString& backend)
+bool BackendLoader::init()
 {
-    qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Requested backend:" << backend;
-    const QString backendFilter = QString::fromLatin1("KSC_%1*").arg(backend);
+    QDBusConnection dbus = QDBusConnection::sessionBus();
+    new BackendLoaderAdaptor(this);
+    if (!dbus.registerObject(QLatin1String("/"), this, QDBusConnection::ExportAdaptors)) {
+        qCWarning(KSCREEN_BACKEND_LAUNCHER) << "Failed to export backend to DBus: another launcher already running?";
+        qCWarning(KSCREEN_BACKEND_LAUNCHER) << dbus.lastError().message();
+        return false;
+    }
+
+    return true;
+}
+
+QString BackendLoader::backend() const
+{
+    if (mBackend) {
+        return mBackend->backend()->name();
+    }
+
+    return QString();
+}
+
+bool BackendLoader::requestBackend(const QString &backendName, const QVariantMap &arguments)
+{
+    if (mBackend) {
+        // If an backend is already loaded, but it's not the same as the one
+        // requested, then it's an error
+        if (!backendName.isEmpty() && mBackend->backend()->name() != backendName) {
+            sendErrorReply(QDBusError::Failed, QStringLiteral("Another backend is already active"));
+            return false;
+        } else {
+            // If caller requested the same one as already loaded, or did not
+            // request a specific backend, hapilly reuse the existing one
+            return true;
+        }
+    }
+
+    KScreen::AbstractBackend *backend = loadBackend(backendName, arguments);
+    if (!backend) {
+        return false;
+    }
+
+    mBackend = new BackendDBusWrapper(backend);
+    if (!mBackend->init()) {
+        delete mBackend;
+        mBackend = Q_NULLPTR;
+        pluginDeleter(mLoader);
+        mLoader = Q_NULLPTR;
+        return false;
+    }
+    return true;
+}
+
+KScreen::AbstractBackend *BackendLoader::loadBackend(const QString &name,
+                                                     const QVariantMap &arguments)
+{
+    qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Requested backend:" << name;
+    const QString backendFilter = QString::fromLatin1("KSC_%1*").arg(name);
     const QStringList paths = QCoreApplication::libraryPaths();
     qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Lookup paths: " << paths;
     Q_FOREACH (const QString &path, paths) {
@@ -70,13 +126,13 @@ bool BackendLoader::loadBackend(const QString& backend)
         const QFileInfoList finfos = dir.entryInfoList();
         Q_FOREACH (const QFileInfo &finfo, finfos) {
             // Skip "Fake" backend unless explicitly specified via KSCREEN_BACKEND
-            if (backend.isEmpty() && (finfo.fileName().contains(QLatin1String("KSC_Fake")) || finfo.fileName().contains(QLatin1String("KSC_FakeUI")))) {
+            if (name.isEmpty() && (finfo.fileName().contains(QLatin1String("KSC_Fake")) || finfo.fileName().contains(QLatin1String("KSC_FakeUI")))) {
                 continue;
             }
 
             // When on X11, skip the QScreen backend, instead use the XRandR backend,
             // if not specified in KSCREEN_BACKEND
-            if (backend.isEmpty() &&
+            if (name.isEmpty() &&
                     finfo.fileName().contains(QLatin1String("KSC_QScreen")) &&
                     QX11Info::isPlatformX11()) {
                 continue;
@@ -84,7 +140,7 @@ bool BackendLoader::loadBackend(const QString& backend)
 
             // When not on X11, skip the XRandR backend, and fall back to QSCreen
             // if not specified in KSCREEN_BACKEND
-            if (backend.isEmpty() &&
+            if (name.isEmpty() &&
                     finfo.fileName().contains(QLatin1String("KSC_XRandR")) &&
                     !QX11Info::isPlatformX11()) {
                 continue;
@@ -99,35 +155,30 @@ bool BackendLoader::loadBackend(const QString& backend)
                 continue;
             }
 
-            mBackend = qobject_cast<KScreen::AbstractBackend*>(instance);
-            if (mBackend) {
-                if (!mBackend->isValid()) {
-                    qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Skipping" << mBackend->name() << "backend";
-                    delete mBackend;
-                    mBackend = 0;
+            auto backend = qobject_cast<KScreen::AbstractBackend*>(instance);
+            if (backend) {
+                backend->init(arguments);
+                if (!backend->isValid()) {
+                    qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Skipping" << backend->name() << "backend";
+                    delete backend;
                     continue;
                 }
 
                 // This is the only case we don't want to unload() and delete the loader, instead
                 // we store it and unload it when the backendloader terminates.
                 mLoader = loader.release();
-                qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Loading" << mBackend->name() << "backend";
-                return true;
+                qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Loading" << backend->name() << "backend";
+                return backend;
             } else {
                 qCDebug(KSCREEN_BACKEND_LAUNCHER) << finfo.fileName() << "does not provide valid KScreen backend";
             }
         }
     }
 
-    return false;
+    return Q_NULLPTR;
 }
 
-KScreen::AbstractBackend* BackendLoader::backend() const
+void BackendLoader::quit()
 {
-    return mBackend;
-}
-
-bool BackendLoader::checkIsAlreadyRunning()
-{
-    return QDBusConnection::sessionBus().interface()->isServiceRegistered(mBackend->serviceName());
+    qApp->quit();
 }
