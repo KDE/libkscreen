@@ -39,7 +39,7 @@ interesting for KWin), but instead emit a signal carrying the object when it
 requests apply
 
 OutputConfigurationInterface;
-*no need to include global.h in outputconfiguration_interface.h
+* no need to include global.h in outputconfiguration_interface.h
 * no need to forward declare Display
 * yes you want that metatype which is commented, but for the pointer type
 * needs to expose information for the compositor to actually know what it
@@ -93,8 +93,8 @@ docs:
 o position: please extend the documentation to say that this is for the top-
 left position and that the top-left position of the overall system is 0/0.
 Also maybe add that the outputs need to border (no gaps)
-* for all requests: add that they are only applied once apply is called.
-* the summary of the description elements is not yet updated to reflect
+o for all requests: add that they are only applied once apply is called.
+o the summary of the description elements is not yet updated to reflect
 current change
 
 
