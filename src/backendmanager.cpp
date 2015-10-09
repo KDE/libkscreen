@@ -30,8 +30,6 @@
 #include <QDBusConnectionInterface>
 #include <QStandardPaths>
 
-#include "config-libkscreen.h"
-
 using namespace KScreen;
 
 Q_DECLARE_METATYPE(org::kde::kscreen::Backend*)
