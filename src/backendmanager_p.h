@@ -49,27 +49,22 @@ public:
     ~BackendManager();
 
     void requestBackend();
+    void shutdownBackend();
 
     KScreen::ConfigPtr config() const;
 
-    void shutdownBackend();
-
 Q_SIGNALS:
     void backendReady(OrgKdeKscreenBackendInterface *backend);
-
 
 private Q_SLOTS:
     void emitBackendReady();
 
     void startBackend(const QString &backend = QString());
-
-    void launcherFinished(int existCode, QProcess::ExitStatus exitStatus);
-    void launcherDataAvailable();
+    void onBackendRequestDone(QDBusPendingCallWatcher *watcher);
 
     void backendServiceUnregistered(const QString &serviceName);
 
 private:
-    void findBestBackend();
     void invalidateInterface();
     void backendServiceReady();
 
@@ -81,7 +76,6 @@ private:
     OrgKdeKscreenBackendInterface *mInterface;
     int mCrashCount;
 
-    QProcess *mLauncher;
     QString mBackendService;
     QDBusServiceWatcher mServiceWatcher;
     KScreen::ConfigPtr mConfig;

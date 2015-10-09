@@ -21,40 +21,38 @@
 #define BACKENDLAUNCHER_H
 
 #include <QObject>
-#include <QLoggingCategory>
-
-class QPluginLoader;
+#include <QDBusContext>
 
 namespace KScreen
 {
 class AbstractBackend;
 }
 
+class QPluginLoader;
+class BackendDBusWrapper;
+
 class BackendLoader : public QObject
+                    , protected QDBusContext
 {
     Q_OBJECT
+    Q_CLASSINFO("D-Bus Interface", "org.kde.KScreen")
 
 public:
-    enum State {
-        BackendLoaded = 0,
-        BackendAlreadyExists = 1,
-        BackendFailedToLoad = 2,
-        LauncherStopped = 3
-    };
-
     explicit BackendLoader();
     ~BackendLoader();
 
-    bool loadBackend(const QString &backendName = QString());
-    bool checkIsAlreadyRunning();
+    bool init();
 
-    KScreen::AbstractBackend* backend() const;
+    Q_INVOKABLE QString backend() const;
+    Q_INVOKABLE bool requestBackend(const QString &name);
+    Q_INVOKABLE void quit();
+
+private:
+    KScreen::AbstractBackend *loadBackend(const QString &name);
 
 private:
     QPluginLoader *mLoader;
-    KScreen::AbstractBackend* mBackend;
+    BackendDBusWrapper *mBackend;
 };
-
-Q_DECLARE_LOGGING_CATEGORY(KSCREEN_BACKEND_LAUNCHER)
 
 #endif // BACKENDLAUNCHER_H
