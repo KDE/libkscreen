@@ -133,6 +133,7 @@ void BackendManager::startBackend(const QString &backend, const QVariantMap &arg
 
 void BackendManager::onBackendRequestDone(QDBusPendingCallWatcher *watcher)
 {
+    watcher->deleteLater();
     QDBusPendingReply<bool> reply = *watcher;
     // Most probably we requested an explicit backend that is different than the
     // one already loaded in the launcher
