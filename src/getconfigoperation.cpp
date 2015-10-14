@@ -46,6 +46,8 @@ public:
     ConfigPtr config;
     int pendingEDIDs;
 
+    QPointer<org::kde::kscreen::Backend> mBackend;
+
 private:
     Q_DECLARE_PUBLIC(GetConfigOperation)
 };
@@ -58,7 +60,7 @@ GetConfigOperationPrivate::GetConfigOperationPrivate(GetConfigOperation::Options
 {
 }
 
-void GetConfigOperationPrivate::backendReady(org::kde::kscreen::Backend* backend)
+void GetConfigOperationPrivate::backendReady(org::kde::kscreen::Backend *backend)
 {
     ConfigOperationPrivate::backendReady(backend);
 
@@ -70,10 +72,8 @@ void GetConfigOperationPrivate::backendReady(org::kde::kscreen::Backend* backend
         return;
     }
 
-    QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(backend->getConfig(), this);
-
-    const auto backendPointer = QPointer<org::kde::kscreen::Backend>(backend);
-    watcher->setProperty("backend", QVariant::fromValue(backendPointer));
+    mBackend = backend;
+    QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(mBackend->getConfig(), this);
     connect(watcher, &QDBusPendingCallWatcher::finished,
             this, &GetConfigOperationPrivate::onConfigReceived);
 }
@@ -103,8 +103,7 @@ void GetConfigOperationPrivate::onConfigReceived(QDBusPendingCallWatcher *watche
     }
 
     pendingEDIDs = 0;
-    auto backend = watcher->property("backend").value<QPointer<org::kde::kscreen::Backend>>();
-    if (!backend) {
+    if (!mBackend) {
         q->setError(tr("Backend invalidated"));
         q->emitResult();
         return;
@@ -114,7 +113,7 @@ void GetConfigOperationPrivate::onConfigReceived(QDBusPendingCallWatcher *watche
             continue;
         }
 
-        QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(backend->getEdid(output->id()), this);
+        QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(mBackend->getEdid(output->id()), this);
         watcher->setProperty("outputId", output->id());
         connect(watcher, &QDBusPendingCallWatcher::finished,
                 this, &GetConfigOperationPrivate::onEDIDReceived);
