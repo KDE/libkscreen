@@ -156,6 +156,9 @@ void BackendManager::onBackendRequestDone(QDBusPendingCallWatcher *watcher)
 
     // The launcher has successfully loaded the backend we wanted and registered
     // it to DBus (hopefuly), let's try to get an interface for the backend.
+    if (mInterface) {
+        invalidateInterface();
+    }
     mInterface = new org::kde::kscreen::Backend(QStringLiteral("org.kde.KScreen"),
                                                 QStringLiteral("/backend"),
                                                 QDBusConnection::sessionBus());
