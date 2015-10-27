@@ -32,43 +32,48 @@ is pure coincidence and is likely to break code assuming it.
 Review from 09/18/15 16:25 by Martin Gräßlin:
 
 
-
-OutputManagementInterface:
-* I suggest to not emit the signal configurationCreated (not really
-interesting for KWin), but instead emit a signal carrying the object when it
-requests apply
-
-OutputConfigurationInterface;
-* no need to include global.h in outputconfiguration_interface.h
-* no need to forward declare Display
-* yes you want that metatype which is commented, but for the pointer type
-* needs to expose information for the compositor to actually know what it
-should do
-* applyRequested might not be needed in case it's change like suggested above
-* in OutputConfigurationInterface::Private::modeCallback break once you find
-the modeValid. Personally I don't like the foreach and prefer to use either
-the new for loop or a nice helper from the std algorithms. E.g. for this case:
-modeValid = std::any_of(output->modes().constBegin(), output-
->modes().constEnd(), [mode_id] (const Mode &m) { return m.id == mode_id; ));
-see [1]. Reading further your code you probably do not even want the variable
-modeValid at all, but rather just use std::none_of
-
-* I don't think we need the pendingChangesChanged() signal. Normally we are
-not interested in the not yet committed state.
-* The applyCallback should swap the pending state to the current state
-* There shouldn't be a need to do the applyPendingChanges from
-OutputConfigurationInterface. OutputDeviceInterface will be filled in from
-KWin anyway before the applied will be set
-* general coding style comment: please pick either Q_FOREACH or foreach, but
-not both. Ideally get rid of them, it's an ugly macro which has a replacement
-as a core language feature (granted you need to make sure it doesn't copy).
-
-* General comment: I think tracking the suggested changes in the
+o General comment: I think tracking the suggested changes in the
 OutputDeviceInterface is wrong. The idea was that the client can setup in a
 1:1 mapping with the server. By tracking it in the OutputDeviceInterface you
 broke that. Now it's possible that n clients modify 1 OutputDeviceInterface
 again. Thus what the server in the end applies might not be what the client
 submitted. The state needs to be tracked in the OutputConfigurationInterface.
+
+OutputConfigurationInterface;
+o no need to include global.h in outputconfiguration_interface.h
+o no need to forward declare Display
+o yes you want that metatype which is commented, but for the pointer type
+o in OutputConfigurationInterface::Private::modeCallback break once you find
+the modeValid. Personally I don't like the foreach and prefer to use either
+the new for loop or a nice helper from the std algorithms. E.g. for this case:
+modeValid = std::any_of(output->modes().constBegin(), output-
+>modes().constEnd(), [mode_id] (const Mode &m) { return m.id == mode_id; ));
+see [1].
+o general coding style comment: please pick either Q_FOREACH or foreach, but
+not both. Ideally get rid of them, it's an ugly macro which has a replacement
+as a core language feature (granted you need to make sure it doesn't copy).
+o There shouldn't be a need to do the applyPendingChanges from
+OutputConfigurationInterface. OutputDeviceInterface will be filled in from
+KWin anyway before the applied will be set
+o I don't think we need the pendingChangesChanged() signal. Normally we are
+not interested in the not yet committed state.
+
+OutputManagementInterface:
+o I suggest to not emit the signal configurationCreated (not really
+interesting for KWin), but instead emit a signal carrying the object when it
+requests apply
+* Reading further your code you probably do not even want the variable
+modeValid at all, but rather just use std::none_of
+
+
+
+??? * needs to expose information for the compositor to actually know what it
+should do
+--> in what way?
+* applyRequested might not be needed in case it's change like suggested above
+--> is needed to signal from OutputConfigurationInterface to OutputManagementInterface
+??? * The applyCallback should swap the pending state to the current state
+--> this is done by the server now, no?
 
 
 
