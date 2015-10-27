@@ -29,7 +29,7 @@ is pure coincidence and is likely to break code assuming it.
 
                                                             <sebas@kde.org>
 
-Review from 09/18/15 16:25 by Martin Gräßlin:
+Review from 09/18/15 16:25 by Martin Gr????lin:
 
 
 o General comment: I think tracking the suggested changes in the
@@ -62,20 +62,24 @@ OutputManagementInterface:
 o I suggest to not emit the signal configurationCreated (not really
 interesting for KWin), but instead emit a signal carrying the object when it
 requests apply
-* Reading further your code you probably do not even want the variable
+o Reading further your code you probably do not even want the variable
 modeValid at all, but rather just use std::none_of
 
 
-
-??? * needs to expose information for the compositor to actually know what it
-should do
---> in what way?
 * applyRequested might not be needed in case it's change like suggested above
---> is needed to signal from OutputConfigurationInterface to OutputManagementInterface
+--> this signal is needed to signal from OutputConfigurationInterface to OutputManagementInterface, I've documented it as being for communication between OutputConfiguration and OutputManagement, so that should be clear (I hope?)
+
+sebas: you have the OutputManagementInterface in OutputConfigurationInterface - it's the parent
+sebas: given that you don't need to go through signal, just emit directly on the OutputManagementInterface
+that's caught by outputmanagementinterface and relayed to the user as the signal OutputManagementInterface::configurationChangeRequested(OutputConfiguration*)
+e.g. something like: emit parent()->configurationChangeRequested(this)
+
+
+
 ??? * The applyCallback should swap the pending state to the current state
 --> this is done by the server now, no?
 
-
+changes() should be const
 
 outputdevice.xml
 
@@ -257,7 +261,116 @@ o the manufactorer and model doesn't make so much sense in the server's Private,
 o rename sync -> done
 o rename protocol to org_kde_kwin_screen_management
 
-Chat with Martin Gräßlin, 15-9-2015
+Chat with Martin Gr??lin, 27-10-2015
+
+[16:58:14] <sebas> mgraesslin: wl_ping
+[16:58:21] <mgraesslin> sebas: wl_pong
+[16:58:29] <notmart> poor mgraesslin
+[16:58:35] <sebas> very
+[16:58:38] <mgraesslin> notmart: well maybe based on what's clsoest
+[16:59:03] <notmart> unless the window isn't minimized because the use clicked on the taskbar entry
+[16:59:21] <sebas> mgraesslin: almost all of your last review's comments are done from my pov, so that would need another reviewing round
+[16:59:23] <mgraesslin> right based on click makes also sense
+[16:59:33] <mgraesslin> sebas: +1
+[16:59:34] <sebas> I've ~three things left I'd need feedback on
+[16:59:51] <sebas> ??? * needs to expose information for the compositor to actually know what it
+[16:59:51] <sebas> should do
+[17:00:02] <sebas> (this one's about OutputConfiguration)
+[17:00:29] <sebas> what kind of info? (I vaguely remember having asked that, but don't recall and have no records of it)
+[17:00:43] <mgraesslin> now I need to remember myself
+[17:00:47] <sebas> that doesn't sound like "add api docs"?
+[17:00:55] <-- smirky (~vasilbog@cce02cs4038-fa12-z.ams.hpecore.net) has quit (Read error: Connection reset by peer)
+[17:02:24] <mgraesslin> sebas: I guess what I wanted to say is that the OutputConfiguration needs to expose what needs to be changed
+[17:02:31] --> nowrep_ (~nowrep@25.47.broadband3.iol.cz) has joined #plasma
+[17:02:43] <mgraesslin> sebas: but I honestly don't remember it - too long ago
+[17:02:49] <sebas> Hm, it has that (that's the setEnabled etc. calls
+[17:02:55] <sebas> ago, I'll let that one slide then ;)
+[17:02:56] <-- mck182_ (~quassel@TOROON12-1168099266.sdsl.bell.ca) has quit (Ping timeout: 250 seconds)
+[17:03:04] <-- nowrep (~nowrep@25.47.broadband3.iol.cz) has quit (Read error: Connection reset by peer)
+[17:03:05] <sebas> next, also about OutputConfiguration:
+[17:03:07] <sebas> * applyRequested might not be needed in case it's change like suggested above
+[17:03:07] <sebas> --> this signal is needed to signal from OutputConfigurationInterface to OutputManagementInterface, I've documented it as being for communication between OutputConfiguration and OutputManagement, so that should be clear (I hope?)
+[17:03:47] <sebas> (suggested above is implemented as signal OutputManagementInterface::configurationChangeRequested(OutputConfiguration*)
+[17:04:28] <mgraesslin> sebas: don't expose internal api externally
+[17:04:36] <sebas> so, I want to leave this one in as that, we need to relay from OutputConfigInterface somehow to OutputManagement, so that's useful IMO
+[17:04:39] --> mck182_ (~quassel@TOROON12-1168099266.sdsl.bell.ca) has joined #plasma
+[17:04:41] <sebas> how could I hide it otherwise?
+[17:04:52] <sebas> friend was something I thought about ... but it's a signal
+[17:05:27] <sebas> otherwise, keep a pointer to the outputmanagement global in the config and call a protected method in outputmanagement (and friend those two if they aren't already)
+[17:05:34] <mgraesslin> I'm now missing details at the moment
+[17:05:38] <mgraesslin> your in the code I'm not
+[17:05:43] <sebas> sure, no problem
+[17:06:06] <-- fredrikh (~fredrik@kde/fredrik) has quit (Ping timeout: 260 seconds)
+[17:06:32] <sebas> on the client, we call management->createConfiguration(), then change that config, all changes are recorded in that config, then we call config->apply()
+[17:06:48] <mgraesslin> sebas: you have the OutputManagementInterface in OutputConfigurationInterface - it's the parent
+[17:07:11] <mgraesslin> sebas: given that you don't need to go through signal, just emit directly on the OutputManagementInterface
+[17:07:15] <sebas> that's caught by outputmanagementinterface and relayed to the user as the signal OutputManagementInterface::configurationChangeRequested(OutputConfiguration*)
+[17:07:35] <mgraesslin> e.g. something like: emit parent()->configurationChangeRequested(this)
+[17:07:40] <sebas> ah, that sounds elegant, hadn't thought of that
+[17:08:24] <sebas> next one, I don't understand this:
+[17:08:32] <sebas> ??? * The applyCallback should swap the pending state to the current state
+[17:08:32] <sebas> --> this is done by the server now, no?
+[17:09:08] <mgraesslin> sebas: what I want there is that the state is double buffered
+[17:09:14] <sebas> a) which applyCallback, b) the state change is done by the compositor (kwin), that one is now responsible for changing the OutputDevices after applying the config
+[17:09:16] <mgraesslin> sebas: like in Surface
+[17:09:36] <sebas> it is, effectively
+[17:10:02] <sebas> OutputDevices reflect the current config, OutputConfiguration::changes() give access to the pending changes
+[17:10:50] <mgraesslin> sebas: ok, that is different to other areas - e.g. in Surface the "not yet fully submitted, intermediate" state is hidden in the API
+[17:10:56] <sebas> the compositor asks for those changes(), and then calls into drm, and when that works, applies what it has done to the OutputDeviceInterfaces, and clears then state in OutputConfiguration by calling setApplied or setFailed
+[17:11:27] <mgraesslin> sebas: I'd suggest the same for this API: as long as the changes are not applied the compositor doesn't need to know them, thus don't expose them
+[17:11:48] <sebas> the compositor can't even access them before they're applied
+[17:11:49] <mgraesslin> sebas: btw. changes() should be const ;-)
+[17:12:05] <sebas> ah, sure
+[17:12:37] <sebas> the compositor can't access the OutputConfiguration, it's only accessible from the configurationChangeRequested(OutputConfigurationInterface*) signal
+[17:12:57] <sebas> it catches that object, that means that the changes are all made, and it should try applying them
+[17:13:03] <mgraesslin> sebas: and then? What if the client does further changes?
+[17:13:26] <sebas> then it has to apply again (but outputconfiguration is not yet blocked
+[17:13:27] <-- Nightrose (~lydia@kde/lydia) has quit (Ping timeout: 255 seconds)
+[17:13:38] <sebas> )
+[17:13:50] <mgraesslin> sebas: exactly! That's why I suggest to do it double buffered like in Surface
+[17:14:02] <mgraesslin> so that what KWin sees is always a unique set
+[17:14:27] <sebas> ok, so I could copy the changes into the signal even, and then reset outputconfiguation, would that be enough?
+[17:15:01] <mgraesslin> sebas: you can of course also block the output configuration once it's submitted, that's also fine
+[17:15:01] <sebas> basicallu change configurationChangeRequested(OutputConfigurationInterface*)  to
+[17:15:22] <sebas> configurationChangeRequested(OutputConfigurationInterface*, QHash<OutputDevice*, Changes>)
+[17:15:59] <mgraesslin> sebas: that I wouldn't do: think of the mess it will create with queued signals or QSignalSpy ;-)
+[17:16:55] <sebas> k, best way of blocking calls to OutputConfiguration is just returning early if we're between appy() and setApplied() or setFailed() and qWarning()?
+[17:17:08] <sebas> (agree on QSignalSpy mess)
+[17:17:31] --> Nightrose (~lydia@kde/lydia) has joined #plasma
+[17:17:36] <mgraesslin> I'd say return eraly once we got the applyRequested callback
+[17:17:51] <mgraesslin> let's consider the configuration a one time thing and if a client uses it again it's a client error
+[17:18:06] <sebas> ok, will do that
+[17:18:33] <mgraesslin> sebas: further review comment from just looking at your code: the struct Changes in OutputConfigurationInterface looks very dangerous for future API compatibility
+[17:18:41] --> fredrikh (~fredrik@kde/fredrik) has joined #plasma
+[17:18:50] <mgraesslin> sebas: I fear you need to turn that into a d-ptr'ed class
+[17:18:51] <sebas> last thing: I've let the modeValid and loop in to set the mode by id, but made it use for instead of foreach
+[17:19:12] <mgraesslin> ok
+[17:19:14] <sebas> ok, makes sense, I'll change that
+[17:19:50] <mgraesslin> sebas: I guess you also won't need to expose the fooChanged bools then
+[17:20:00] <mgraesslin> for the server it should be fine to just query the "new" values
+[17:20:41] <sebas> I'll see what works best there
+[17:20:49] <mgraesslin> sure
+[17:21:02] <mgraesslin> was just what I thought when looking at the code
+[17:21:18] <mgraesslin> might be that it is in deed interesting for the server to know what got set
+[17:21:37] <sebas> in the end, the bool also isn't too bad, since that simply means that there's garbage in that field, otherwise we'd quickly end up with QSize.invalid() or stuff like that, so different for every field
+[17:22:03] <sebas> yes, the idea is that the server also can save potentially expensive calls
+[17:22:04] <mgraesslin> good point
+[17:22:56] <sebas> I'll see, worst case api looks like it's now (but then an object), likely some things can be made nicer, but in the end, that object should be really, really simple
+[17:23:12] <mgraesslin> yeah
+[17:23:23] --> Sho_ (~sho@kde/hein) has joined #plasma
+[17:24:11] <sebas> I thought a bit about the id mapping, and your comments about that (own id mapping is good for future safety and implementation abstraction) make sense, will put in a translation layer (that's in libkscreen)
+[17:24:33] <mgraesslin> nod
+[17:24:36] <sebas> ah, one more thing: how to best match OutputDevice and Output?
+[17:24:53] <sebas> (that's the compositor's job, but I'd be interested how you would do that)
+[17:24:53] <mgraesslin> on client or server side?
+[17:25:01] <sebas> on the server side
+[17:25:16] <sebas> when changing the config mainly
+[17:25:24] <mgraesslin> no idea at the moment
+[17:25:29] <sebas> k, no worries
+[17:25:35] <mgraesslin> my head is full with resizing ;-)
+[17:26:00] <sebas> otherwise, I'm done with my questions :)
+
+Chat with Martin Gr????lin, 15-9-2015
 
 
 <sebas> mgraesslin: writing you a reply now, btw
@@ -367,7 +480,7 @@ Chat with Martin Gräßlin, 15-9-2015
 <sebas> k, sounds muchos less messy to me
 
 
-Email from Martin Gräßlin, Fri, 28-8-2015
+Email from Martin Gr????lin, Fri, 28-8-2015
 
 I already spent some thoughts on output management and came up with an idea
 how to implement the configuration aspect. I'll outline:
@@ -413,7 +526,7 @@ wl_output with edid and enabled added. I would like to just have an extension
 to wl_output to add it, but I doubt that this is possible as we need the
 enabled flag and that significantly changes the semantics of an Output
 
-Chat from 3-9-2015 with Martin Gräßlin:
+Chat from 3-9-2015 with Martin Gr????lin:
 
 15:49:31 <sebas> mgraesslin: I've got 3 interfaces now, OutputDevice (wl_output clone), OutputManagement (the global), and OutputConfiguration
 15:50:00 <sebas> you call OutputManagement->createConfiguration, and then an OutputConfiguration appears in Registry
@@ -454,7 +567,7 @@ Chat from 3-9-2015 with Martin Gräßlin:
 16:04:00 <mgraesslin> sebas: all right
 
 
-Chat from 28-8-2015 with Martin Gräßlin:
+Chat from 28-8-2015 with Martin Gr????lin:
 
 13:09:56 <sebas> mgraesslin: can you have a look at src/client/protocols/screen-management.xml in my branch?
 13:10:16 <sebas> new idea: let's ignore wl_output for my purposes
@@ -917,7 +1030,7 @@ Chat from 28-8-2015 with Martin Gräßlin:
 14:56:48 <sebas> at the time of config saving, yes, only saves what makes sense
 14:57:02 <sebas> but really, kwin gets suggestions and can do whatever it wants with that
 14:57:10 <mgraesslin> meh, don't care about that one. I'm happy to take whatever the user suggested
-14:57:14 <kbroulik> mgraesslin: installNativeEventFilter(new FoucsOutEventFilter); ← doesn't that leak?
+14:57:14 <kbroulik> mgraesslin: installNativeEventFilter(new FoucsOutEventFilter); ??? doesn't that leak?
 14:57:30 <sebas> you can still take whatever the user suggested
 14:57:51 <mgraesslin> kbroulik: yes, no - as it is created by the application it will only leak on shutdown
 14:57:55 <sebas> but you can actually do sanitizing, or perhaps even shortcuts between changes
