@@ -1,15 +1,37 @@
 
 Design of libkscreen's Wayland backend
 
+This backend uses KWayland's OutputManagement protocol for enlisting and
+configuring devices. This is described here.
+
+Enlisting outputs
+
+KScreen's outputs are created from KWayland::Client::OutputDevice objects,
+they copy the data into kscreen's Outputs, and update these objects. A list
+of outputs is requested from the client Registry object.
+
+Configuring outputs
+
+The backend asks the global OutputManagement interface for an OutputConfiguration
+object, then sets the changes per outputdevice on this object, and asks the
+compositor to apply() this configuration.
+
+For this to work, the compositor should support the Wayland org_kde_kwin_outputdevice
+and org_kde_kwin_outputmanagement protocols, for example through
+KWayland::Server classes OutputDevice, OutputManagmenent and OuputConfiguration.
+
+General working
+
 WaylandBackend creates a global static internal config, available through
 WaylandBackend::internalConfig(). WaylandConfig binds to the wl_registry
-callbacks and catches wl_output creation and destruction. It passes
-wl_output creation and removal on to WB::internalConfig() to handle its
-internal data representation as WaylandOutput. WaylandOutput binds to
-wl_output's callback, and gets notified of geometry and modes, including
-changes. WaylandOutput administrates the internal representation of these
-objects, and invokes the global notifier, which then runs the pointers it
-holds through the updateK* methods in Wayland{Screen,Output,...}.
+callbacks and catches org_kde_kwin_outputdevice creation and destruction.
+It passes org_kde_kwin_outputdevice creation and removal on to
+WB::internalConfig() to handle its internal data representation as WaylandOutput.
+WaylandOutput binds to org_kde_kwin_outputdevice's callback, and gets notified
+of geometry and modes, including changes. WaylandOutput administrates the
+internal representation of these objects, and invokes the global notifier,
+which then runs the pointers it holds through the updateK* methods in
+Wayland{Screen,Output,...}.
 
 KScreen:{Screen,Output,Edid,Mode} objects are created from the internal
 representation as requested (usually triggered by the creation of a
@@ -18,14 +40,11 @@ backends, the objects which are handed out to the lib's user are expected
 to be deleted by the user, the backend only takes ownership of its internal
 data representation objects.
 
-Note:
-In the Wayland backend, we're using the uint32_t name parameter passed by
-the callbacks as ids for output. This eases administration, while providing
-a consistent set of ids. It means that we somehow have to fit the uint32 in
-the int field of libkscreen's APIs. This seems only a potential issue, and
-only applies to 32bit systems. Still thinking about this (potential,remote)
-problem. This implementation detail should not be seen as an API promise, it
-is pure coincidence and is likely to break code assuming it.
+Note about scope of output ids
+
+The ids of the outputdevices are internal to the wayland backend. The id is
+generated in the wayland backend, and does not match kwin's output ids. Do
+not try to read kwin's config from here.
 
                                                             <sebas@kde.org>
 
