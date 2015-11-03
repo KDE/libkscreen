@@ -119,7 +119,7 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
         }
         //qDebug() << "add mode for " << output->model() << _size << refresh;
         if (mode.keys().contains("id")) {
-            m0.id = 0;
+            m0.id = mode["id"].toInt();
         } else {
             m0.id = mode_id;
         }
@@ -127,6 +127,7 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
         m0.flags = flags;
         //OutputDeviceInterface::ModeFlags(OutputDeviceInterface::ModeFlag::Preferred);
         output->addMode(m0);
+        qDebug() << "Mode: " << m0.size << m0.id;
         //output->addMode(_size, flags, refresh);
 
         if (isCurrent) {
