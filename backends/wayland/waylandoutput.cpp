@@ -74,7 +74,7 @@ WaylandOutput::~WaylandOutput()
 quint32 WaylandOutput::id() const
 {
     Q_ASSERT(m_output);
-    return m_output->id();
+    return m_id;
 }
 
 bool WaylandOutput::enabled() const
@@ -124,10 +124,12 @@ KScreen::OutputPtr WaylandOutput::toKScreenOutput(KScreen::ConfigPtr &parent) co
 
 void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output) const
 {
-    //qCDebug(KSCREEN_WAYLAND) << "updateKScreenOutput OUTPUT";
+    qCDebug(KSCREEN_WAYLAND) << "updateKScreenOutput OUTPUT";
     // Initialize primary output
-    output->setId(m_output->id());
-    output->setEnabled(m_output->enabled());
+    const QString id_string = m_output->manufacturer() + QStringLiteral("-") + m_output->model();
+    int id = id_string.toUtf8().toInt();
+    output->setId(id);
+    output->setEnabled(m_output->enabled() == KWayland::Client::OutputDevice::Enablement::Enabled);
     output->setConnected(true);
     output->setPrimary(true); // FIXME
 

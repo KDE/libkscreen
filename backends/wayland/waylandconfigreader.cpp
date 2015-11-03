@@ -95,13 +95,16 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
     int currentModeId = outputConfig["currentModeId"].toInt();
     QVariantList preferredModes = outputConfig["preferredModes"].toList();
 
+    int mode_id = 0;
     Q_FOREACH(const QVariant &_mode, outputConfig["modes"].toList()) {
+        mode_id++;
         const QVariantMap &mode = _mode.toMap();
+        OutputDeviceInterface::Mode m0;
         const QSize _size = sizeFromJson(mode["size"]);
         int refresh = 60000;
 
         if (mode.keys().contains("refreshRate")) {
-            refresh = qRound(mode["refreshRate"].toReal() * 1000); // config has it in Hz
+            m0.refreshRate = qRound(mode["refreshRate"].toReal() * 1000); // config has it in Hz
         }
         bool isCurrent = currentModeId == mode["id"].toInt();
         bool isPreferred = preferredModes.contains(mode["id"]);
@@ -115,25 +118,34 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
             flags &= OutputDeviceInterface::ModeFlags(OutputDeviceInterface::ModeFlag::Preferred);
         }
         //qDebug() << "add mode for " << output->model() << _size << refresh;
-        output->addMode(_size, flags, refresh);
+        if (mode.keys().contains("id")) {
+            m0.id = 0;
+        } else {
+            m0.id = mode_id;
+        }
+        m0.size = _size;
+        m0.flags = flags;
+        //OutputDeviceInterface::ModeFlags(OutputDeviceInterface::ModeFlag::Preferred);
+        output->addMode(m0);
+        //output->addMode(_size, flags, refresh);
 
         if (isCurrent) {
-            output->setCurrentMode(_size, refresh);
+            output->setCurrentMode(m0.id);
         }
     }
 
     output->setGlobalPosition(pointFromJson(outputConfig["pos"]));
-    output->setEnabled(outputConfig["enabled"].toBool());
+    output->setEnabled(outputConfig["enabled"].toBool() ? OutputDeviceInterface::Enablement::Enabled : OutputDeviceInterface::Enablement::Disabled);
 
-    int _id = outputConfig["id"].toInt();
-    qDebug() << "read ID" << _id << s_outputIds;
-    while (s_outputIds.contains(_id)) {
-        _id = _id + 1000;
-    }
-    s_outputIds << _id;
-    qDebug() << "SETTING ID" << _id;
+//     int _id = outputConfig["id"].toInt();
+//     qDebug() << "read ID" << _id << s_outputIds;
+//     while (s_outputIds.contains(_id)) {
+//         _id = _id + 1000;
+//     }
+//     s_outputIds << _id;
+//     qDebug() << "SETTING ID" << _id;
 
-    output->setId(_id);
+    //output->setId(_id);
     //qDebug() << "enabled? " << output->enabled();
     output->create();
 

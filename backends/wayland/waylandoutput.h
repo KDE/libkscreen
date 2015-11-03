@@ -76,6 +76,7 @@ private:
     KWayland::Client::Registry* m_registry;
     quint32 m_protocolName;
     quint32 m_protocolVersion;
+    int m_id;
 
     QMap<KWayland::Client::OutputDevice::Transform, KScreen::Output::Rotation> m_rotationMap;
 };
