@@ -177,7 +177,7 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
 
     auto op = new KWayland::Client::OutputDevice(this);
     WaylandOutput *waylandoutput = new WaylandOutput(this);
-    waylandoutput->setId(outputId(waylandoutput)); // Gives us a new id
+    waylandoutput->setId(outputId(waylandoutput->output())); // Gives us a new id
     waylandoutput->setOutput(m_registry, op, name, version);
     //waylandoutput->setup(m_registry->bindOutput(name, version));
 
@@ -214,8 +214,16 @@ KScreen::ConfigPtr WaylandConfig::toKScreenConfig() const
     return config;
 }
 
-int WaylandConfig::outputId(WaylandOutput *wlo)
+int WaylandConfig::outputId(KWayland::Client::OutputDevice *wlo)
 {
+    if (m_outputIds.keys().contains(wlo)) {
+        return m_outputIds.value(wlo);
+    }
+    int _id = qHash(wlo->uuid().toUtf8());
+    m_outputIds[wlo] = _id;
+    qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!! New id: " << _id;
+    return _id;
+    /*
     Q_FOREACH (auto output, m_outputMap.values()) {
         if (wlo == output) {
             return output->id();
@@ -223,6 +231,7 @@ int WaylandConfig::outputId(WaylandOutput *wlo)
     }
     m_lastOutputId++;
     return m_lastOutputId;
+    */
 }
 
 void WaylandConfig::removeOutput(quint32 id)

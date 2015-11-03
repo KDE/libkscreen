@@ -116,6 +116,11 @@ KScreen::Edid WaylandOutput::edid()
 }
 */
 
+void WaylandOutput::setId(const quint32 newId)
+{
+    m_id = newId;
+}
+
 KScreen::OutputPtr WaylandOutput::toKScreenOutput(KScreen::ConfigPtr &parent) const
 {
     KScreen::OutputPtr output(new KScreen::Output());
