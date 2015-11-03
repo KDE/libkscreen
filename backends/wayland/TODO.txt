@@ -3,6 +3,16 @@ libkscreen TODO:
 * testwaylandbackend should also test to write config
 
 
+KWayland review by Martin Gräßlin, 3 November, 2015
+
+* KWayland uuid becomes QByteArray
+* KWayland edid becomes QByteArray
+o you use qWarning instead of qCWarning (that's in outputdevice_interface.cpp)
+o ChangeSet sounds a little bit too generic for my taste. Maybe OutputChangeSet
+o methods and variable in ChangeSet protected? Sounds like they should be private. No inheriting class
+o Put the private class into a changeset_p.h and access it directly from the other code
+o I would not expose the private methods in the header.
+o outputmanagement_interface.cpp should have the static s_version in the Private
 
 Review from 09/18/15 16:25 by Martin Gr????lin:
 
