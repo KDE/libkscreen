@@ -72,7 +72,7 @@ public:
     void updateKScreenConfig(KScreen::ConfigPtr &config) const;
 
     QMap<int, WaylandOutput *> outputMap() const;
-    int outputId(WaylandOutput *wlo);
+    int outputId(KWayland::Client::OutputDevice *wlo);
 
     void addOutput(quint32 name, quint32 version);
     void removeOutput(quint32 id);

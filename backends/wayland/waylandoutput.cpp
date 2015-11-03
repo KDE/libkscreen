@@ -127,7 +127,8 @@ void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output) const
     qCDebug(KSCREEN_WAYLAND) << "updateKScreenOutput OUTPUT";
     // Initialize primary output
     const QString id_string = m_output->manufacturer() + QStringLiteral("-") + m_output->model();
-    int id = id_string.toUtf8().toInt();
+    int id = id_string.toInt();
+    qCDebug(KSCREEN_WAYLAND) << "OUTPUT id" << id << id_string;
     output->setId(id);
     output->setEnabled(m_output->enabled() == KWayland::Client::OutputDevice::Enablement::Enabled);
     output->setConnected(true);

@@ -1,3 +1,9 @@
+libkscreen TODO:
+* waylandconfiguration has QHash<OutputDevice, id> and creates new ids
+* testwaylandbackend should also test to write config
+
+
+
 Review from 09/18/15 16:25 by Martin Gr????lin:
 
 

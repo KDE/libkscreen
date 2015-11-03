@@ -177,7 +177,7 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
 
     auto op = new KWayland::Client::OutputDevice(this);
     WaylandOutput *waylandoutput = new WaylandOutput(this);
-    //waylandoutput->setId(outputId(waylandoutput)); // Gives us a new id
+    waylandoutput->setId(outputId(waylandoutput)); // Gives us a new id
     waylandoutput->setOutput(m_registry, op, name, version);
     //waylandoutput->setup(m_registry->bindOutput(name, version));
 

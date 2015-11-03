@@ -17,6 +17,7 @@
  *************************************************************************************/
 
 #include <QCoreApplication>
+#include <QCryptographicHash>
 #include <QtTest>
 #include <QObject>
 
@@ -65,6 +66,7 @@ private Q_SLOTS:
     void verifyOutputs();
     void verifyModes();
     void verifyScreen();
+    void verifyIds();
     void cleanupTestCase();
 
 private:
@@ -196,6 +198,34 @@ void testWaylandBackend::verifyModes()
             QVERIFY(mode->refreshRate() > 0);
             QVERIFY(mode->size() != QSize());
         }
+    }
+}
+
+void testWaylandBackend::verifyIds()
+{
+    qDebug() << " -----> ID: " << QString("ABC").toInt();
+    qDebug() << " -----> ID: " << QByteArray("ABC").toInt();
+    qDebug() << " -----> ID: " << QByteArray("FF", 16).toInt();
+
+    QString _s = "Samsung-Bla";
+    QString _s2 = "FC";
+    QString _s3 = "35fc0da6701d42fa0d37c2e300e7005d";
+    bool ok = false;
+    int i1 = _s.toInt(&ok, 10);
+    int i2 = _s.toInt(&ok, 16);
+    qDebug() << " -----> ID: " << i1 << ok;
+    qDebug() << " -----> ID: " << i2 << ok;
+    qDebug() << " -----> ID: " << i1 << ok;
+    qDebug() << " -----> ID2: " << _s2.toInt(&ok, 16) << ok;
+    qDebug() << " -----> ID3: " << _s3.toLongLong(&ok) << ok;
+
+    auto _h = QCryptographicHash::hash(_s.toUtf8(), QCryptographicHash::Md5).toHex();
+    int id = _h.toInt(&ok, 16);
+    qDebug() << " -----> ID hash: " << _h << id;
+
+
+    foreach (auto output, m_config->outputs()) {
+        QVERIFY(output->id() > 0);
     }
 }
 
