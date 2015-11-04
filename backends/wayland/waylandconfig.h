@@ -109,7 +109,7 @@ private:
     bool m_blockSignals;
     QEventLoop m_syncLoop;
 
-    int m_newOutputId; // FIXME: not initializing just to get random ids, hope we're not colliding...
+    int m_newOutputId;
 };
 
 } // namespace

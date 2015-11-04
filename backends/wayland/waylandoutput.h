@@ -19,10 +19,13 @@
 #ifndef KSCREEN_WAYLAND_OUTPUT_H
 #define KSCREEN_WAYLAND_OUTPUT_H
 
+// libkscreen
 #include "abstractbackend.h"
-
 #include "config.h"
 #include "output.h"
+
+// Own
+#include "waylandconfig.h"
 
 #include <QScreen>
 #include <QSize>
@@ -39,25 +42,24 @@ class WaylandOutput : public QObject
     Q_OBJECT
 
 public:
-    explicit WaylandOutput(QObject *parent = 0);
     virtual ~WaylandOutput();
 
-    KScreen::OutputPtr toKScreenOutput(KScreen::ConfigPtr &parent) const;
+    KScreen::OutputPtr toKScreenOutput() const;
     void updateKScreenOutput(KScreen::OutputPtr &output) const;
 
+    quint32 id() const;
     /**
      * Access to the Output's Edid object.
      */
     //KScreen::Edid edid();
-
-    quint32 id() const;
-    void setId(const quint32 newId);
     void setEdid(const QString &edidstring);
 
     bool enabled() const;
 
     KWayland::Client::OutputDevice* output() const;
-    void setOutput(KWayland::Client::Registry* registry, KWayland::Client::OutputDevice* op, quint32 name, quint32 version);
+    void bindOutputDevice(KWayland::Client::Registry* registry, KWayland::Client::OutputDevice* op, quint32 name, quint32 version);
+
+    QString name() const;
 
 Q_SIGNALS:
     void complete();
@@ -66,21 +68,24 @@ Q_SIGNALS:
     void changed();
 
 private:
+    friend WaylandConfig;
+    explicit WaylandOutput(quint32 id, WaylandConfig *parent = 0);
     void showOutput();
     QString modeName(const KWayland::Client::OutputDevice::Mode &m) const;
 
     mutable QSharedPointer<KScreen::Edid> m_edid;
-//     quint32 m_id;
 
     KWayland::Client::OutputDevice* m_output;
     KWayland::Client::Registry* m_registry;
     quint32 m_protocolName;
     quint32 m_protocolVersion;
-    int m_id;
+    quint32 m_id;
 
     QMap<KWayland::Client::OutputDevice::Transform, KScreen::Output::Rotation> m_rotationMap;
 };
 
 } // namespace
+
+KSCREEN_EXPORT QDebug operator<<(QDebug dbg, const KScreen::WaylandOutput *output);
 
 #endif

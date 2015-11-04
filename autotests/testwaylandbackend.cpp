@@ -60,8 +60,8 @@ public:
 private Q_SLOTS:
     void initTestCase();
     void verifyDisco();
-
     void loadConfig();
+
     void verifyConfig();
     void verifyOutputs();
     void verifyModes();
@@ -118,6 +118,7 @@ void testWaylandBackend::loadConfig()
     op->exec();
     m_config = op->config();
     QVERIFY(m_config->isValid());
+    qDebug() << m_config->outputs();
 }
 
 void testWaylandBackend::verifyConfig()
@@ -150,7 +151,7 @@ void testWaylandBackend::verifyOutputs()
 
     bool primaryFound = false;
     foreach (const KScreen::OutputPtr op, m_config->outputs()) {
-        //qDebug() << "CHecking at all";
+        qDebug() << "CHecking at all";
         if (op->isPrimary()) {
             primaryFound = true;
         }
@@ -158,6 +159,7 @@ void testWaylandBackend::verifyOutputs()
     qDebug() << "Primary found? " << primaryFound << m_config->outputs();
     //QVERIFY(primaryFound);
     QVERIFY(m_config->outputs().count());
+    QCOMPARE(m_server->outputCount(), m_config->outputs().count());
 
     KScreen::OutputPtr primary = m_config->primaryOutput();
     //QVERIFY(primary->isEnabled());
@@ -203,6 +205,7 @@ void testWaylandBackend::verifyModes()
 
 void testWaylandBackend::verifyIds()
 {
+    /*
     qDebug() << " -----> ID: " << QString("ABC").toInt();
     qDebug() << " -----> ID: " << QByteArray("ABC").toInt();
     qDebug() << " -----> ID: " << QByteArray("FF", 16).toInt();
@@ -222,10 +225,13 @@ void testWaylandBackend::verifyIds()
     auto _h = QCryptographicHash::hash(_s.toUtf8(), QCryptographicHash::Md5).toHex();
     int id = _h.toInt(&ok, 16);
     qDebug() << " -----> ID hash: " << _h << id;
+    */
 
-
+    QList<quint32> ids;
     foreach (auto output, m_config->outputs()) {
+        QVERIFY(ids.contains(output->id()) == false);
         QVERIFY(output->id() > 0);
+        ids << output->id();
     }
 }
 

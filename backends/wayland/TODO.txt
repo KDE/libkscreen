@@ -14,7 +14,7 @@ o Put the private class into a changeset_p.h and access it directly from the oth
 o I would not expose the private methods in the header.
 o outputmanagement_interface.cpp should have the static s_version in the Private
 
-Review from 09/18/15 16:25 by Martin Gr????lin:
+Review from 09/18/15 16:25 by Martin Gräßlin:
 
 
 o General comment: I think tracking the suggested changes in the

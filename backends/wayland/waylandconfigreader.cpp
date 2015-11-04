@@ -34,6 +34,7 @@ static QList<int> s_outputIds;
 void WaylandConfigReader::outputsFromConfig(const QString& configfile, KWayland::Server::Display* display,
                                             QList< KWayland::Server::OutputDeviceInterface* >& outputs)
 {
+    qDebug() << "Loading server from" << configfile;
     QFile file(configfile);
     file.open(QIODevice::ReadOnly);
 
@@ -45,7 +46,9 @@ void WaylandConfigReader::outputsFromConfig(const QString& configfile, KWayland:
         const QVariantMap &output = value.toObject().toVariantMap();
         if (output["connected"].toBool()) {
             outputs << createOutputDevice(output, display);
-            //qDebug() << "new Output created: " << output["name"].toString();
+            qDebug() << "new Output created: " << output["name"].toString();
+        } else {
+            qDebug() << "disconnected Output" << output["name"].toString();
         }
     }
 
@@ -82,6 +85,7 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
         output->setManufacturer(outputConfig["manufacturer"].toString());
         output->setModel(outputConfig["model"].toString());
     }
+    qDebug() << "Creating output device" << output->model() << output->manufacturer();
 
     QMap <int, KWayland::Server::OutputDeviceInterface::Transform> transformMap;
     transformMap[0] = KWayland::Server::OutputDeviceInterface::Transform::Normal;
@@ -127,11 +131,12 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
         m0.flags = flags;
         //OutputDeviceInterface::ModeFlags(OutputDeviceInterface::ModeFlag::Preferred);
         output->addMode(m0);
-        qDebug() << "Mode: " << m0.size << m0.id;
+        qDebug() << "Mode: " << m0.size << m0.id << (isCurrent ? "*" : "");
         //output->addMode(_size, flags, refresh);
 
         if (isCurrent) {
             output->setCurrentMode(m0.id);
+//             qDebug() << "Current Mode: " << m0.size << m0.id;
         }
     }
 

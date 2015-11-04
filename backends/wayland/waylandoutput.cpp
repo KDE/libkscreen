@@ -29,8 +29,9 @@
 
 using namespace KScreen;
 
-WaylandOutput::WaylandOutput(QObject *parent)
+WaylandOutput::WaylandOutput(quint32 id, WaylandConfig *parent)
     : QObject(parent)
+    , m_id(id)
     , m_edid(new Edid(QByteArray(), this))
     , m_output(nullptr)
     , m_protocolName(0)
@@ -87,19 +88,17 @@ KWayland::Client::OutputDevice* WaylandOutput::output() const
     return m_output;
 }
 
-void WaylandOutput::setOutput(KWayland::Client::Registry* registry, KWayland::Client::OutputDevice* op, quint32 name, quint32 version)
+void WaylandOutput::bindOutputDevice(KWayland::Client::Registry* registry, KWayland::Client::OutputDevice* op, quint32 name, quint32 version)
 {
-    //qDebug() << "WL setOUtput" << registry << op << name;
     if (m_output == op) {
         return;
     }
     m_output = op;
 
     connect(m_output, &KWayland::Client::OutputDevice::done,
-            this, &WaylandOutput::complete, Qt::QueuedConnection);
+            this, &WaylandOutput::complete);
 
     m_output->setup(registry->bindOutputDevice(name, version));
-    //qDebug() << "WL Client::OutputDevice bound";
     emit changed();
 }
 
@@ -116,25 +115,19 @@ KScreen::Edid WaylandOutput::edid()
 }
 */
 
-void WaylandOutput::setId(const quint32 newId)
-{
-    m_id = newId;
-}
-
-KScreen::OutputPtr WaylandOutput::toKScreenOutput(KScreen::ConfigPtr &parent) const
+KScreen::OutputPtr WaylandOutput::toKScreenOutput() const
 {
     KScreen::OutputPtr output(new KScreen::Output());
+    output->setId(m_id);
+    updateKScreenOutput(output);
     return output;
 }
 
 void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output) const
 {
-    qCDebug(KSCREEN_WAYLAND) << "updateKScreenOutput OUTPUT";
+    //qCDebug(KSCREEN_WAYLAND) << "updateKScreenOutput OUTPUT";
     // Initialize primary output
-    const QString id_string = m_output->manufacturer() + QStringLiteral("-") + m_output->model();
-    int id = id_string.toInt();
-    qCDebug(KSCREEN_WAYLAND) << "OUTPUT id" << id << id_string;
-    output->setId(id);
+    output->setId(m_id);
     output->setEnabled(m_output->enabled() == KWayland::Client::OutputDevice::Enablement::Enabled);
     output->setConnected(true);
     output->setPrimary(true); // FIXME
@@ -190,4 +183,16 @@ void WaylandOutput::showOutput()
         //qCDebug(KSCREEN_WAYLAND) << "            Mode : " << modename;
 
     }
+}
+
+QString WaylandOutput::name() const
+{
+    Q_ASSERT(m_output);
+    return QString("%1 %2").arg(m_output->manufacturer(), m_output->model());
+}
+
+QDebug operator<<(QDebug dbg, const WaylandOutput *output)
+{
+    dbg << "WaylandOutput(Id:" << output->id() <<", Name:" << QString(output->output()->manufacturer() + " " + output->output()->model())  << ")";
+    return dbg;
 }
