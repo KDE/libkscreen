@@ -224,7 +224,7 @@ int WaylandConfig::outputId(KWayland::Client::OutputDevice *wlo)
     if (m_outputIds.keys().contains(wlo)) {
         return m_outputIds.value(wlo);
     }
-    int _id = qHash(wlo->uuid().toUtf8());
+    int _id = qHash(wlo->uuid());
     m_outputIds[wlo] = _id;
     qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!! New id: " << _id;
     return _id;
