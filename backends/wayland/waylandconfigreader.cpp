@@ -131,7 +131,7 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
         m0.flags = flags;
         //OutputDeviceInterface::ModeFlags(OutputDeviceInterface::ModeFlag::Preferred);
         output->addMode(m0);
-        qDebug() << "Mode: " << m0.size << m0.id << (isCurrent ? "*" : "");
+        //qDebug() << "Mode: " << m0.size << m0.id << (isCurrent ? "*" : "");
         //output->addMode(_size, flags, refresh);
 
         if (isCurrent) {
