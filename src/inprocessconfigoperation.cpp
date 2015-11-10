@@ -53,13 +53,13 @@ class InProcessConfigOperationPrivate : public ConfigOperationPrivate
 public:
     InProcessConfigOperationPrivate(InProcessConfigOperation::Options options, InProcessConfigOperation *qq);
 
-    virtual void backendReady(org::kde::kscreen::Backend* backend);
+    void loadBackend();
+    void loadEdid();
 
 public:
     InProcessConfigOperation::Options options;
     ConfigPtr config;
-
-    QPointer<org::kde::kscreen::Backend> mBackend;
+    KScreen::AbstractBackend* backend;
     QPluginLoader *mLoader;
 
 private:
@@ -74,11 +74,12 @@ InProcessConfigOperationPrivate::InProcessConfigOperationPrivate(InProcessConfig
 {
 }
 
-void InProcessConfigOperationPrivate::backendReady(org::kde::kscreen::Backend *backend)
+void InProcessConfigOperation::start()
 {
     //ConfigOperationPrivate::backendReady(backend);
 
-    Q_Q(InProcessConfigOperation);
+    Q_D(InProcessConfigOperation);
+    d->loadBackend();
 }
 
 InProcessConfigOperation::InProcessConfigOperation(Options options, QObject* parent)
@@ -96,9 +97,9 @@ KScreen::ConfigPtr InProcessConfigOperation::config() const
     return d->config;
 }
 
-void InProcessConfigOperation::start()
+void InProcessConfigOperationPrivate::loadBackend()
 {
-    Q_D(InProcessConfigOperation);
+    Q_Q(InProcessConfigOperation);
     qDebug() << "START!";
     const QVariantMap arguments;
     const QString &name = qgetenv("KSCREEN_BACKEND").constData();
@@ -148,7 +149,7 @@ void InProcessConfigOperation::start()
                 continue;
             }
 
-            auto backend = qobject_cast<KScreen::AbstractBackend*>(instance);
+            backend = qobject_cast<KScreen::AbstractBackend*>(instance);
             if (backend) {
                 backend->init(arguments);
                 if (!backend->isValid()) {
@@ -159,10 +160,9 @@ void InProcessConfigOperation::start()
 
                 // This is the only case we don't want to unload() and delete the loader, instead
                 // we store it and unload it when the backendloader terminates.
-                d->mLoader = loader.release();
+                mLoader = loader.release();
                 qCDebug(KSCREEN) << "Loading" << backend->name() << "backend";
-                d->config = backend->config();
-                emitResult();
+                loadEdid();
                 //return backend;
             } else {
                 qCDebug(KSCREEN) << finfo.fileName() << "does not provide valid KScreen backend";
@@ -170,8 +170,19 @@ void InProcessConfigOperation::start()
         }
     }
 
+}
+
+void InProcessConfigOperationPrivate::loadEdid()
+{
+    Q_Q(InProcessConfigOperation);
+    config = backend->config();
+    Q_FOREACH (auto output, config->outputs()) {
+        const QByteArray edidData = backend->edid(output->id());
+        output->setEdid(edidData);
+    }
 
 
+    q->emitResult();
 
 }
 
