@@ -411,8 +411,8 @@ void Output::setClones(QList<int> outputlist)
 
 void Output::setEdid(const QByteArray& rawData)
 {
-    Q_ASSERT(d->edid == 0);
-
+    qCDebug(KSCREEN) << "new Edid for " << id();
+    //Q_ASSERT(d->edid == 0);
     d->edid = new Edid(rawData);
 }
 
