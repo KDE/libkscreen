@@ -50,8 +50,13 @@ Fake::Fake()
 
 void Fake::init(const QVariantMap &arguments)
 {
+    if (!mConfig.isNull()) {
+        mConfig.clear();
+    }
+
     mConfigFile = arguments[QStringLiteral("TEST_DATA")].toString();
     qCDebug(KSCREEN_FAKE) << "Fake profile file:" << mConfigFile;
+
 }
 
 void Fake::delayedInit()
