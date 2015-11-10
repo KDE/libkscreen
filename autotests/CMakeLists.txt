@@ -37,6 +37,7 @@ if(ENABLE_WAYLAND AND KF5Config_FOUND)
     kscreen_add_test(testwlsetup)
     kscreen_add_test(testwlwrite)
     kscreen_add_test(testwloutputs)
+    kscreen_add_test(testinprocess)
 
     set(KSCREEN_WAYLAND_LIBS "")
     set(KSCREEN_WAYLAND_SRCS "")
