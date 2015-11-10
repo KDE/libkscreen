@@ -24,6 +24,7 @@
 #include <QtCore/QObject>
 
 #include "kscreen_export.h"
+#include "types.h"
 
 namespace KScreen {
 
@@ -39,7 +40,11 @@ public:
     bool hasError() const;
     QString errorString() const;
 
+    static ConfigOperation* create();
+    virtual KScreen::ConfigPtr config() const = 0;
+
     bool exec();
+
 Q_SIGNALS:
     void finished(ConfigOperation *operation);
 
