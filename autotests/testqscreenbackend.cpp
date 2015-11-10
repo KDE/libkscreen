@@ -56,13 +56,14 @@ private:
 void testQScreenBackend::initTestCase()
 {
     setenv("KSCREEN_BACKEND", "qscreen", 1);
+    setenv("KSCREEN_BACKEND_INPROCESS", "1", 1);
     KScreen::BackendManager::instance()->shutdownBackend();
 
 //     setenv("KSCREEN_BACKEND", "xrandr", 1);
     m_backend = qgetenv("KSCREEN_BACKEND").constData();
 
-    //auto *op = new InProcessConfigOperation();
-    auto *op = new GetConfigOperation();
+    auto *op = ConfigOperation::create();
+    //auto *op = new GetConfigOperation();
     op->exec();
     m_config = op->config();
 }
