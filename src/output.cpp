@@ -451,7 +451,7 @@ void Output::apply(const OutputPtr& other)
     QList<ChangeSignal> changes;
 
     // We block all signals, and emit them only after we have set up everything
-    // This is necessary in order to prevent clients from accessig inconsistent
+    // This is necessary in order to prevent clients from accessing inconsistent
     // outputs from intermediate change signals
     const bool keepBlocked = signalsBlocked();
     blockSignals(true);
