@@ -27,6 +27,7 @@
 #include "../src/mode.h"
 #include "../src/edid.h"
 #include "../src/getconfigoperation.h"
+#include "../src/inprocessconfigoperation.h"
 #include "../src/backendmanager_p.h"
 
 Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.qscreen");
@@ -60,7 +61,8 @@ void testQScreenBackend::initTestCase()
 //     setenv("KSCREEN_BACKEND", "xrandr", 1);
     m_backend = qgetenv("KSCREEN_BACKEND").constData();
 
-    GetConfigOperation *op = new GetConfigOperation();
+    //auto *op = new InProcessConfigOperation();
+    auto *op = new GetConfigOperation();
     op->exec();
     m_config = op->config();
 }
