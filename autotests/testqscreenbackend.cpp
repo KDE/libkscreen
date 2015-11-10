@@ -21,6 +21,7 @@
 
 #include <QtTest/QtTest>
 #include <QtCore/QObject>
+#include <QElapsedTimer>
 
 #include "../src/config.h"
 #include "../src/output.h"
@@ -62,10 +63,14 @@ void testQScreenBackend::initTestCase()
 //     setenv("KSCREEN_BACKEND", "xrandr", 1);
     m_backend = qgetenv("KSCREEN_BACKEND").constData();
 
+    QElapsedTimer t;
+    t.start();
     auto *op = ConfigOperation::create();
     //auto *op = new GetConfigOperation();
     op->exec();
     m_config = op->config();
+    const int n = t.nsecsElapsed();
+    qDebug() << "Test took: " << n << "ns";
 }
 
 void testQScreenBackend::verifyConfig()

@@ -1,5 +1,5 @@
 /*************************************************************************************
- *  Copyright 2014 by Sebastian Kügler <sebas@kde.org>                           *
+ *  Copyright 2014 by Sebastian Kügler <sebas@kde.org>                               *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -18,6 +18,7 @@
 
 #include <QCoreApplication>
 #include <QCryptographicHash>
+#include <QElapsedTimer>
 #include <QtTest>
 #include <QObject>
 
@@ -89,6 +90,7 @@ testWaylandBackend::testWaylandBackend(QObject *parent)
 void testWaylandBackend::initTestCase()
 {
     setenv("KSCREEN_BACKEND", "wayland", 1);
+    setenv("KSCREEN_BACKEND_INPROCESS", "1", 1);
     KScreen::BackendManager::instance()->shutdownBackend();
     m_startServer =  qgetenv("KSCREEN_EXTERNAL_WAYLAND_SERVER").isEmpty();
 
@@ -98,10 +100,13 @@ void testWaylandBackend::initTestCase()
     if (m_startServer) {
         m_server->start();
     }
-
-    GetConfigOperation *op = new GetConfigOperation();
+    QElapsedTimer t;
+    t.start();
+    auto *op = ConfigOperation::create();
     op->exec();
     m_config = op->config();
+    const int n = t.nsecsElapsed();
+    qDebug() << "Test took: " << n << "ns";
 }
 
 void testWaylandBackend::verifyDisco()
