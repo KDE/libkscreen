@@ -46,7 +46,7 @@ public:
     explicit InProcessConfigOperation(Options options = NoOptions, QObject* parent = 0);
     ~InProcessConfigOperation();
 
-    KScreen::ConfigPtr config() const;
+    KScreen::ConfigPtr config() const override;
 
 protected:
     void start();

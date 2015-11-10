@@ -45,7 +45,7 @@ public:
     explicit GetConfigOperation(Options options = NoOptions, QObject* parent = 0);
     ~GetConfigOperation();
 
-    KScreen::ConfigPtr config() const;
+    virtual KScreen::ConfigPtr config() const override;
 
 protected:
     void start();
