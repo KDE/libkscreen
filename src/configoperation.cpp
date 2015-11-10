@@ -21,6 +21,9 @@
 #include "configoperation_p.h"
 #include "backendmanager_p.h"
 
+#include "getconfigoperation.h"
+#include "inprocessconfigoperation.h"
+
 using namespace KScreen;
 
 ConfigOperationPrivate::ConfigOperationPrivate(ConfigOperation* qq)
@@ -32,6 +35,20 @@ ConfigOperationPrivate::ConfigOperationPrivate(ConfigOperation* qq)
 
 ConfigOperationPrivate::~ConfigOperationPrivate()
 {
+}
+
+ConfigOperation* ConfigOperation::create()
+{
+    auto v = qgetenv("KSCREEN_BACKEND_INPROCESS");
+    qDebug() << "v ::: " << v;
+    if (qgetenv("KSCREEN_BACKEND_INPROCESS") == QByteArray("1")) {
+        qDebug() << "loading backend in-process";
+        return new InProcessConfigOperation;
+    } else {
+        qDebug() << "loading backend out-of-process";
+        return new GetConfigOperation;
+
+    }
 }
 
 void ConfigOperationPrivate::requestBackend()
