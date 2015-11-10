@@ -101,8 +101,14 @@ void InProcessConfigOperationPrivate::loadBackend()
 {
     Q_Q(InProcessConfigOperation);
     qDebug() << "START!";
-    const QVariantMap arguments;
+    QVariantMap arguments;
     const QString &name = qgetenv("KSCREEN_BACKEND").constData();
+    auto beargs = QString::fromLocal8Bit(qgetenv("KSCREEN_BACKEND_ARGS"));
+    qDebug() << "BEARGS: " << beargs;
+    if (beargs.startsWith("TEST_DATA=")) {
+         //"TEST_DATA=" = "multipleclone.json");
+        arguments["TEST_DATA"] = beargs.remove("TEST_DATA=");
+    }
     qCDebug(KSCREEN) << "Requested backend:" << name;
     const QString backendFilter = QString::fromLatin1("KSC_%1*").arg(name);
     const QStringList paths = QCoreApplication::libraryPaths();
