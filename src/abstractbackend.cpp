@@ -19,6 +19,11 @@
 
 #include "abstractbackend.h"
 
+void KScreen::AbstractBackend::init(const QVariantMap &arguments)
+{
+    Q_UNUSED(arguments);
+}
+
 QByteArray KScreen::AbstractBackend::edid(int outputId) const
 {
     Q_UNUSED(outputId);

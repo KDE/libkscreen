@@ -1,7 +1,5 @@
 include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${QT_INCLUDES})
 
-configure_file(config-libkscreen.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config-libkscreen.h)
-
 add_subdirectory(backendlauncher)
 
 set(libkscreen_SRCS

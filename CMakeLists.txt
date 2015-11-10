@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 2.8.12)
 
 project(libkscreen)
-set(PROJECT_VERSION "5.4.90")
+set(PROJECT_VERSION "5.4.0")
 
-find_package(ECM 1.3.0 REQUIRED NO_MODULE)
+find_package(ECM 5.14.0 REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR})
 include(KDEInstallDirs)
 include(KDECompilerSettings)
@@ -12,6 +12,7 @@ include(ECMSetupVersion)
 include(ECMPackageConfigHelpers)
 include(ECMMarkAsTest)
 include(ECMGenerateHeaders)
+include(ECMQtDeclareLoggingCategory)
 include(FeatureSummary)
 include(CheckCXXCompilerFlag)
 
@@ -79,8 +80,6 @@ if (_HAVE_VISIBILITY AND NOT WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility-inlines-hidden")
   endif (_HAVE_VISIBILITY_INLINES)
 endif (_HAVE_VISIBILITY AND NOT WIN32)
-
-# include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
 add_subdirectory(src)
 add_subdirectory(backends)

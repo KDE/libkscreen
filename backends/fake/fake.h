@@ -33,6 +33,8 @@ public:
     explicit Fake();
     virtual ~Fake();
 
+    void init(const QVariantMap &arguments) Q_DECL_OVERRIDE;
+
     QString name() const;
     QString serviceName() const;
     KScreen::ConfigPtr config() const;
@@ -53,6 +55,7 @@ private Q_SLOTS:
 
 
 private:
+    QString mConfigFile;
     mutable KScreen::ConfigPtr mConfig;
 };
 Q_DECLARE_LOGGING_CATEGORY(KSCREEN_FAKE)

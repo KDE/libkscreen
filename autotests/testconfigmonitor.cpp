@@ -64,9 +64,7 @@ private Q_SLOTS:
     void testChangeNotify()
     {
         //json file for the fake backend
-        QByteArray path(TEST_DATA);
-        path.append("/singleoutput.json");
-        setenv("TEST_DATA", path, 1);
+        qputenv("KSCREEN_BACKEND_ARGS", "TEST_DATA=" TEST_DATA "singleoutput.json");
 
         // Prepare monitor
         KScreen::ConfigMonitor *monitor = KScreen::ConfigMonitor::instance();
@@ -78,7 +76,7 @@ private Q_SLOTS:
         QSignalSpy enabledSpy(config->output(1).data(), SIGNAL(isEnabledChanged()));
 
 
-        auto iface = new org::kde::kscreen::FakeBackend(QLatin1String("org.kde.KScreen.Backend.Fake"),
+        auto iface = new org::kde::kscreen::FakeBackend(QLatin1String("org.kde.KScreen"),
                                                         QLatin1String("/fake"),
                                                         QDBusConnection::sessionBus());
         QVERIFY(iface->isValid());

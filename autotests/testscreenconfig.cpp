@@ -50,6 +50,7 @@ ConfigPtr testScreenConfig::getConfig()
     GetConfigOperation *op = new GetConfigOperation();
     if (!op->exec()) {
         qWarning("GetConfigOperation error: %s", qPrintable(op->errorString()));
+        BackendManager::instance()->shutdownBackend();
         return ConfigPtr();
     }
 
@@ -72,9 +73,7 @@ void testScreenConfig::cleanupTestCase()
 void testScreenConfig::singleOutput()
 {
     //json file for the fake backend
-    QByteArray path(TEST_DATA);
-    path.append("/singleoutput.json");
-    setenv("TEST_DATA", path, 1);
+    qputenv("KSCREEN_BACKEND_ARGS", "TEST_DATA=" TEST_DATA "singleoutput.json");
 
 //     QVERIFY2(kscreen, KScreen::errorString().toLatin1());
 
@@ -117,9 +116,7 @@ void testScreenConfig::singleOutput()
 
 void testScreenConfig::singleOutputWithoutPreferred()
 {
-    QByteArray path(TEST_DATA);
-    path.append("/singleOutputWithoutPreferred.json");
-    setenv("TEST_DATA", path, 1);
+    qputenv("KSCREEN_BACKEND_ARGS", "TEST_DATA=" TEST_DATA "singleOutputWithoutPreferred.json");
 
     const ConfigPtr config = getConfig();
     QVERIFY(!config.isNull());
@@ -132,9 +129,7 @@ void testScreenConfig::singleOutputWithoutPreferred()
 
 void testScreenConfig::multiOutput()
 {
-    QByteArray path(TEST_DATA);
-    path.append("/multipleoutput.json");
-    setenv("TEST_DATA", path, 1);
+    qputenv("KSCREEN_BACKEND_ARGS", "TEST_DATA=" TEST_DATA "multipleoutput.json");
 
     const ConfigPtr config = getConfig();
     QVERIFY(!config.isNull());
@@ -171,9 +166,7 @@ void testScreenConfig::multiOutput()
 
 void testScreenConfig::clonesOutput()
 {
-    QByteArray path(TEST_DATA);
-    path.append("/multipleclone.json");
-    setenv("TEST_DATA", path, 1);
+    qputenv("KSCREEN_BACKEND_ARGS", "TEST_DATA=" TEST_DATA "multipleclone.json");
 
     const ConfigPtr config = getConfig();
     QVERIFY(!config.isNull());
@@ -195,14 +188,10 @@ void testScreenConfig::clonesOutput()
 
 void testScreenConfig::configCanBeApplied()
 {
-    QByteArray path(TEST_DATA);
-    path.append("/singleoutputBroken.json");
-    setenv("TEST_DATA", path, 1);
+    qputenv("KSCREEN_BACKEND_ARGS", "TEST_DATA=" TEST_DATA "singleoutputBroken.json");
     const ConfigPtr brokenConfig = getConfig();
 
-    path = TEST_DATA;
-    path.append("/singleoutput.json");
-    setenv("TEST_DATA", path, 1);
+    qputenv("KSCREEN_BACKEND_ARGS", "TEST_DATA=" TEST_DATA "singleoutput.json");
     const ConfigPtr currentConfig = getConfig();
     QVERIFY(!currentConfig.isNull());
     const OutputPtr primaryBroken = brokenConfig->outputs()[2];
@@ -223,9 +212,7 @@ void testScreenConfig::configCanBeApplied()
     QVERIFY(Config::canBeApplied(brokenConfig));
 
 
-    path = TEST_DATA;
-    path.append("/tooManyOutputs.json");
-    setenv("TEST_DATA", path, 1);
+    qputenv("KSCREEN_BACKEND_ARGS", "TEST_DATA=" TEST_DATA "tooManyOutputs.json");
     const ConfigPtr brokenConfig2 = getConfig();
     QVERIFY(!brokenConfig2.isNull());
 

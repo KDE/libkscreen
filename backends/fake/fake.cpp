@@ -48,6 +48,12 @@ Fake::Fake()
     QTimer::singleShot(0, this, SLOT(delayedInit()));
 }
 
+void Fake::init(const QVariantMap &arguments)
+{
+    mConfigFile = arguments[QStringLiteral("TEST_DATA")].toString();
+    qCDebug(KSCREEN_FAKE) << "Fake profile file:" << mConfigFile;
+}
+
 void Fake::delayedInit()
 {
     new FakeBackendAdaptor(this);
@@ -65,17 +71,13 @@ QString Fake::name() const
 
 QString Fake::serviceName() const
 {
-    if (!qgetenv("KSCREEN_TEST_INSTANCE").isEmpty()) {
-        return QString::fromLatin1("org.kde.KScreen.Backend.Fake.") + QString::fromLatin1(qgetenv("KSCREEN_TEST_INSTANCE"));
-    }
-
     return QLatin1Literal("org.kde.KScreen.Backend.Fake");
 }
 
 ConfigPtr Fake::config() const
 {
     if (mConfig.isNull()) {
-        mConfig = Parser::fromJson(QString(qgetenv("TEST_DATA")));
+        mConfig = Parser::fromJson(mConfigFile);
     }
 
     return mConfig;
@@ -94,7 +96,7 @@ bool Fake::isValid() const
 QByteArray Fake::edid(int outputId) const
 {
     Q_UNUSED(outputId);
-    QFile file(QString(qgetenv("TEST_DATA")));
+    QFile file(mConfigFile);
     file.open(QIODevice::ReadOnly);
 
     const QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());

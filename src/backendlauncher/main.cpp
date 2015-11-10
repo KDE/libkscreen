@@ -18,68 +18,30 @@
  */
 
 #include <QGuiApplication>
-#include <QCommandLineParser>
-#include <QDebug>
+#include <QDBusConnection>
 
+#include "debug_p.h"
 #include "backendloader.h"
-#include "backenddbuswrapper.h"
-
-#include <src/abstractbackend.h>
 
 int main(int argc, char **argv)
 {
     QGuiApplication::setDesktopSettingsAware(false);
     QGuiApplication app(argc, argv);
 
+    if (!QDBusConnection::sessionBus().registerService(QStringLiteral("org.kde.KScreen"))) {
+        qCWarning(KSCREEN_BACKEND_LAUNCHER) << "Cannot register org.kde.KScreen service. Another launcher already running?";
+        return -1;
+    }
+
     BackendLoader *loader = new BackendLoader;
-
-    QCommandLineOption backendOption(QLatin1String("backend"),
-                                     QLatin1String("Backend to load. When not specified, BackendLauncher will "
-                                                   "try to load the best backend for current platform."),
-                                     QLatin1String("backend"));
-    QCommandLineParser parser;
-    parser.addOption(backendOption);
-    parser.addHelpOption();
-
-    parser.process(app);
-
-    bool success = false;
-    if (parser.isSet(backendOption)) {
-        success = loader->loadBackend(parser.value(backendOption));
-    } else {
-        success = loader->loadBackend();
+    if (!loader->init()) {
+        return -2;
     }
 
-    // We failed to load any backend: abort immediately
-    if (!success) {
-        return BackendLoader::BackendFailedToLoad;
-    }
-
-    // Create BackendDBusWrapper that takes implements the DBus interface and translates
-    // DBus calls to backend implementations. It will also take care of terminating this
-    // loader when no other KScreen-enabled processes are running
-    BackendDBusWrapper backendWrapper(loader->backend());
-    if (!backendWrapper.init()) {
-        // Loading failed, maybe it failed because another process is already running; if so we still want to print the path before we exit
-        // Check if another Backend Launcher with this particular backend is already running
-        const bool alreadyRunning = loader->checkIsAlreadyRunning();
-        if (alreadyRunning) {
-            // If it is, let caller know its DBus service name and terminate
-            printf("%s", qPrintable(loader->backend()->serviceName()));
-            fflush(stdout);
-            return BackendLoader::BackendAlreadyExists;
-        }
-        return BackendLoader::BackendFailedToLoad;
-    }
-
-    // Now let caller now what's our DBus service name, so it can connect to us
-    printf("%s", qPrintable(loader->backend()->serviceName()));
-    fflush(stdout);
-
-    // And go!
     const int ret = app.exec();
 
-    // Make sure the backend is destroyed and unloaded before we return
+    // Make sure the backend is destroyed and unloaded before we return (i.e.
+    // as long as QApplication object and it's XCB connection still exist
     delete loader;
 
     return ret;

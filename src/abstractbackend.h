@@ -41,6 +41,16 @@ public:
     virtual ~AbstractBackend() {}
 
     /**
+     * This is where the backend should perform all initialization. This method
+     * is always called right after the backend is created.
+     *
+     * Default implementation does nothing.
+     *
+     * @p arguments Optional arguments passed by caller. Used mostly for unit-testing.
+     */
+    virtual void init(const QVariantMap &arguments);
+
+    /**
      * Returns user-friendly name of the backend
      */
     virtual QString name() const = 0;
