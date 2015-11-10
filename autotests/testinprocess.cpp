@@ -80,8 +80,9 @@ TestInProcess::TestInProcess(QObject *parent)
 
 void TestInProcess::init()
 {
-    setenv("KSCREEN_BACKEND", "wayland", 1);
-    KScreen::BackendManager::instance()->shutdownBackend();
+	setenv("KSCREEN_BACKEND", "wayland", 1);
+	setenv("KSCREEN_BACKEND_INPROCESS", "1", 1);
+	KScreen::BackendManager::instance()->shutdownBackend();
 
     // This is how KWayland will pick up the right socket,
     // and thus connect to our internal test server.
