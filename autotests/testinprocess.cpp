@@ -39,7 +39,7 @@
 #include "waylandconfigreader.h"
 
 #include "../src/backendmanager_p.h"
-#include "../src/getconfigoperation.h"
+#include "../src/inprocessconfigoperation.h"
 #include "../src/config.h"
 #include "../src/configmonitor.h"
 #include "../src/output.h"
@@ -101,7 +101,7 @@ void TestInProcess::cleanup()
 void TestInProcess::loadConfig()
 {
     m_server->start();
-    GetConfigOperation *op = new GetConfigOperation();
+    InProcessConfigOperation *op = new InProcessConfigOperation();
     op->exec();
     m_config = op->config();
 
