@@ -40,7 +40,7 @@ public:
 
     KScreen::ConfigPtr getConfig()
     {
-        KScreen::GetConfigOperation *op = new KScreen::GetConfigOperation();
+        auto op = KScreen::ConfigOperation::create();
         if (!op->exec()) {
             qWarning("Failed to retrieve backend: %s", qPrintable(op->errorString()));
             return KScreen::ConfigPtr();
