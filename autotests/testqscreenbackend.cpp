@@ -161,7 +161,7 @@ void testQScreenBackend::verifyModes()
 
 void testQScreenBackend::commonUsagePattern()
 {
-    GetConfigOperation *op = new GetConfigOperation();
+    auto *op = ConfigOperation::create();
     op->exec();
 
     const KScreen::OutputList outputs = op->config()->outputs();
