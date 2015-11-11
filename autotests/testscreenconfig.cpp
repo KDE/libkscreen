@@ -50,7 +50,7 @@ ConfigPtr testScreenConfig::getConfig()
     setenv("KSCREEN_BACKEND_INPROCESS", "1", 1);
     auto *op = ConfigOperation::create();
     if (!op->exec()) {
-        qWarning("GetConfigOperation error: %s", qPrintable(op->errorString()));
+        qWarning("ConfigOperation error: %s", qPrintable(op->errorString()));
         BackendManager::instance()->shutdownBackend();
         return ConfigPtr();
     }
