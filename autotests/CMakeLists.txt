@@ -19,6 +19,7 @@ kscreen_add_test(testscreenconfig)
 kscreen_add_test(testqscreenbackend)
 kscreen_add_test(testconfigserializer)
 kscreen_add_test(testconfigmonitor)
+kscreen_add_test(testinprocess)
 
 if (ENABLE_XRANDR_TESTS)
     kscreen_add_test(textxrandr)
