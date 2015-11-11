@@ -170,6 +170,7 @@ void InProcessConfigOperationPrivate::loadBackend()
                 // we store it and unload it when the backendloader terminates.
                 mLoader = loader.release();
                 //qCDebug(KSCREEN) << "Loading" << backend->name() << "backend";
+                config = backend->config();
                 loadEdid();
                 q->emitResult();
             } else {
@@ -189,7 +190,6 @@ void InProcessConfigOperationPrivate::loadEdid()
         return;
 
     }
-    config = backend->config();
     Q_FOREACH (auto output, config->outputs()) {
         const QByteArray edidData = backend->edid(output->id());
         output->setEdid(edidData);
