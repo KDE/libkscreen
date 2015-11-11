@@ -18,6 +18,9 @@
  */
 
 #include "setconfigoperation.h"
+
+#include "abstractbackend.h"
+#include "backendmanager_p.h"
 #include "configoperation_p.h"
 #include "config.h"
 #include "configserializer_p.h"
@@ -63,6 +66,12 @@ void SetConfigOperationPrivate::backendReady(org::kde::kscreen::Backend* backend
     if (!backend) {
         q->setError(tr("Failed to prepare backend"));
         q->emitResult();
+        return;
+    }
+    if (qgetenv("KSCREEN_BACKEND_INPROCESS") == QByteArray("1")) {
+        auto b = BackendManager::instance()->mInProcessBackend;
+        Q_ASSERT(b);
+        b->setConfig(config);
         return;
     }
 

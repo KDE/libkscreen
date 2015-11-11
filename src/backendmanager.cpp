@@ -17,7 +17,10 @@
  *
  */
 
+
 #include "backendmanager_p.h"
+
+#include "abstractbackend.h"
 #include "backendinterface.h"
 #include "debug_p.h"
 #include "getconfigoperation.h"
@@ -54,6 +57,7 @@ BackendManager::BackendManager()
     , mCrashCount(0)
     , mShuttingDown(false)
     , mRequestsCounter(0)
+    , mInProcessBackend(0)
 {
     if (qgetenv("KSCREEN_BACKEND_INPROCESS") == QByteArray("1")) {
         return;
@@ -213,6 +217,12 @@ ConfigPtr BackendManager::config() const
 void BackendManager::setConfig(ConfigPtr c)
 {
     mConfig = c;
+}
+
+void BackendManager::setConfigInProcess(ConfigPtr c)
+{
+    Q_ASSERT(mInProcessBackend);
+    mInProcessBackend->setConfig(c);
 }
 
 void BackendManager::shutdownBackend()

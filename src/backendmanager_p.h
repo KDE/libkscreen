@@ -40,6 +40,8 @@ class OrgKdeKscreenBackendInterface;
 
 namespace KScreen {
 
+class AbstractBackend;
+
 class KSCREEN_EXPORT BackendManager : public QObject
 {
     Q_OBJECT
@@ -67,14 +69,20 @@ private Q_SLOTS:
     void backendServiceUnregistered(const QString &serviceName);
 
 private:
+    friend class SetInProcessOperation;
+    friend class SetConfigOperation;
+    //friend class SetInProcessOperation;
+    friend class InProcessConfigOperationPrivate;
+    friend class SetConfigOperationPrivate;
+
     void invalidateInterface();
     void backendServiceReady();
-
+    void setConfigInProcess(ConfigPtr config);
 
     explicit BackendManager();
     static BackendManager *sInstance;
     static const int sMaxCrashCount;
-
+    KScreen::AbstractBackend *mInProcessBackend;
     OrgKdeKscreenBackendInterface *mInterface;
     int mCrashCount;
 
