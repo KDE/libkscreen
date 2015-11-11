@@ -24,31 +24,16 @@
 #include <KSharedConfig>
 #include <KConfigGroup>
 
-// KWayland
-#include <KWayland/Client/connection_thread.h>
-#include <KWayland/Client/event_queue.h>
-#include <KWayland/Client/registry.h>
-
-#include <KWayland/Server/compositor_interface.h>
-#include <KWayland/Server/display.h>
-#include <KWayland/Server/output_interface.h>
-#include <KWayland/Server/seat_interface.h>
-#include <KWayland/Server/shell_interface.h>
-
-#include "waylandconfigwriter.h"
-#include "waylandconfigreader.h"
-
 #include "../src/backendmanager_p.h"
 #include "../src/inprocessconfigoperation.h"
+#include "../src/getconfigoperation.h"
 #include "../src/config.h"
 #include "../src/configmonitor.h"
 #include "../src/output.h"
 #include "../src/mode.h"
 #include "../src/edid.h"
 
-#include "../tests/waylandtestserver.h"
-
-Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.wayland");
+Q_LOGGING_CATEGORY(KSCREEN, "kscreen");
 
 using namespace KScreen;
 
@@ -65,10 +50,11 @@ private Q_SLOTS:
 
     void loadConfig();
 
+    void concurrentOperation();
+
 private:
 
     ConfigPtr m_config;
-    WaylandTestServer *m_server;
 
 };
 
@@ -80,34 +66,46 @@ TestInProcess::TestInProcess(QObject *parent)
 
 void TestInProcess::init()
 {
-	setenv("KSCREEN_BACKEND", "wayland", 1);
-	setenv("KSCREEN_BACKEND_INPROCESS", "1", 1);
-	KScreen::BackendManager::instance()->shutdownBackend();
+    // Make sure we do everything in-process
+    setenv("KSCREEN_BACKEND_INPROCESS", "1", 1);
+    // Use Fake backend with one of the json configs
+    setenv("KSCREEN_BACKEND", "Fake", 1);
+    qputenv("KSCREEN_BACKEND_ARGS", "TEST_DATA=" TEST_DATA "multipleoutput.json");
 
-    // This is how KWayland will pick up the right socket,
-    // and thus connect to our internal test server.
-    setenv("WAYLAND_DISPLAY", s_socketName.toLocal8Bit(), 1);
-
-    m_server = new WaylandTestServer(this);
-    //m_server->start();
+    KScreen::BackendManager::instance()->shutdownBackend();
 }
 
 void TestInProcess::cleanup()
 {
     KScreen::BackendManager::instance()->shutdownBackend();
-    delete m_server;
 }
 
 void TestInProcess::loadConfig()
 {
-    m_server->start();
     InProcessConfigOperation *op = new InProcessConfigOperation();
     op->exec();
     m_config = op->config();
 
     QVERIFY(m_config);
-
 }
+
+void TestInProcess::concurrentOperation()
+{
+    // Load QScreen backend in-process
+    setenv("KSCREEN_BACKEND", "QScreen", 1);
+    auto op = new InProcessConfigOperation();
+    op->exec();
+    QVERIFY(op->config() != nullptr);
+    QVERIFY(op->config()->isValid());
+
+    // Load the Fake backend in-process
+    setenv("KSCREEN_BACKEND", "Fake", 1);
+    auto ip = new InProcessConfigOperation();
+    ip->exec();
+    QVERIFY(ip->config() != nullptr);
+    QVERIFY(ip->config()->isValid());
+}
+
 
 
 QTEST_GUILESS_MAIN(TestInProcess)
