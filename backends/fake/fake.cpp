@@ -45,7 +45,10 @@ Fake::Fake()
 {
     QLoggingCategory::setFilterRules(QStringLiteral("kscreen.fake.debug = true"));
 
-    QTimer::singleShot(0, this, SLOT(delayedInit()));
+
+    if (qgetenv("KSCREEN_BACKEND_INPROCESS") != QByteArray("1")) {
+        QTimer::singleShot(0, this, SLOT(delayedInit()));
+    }
 }
 
 void Fake::init(const QVariantMap &arguments)
