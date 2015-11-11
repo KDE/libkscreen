@@ -36,7 +36,7 @@
 
 
 #include "../src/backendmanager_p.h"
-#include "../src/getconfigoperation.h"
+#include "../src/configoperation.h"
 #include "../src/config.h"
 #include "../src/configmonitor.h"
 #include "../src/output.h"
@@ -119,7 +119,7 @@ void testWaylandBackend::verifyDisco()
 
 void testWaylandBackend::loadConfig()
 {
-    GetConfigOperation *op = new GetConfigOperation();
+    auto op = ConfigOperation::create();
     op->exec();
     m_config = op->config();
     QVERIFY(m_config->isValid());
