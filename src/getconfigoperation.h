@@ -36,11 +36,6 @@ class KSCREEN_EXPORT GetConfigOperation : public KScreen::ConfigOperation
     Q_OBJECT
 
 public:
-    enum Option {
-        NoOptions,
-        NoEDID
-    };
-    Q_DECLARE_FLAGS(Options, Option)
 
     explicit GetConfigOperation(Options options = NoOptions, QObject* parent = 0);
     ~GetConfigOperation();
