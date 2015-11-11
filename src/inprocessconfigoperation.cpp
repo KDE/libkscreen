@@ -110,6 +110,7 @@ void InProcessConfigOperationPrivate::loadBackend()
         arguments["TEST_DATA"] = beargs.remove("TEST_DATA=");
     }
     qCDebug(KSCREEN) << "Requested backend:" << name;
+    qDebug() << "is X11?" << QX11Info::isPlatformX11();
     const QString backendFilter = QString::fromLatin1("KSC_%1*").arg(name);
     const QStringList paths = QCoreApplication::libraryPaths();
     //qCDebug(KSCREEN) << "Lookup paths: " << paths;
@@ -156,7 +157,7 @@ void InProcessConfigOperationPrivate::loadBackend()
             }
 
             backend = qobject_cast<KScreen::AbstractBackend*>(instance);
-            qDebug() << "Loading backend!" << name;
+            qDebug() << "Loading backend!" << finfo.filePath();
             if (backend) {
 
                 backend->init(arguments);
@@ -173,6 +174,7 @@ void InProcessConfigOperationPrivate::loadBackend()
                 config = backend->config();
                 loadEdid();
                 q->emitResult();
+                return;
             } else {
                 qCDebug(KSCREEN) << finfo.fileName() << "does not provide valid KScreen backend";
                 q->setError(finfo.fileName() + "does not provide valid KScreen backend");
@@ -180,7 +182,9 @@ void InProcessConfigOperationPrivate::loadBackend()
             }
         }
     }
-
+    qCWarning(KSCREEN) << "Could not find a suitable KScreen backend.";
+    q->setError("Could not find a suitable KScreen backend.");
+    q->emitResult();
 }
 
 void InProcessConfigOperationPrivate::loadEdid()
