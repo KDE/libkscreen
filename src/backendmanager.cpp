@@ -55,6 +55,9 @@ BackendManager::BackendManager()
     , mShuttingDown(false)
     , mRequestsCounter(0)
 {
+    if (qgetenv("KSCREEN_BACKEND_INPROCESS") == QByteArray("1")) {
+        return;
+    }
     qRegisterMetaType<org::kde::kscreen::Backend*>("OrgKdeKscreenBackendInterface");
 
     mServiceWatcher.setConnection(QDBusConnection::sessionBus());
@@ -205,6 +208,11 @@ void BackendManager::invalidateInterface()
 ConfigPtr BackendManager::config() const
 {
     return mConfig;
+}
+
+void BackendManager::setConfig(ConfigPtr c)
+{
+    mConfig = c;
 }
 
 void BackendManager::shutdownBackend()
