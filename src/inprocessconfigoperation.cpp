@@ -51,7 +51,7 @@ class InProcessConfigOperationPrivate : public ConfigOperationPrivate
     Q_OBJECT
 
 public:
-    InProcessConfigOperationPrivate(InProcessConfigOperation::Options options, InProcessConfigOperation *qq);
+    InProcessConfigOperationPrivate(ConfigOperation::Options options, InProcessConfigOperation *qq);
 
     void loadBackend();
     void loadEdid();
@@ -68,16 +68,16 @@ private:
 
 }
 
-InProcessConfigOperationPrivate::InProcessConfigOperationPrivate(InProcessConfigOperation::Options options, InProcessConfigOperation* qq)
+InProcessConfigOperationPrivate::InProcessConfigOperationPrivate(ConfigOperation::Options options, InProcessConfigOperation* qq)
     : ConfigOperationPrivate(qq)
     , options(options)
+    , backend(nullptr)
+    , mLoader(nullptr)
 {
 }
 
 void InProcessConfigOperation::start()
 {
-    //ConfigOperationPrivate::backendReady(backend);
-
     Q_D(InProcessConfigOperation);
     d->loadBackend();
 }
@@ -100,11 +100,11 @@ KScreen::ConfigPtr InProcessConfigOperation::config() const
 void InProcessConfigOperationPrivate::loadBackend()
 {
     Q_Q(InProcessConfigOperation);
-    qDebug() << "START!";
+    //qDebug() << "START!";
     QVariantMap arguments;
     const QString &name = qgetenv("KSCREEN_BACKEND").constData();
     auto beargs = QString::fromLocal8Bit(qgetenv("KSCREEN_BACKEND_ARGS"));
-    qDebug() << "BEARGS: " << beargs;
+    //qDebug() << "BEARGS: " << beargs;
     if (beargs.startsWith("TEST_DATA=")) {
          //"TEST_DATA=" = "multipleclone.json");
         arguments["TEST_DATA"] = beargs.remove("TEST_DATA=");
@@ -156,7 +156,9 @@ void InProcessConfigOperationPrivate::loadBackend()
             }
 
             backend = qobject_cast<KScreen::AbstractBackend*>(instance);
+            qDebug() << "Loading backend!" << name;
             if (backend) {
+
                 backend->init(arguments);
                 if (!backend->isValid()) {
                     qCDebug(KSCREEN) << "Skipping" << backend->name() << "backend";
@@ -167,11 +169,13 @@ void InProcessConfigOperationPrivate::loadBackend()
                 // This is the only case we don't want to unload() and delete the loader, instead
                 // we store it and unload it when the backendloader terminates.
                 mLoader = loader.release();
-                qCDebug(KSCREEN) << "Loading" << backend->name() << "backend";
+                //qCDebug(KSCREEN) << "Loading" << backend->name() << "backend";
                 loadEdid();
-                //return backend;
+                q->emitResult();
             } else {
                 qCDebug(KSCREEN) << finfo.fileName() << "does not provide valid KScreen backend";
+                q->setError(finfo.fileName() + "does not provide valid KScreen backend");
+                q->emitResult();
             }
         }
     }
@@ -181,15 +185,15 @@ void InProcessConfigOperationPrivate::loadBackend()
 void InProcessConfigOperationPrivate::loadEdid()
 {
     Q_Q(InProcessConfigOperation);
+    if (options & KScreen::ConfigOperation::NoEDID) {
+        return;
+
+    }
     config = backend->config();
     Q_FOREACH (auto output, config->outputs()) {
         const QByteArray edidData = backend->edid(output->id());
         output->setEdid(edidData);
     }
-
-
-    q->emitResult();
-
 }
 
 

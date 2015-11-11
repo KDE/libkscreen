@@ -35,12 +35,18 @@ class KSCREEN_EXPORT ConfigOperation : public QObject
     Q_OBJECT
 
 public:
+    enum Option {
+        NoOptions,
+        NoEDID
+    };
+    Q_DECLARE_FLAGS(Options, Option)
+
     virtual ~ConfigOperation();
 
     bool hasError() const;
     QString errorString() const;
 
-    static ConfigOperation* create();
+    static ConfigOperation* create(Options options = NoOptions);
     virtual KScreen::ConfigPtr config() const = 0;
 
     bool exec();

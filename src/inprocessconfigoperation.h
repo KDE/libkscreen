@@ -37,11 +37,6 @@ class KSCREEN_EXPORT InProcessConfigOperation : public KScreen::ConfigOperation
     Q_OBJECT
 
 public:
-    enum Option {
-        NoOptions,
-        NoEDID
-    };
-    Q_DECLARE_FLAGS(Options, Option)
 
     explicit InProcessConfigOperation(Options options = NoOptions, QObject* parent = 0);
     ~InProcessConfigOperation();
