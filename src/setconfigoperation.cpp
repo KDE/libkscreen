@@ -72,6 +72,7 @@ void SetConfigOperationPrivate::backendReady(org::kde::kscreen::Backend* backend
         auto b = BackendManager::instance()->mInProcessBackend;
         Q_ASSERT(b);
         b->setConfig(config);
+        q->emitResult();
         return;
     }
 
