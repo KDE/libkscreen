@@ -172,6 +172,7 @@ void InProcessConfigOperationPrivate::loadBackend()
                 mLoader = loader.release();
                 //qCDebug(KSCREEN) << "Loading" << backend->name() << "backend";
                 config = backend->config();
+                BackendManager::instance()->setConfig(config);
                 loadEdid();
                 q->emitResult();
                 return;

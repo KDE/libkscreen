@@ -52,6 +52,7 @@ public:
     void shutdownBackend();
 
     KScreen::ConfigPtr config() const;
+    void setConfig(KScreen::ConfigPtr c);
 
 Q_SIGNALS:
     void backendReady(OrgKdeKscreenBackendInterface *backend);
