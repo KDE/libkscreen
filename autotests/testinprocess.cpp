@@ -21,9 +21,6 @@
 #include <QObject>
 #include <QSignalSpy>
 
-#include <KSharedConfig>
-#include <KConfigGroup>
-
 #include "../src/backendmanager_p.h"
 #include "../src/inprocessconfigoperation.h"
 #include "../src/getconfigoperation.h"
