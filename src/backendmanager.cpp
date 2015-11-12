@@ -46,15 +46,6 @@ const int BackendManager::sMaxCrashCount = 4;
 
 BackendManager *BackendManager::sInstance = 0;
 
-void pluginDeleter(QPluginLoader *p)
-{
-    if (p) {
-        qCDebug(KSCREEN) << "Unloading" << p->fileName();
-        p->unload();
-        delete p;
-    }
-}
-
 BackendManager *BackendManager::instance()
 {
     if (!sInstance) {
@@ -71,6 +62,7 @@ BackendManager::BackendManager()
     , mShuttingDown(false)
     , mRequestsCounter(0)
     , mInProcessBackend(0)
+    , mLoader(0)
 {
     if (qgetenv("KSCREEN_BACKEND_INPROCESS") == QByteArray("1")) {
         return;
@@ -91,9 +83,10 @@ BackendManager::BackendManager()
 
 BackendManager::~BackendManager()
 {
+    qDebug() << "BackendManager gone...";
 }
 
-KScreen::AbstractBackend *BackendManager::loadBackend(const QString &name,
+KScreen::AbstractBackend *BackendManager::loadBackend(QPluginLoader *loader, const QString &name,
                                                      const QVariantMap &arguments)
 {
     qCDebug(KSCREEN) << "Requested backend:" << name;
@@ -133,9 +126,10 @@ KScreen::AbstractBackend *BackendManager::loadBackend(const QString &name,
                 continue;
             }
 
-            qCDebug(KSCREEN) << "Trying" << finfo.filePath();
+            //qCDebug(KSCREEN) << "Trying" << finfo.filePath() << loader->isLoaded();
             // Make sure we unload() and delete the loader whenever it goes out of scope here
-            std::unique_ptr<QPluginLoader, void(*)(QPluginLoader *)> loader(new QPluginLoader(finfo.filePath()), pluginDeleter);
+//             std::unique_ptr<QPluginLoader, void(*)(QPluginLoader *)> loader(new QPluginLoader(finfo.filePath()), pluginDeleter);
+            loader->setFileName(finfo.filePath());
             QObject *instance = loader->instance();
             if (!instance) {
                 qCDebug(KSCREEN) << loader->errorString();
@@ -154,7 +148,7 @@ KScreen::AbstractBackend *BackendManager::loadBackend(const QString &name,
                 // This is the only case we don't want to unload() and delete the loader, instead
                 // we store it and unload it when the backendloader terminates.
                 //mLoader = loader.release();
-                loader.release();
+                //loader.release();
 //                     connect(backend, &QObject::destroyed, [loader]() {
 //                         //loader.release();
 //                     });
@@ -169,6 +163,17 @@ KScreen::AbstractBackend *BackendManager::loadBackend(const QString &name,
     return Q_NULLPTR;
 }
 
+KScreen::AbstractBackend *BackendManager::loadBackend(const QString &name,
+                                                      const QVariantMap &arguments)
+{
+    if (mLoader == nullptr) {
+        //std::unique_ptr<QPluginLoader, void(*)(QPluginLoader *)> loader(new QPluginLoader(), pluginDeleter);
+        //mLoader = loader.release();
+        qDebug() << "New QPluginLoader...";
+        mLoader = new QPluginLoader(this);
+    }
+    return BackendManager::loadBackend(mLoader, name, arguments);
+}
 
 void BackendManager::requestBackend()
 {

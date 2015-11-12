@@ -27,6 +27,7 @@
 #define KSCREEN_BACKENDMANAGER_H
 
 #include <QObject>
+#include <QPluginLoader>
 #include <QProcess>
 #include <QDBusServiceWatcher>
 #include <QTimer>
@@ -47,16 +48,27 @@ class KSCREEN_EXPORT BackendManager : public QObject
     Q_OBJECT
 
 public:
+    enum Mode {
+        InProcess,
+        OutOfProcess
+    };
+
     static BackendManager *instance();
     ~BackendManager();
 
     void requestBackend();
     void shutdownBackend();
 
+
     KScreen::ConfigPtr config() const;
     void setConfig(KScreen::ConfigPtr c);
 
-    static KScreen::AbstractBackend *loadBackend(const QString &name, const QVariantMap &arguments);
+    static KScreen::AbstractBackend *loadBackend(QPluginLoader *loader,
+                                                 const QString &name,
+                                                 const QVariantMap &arguments);
+
+    KScreen::AbstractBackend *loadBackend(const QString &name,
+                                          const QVariantMap &arguments);
 
 
 Q_SIGNALS:
@@ -78,14 +90,14 @@ private:
     friend class InProcessConfigOperationPrivate;
     friend class SetConfigOperationPrivate;
 
-    void invalidateInterface();
-    void backendServiceReady();
-    void setConfigInProcess(ConfigPtr config);
-
     explicit BackendManager();
     static BackendManager *sInstance;
+
+    // For out-of-process operation
+    void invalidateInterface();
+    void backendServiceReady();
+
     static const int sMaxCrashCount;
-    KScreen::AbstractBackend *mInProcessBackend;
     OrgKdeKscreenBackendInterface *mInterface;
     int mCrashCount;
 
@@ -94,9 +106,13 @@ private:
     KScreen::ConfigPtr mConfig;
     QTimer mResetCrashCountTimer;
     bool mShuttingDown;
-
     int mRequestsCounter;
     QEventLoop mShutdownLoop;
+
+    // For in-process operation
+    QPluginLoader *mLoader;
+    KScreen::AbstractBackend *mInProcessBackend;
+    void setConfigInProcess(ConfigPtr config);
 
 };
 

@@ -37,14 +37,6 @@ using namespace KScreen;
 
 namespace KScreen
 {
-void pluginDeleter(QPluginLoader *p)
-{
-    if (p) {
-        qCDebug(KSCREEN) << "Unloading" << p->fileName();
-        p->unload();
-        delete p;
-    }
-}
 
 class InProcessConfigOperationPrivate : public ConfigOperationPrivate
 {
@@ -113,7 +105,7 @@ void InProcessConfigOperationPrivate::loadBackend()
         arguments["TEST_DATA"] = beargs.remove("TEST_DATA=");
     }
 
-    backend = KScreen::BackendManager::loadBackend(name, arguments);
+    backend = KScreen::BackendManager::instance()->loadBackend(name, arguments);
     if (backend == nullptr) {
         qCDebug(KSCREEN) << "plugin does not provide valid KScreen backend";
         //q->setError(finfo.fileName() + "does not provide valid KScreen backend");
