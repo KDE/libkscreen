@@ -109,86 +109,24 @@ void InProcessConfigOperationPrivate::loadBackend()
     const QString &name = qgetenv("KSCREEN_BACKEND").constData();
     auto beargs = QString::fromLocal8Bit(qgetenv("KSCREEN_BACKEND_ARGS"));
     if (beargs.startsWith("TEST_DATA=")) {
-         //"TEST_DATA=" = "multipleclone.json");
+        //"TEST_DATA=" = "multipleclone.json");
         arguments["TEST_DATA"] = beargs.remove("TEST_DATA=");
     }
-    //qCDebug(KSCREEN) << "Requested backend:" << name;
-    //qDebug() << "is X11?" << QX11Info::isPlatformX11();
-    const QString backendFilter = QString::fromLatin1("KSC_%1*").arg(name);
-    const QStringList paths = QCoreApplication::libraryPaths();
-    Q_FOREACH (const QString &path, paths) {
-        const QDir dir(path + QLatin1String("/kf5/kscreen/"),
-                       backendFilter,
-                       QDir::SortFlags(QDir::QDir::NoSort),
-                       QDir::NoDotAndDotDot | QDir::Files);
-        const QFileInfoList finfos = dir.entryInfoList();
-        Q_FOREACH (const QFileInfo &finfo, finfos) {
-            // Skip "Fake" backend unless explicitly specified via KSCREEN_BACKEND
-            if (name.isEmpty() && (finfo.fileName().contains(QLatin1String("KSC_Fake")) || finfo.fileName().contains(QLatin1String("KSC_FakeUI")))) {
-                continue;
-            }
 
-            // When on X11, skip the QScreen backend, instead use the XRandR backend,
-            // if not specified in KSCREEN_BACKEND
-            if (name.isEmpty() &&
-                finfo.fileName().contains(QLatin1String("KSC_QScreen")) &&
-                QX11Info::isPlatformX11()) {
-                continue;
-            }
-
-            if (name.isEmpty() &&
-                finfo.fileName().contains(QLatin1String("KSC_Wayland"))) {
-                continue;
-            }
-
-            // When not on X11, skip the XRandR backend, and fall back to QScreen
-            // if not specified in KSCREEN_BACKEND
-            if (name.isEmpty() &&
-                finfo.fileName().contains(QLatin1String("KSC_XRandR")) &&
-                !QX11Info::isPlatformX11()) {
-                continue;
-            }
-
-            //qCDebug(KSCREEN) << "Trying" << finfo.filePath();
-            // Make sure we unload() and delete the loader whenever it goes out of scope here
-            std::unique_ptr<QPluginLoader, void(*)(QPluginLoader *)> loader(new QPluginLoader(finfo.filePath()), pluginDeleter);
-            QObject *instance = loader->instance();
-            if (!instance) {
-                qCDebug(KSCREEN) << loader->errorString();
-                continue;
-            }
-
-            backend = qobject_cast<KScreen::AbstractBackend*>(instance);
-            qDebug() << "Loading backend!" << finfo.filePath();
-            if (backend) {
-
-                backend->init(arguments);
-                if (!backend->isValid()) {
-                    qCDebug(KSCREEN) << "Skipping" << backend->name() << "backend";
-                    delete backend;
-                    continue;
-                }
-
-                // This is the only case we don't want to unload() and delete the loader, instead
-                // we store it and unload it when the backendloader terminates.
-                mLoader = loader.release();
-                //qCDebug(KSCREEN) << "Loading" << backend->name() << "backend";
-                config = backend->config();
-                BackendManager::instance()->mInProcessBackend = backend;
-                BackendManager::instance()->setConfig(config);
-                loadEdid();
-                q->emitResult();
-                return;
-            } else {
-                qCDebug(KSCREEN) << finfo.fileName() << "does not provide valid KScreen backend";
-                q->setError(finfo.fileName() + "does not provide valid KScreen backend");
-                q->emitResult();
-            }
-        }
+    backend = KScreen::BackendManager::loadBackend(name, arguments);
+    if (backend == nullptr) {
+        qCDebug(KSCREEN) << "plugin does not provide valid KScreen backend";
+        //q->setError(finfo.fileName() + "does not provide valid KScreen backend");
+        q->setError("Plugin does not provide valid KScreen backend");
+        q->emitResult();
+        return;
     }
-    qCWarning(KSCREEN) << "Could not find a suitable KScreen backend.";
-    q->setError("Could not find a suitable KScreen backend.");
+    config = backend->config();
+    KScreen::BackendManager::instance()->mInProcessBackend = backend;
+    KScreen::BackendManager::instance()->setConfig(config);
+    loadEdid();
     q->emitResult();
+    return;
 }
 
 void InProcessConfigOperationPrivate::loadEdid()
