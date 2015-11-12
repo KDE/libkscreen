@@ -115,7 +115,12 @@ bool BackendLoader::requestBackend(const QString &backendName, const QVariantMap
 KScreen::AbstractBackend *BackendLoader::loadBackend(const QString &name,
                                                      const QVariantMap &arguments)
 {
-    return KScreen::BackendManager::loadBackend(name, arguments);
+    if (mLoader == Q_NULLPTR) {
+        std::unique_ptr<QPluginLoader, void(*)(QPluginLoader *)> loader(new QPluginLoader(), pluginDeleter);
+        mLoader = loader.release();
+    }
+    auto backend = KScreen::BackendManager::loadBackend(mLoader, name, arguments);
+    return backend;
 }
 
 void BackendLoader::quit()
