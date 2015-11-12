@@ -39,7 +39,6 @@ ConfigOperationPrivate::~ConfigOperationPrivate()
 
 ConfigOperation* ConfigOperation::create(Options options)
 {
-    auto v = qgetenv("KSCREEN_BACKEND_INPROCESS");
     if (qgetenv("KSCREEN_BACKEND_INPROCESS") == QByteArray("1")) {
         qDebug() << "loading backend in-process";
         return new InProcessConfigOperation(options);
