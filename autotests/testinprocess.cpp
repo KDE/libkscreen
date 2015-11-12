@@ -89,12 +89,14 @@ void TestInProcess::loadConfig()
 void TestInProcess::concurrentOperation()
 {
     // Load QScreen backend in-process
+    qDebug() << "TT qscreen in-process";
     setenv("KSCREEN_BACKEND", "QScreen", 1);
     auto op = new InProcessConfigOperation();
     op->exec();
     QVERIFY(op->config() != nullptr);
     QVERIFY(op->config()->isValid());
 
+    qDebug() << "TT fake in-process";
     // Load the Fake backend in-process
     setenv("KSCREEN_BACKEND", "Fake", 1);
     auto ip = new InProcessConfigOperation();
@@ -102,6 +104,7 @@ void TestInProcess::concurrentOperation()
     QVERIFY(ip->config() != nullptr);
     QVERIFY(ip->config()->isValid());
 
+    qDebug() << "TT xrandr out-of-process";
     // Load the xrandr backend out-of-process
     setenv("KSCREEN_BACKEND", "XRandR", 1);
     setenv("KSCREEN_BACKEND_INPROCESS", "0", 1);
@@ -109,8 +112,16 @@ void TestInProcess::concurrentOperation()
     xp->exec();
     QVERIFY(xp->config() != nullptr);
     QVERIFY(xp->config()->isValid());
+    qDebug() << "TT fake in-process";
 
     setenv("KSCREEN_BACKEND_INPROCESS", "1", 1);
+    // Load the Fake backend in-process
+    setenv("KSCREEN_BACKEND", "Fake", 1);
+    auto fp = new InProcessConfigOperation();
+    fp->exec();
+    QVERIFY(fp->config() != nullptr);
+    QVERIFY(fp->config()->isValid());
+
 }
 
 
