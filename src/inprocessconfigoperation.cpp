@@ -105,11 +105,9 @@ KScreen::ConfigPtr InProcessConfigOperation::config() const
 void InProcessConfigOperationPrivate::loadBackend()
 {
     Q_Q(InProcessConfigOperation);
-    //qDebug() << "START!";
     QVariantMap arguments;
     const QString &name = qgetenv("KSCREEN_BACKEND").constData();
     auto beargs = QString::fromLocal8Bit(qgetenv("KSCREEN_BACKEND_ARGS"));
-    //qDebug() << "BEARGS: " << beargs;
     if (beargs.startsWith("TEST_DATA=")) {
          //"TEST_DATA=" = "multipleclone.json");
         arguments["TEST_DATA"] = beargs.remove("TEST_DATA=");
@@ -118,7 +116,6 @@ void InProcessConfigOperationPrivate::loadBackend()
     //qDebug() << "is X11?" << QX11Info::isPlatformX11();
     const QString backendFilter = QString::fromLatin1("KSC_%1*").arg(name);
     const QStringList paths = QCoreApplication::libraryPaths();
-    //qCDebug(KSCREEN) << "Lookup paths: " << paths;
     Q_FOREACH (const QString &path, paths) {
         const QDir dir(path + QLatin1String("/kf5/kscreen/"),
                        backendFilter,
