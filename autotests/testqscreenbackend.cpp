@@ -60,13 +60,11 @@ void testQScreenBackend::initTestCase()
     setenv("KSCREEN_BACKEND_INPROCESS", "1", 1);
     KScreen::BackendManager::instance()->shutdownBackend();
 
-//     setenv("KSCREEN_BACKEND", "xrandr", 1);
     m_backend = qgetenv("KSCREEN_BACKEND").constData();
 
     QElapsedTimer t;
     t.start();
     auto *op = ConfigOperation::create();
-    //auto *op = new GetConfigOperation();
     op->exec();
     m_config = op->config();
     const int n = t.nsecsElapsed();
@@ -102,7 +100,6 @@ void testQScreenBackend::verifyOutputs()
 
     bool primaryFound = false;
     foreach (const KScreen::OutputPtr &op, m_config->outputs()) {
-        qDebug() << "CHecking at all";
         if (op->isPrimary()) {
             primaryFound = true;
         }
@@ -114,11 +111,10 @@ void testQScreenBackend::verifyOutputs()
     }
 
     const KScreen::OutputPtr primary = m_config->primaryOutput();
-    qDebug() << "ppp" << primary;
     QVERIFY(primary->isEnabled());
     QVERIFY(primary->isConnected());
     //qDebug() << "Primary geometry? " << primary->geometry();
-    qDebug() << " prim modes: " << primary->modes();
+    //qDebug() << " prim modes: " << primary->modes();
 
 
     QList<int> ids;
