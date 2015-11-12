@@ -101,6 +101,16 @@ void TestInProcess::concurrentOperation()
     ip->exec();
     QVERIFY(ip->config() != nullptr);
     QVERIFY(ip->config()->isValid());
+
+    // Load the xrandr backend out-of-process
+    setenv("KSCREEN_BACKEND", "XRandR", 1);
+    setenv("KSCREEN_BACKEND_INPROCESS", "0", 1);
+    auto xp = new GetConfigOperation();
+    xp->exec();
+    QVERIFY(xp->config() != nullptr);
+    QVERIFY(xp->config()->isValid());
+
+    setenv("KSCREEN_BACKEND_INPROCESS", "1", 1);
 }
 
 
