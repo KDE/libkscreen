@@ -518,7 +518,6 @@ void Output::apply(const OutputPtr& other)
     }
 }
 
-
 QDebug operator<<(QDebug dbg, const KScreen::OutputPtr &output)
 {
     if(output) {

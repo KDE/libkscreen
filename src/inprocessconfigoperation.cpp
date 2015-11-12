@@ -89,6 +89,11 @@ InProcessConfigOperation::InProcessConfigOperation(Options options, QObject* par
 
 InProcessConfigOperation::~InProcessConfigOperation()
 {
+    qDebug() << "Deleting backend, resetting config";
+    Q_D(InProcessConfigOperation);
+    KScreen::ConfigPtr cfg;
+    BackendManager::instance()->setConfig(cfg);
+    delete d->backend;
 }
 
 KScreen::ConfigPtr InProcessConfigOperation::config() const
@@ -109,8 +114,8 @@ void InProcessConfigOperationPrivate::loadBackend()
          //"TEST_DATA=" = "multipleclone.json");
         arguments["TEST_DATA"] = beargs.remove("TEST_DATA=");
     }
-    qCDebug(KSCREEN) << "Requested backend:" << name;
-    qDebug() << "is X11?" << QX11Info::isPlatformX11();
+    //qCDebug(KSCREEN) << "Requested backend:" << name;
+    //qDebug() << "is X11?" << QX11Info::isPlatformX11();
     const QString backendFilter = QString::fromLatin1("KSC_%1*").arg(name);
     const QStringList paths = QCoreApplication::libraryPaths();
     //qCDebug(KSCREEN) << "Lookup paths: " << paths;
