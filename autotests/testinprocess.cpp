@@ -82,46 +82,57 @@ void TestInProcess::loadConfig()
     InProcessConfigOperation *op = new InProcessConfigOperation();
     op->exec();
     m_config = op->config();
-
     QVERIFY(m_config);
+    QVERIFY(m_config->isValid());
 }
 
 void TestInProcess::concurrentOperation()
 {
     // Load QScreen backend in-process
-    qDebug() << "TT qscreen in-process";
+//     qDebug() << "TT qscreen in-process";
     setenv("KSCREEN_BACKEND", "QScreen", 1);
     auto op = new InProcessConfigOperation();
     op->exec();
-    QVERIFY(op->config() != nullptr);
-    QVERIFY(op->config()->isValid());
+    auto oc = op->config();
+    QVERIFY(oc != nullptr);
+    QVERIFY(oc->isValid());
 
-    qDebug() << "TT fake in-process";
+//     qDebug() << "TT fake in-process";
     // Load the Fake backend in-process
     setenv("KSCREEN_BACKEND", "Fake", 1);
     auto ip = new InProcessConfigOperation();
     ip->exec();
-    QVERIFY(ip->config() != nullptr);
-    QVERIFY(ip->config()->isValid());
+    auto ic = ip->config();
+    QVERIFY(ic != nullptr);
+    QVERIFY(ic->isValid());
 
-    qDebug() << "TT xrandr out-of-process";
+//     qDebug() << "TT xrandr out-of-process";
     // Load the xrandr backend out-of-process
     setenv("KSCREEN_BACKEND", "XRandR", 1);
     setenv("KSCREEN_BACKEND_INPROCESS", "0", 1);
     auto xp = new GetConfigOperation();
     xp->exec();
-    QVERIFY(xp->config() != nullptr);
-    QVERIFY(xp->config()->isValid());
-    qDebug() << "TT fake in-process";
+    auto xc = xp->config();
+    QVERIFY(xc != nullptr);
+    QVERIFY(xc->isValid());
+//     qDebug() << "TT fake in-process";
 
     setenv("KSCREEN_BACKEND_INPROCESS", "1", 1);
     // Load the Fake backend in-process
     setenv("KSCREEN_BACKEND", "Fake", 1);
     auto fp = new InProcessConfigOperation();
     fp->exec();
-    QVERIFY(fp->config() != nullptr);
-    QVERIFY(fp->config()->isValid());
+    auto fc = fp->config();
+    QVERIFY(fc != nullptr);
+    QVERIFY(fc->isValid());
 
+    // Check if all our configs are still valid after the backend is gone
+    KScreen::BackendManager::instance()->shutdownBackend();
+
+    QVERIFY(oc->isValid());
+    QVERIFY(ic->isValid());
+    QVERIFY(xc->isValid());
+    QVERIFY(fc->isValid());
 }
 
 
