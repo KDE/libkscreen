@@ -48,7 +48,7 @@ public:
     Q_INVOKABLE void quit();
 
 private:
-    KScreen::AbstractBackend *loadBackend(const QString &name, const QVariantMap &arguments);
+    static KScreen::AbstractBackend *loadBackend(const QString &name, const QVariantMap &arguments);
 
 private:
     QPluginLoader *mLoader;

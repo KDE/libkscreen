@@ -56,6 +56,9 @@ public:
     KScreen::ConfigPtr config() const;
     void setConfig(KScreen::ConfigPtr c);
 
+    static KScreen::AbstractBackend *loadBackend(const QString &name, const QVariantMap &arguments);
+
+
 Q_SIGNALS:
     void backendReady(OrgKdeKscreenBackendInterface *backend);
 
