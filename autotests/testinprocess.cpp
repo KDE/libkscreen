@@ -203,6 +203,10 @@ void TestInProcess::testBackendCaching()
     int t_x_warm = t.nsecsElapsed();
     auto xc = xp->config();
     QVERIFY(xc != nullptr);
+
+    QVERIFY(t_cold > t_warm);
+    QVERIFY(t_x_cold > t_x_warm);
+    QVERIFY(t_x_cold > t_cold);
     qDebug() << "ip  speedup for cached access:" << (qreal)((qreal)t_cold / (qreal)t_warm);
     qDebug() << "oop speedup for cached access:" << (qreal)((qreal)t_x_cold / (qreal)t_x_warm);
     qDebug() << "out-of vs. in-process speedup:" << (qreal)((qreal)t_x_warm / (qreal)t_warm);
