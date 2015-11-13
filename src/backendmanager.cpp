@@ -101,6 +101,8 @@ void BackendManager::setMode(BackendManager::Mode m)
     if (mMode == m) {
         return;
     }
+    qDebug() << "Switching mode ============================" << (m == InProcess);
+    shutdownBackend();
     mMode = m;
     initMode();
 }
@@ -195,18 +197,30 @@ KScreen::AbstractBackend *BackendManager::loadBackend(QPluginLoader *loader, con
 KScreen::AbstractBackend *BackendManager::loadBackend(const QString &name,
                                                       const QVariantMap &arguments)
 {
+    qDebug() << "BACKENDS CACHED:" << m_inProcessBackends.keys();
     if (mMode == OutOfProcess) {
         qWarning(KSCREEN) << "You are trying to load a backend in process, while the BackendManager is set to use OutOfProcess communication. Use the static version of loadBackend instead.";
         return nullptr;
     }
     Q_ASSERT(mMode == InProcess);
+    if (m_inProcessBackends.keys().contains(name)) {
+        auto pair = m_inProcessBackends[name];
+        auto _backend = pair.first;
+        if (pair.second != arguments) {
+            _backend->init(arguments);
+        }
+        qDebug() << " Backend CACHED. :) =========" << name;
+        return _backend;
+
+    }
+    qDebug() << " Backend fresh. =========" << name;
     if (mLoader == nullptr) {
-        //std::unique_ptr<QPluginLoader, void(*)(QPluginLoader *)> loader(new QPluginLoader(), pluginDeleter);
-        //mLoader = loader.release();
         qDebug() << "New QPluginLoader...";
         mLoader = new QPluginLoader(this);
     }
-    return BackendManager::loadBackend(mLoader, name, arguments);
+    auto backend = BackendManager::loadBackend(mLoader, name, arguments);
+    m_inProcessBackends[name] = qMakePair<KScreen::AbstractBackend*, QVariantMap>(backend, arguments);
+    return backend;
 }
 
 void BackendManager::requestBackend()
@@ -357,38 +371,44 @@ void BackendManager::setConfigInProcess(ConfigPtr c)
 
 void BackendManager::shutdownBackend()
 {
-    mConfig.clear();
-    mLoader->deleteLater();
-    mLoader = nullptr;
-    mInProcessBackend->deleteLater();
-    mInProcessBackend = nullptr;
+    if (mMode == InProcess) {
+        mConfig.clear();
+        mLoader->deleteLater();
+        mLoader = nullptr;
+        mInProcessBackend->deleteLater();
+        mInProcessBackend = nullptr;
+        for (auto k: m_inProcessBackends.keys()) {
+        //foreach (auto pair, m_inProcessBackends.values()) {
+            auto pair = m_inProcessBackends[k];
+            qDebug() << "Deleting " << k;
+            m_inProcessBackends.remove(k);
+            delete pair.first;
+        }
+    } else {
 
-    if (mBackendService.isEmpty() && !mInterface) {
-        return;
-    }
+        if (mBackendService.isEmpty() && !mInterface) {
+            return;
+        }
 
-    // If there are some currently pending requests, then wait for them to
-    // finish before quitting
-    while (mRequestsCounter > 0) {
-        mShutdownLoop.exec();
-    }
+        // If there are some currently pending requests, then wait for them to
+        // finish before quitting
+        while (mRequestsCounter > 0) {
+            mShutdownLoop.exec();
+        }
 
-    mServiceWatcher.removeWatchedService(mBackendService);
-    mShuttingDown = true;
+        mServiceWatcher.removeWatchedService(mBackendService);
+        mShuttingDown = true;
 
-    QDBusMessage call = QDBusMessage::createMethodCall(QStringLiteral("org.kde.KScreen"),
-                                                       QStringLiteral("/"),
-                                                       QStringLiteral("org.kde.KScreen"),
-                                                       QStringLiteral("quit"));
-    // Call synchronously
-    QDBusConnection::sessionBus().call(call);
-    invalidateInterface();
+        QDBusMessage call = QDBusMessage::createMethodCall(QStringLiteral("org.kde.KScreen"),
+                                                        QStringLiteral("/"),
+                                                        QStringLiteral("org.kde.KScreen"),
+                                                        QStringLiteral("quit"));
+        // Call synchronously
+        QDBusConnection::sessionBus().call(call);
+        invalidateInterface();
 
-    while (QDBusConnection::sessionBus().interface()->isServiceRegistered(QStringLiteral("org.kde.KScreen"))) {
-        QThread::msleep(100);
-    }
-
-    foreach (auto pair, m_inProcessBackends.values()) {
-        delete pair.first;
+        while (QDBusConnection::sessionBus().interface()->isServiceRegistered(QStringLiteral("org.kde.KScreen"))) {
+            QThread::msleep(100);
+        }
     }
 }

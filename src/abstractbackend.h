@@ -22,6 +22,7 @@
 
 #include "kscreen_export.h"
 #include "types.h"
+#include "debug_p.h"
 
 #include <QString>
 #include <QObject>
@@ -38,7 +39,7 @@ class KSCREEN_EXPORT AbstractBackend : public QObject
     Q_OBJECT
 
 public:
-    virtual ~AbstractBackend() {}
+    virtual ~AbstractBackend() { qDebug() << "Deleting backend."; }
 
     /**
      * This is where the backend should perform all initialization. This method
