@@ -106,7 +106,7 @@ void TestInProcess::concurrentOperation()
     QVERIFY(ic != nullptr);
     QVERIFY(ic->isValid());
 
-//     qDebug() << "TT xrandr out-of-process";
+    qDebug() << "TT xrandr out-of-process";
     // Load the xrandr backend out-of-process
     setenv("KSCREEN_BACKEND", "XRandR", 1);
     setenv("KSCREEN_BACKEND_INPROCESS", "0", 1);
