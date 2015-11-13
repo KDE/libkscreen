@@ -47,7 +47,8 @@ private Q_SLOTS:
 
     void loadConfig();
 
-    void concurrentOperation();
+    void testModeSwitching();
+    void testBackendCaching();
 
 private:
 
@@ -86,7 +87,7 @@ void TestInProcess::loadConfig()
     QVERIFY(m_config->isValid());
 }
 
-void TestInProcess::concurrentOperation()
+void TestInProcess::testModeSwitching()
 {
     // Load QScreen backend in-process
 //     qDebug() << "TT qscreen in-process";
@@ -133,6 +134,15 @@ void TestInProcess::concurrentOperation()
     QVERIFY(fc->isValid());
     QVERIFY(fc->outputs().count());
 
+    QVERIFY(oc->isValid());
+    QVERIFY(ic->isValid());
+    QVERIFY(xc->isValid());
+    QVERIFY(fc->isValid());
+}
+void TestInProcess::testBackendCaching()
+{
+    setenv("KSCREEN_BACKEND", "Fake", 1);
+    BackendManager::instance()->setMode(BackendManager::InProcess);
     {
         auto cp = new InProcessConfigOperation();
         QCOMPARE(BackendManager::instance()->mode(), BackendManager::InProcess);
@@ -162,11 +172,6 @@ void TestInProcess::concurrentOperation()
     }
     // Check if all our configs are still valid after the backend is gone
     KScreen::BackendManager::instance()->shutdownBackend();
-
-    QVERIFY(oc->isValid());
-    QVERIFY(ic->isValid());
-    QVERIFY(xc->isValid());
-    QVERIFY(fc->isValid());
 }
 
 
