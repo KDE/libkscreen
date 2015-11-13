@@ -128,7 +128,6 @@ ConfigPtr SetConfigOperation::config() const
     return d->config;
 }
 
-
 void SetConfigOperation::start()
 {
     Q_D(SetConfigOperation);
