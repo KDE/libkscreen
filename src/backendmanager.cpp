@@ -63,8 +63,10 @@ BackendManager::BackendManager()
     , mRequestsCounter(0)
     , mInProcessBackend(0)
     , mLoader(0)
+    , mMode(OutOfProcess)
 {
     if (qgetenv("KSCREEN_BACKEND_INPROCESS") == QByteArray("1")) {
+        mMode = InProcess;
         return;
     }
     qRegisterMetaType<org::kde::kscreen::Backend*>("OrgKdeKscreenBackendInterface");
@@ -79,6 +81,11 @@ BackendManager::BackendManager()
             this, [=]() {
                 mCrashCount = 0;
             });
+}
+
+BackendManager::Mode BackendManager::mode() const
+{
+    return mMode;
 }
 
 BackendManager::~BackendManager()
@@ -166,6 +173,11 @@ KScreen::AbstractBackend *BackendManager::loadBackend(QPluginLoader *loader, con
 KScreen::AbstractBackend *BackendManager::loadBackend(const QString &name,
                                                       const QVariantMap &arguments)
 {
+    if (mMode == OutOfProcess) {
+        qWarning(KSCREEN) << "You are trying to load a backend in process, while the BackendManager is set to use OutOfProcess communication. Use the static version of loadBackend instead.";
+        return nullptr;
+    }
+    Q_ASSERT(mMode == InProcess);
     if (mLoader == nullptr) {
         //std::unique_ptr<QPluginLoader, void(*)(QPluginLoader *)> loader(new QPluginLoader(), pluginDeleter);
         //mLoader = loader.release();
@@ -216,6 +228,7 @@ void BackendManager::emitBackendReady()
 
 void BackendManager::startBackend(const QString &backend, const QVariantMap &arguments)
 {
+    qDebug() << "startBackend!" << backend;
     // This will autostart the launcher if it's not running already, calling
     // requestBackend(backend) will:
     //   a) if the launcher is started it will force it to load the correct backend,

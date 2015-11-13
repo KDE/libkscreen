@@ -55,6 +55,9 @@ SetConfigOperationPrivate::SetConfigOperationPrivate(const ConfigPtr &config, Co
     : ConfigOperationPrivate(qq)
     , config(config)
 {
+    if (BackendManager::instance()->mode() == BackendManager::InProcess) {
+        qWarning() << "This class is not suitable for InProcess operation";
+    }
 }
 
 void SetConfigOperationPrivate::backendReady(org::kde::kscreen::Backend* backend)
@@ -68,7 +71,7 @@ void SetConfigOperationPrivate::backendReady(org::kde::kscreen::Backend* backend
         q->emitResult();
         return;
     }
-    if (qgetenv("KSCREEN_BACKEND_INPROCESS") == QByteArray("1")) {
+    if (BackendManager::instance()->mode() == BackendManager::InProcess) {
         auto b = BackendManager::instance()->mInProcessBackend;
         Q_ASSERT(b);
         b->setConfig(config);

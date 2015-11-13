@@ -70,6 +70,8 @@ public:
     KScreen::AbstractBackend *loadBackend(const QString &name,
                                           const QVariantMap &arguments);
 
+    BackendManager::Mode mode() const;
+
 
 Q_SIGNALS:
     void backendReady(OrgKdeKscreenBackendInterface *backend);
@@ -114,6 +116,7 @@ private:
     KScreen::AbstractBackend *mInProcessBackend;
     void setConfigInProcess(ConfigPtr config);
 
+    Mode mMode;
 };
 
 }
