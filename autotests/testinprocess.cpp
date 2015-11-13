@@ -105,27 +105,61 @@ void TestInProcess::concurrentOperation()
     auto ic = ip->config();
     QVERIFY(ic != nullptr);
     QVERIFY(ic->isValid());
+    QVERIFY(ic->outputs().count());
 
     qDebug() << "TT xrandr out-of-process";
     // Load the xrandr backend out-of-process
     setenv("KSCREEN_BACKEND", "XRandR", 1);
     setenv("KSCREEN_BACKEND_INPROCESS", "0", 1);
+    BackendManager::instance()->setMode(BackendManager::OutOfProcess);
     auto xp = new GetConfigOperation();
+    QCOMPARE(BackendManager::instance()->mode(), BackendManager::OutOfProcess);
     xp->exec();
     auto xc = xp->config();
     QVERIFY(xc != nullptr);
     QVERIFY(xc->isValid());
-//     qDebug() << "TT fake in-process";
+    QVERIFY(xc->outputs().count());
+        qDebug() << "TT fake in-process";
 
     setenv("KSCREEN_BACKEND_INPROCESS", "1", 1);
+    BackendManager::instance()->setMode(BackendManager::InProcess);
     // Load the Fake backend in-process
     setenv("KSCREEN_BACKEND", "Fake", 1);
     auto fp = new InProcessConfigOperation();
+    QCOMPARE(BackendManager::instance()->mode(), BackendManager::InProcess);
     fp->exec();
     auto fc = fp->config();
     QVERIFY(fc != nullptr);
     QVERIFY(fc->isValid());
+    QVERIFY(fc->outputs().count());
 
+    {
+        auto cp = new InProcessConfigOperation();
+        QCOMPARE(BackendManager::instance()->mode(), BackendManager::InProcess);
+        cp->exec();
+        auto cc = cp->config();
+        QVERIFY(cc != nullptr);
+        QVERIFY(cc->isValid());
+        QVERIFY(cc->outputs().count());
+    }
+    {
+        auto cp = new InProcessConfigOperation();
+        QCOMPARE(BackendManager::instance()->mode(), BackendManager::InProcess);
+        cp->exec();
+        auto cc = cp->config();
+        QVERIFY(cc != nullptr);
+        QVERIFY(cc->isValid());
+        QVERIFY(cc->outputs().count());
+    }
+    {
+        auto cp = new InProcessConfigOperation();
+        QCOMPARE(BackendManager::instance()->mode(), BackendManager::InProcess);
+        cp->exec();
+        auto cc = cp->config();
+        QVERIFY(cc != nullptr);
+        QVERIFY(cc->isValid());
+        QVERIFY(cc->outputs().count());
+    }
     // Check if all our configs are still valid after the backend is gone
     KScreen::BackendManager::instance()->shutdownBackend();
 
