@@ -85,7 +85,6 @@ InProcessConfigOperation::~InProcessConfigOperation()
     Q_D(InProcessConfigOperation);
     KScreen::ConfigPtr cfg;
     BackendManager::instance()->setConfig(cfg);
-    //delete d->backend;
 }
 
 KScreen::ConfigPtr InProcessConfigOperation::config() const
@@ -126,11 +125,12 @@ void InProcessConfigOperationPrivate::loadEdid()
     Q_Q(InProcessConfigOperation);
     if (options & KScreen::ConfigOperation::NoEDID) {
         return;
-
     }
     Q_FOREACH (auto output, config->outputs()) {
-        const QByteArray edidData = backend->edid(output->id());
-        output->setEdid(edidData);
+        if (output->edid() == nullptr) {
+            const QByteArray edidData = backend->edid(output->id());
+            output->setEdid(edidData);
+        }
     }
 }
 
