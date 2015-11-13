@@ -85,7 +85,7 @@ InProcessConfigOperation::~InProcessConfigOperation()
     Q_D(InProcessConfigOperation);
     KScreen::ConfigPtr cfg;
     BackendManager::instance()->setConfig(cfg);
-    delete d->backend;
+    //delete d->backend;
 }
 
 KScreen::ConfigPtr InProcessConfigOperation::config() const

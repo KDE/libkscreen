@@ -67,20 +67,42 @@ BackendManager::BackendManager()
 {
     if (qgetenv("KSCREEN_BACKEND_INPROCESS") == QByteArray("1")) {
         mMode = InProcess;
+    }
+    initMode(true);
+}
+
+void BackendManager::initMode(bool fromctor)
+{
+//     bool envmode_inprocess  = (qgetenv("KSCREEN_BACKEND_INPROCESS") == QByteArray("1"));
+//     if (envmode_inprocess && (mMode == InProcess) && !fromctor) {
+//         return;
+//     }
+    if (mMode == OutOfProcess) {
+        qDebug() << "Setting up dbus";
+        qRegisterMetaType<org::kde::kscreen::Backend*>("OrgKdeKscreenBackendInterface");
+
+        mServiceWatcher.setConnection(QDBusConnection::sessionBus());
+        connect(&mServiceWatcher, &QDBusServiceWatcher::serviceUnregistered,
+                this, &BackendManager::backendServiceUnregistered);
+
+        mResetCrashCountTimer.setSingleShot(true);
+        mResetCrashCountTimer.setInterval(60000);
+        connect(&mResetCrashCountTimer, &QTimer::timeout,
+                this, [=]() {
+                    mCrashCount = 0;
+                });
+    } else {
+
+    }
+}
+
+void BackendManager::setMode(BackendManager::Mode m)
+{
+    if (mMode == m) {
         return;
     }
-    qRegisterMetaType<org::kde::kscreen::Backend*>("OrgKdeKscreenBackendInterface");
-
-    mServiceWatcher.setConnection(QDBusConnection::sessionBus());
-    connect(&mServiceWatcher, &QDBusServiceWatcher::serviceUnregistered,
-            this, &BackendManager::backendServiceUnregistered);
-
-    mResetCrashCountTimer.setSingleShot(true);
-    mResetCrashCountTimer.setInterval(60000);
-    connect(&mResetCrashCountTimer, &QTimer::timeout,
-            this, [=]() {
-                mCrashCount = 0;
-            });
+    mMode = m;
+    initMode();
 }
 
 BackendManager::Mode BackendManager::mode() const
@@ -213,7 +235,7 @@ void BackendManager::requestBackend()
             arguments.insert(arg.left(pos), arg.mid(pos + 1));
         }
     }
-
+    qDebug() << "OOP LOADING BACKEND";
     startBackend(QString::fromLatin1(qgetenv("KSCREEN_BACKEND")), arguments);
 }
 
@@ -335,6 +357,12 @@ void BackendManager::setConfigInProcess(ConfigPtr c)
 
 void BackendManager::shutdownBackend()
 {
+    mConfig.clear();
+    mLoader->deleteLater();
+    mLoader = nullptr;
+    mInProcessBackend->deleteLater();
+    mInProcessBackend = nullptr;
+
     if (mBackendService.isEmpty() && !mInterface) {
         return;
     }
@@ -358,5 +386,9 @@ void BackendManager::shutdownBackend()
 
     while (QDBusConnection::sessionBus().interface()->isServiceRegistered(QStringLiteral("org.kde.KScreen"))) {
         QThread::msleep(100);
+    }
+
+    foreach (auto pair, m_inProcessBackends.values()) {
+        delete pair.first;
     }
 }

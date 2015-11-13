@@ -56,13 +56,17 @@ public:
     static BackendManager *instance();
     ~BackendManager();
 
-    void requestBackend();
-    void shutdownBackend();
-
-
     KScreen::ConfigPtr config() const;
     void setConfig(KScreen::ConfigPtr c);
 
+    /** Encapsulates the plugin loading logic.
+     *
+     * @param loader a pointer to the QPluginLoader, the caller is
+     * responsible for its memory management.
+     * @param name name of the backend plugin
+     * @param arguments arguments, used for unit tests
+     * @return a pointer to the backend loaded from the plugin
+     */
     static KScreen::AbstractBackend *loadBackend(QPluginLoader *loader,
                                                  const QString &name,
                                                  const QVariantMap &arguments);
@@ -71,7 +75,11 @@ public:
                                           const QVariantMap &arguments);
 
     BackendManager::Mode mode() const;
+    void setMode(BackendManager::Mode m);
 
+    // For out-of-process operation
+    void requestBackend();
+    void shutdownBackend();
 
 Q_SIGNALS:
     void backendReady(OrgKdeKscreenBackendInterface *backend);
@@ -95,6 +103,8 @@ private:
     explicit BackendManager();
     static BackendManager *sInstance;
 
+    void initMode(bool fromctor = false);
+
     // For out-of-process operation
     void invalidateInterface();
     void backendServiceReady();
@@ -115,6 +125,7 @@ private:
     QPluginLoader *mLoader;
     KScreen::AbstractBackend *mInProcessBackend;
     void setConfigInProcess(ConfigPtr config);
+    QHash<QString, QPair<KScreen::AbstractBackend*, QVariantMap>> m_inProcessBackends;
 
     Mode mMode;
 };
