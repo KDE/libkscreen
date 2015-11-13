@@ -195,6 +195,7 @@ Config::Config()
  : QObject(0)
  , d(new Private(this))
 {
+    qDebug() << "===========> New COnfig!!" << this;
 }
 
 

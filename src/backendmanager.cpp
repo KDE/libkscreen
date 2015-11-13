@@ -21,6 +21,7 @@
 #include "backendmanager_p.h"
 
 #include "abstractbackend.h"
+#include "config.h"
 #include "backendinterface.h"
 #include "debug_p.h"
 #include "getconfigoperation.h"
@@ -78,7 +79,7 @@ void BackendManager::initMode(bool fromctor)
 //         return;
 //     }
     if (mMode == OutOfProcess) {
-        qDebug() << "Setting up dbus";
+        //qDebug() << "Setting up dbus";
         qRegisterMetaType<org::kde::kscreen::Backend*>("OrgKdeKscreenBackendInterface");
 
         mServiceWatcher.setConnection(QDBusConnection::sessionBus());
@@ -101,7 +102,6 @@ void BackendManager::setMode(BackendManager::Mode m)
     if (mMode == m) {
         return;
     }
-    qDebug() << "Switching mode ============================" << (m == InProcess);
     shutdownBackend();
     mMode = m;
     initMode();
@@ -114,13 +114,14 @@ BackendManager::Mode BackendManager::mode() const
 
 BackendManager::~BackendManager()
 {
-    qDebug() << "BackendManager gone...";
+    //qDebug() << "BackendManager gone...";
+    shutdownBackend();
 }
 
 KScreen::AbstractBackend *BackendManager::loadBackend(QPluginLoader *loader, const QString &name,
                                                      const QVariantMap &arguments)
 {
-    qCDebug(KSCREEN) << "Requested backend:" << name;
+    //qCDebug(KSCREEN) << "Requested backend:" << name;
     const QString backendFilter = QString::fromLatin1("KSC_%1*").arg(name);
     const QStringList paths = QCoreApplication::libraryPaths();
     //qCDebug(KSCREEN) << "Lookup paths: " << paths;
@@ -158,8 +159,6 @@ KScreen::AbstractBackend *BackendManager::loadBackend(QPluginLoader *loader, con
             }
 
             //qCDebug(KSCREEN) << "Trying" << finfo.filePath() << loader->isLoaded();
-            // Make sure we unload() and delete the loader whenever it goes out of scope here
-//             std::unique_ptr<QPluginLoader, void(*)(QPluginLoader *)> loader(new QPluginLoader(finfo.filePath()), pluginDeleter);
             loader->setFileName(finfo.filePath());
             QObject *instance = loader->instance();
             if (!instance) {
@@ -175,14 +174,6 @@ KScreen::AbstractBackend *BackendManager::loadBackend(QPluginLoader *loader, con
                     delete backend;
                     continue;
                 }
-
-                // This is the only case we don't want to unload() and delete the loader, instead
-                // we store it and unload it when the backendloader terminates.
-                //mLoader = loader.release();
-                //loader.release();
-//                     connect(backend, &QObject::destroyed, [loader]() {
-//                         //loader.release();
-//                     });
                 qCDebug(KSCREEN) << "Loading" << backend->name() << "backend";
                 return backend;
             } else {
@@ -197,7 +188,6 @@ KScreen::AbstractBackend *BackendManager::loadBackend(QPluginLoader *loader, con
 KScreen::AbstractBackend *BackendManager::loadBackend(const QString &name,
                                                       const QVariantMap &arguments)
 {
-    qDebug() << "BACKENDS CACHED:" << m_inProcessBackends.keys();
     if (mMode == OutOfProcess) {
         qWarning(KSCREEN) << "You are trying to load a backend in process, while the BackendManager is set to use OutOfProcess communication. Use the static version of loadBackend instead.";
         return nullptr;
@@ -209,13 +199,10 @@ KScreen::AbstractBackend *BackendManager::loadBackend(const QString &name,
         if (pair.second != arguments) {
             _backend->init(arguments);
         }
-        qDebug() << " Backend CACHED. :) =========" << name;
         return _backend;
 
     }
-    qDebug() << " Backend fresh. =========" << name;
     if (mLoader == nullptr) {
-        qDebug() << "New QPluginLoader...";
         mLoader = new QPluginLoader(this);
     }
     auto backend = BackendManager::loadBackend(mLoader, name, arguments);
@@ -225,6 +212,10 @@ KScreen::AbstractBackend *BackendManager::loadBackend(const QString &name,
 
 void BackendManager::requestBackend()
 {
+    if (mMode == InProcess) {
+        qCWarning(KSCREEN) << "BackendManager is set to InProcess, requestBackend should never be called.";
+        return;
+    }
     if (mInterface && mInterface->isValid()) {
         ++mRequestsCounter;
         QMetaObject::invokeMethod(this, "emitBackendReady", Qt::QueuedConnection);
@@ -249,7 +240,7 @@ void BackendManager::requestBackend()
             arguments.insert(arg.left(pos), arg.mid(pos + 1));
         }
     }
-    qDebug() << "OOP LOADING BACKEND";
+
     startBackend(QString::fromLatin1(qgetenv("KSCREEN_BACKEND")), arguments);
 }
 
@@ -264,7 +255,7 @@ void BackendManager::emitBackendReady()
 
 void BackendManager::startBackend(const QString &backend, const QVariantMap &arguments)
 {
-    qDebug() << "startBackend!" << backend;
+    qDebug() << "starting external backend launcher for" << backend;;
     // This will autostart the launcher if it's not running already, calling
     // requestBackend(backend) will:
     //   a) if the launcher is started it will force it to load the correct backend,
@@ -360,6 +351,7 @@ ConfigPtr BackendManager::config() const
 
 void BackendManager::setConfig(ConfigPtr c)
 {
+    qDebug() << "setConfig" << c->outputs().count();
     mConfig = c;
 }
 
@@ -372,15 +364,12 @@ void BackendManager::setConfigInProcess(ConfigPtr c)
 void BackendManager::shutdownBackend()
 {
     if (mMode == InProcess) {
-        mConfig.clear();
         mLoader->deleteLater();
         mLoader = nullptr;
         mInProcessBackend->deleteLater();
         mInProcessBackend = nullptr;
         for (auto k: m_inProcessBackends.keys()) {
-        //foreach (auto pair, m_inProcessBackends.values()) {
             auto pair = m_inProcessBackends[k];
-            qDebug() << "Deleting " << k;
             m_inProcessBackends.remove(k);
             delete pair.first;
         }

@@ -81,10 +81,10 @@ InProcessConfigOperation::InProcessConfigOperation(Options options, QObject* par
 
 InProcessConfigOperation::~InProcessConfigOperation()
 {
-    qDebug() << "Deleting backend, resetting config";
-    Q_D(InProcessConfigOperation);
-    KScreen::ConfigPtr cfg;
-    BackendManager::instance()->setConfig(cfg);
+//     qDebug() << "RESET CURRENT";
+//     Q_D(InProcessConfigOperation);
+//     KScreen::ConfigPtr cfg;
+//     BackendManager::instance()->setConfig(cfg);
 }
 
 KScreen::ConfigPtr InProcessConfigOperation::config() const
@@ -113,7 +113,8 @@ void InProcessConfigOperationPrivate::loadBackend()
         return;
     }
     config = backend->config();
-    KScreen::BackendManager::instance()->mInProcessBackend = backend;
+    //KScreen::BackendManager::instance()->mInProcessBackend = backend;
+    qDebug() << "BE SET CONFIG";
     KScreen::BackendManager::instance()->setConfig(config);
     loadEdid();
     q->emitResult();
