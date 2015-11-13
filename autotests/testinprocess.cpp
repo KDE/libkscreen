@@ -108,7 +108,7 @@ void TestInProcess::testModeSwitching()
     QVERIFY(ic->isValid());
     QVERIFY(ic->outputs().count());
 
-    qDebug() << "TT xrandr out-of-process";
+    //qDebug() << "TT xrandr out-of-process";
     // Load the xrandr backend out-of-process
     setenv("KSCREEN_BACKEND", "XRandR", 1);
     setenv("KSCREEN_BACKEND_INPROCESS", "0", 1);
@@ -120,7 +120,7 @@ void TestInProcess::testModeSwitching()
     QVERIFY(xc != nullptr);
     QVERIFY(xc->isValid());
     QVERIFY(xc->outputs().count());
-        qDebug() << "TT fake in-process";
+    //qDebug() << "TT fake in-process";
 
     setenv("KSCREEN_BACKEND_INPROCESS", "1", 1);
     BackendManager::instance()->setMode(BackendManager::InProcess);
@@ -141,22 +141,32 @@ void TestInProcess::testModeSwitching()
 }
 void TestInProcess::testBackendCaching()
 {
+    KScreen::BackendManager::instance()->shutdownBackend();
     setenv("KSCREEN_BACKEND", "Fake", 1);
+    QElapsedTimer t;
     BackendManager::instance()->setMode(BackendManager::InProcess);
+    QCOMPARE(BackendManager::instance()->mode(), BackendManager::InProcess);
+    int t_cold;
+    int t_warm;
+
     {
+        t.start();
         auto cp = new InProcessConfigOperation();
-        QCOMPARE(BackendManager::instance()->mode(), BackendManager::InProcess);
         cp->exec();
         auto cc = cp->config();
+        t_cold = t.nsecsElapsed();
         QVERIFY(cc != nullptr);
         QVERIFY(cc->isValid());
         QVERIFY(cc->outputs().count());
     }
     {
-        auto cp = new InProcessConfigOperation();
+        //KScreen::BackendManager::instance()->shutdownBackend();
         QCOMPARE(BackendManager::instance()->mode(), BackendManager::InProcess);
+        t.start();
+        auto cp = new InProcessConfigOperation();
         cp->exec();
         auto cc = cp->config();
+        t_warm = t.nsecsElapsed();
         QVERIFY(cc != nullptr);
         QVERIFY(cc->isValid());
         QVERIFY(cc->outputs().count());
@@ -172,6 +182,31 @@ void TestInProcess::testBackendCaching()
     }
     // Check if all our configs are still valid after the backend is gone
     KScreen::BackendManager::instance()->shutdownBackend();
+
+    //setenv("KSCREEN_BACKEND", "QScreen", 1);
+    setenv("KSCREEN_BACKEND_INPROCESS", "0", 1);
+    BackendManager::instance()->setMode(BackendManager::OutOfProcess);
+    QCOMPARE(BackendManager::instance()->mode(), BackendManager::OutOfProcess);
+    int t_x_cold;
+
+    {
+        t.start();
+        auto xp = new GetConfigOperation();
+        xp->exec();
+        t_x_cold = t.nsecsElapsed();
+        auto xc = xp->config();
+        QVERIFY(xc != nullptr);
+    }
+    t.start();
+    auto xp = new GetConfigOperation();
+    xp->exec();
+    int t_x_warm = t.nsecsElapsed();
+    auto xc = xp->config();
+    QVERIFY(xc != nullptr);
+    qDebug() << "ip  speedup for cached access:" << (qreal)((qreal)t_cold / (qreal)t_warm);
+    qDebug() << "oop speedup for cached access:" << (qreal)((qreal)t_x_cold / (qreal)t_x_warm);
+    qDebug() << "out-of vs. in-process speedup:" << (qreal)((qreal)t_x_warm / (qreal)t_warm);
+
 }
 
 

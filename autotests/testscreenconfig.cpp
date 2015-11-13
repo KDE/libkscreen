@@ -47,7 +47,7 @@ private Q_SLOTS:
 
 ConfigPtr testScreenConfig::getConfig()
 {
-    setenv("KSCREEN_BACKEND_INPROCESS", "0", 1);
+    setenv("KSCREEN_BACKEND_INPROCESS", "1", 1);
     auto *op = ConfigOperation::create();
     if (!op->exec()) {
         qWarning("ConfigOperation error: %s", qPrintable(op->errorString()));
@@ -209,7 +209,9 @@ void testScreenConfig::configCanBeApplied()
     QVERIFY(!Config::canBeApplied(brokenConfig));
     primaryBroken->setCurrentModeId(currentPrimary->currentModeId());
     QVERIFY(!Config::canBeApplied(brokenConfig));
+    qDebug() << "brokenConfig.modes" << primaryBroken->mode("3");
     primaryBroken->mode(QLatin1String("3"))->setSize(QSize(1280, 800));
+    qDebug() << "brokenConfig.modes" << primaryBroken->mode("3");
     QVERIFY(Config::canBeApplied(brokenConfig));
 
 
