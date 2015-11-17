@@ -123,7 +123,7 @@ private:
 
     // For in-process operation
     QPluginLoader *mLoader;
-    QHash<QString, QPair<KScreen::AbstractBackend*, QVariantMap>> m_inProcessBackends;
+    QPair<KScreen::AbstractBackend*, QVariantMap> m_inProcessBackend;
 
     Mode mMode;
 };
