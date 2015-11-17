@@ -24,6 +24,7 @@
 #include "../src/backendmanager_p.h"
 #include "../src/inprocessconfigoperation.h"
 #include "../src/getconfigoperation.h"
+#include "../src/setconfigoperation.h"
 #include "../src/config.h"
 #include "../src/configmonitor.h"
 #include "../src/output.h"
@@ -228,7 +229,7 @@ void TestInProcess::testCreateJob()
     KScreen::BackendManager::instance()->shutdownBackend();
     {
         BackendManager::instance()->setMode(BackendManager::InProcess);
-        auto *op = ConfigOperation::create();
+        auto op = ConfigOperation::create();
         auto _op = qobject_cast<InProcessConfigOperation*>(op);
         QVERIFY(_op != nullptr);
         QCOMPARE(BackendManager::instance()->mode(), BackendManager::InProcess);
@@ -239,7 +240,7 @@ void TestInProcess::testCreateJob()
     }
     {
         BackendManager::instance()->setMode(BackendManager::OutOfProcess);
-        auto *op = ConfigOperation::create();
+        auto op = ConfigOperation::create();
         auto _op = qobject_cast<GetConfigOperation*>(op);
         QVERIFY(_op != nullptr);
         QCOMPARE(BackendManager::instance()->mode(), BackendManager::OutOfProcess);
@@ -254,8 +255,23 @@ void TestInProcess::testCreateJob()
 
 void TestInProcess::testConfigApply()
 {
+    setenv("KSCREEN_BACKEND", "Fake", 1);
+    KScreen::BackendManager::instance()->shutdownBackend();
+    BackendManager::instance()->setMode(BackendManager::InProcess);
+    auto op = ConfigOperation::create();
+    op->exec();
+    auto config = op->config();
+    qDebug() << "op:" << config->outputs().count();
+    auto output = config->outputs().first();
+    qDebug() << "res:" << output->geometry();
+    qDebug() << "modes:" << output->modes();
+    auto m0 = output->modes().first();
+    qDebug() << "m0:" << m0->id() << m0;
+    output->setCurrentModeId(m0->id());
+    Config::canBeApplied(config);
 
-
+    auto set = new SetConfigOperation(config);
+    set->exec();
 }
 
 QTEST_GUILESS_MAIN(TestInProcess)
