@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2014  Daniel Vratil <dvratil@redhat.com>
+ * Copyright 2015 Sebastian Kügler <sebas@kde.org>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -95,9 +96,8 @@ private Q_SLOTS:
 
 private:
     friend class SetInProcessOperation;
-    friend class SetConfigOperation;
-    //friend class SetInProcessOperation;
     friend class InProcessConfigOperationPrivate;
+    friend class SetConfigOperation;
     friend class SetConfigOperationPrivate;
 
     explicit BackendManager();

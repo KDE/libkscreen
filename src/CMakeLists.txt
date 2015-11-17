@@ -10,6 +10,7 @@ set(libkscreen_SRCS
     getconfigoperation.cpp
     inprocessconfigoperation.cpp
     setconfigoperation.cpp
+    setinprocessoperation.cpp
     configmonitor.cpp
     configserializer.cpp
     screen.cpp
@@ -52,7 +53,7 @@ ecm_generate_headers(KScreen_HEADERS
         ConfigMonitor
         ConfigOperation
         GetConfigOperation
-        InProcessConfigOperation
+        #InProcessConfigOperation
         SetConfigOperation
         Types
     PREFIX KScreen
