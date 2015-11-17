@@ -104,7 +104,6 @@ void ConfigMonitor::Private::getConfigFinished(ConfigOperation* op)
     updateConfigs(config);
 }
 
-
 void ConfigMonitor::Private::backendConfigChanged(const QVariantMap &configMap)
 {
     ConfigPtr newConfig = ConfigSerializer::deserializeConfig(configMap);
