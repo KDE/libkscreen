@@ -132,6 +132,7 @@ void Fake::setConnected(int outputId, bool connected)
     }
 
     output->setConnected(connected);
+	qDebug() << "emitting configChanged in Fake";
     Q_EMIT configChanged(mConfig);
 }
 

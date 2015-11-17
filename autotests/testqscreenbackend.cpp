@@ -97,7 +97,6 @@ void testQScreenBackend::verifyScreen()
 
 void testQScreenBackend::verifyOutputs()
 {
-
     bool primaryFound = false;
     foreach (const KScreen::OutputPtr &op, m_config->outputs()) {
         if (op->isPrimary()) {

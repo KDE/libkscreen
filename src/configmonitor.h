@@ -28,6 +28,9 @@
 namespace KScreen
 {
 
+class AbstractBackend;
+class BackendManager;
+
 class KSCREEN_EXPORT ConfigMonitor : public QObject
 {
     Q_OBJECT
@@ -46,6 +49,9 @@ private:
     virtual ~ConfigMonitor();
 
     Q_DISABLE_COPY(ConfigMonitor)
+
+    friend BackendManager;
+    void connectInProcessBackend(KScreen::AbstractBackend *backend);
 
     class Private;
     Private * const d;

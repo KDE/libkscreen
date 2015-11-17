@@ -53,6 +53,7 @@ private Q_SLOTS:
     void testBackendCaching();
 
     void testConfigApply();
+    void testConfigMonitor();
 
 private:
 
@@ -95,7 +96,7 @@ void TestInProcess::testModeSwitching()
 {
     KScreen::BackendManager::instance()->shutdownBackend();
     // Load QScreen backend in-process
-//     qDebug() << "TT qscreen in-process";
+    qDebug() << "TT qscreen in-process";
     setenv("KSCREEN_BACKEND", "QScreen", 1);
     auto op = new InProcessConfigOperation();
     op->exec();
@@ -103,7 +104,7 @@ void TestInProcess::testModeSwitching()
     QVERIFY(oc != nullptr);
     QVERIFY(oc->isValid());
 
-//     qDebug() << "TT fake in-process";
+    qDebug() << "TT fake in-process";
     // Load the Fake backend in-process
     setenv("KSCREEN_BACKEND", "Fake", 1);
     auto ip = new InProcessConfigOperation();
@@ -113,7 +114,7 @@ void TestInProcess::testModeSwitching()
     QVERIFY(ic->isValid());
     QVERIFY(ic->outputs().count());
 
-    //qDebug() << "TT xrandr out-of-process";
+    qDebug() << "TT xrandr out-of-process";
     // Load the xrandr backend out-of-process
     setenv("KSCREEN_BACKEND", "XRandR", 1);
     setenv("KSCREEN_BACKEND_INPROCESS", "0", 1);
@@ -125,7 +126,7 @@ void TestInProcess::testModeSwitching()
     QVERIFY(xc != nullptr);
     QVERIFY(xc->isValid());
     QVERIFY(xc->outputs().count());
-    //qDebug() << "TT fake in-process";
+    qDebug() << "TT fake in-process";
 
     setenv("KSCREEN_BACKEND_INPROCESS", "1", 1);
     BackendManager::instance()->setMode(BackendManager::InProcess);
@@ -282,6 +283,35 @@ void TestInProcess::testConfigApply()
 
     QVERIFY(!setop->hasError());
 }
+
+void TestInProcess::testConfigMonitor()
+{
+    setenv("KSCREEN_BACKEND", "Fake", 1);
+
+    KScreen::BackendManager::instance()->shutdownBackend();
+    BackendManager::instance()->setMode(BackendManager::InProcess);
+    auto op = ConfigOperation::create();
+    op->exec();
+    auto config = op->config();
+    //     qDebug() << "op:" << config->outputs().count();
+    auto output = config->outputs().first();
+    //     qDebug() << "res:" << output->geometry();
+    //     qDebug() << "modes:" << output->modes();
+    auto m0 = output->modes().first();
+    //qDebug() << "m0:" << m0->id() << m0;
+    output->setCurrentModeId(m0->id());
+    QVERIFY(Config::canBeApplied(config));
+
+    QSignalSpy monitorSpy(ConfigMonitor::instance(), &ConfigMonitor::configurationChanged);
+    qDebug() << "MOnitorspy connencted.";
+    ConfigMonitor::instance()->addConfig(config);
+
+    auto setop = ConfigOperation::setOperation(config);
+    QVERIFY(!setop->hasError());
+    // do not cal setop->exec(), this must not block as the signalspy already blocks
+    QVERIFY(monitorSpy.wait(500));
+}
+
 
 QTEST_GUILESS_MAIN(TestInProcess)
 
