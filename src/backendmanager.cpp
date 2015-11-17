@@ -23,6 +23,7 @@
 
 #include "abstractbackend.h"
 #include "config.h"
+#include "configmonitor.h"
 #include "backendinterface.h"
 #include "debug_p.h"
 #include "getconfigoperation.h"
@@ -207,6 +208,8 @@ KScreen::AbstractBackend *BackendManager::loadBackend(const QString &name,
         mLoader = new QPluginLoader(this);
     }
     auto backend = BackendManager::loadBackend(mLoader, name, arguments);
+    qDebug() << "Connecting ConfigMonitor";
+    ConfigMonitor::instance()->connectInProcessBackend(backend);
     m_inProcessBackends[name] = qMakePair<KScreen::AbstractBackend*, QVariantMap>(backend, arguments);
     return backend;
 }

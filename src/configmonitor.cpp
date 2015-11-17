@@ -64,6 +64,8 @@ ConfigMonitor::Private::Private(ConfigMonitor *q)
 
 void ConfigMonitor::Private::onBackendReady(org::kde::kscreen::Backend *backend)
 {
+    Q_ASSERT(BackendManager::instance()->mode()
+ == BackendManager::OutOfProcess);
     if (backend == mBackend) {
         return;
     }
@@ -133,6 +135,9 @@ void ConfigMonitor::Private::backendConfigChanged(const QVariantMap &configMap)
 
 void ConfigMonitor::Private::edidReady(QDBusPendingCallWatcher* watcher)
 {
+    Q_ASSERT(BackendManager::instance()->mode()
+ == BackendManager::OutOfProcess);
+
     const int outputId = watcher->property("outputId").toInt();
     const ConfigPtr config = watcher->property("config").value<KScreen::ConfigPtr>();
     Q_ASSERT(mPendingEDIDRequests.contains(config));
@@ -202,9 +207,14 @@ ConfigMonitor::ConfigMonitor():
     QObject(),
     d(new Private(this))
 {
-    connect(BackendManager::instance(), &BackendManager::backendReady,
-            d, &ConfigMonitor::Private::onBackendReady);
-    BackendManager::instance()->requestBackend();
+    if (BackendManager::instance()->mode()
+ == BackendManager::OutOfProcess) {
+        connect(BackendManager::instance(), &BackendManager::backendReady,
+                d, &ConfigMonitor::Private::onBackendReady);
+        BackendManager::instance()->requestBackend();
+    } else {
+        qDebug() << "in-process configmonitor";
+    }
 }
 
 ConfigMonitor::~ConfigMonitor()
@@ -231,5 +241,18 @@ void ConfigMonitor::removeConfig(const ConfigPtr &config)
         d->watchedConfigs.removeAll(config);
     }
 }
+
+void ConfigMonitor::connectInProcessBackend(KScreen::AbstractBackend* backend)
+{
+    connect(backend, &AbstractBackend::configChanged, [=](KScreen::ConfigPtr config) {
+        const QWeakPointer<Config> weakConfig = config.toWeakRef();
+        qDebug() << "checking if emit configurationChanged()";
+        if (d->watchedConfigs.contains(config)) {
+            qDebug() << "... Yes, I do!!!";
+            emit configurationChanged();
+        }
+    });
+}
+
 
 #include "configmonitor.moc"
