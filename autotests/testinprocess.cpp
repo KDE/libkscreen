@@ -270,8 +270,17 @@ void TestInProcess::testConfigApply()
     output->setCurrentModeId(m0->id());
     Config::canBeApplied(config);
 
-    auto set = new SetConfigOperation(config);
-    set->exec();
+    // expected to fail, SetConfigOperation is out-of-process only
+    auto setfail = new SetConfigOperation(config);
+    QVERIFY(!setfail->hasError());
+    setfail->exec();
+    QVERIFY(setfail->hasError());
+    qDebug() << "----------------------------------------------------------";
+    auto setop = ConfigOperation::setOperation(config);
+    QVERIFY(!setop->hasError());
+    setop->exec();
+
+    QVERIFY(!setop->hasError());
 }
 
 QTEST_GUILESS_MAIN(TestInProcess)
