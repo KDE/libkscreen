@@ -110,9 +110,10 @@ private Q_SLOTS:
         // Get config and monitor it for changes
         KScreen::ConfigPtr config = getConfig();
         monitor->addConfig(config);
-        QSignalSpy enabledSpy(config->output(1).data(), SIGNAL(isEnabledChanged()));
+        QSignalSpy enabledSpy(config->outputs().first().data(), SIGNAL(isEnabledChanged()));
 
         auto output = config->outputs().first();
+
         output->setEnabled(false);
         auto setop = KScreen::ConfigOperation::setOperation(config);
         QVERIFY(!setop->hasError());
@@ -123,6 +124,12 @@ private Q_SLOTS:
         QCOMPARE(enabledSpy.size(), 1);
         QCOMPARE(config->output(1)->isEnabled(), false);
 
+        output->setEnabled(false);
+        auto setop2 = KScreen::ConfigOperation::setOperation(config);
+        QVERIFY(!setop2->hasError());
+        setop2->exec();
+        QTRY_VERIFY(!spy.isEmpty());
+        QCOMPARE(spy.size(), 2);
     }
 
 };

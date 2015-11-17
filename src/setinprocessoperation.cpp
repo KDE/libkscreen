@@ -94,14 +94,15 @@ void SetInProcessOperationPrivate::loadBackend()
         q->emitResult();
         return;
     }
-
-    connect(backend, &AbstractBackend::configChanged, [this, q](const KScreen::ConfigPtr newconfig) {
-        qDebug() << "Yay, configChanged: " << config->outputs();
-        q->emitResult();
-    });
-
     qDebug() << "Calling Backend::setConfig().";
     backend->setConfig(config);
+
+    q->emitResult();
+//     connect(backend, &AbstractBackend::configChanged, [this, q](const KScreen::ConfigPtr newconfig) {
+//         //qDebug() << "Yay, configChanged: " << config->outputs();
+//         q->emitResult();
+//     });
+//
 }
 
 #include "setinprocessoperation.moc"

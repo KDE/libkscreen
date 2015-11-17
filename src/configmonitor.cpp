@@ -245,9 +245,13 @@ void ConfigMonitor::removeConfig(const ConfigPtr &config)
 void ConfigMonitor::connectInProcessBackend(KScreen::AbstractBackend* backend)
 {
     connect(backend, &AbstractBackend::configChanged, [=](KScreen::ConfigPtr config) {
+        if (config.isNull()) {
+            qDebug() << "Config NULL";
+            return;
+        }
         const QWeakPointer<Config> weakConfig = config.toWeakRef();
         qDebug() << "checking if emit configurationChanged()";
-        if (d->watchedConfigs.contains(config)) {
+        if (d->watchedConfigs.contains(weakConfig)) {
             qDebug() << "... Yes, I do!!!";
             emit configurationChanged();
         }
