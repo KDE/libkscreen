@@ -68,11 +68,11 @@ public:
      * @param arguments arguments, used for unit tests
      * @return a pointer to the backend loaded from the plugin
      */
-    static KScreen::AbstractBackend *loadBackend(QPluginLoader *loader,
+    static KScreen::AbstractBackend *loadBackendPlugin(QPluginLoader *loader,
                                                  const QString &name,
                                                  const QVariantMap &arguments);
 
-    KScreen::AbstractBackend *loadBackend(const QString &name,
+    KScreen::AbstractBackend *loadBackendInProcess(const QString &name,
                                           const QVariantMap &arguments);
 
     BackendManager::Mode mode() const;

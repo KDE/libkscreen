@@ -115,7 +115,7 @@ BackendManager::~BackendManager()
     shutdownBackend();
 }
 
-KScreen::AbstractBackend *BackendManager::loadBackend(QPluginLoader *loader, const QString &name,
+KScreen::AbstractBackend *BackendManager::loadBackendPlugin(QPluginLoader *loader, const QString &name,
                                                      const QVariantMap &arguments)
 {
     //qCDebug(KSCREEN) << "Requested backend:" << name;
@@ -182,7 +182,7 @@ KScreen::AbstractBackend *BackendManager::loadBackend(QPluginLoader *loader, con
     return Q_NULLPTR;
 }
 
-KScreen::AbstractBackend *BackendManager::loadBackend(const QString &name,
+KScreen::AbstractBackend *BackendManager::loadBackendInProcess(const QString &name,
                                                       const QVariantMap &arguments)
 {
     if (mMode == OutOfProcess) {
@@ -202,7 +202,7 @@ KScreen::AbstractBackend *BackendManager::loadBackend(const QString &name,
     if (mLoader == nullptr) {
         mLoader = new QPluginLoader(this);
     }
-    auto backend = BackendManager::loadBackend(mLoader, name, arguments);
+    auto backend = BackendManager::loadBackendPlugin(mLoader, name, arguments);
     qDebug() << "Connecting ConfigMonitor";
     ConfigMonitor::instance()->connectInProcessBackend(backend);
     m_inProcessBackends[name] = qMakePair<KScreen::AbstractBackend*, QVariantMap>(backend, arguments);
