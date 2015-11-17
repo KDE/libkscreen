@@ -213,12 +213,12 @@ void XRandROutput::init()
 void XRandROutput::updateModes(const XCB::OutputInfo &outputInfo)
 {
     /* Init modes */
-    auto screenResources = XRandR::screenResources();
+    XCB::ScopedPointer<xcb_randr_get_screen_resources_reply_t> screenResources(XRandR::screenResources());
     Q_ASSERT(screenResources);
     if (!screenResources) {
         return;
     }
-    xcb_randr_mode_info_t *modes = xcb_randr_get_screen_resources_modes(screenResources);
+    xcb_randr_mode_info_t *modes = xcb_randr_get_screen_resources_modes(screenResources.data());
     xcb_randr_mode_t *outputModes = xcb_randr_get_output_info_modes(outputInfo.data());
 
     m_preferredModes.clear();
