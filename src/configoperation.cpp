@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2014  Daniel Vratil <dvratil@redhat.com>
+ * Copyright 2015 Sebastian Kügler <sebas@kde.org>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,6 +24,8 @@
 
 #include "getconfigoperation.h"
 #include "inprocessconfigoperation.h"
+#include "setinprocessoperation.h"
+#include "setconfigoperation.h"
 
 using namespace KScreen;
 
@@ -45,6 +48,18 @@ ConfigOperation* ConfigOperation::create(Options options)
     } else {
         qDebug() << "loading backend out-of-process";
         return new GetConfigOperation(options);
+
+    }
+}
+
+ConfigOperation* ConfigOperation::setOperation(KScreen::ConfigPtr newconfig)
+{
+    if (BackendManager::instance()->mode() == BackendManager::InProcess) {
+        qDebug() << "loading backend in-process";
+        return new SetInProcessOperation(newconfig);
+    } else {
+        qDebug() << "loading backend out-of-process";
+        return new SetConfigOperation(newconfig);
 
     }
 }

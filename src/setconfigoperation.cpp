@@ -55,8 +55,10 @@ SetConfigOperationPrivate::SetConfigOperationPrivate(const ConfigPtr &config, Co
     : ConfigOperationPrivate(qq)
     , config(config)
 {
+    Q_Q(SetConfigOperation);
     if (BackendManager::instance()->mode() == BackendManager::InProcess) {
-        qWarning() << "This class is not suitable for InProcess operation";
+        const QString e = QStringLiteral("SetConfigOperation is not suitable for InProcess backends");
+        qWarning() << e;
     }
 }
 
@@ -131,6 +133,14 @@ ConfigPtr SetConfigOperation::config() const
 void SetConfigOperation::start()
 {
     Q_D(SetConfigOperation);
+    if (BackendManager::instance()->mode() == BackendManager::InProcess) {
+        const QString e = QStringLiteral("SetConfigOperation is not suitable for InProcess backends");
+        qWarning() << e;
+        setError(e);
+        emitResult();
+        return;
+    }
+
     d->requestBackend();
 }
 
