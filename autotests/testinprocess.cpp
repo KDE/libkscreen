@@ -47,8 +47,11 @@ private Q_SLOTS:
 
     void loadConfig();
 
+    void testCreateJob();
     void testModeSwitching();
     void testBackendCaching();
+
+    void testConfigApply();
 
 private:
 
@@ -139,6 +142,7 @@ void TestInProcess::testModeSwitching()
     QVERIFY(xc->isValid());
     QVERIFY(fc->isValid());
 }
+
 void TestInProcess::testBackendCaching()
 {
     KScreen::BackendManager::instance()->shutdownBackend();
@@ -204,16 +208,44 @@ void TestInProcess::testBackendCaching()
     auto xc = xp->config();
     QVERIFY(xc != nullptr);
 
+    // Make sure in-process is faster
     QVERIFY(t_cold > t_warm);
     QVERIFY(t_x_cold > t_x_warm);
     QVERIFY(t_x_cold > t_cold);
+    return;
     qDebug() << "ip  speedup for cached access:" << (qreal)((qreal)t_cold / (qreal)t_warm);
     qDebug() << "oop speedup for cached access:" << (qreal)((qreal)t_x_cold / (qreal)t_x_warm);
     qDebug() << "out-of vs. in-process speedup:" << (qreal)((qreal)t_x_warm / (qreal)t_warm);
+    qDebug() << "cold oop:   " << ((qreal)t_x_cold / 1000000);
+    qDebug() << "cached oop: " << ((qreal)t_x_warm / 1000000);
+    qDebug() << "cold in process:   " << ((qreal)t_cold / 1000000);
+    qDebug() << "cached in process: " << ((qreal)t_warm / 1000000);
+}
+
+void TestInProcess::testCreateJob()
+{
+    //auto cp = new InProcessConfigOperation();
+    //auto cp = BackendManager::
+    setenv("KSCREEN_BACKEND_INPROCESS", "1", 1);
+    auto *op = ConfigOperation::create();
+
+    auto _op = qobject_cast<InProcessConfigOperation*>(op);
+    QVERIFY(_op != nullptr);
+    //BackendManager::instance()->setMode(BackendManager::InProcess);
+
+    QCOMPARE(BackendManager::instance()->mode(), BackendManager::InProcess);
+    op->exec();
+    auto cc = op->config();
+    QVERIFY(cc != nullptr);
+    QVERIFY(cc->isValid());
 
 }
 
+void TestInProcess::testConfigApply()
+{
 
+
+}
 
 QTEST_GUILESS_MAIN(TestInProcess)
 
