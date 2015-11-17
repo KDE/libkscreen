@@ -53,6 +53,8 @@ private Q_SLOTS:
     void initTestCase()
     {
         setenv("KSCREEN_BACKEND", "Fake", 1);
+        // This particular test is only useful for out of process operation, so enforce that
+        setenv("KSCREEN_BACKEND_INPROCESS", "0", 1);
         KScreen::BackendManager::instance()->shutdownBackend();
     }
 
