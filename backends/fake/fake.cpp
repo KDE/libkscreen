@@ -93,7 +93,9 @@ ConfigPtr Fake::config() const
 
 void Fake::setConfig(const ConfigPtr &config)
 {
-    Q_UNUSED(config)
+    qDebug() << "set config" << config->outputs();
+    mConfig = config;
+    emit configChanged(mConfig);
 }
 
 bool Fake::isValid() const
