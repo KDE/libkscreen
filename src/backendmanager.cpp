@@ -64,7 +64,6 @@ BackendManager::BackendManager()
     , mCrashCount(0)
     , mShuttingDown(false)
     , mRequestsCounter(0)
-    , mInProcessBackend(0)
     , mLoader(0)
     , mMode(OutOfProcess)
 {
@@ -76,10 +75,6 @@ BackendManager::BackendManager()
 
 void BackendManager::initMode(bool fromctor)
 {
-//     bool envmode_inprocess  = (qgetenv("KSCREEN_BACKEND_INPROCESS") == QByteArray("1"));
-//     if (envmode_inprocess && (mMode == InProcess) && !fromctor) {
-//         return;
-//     }
     if (mMode == OutOfProcess) {
         //qDebug() << "Setting up dbus";
         qRegisterMetaType<org::kde::kscreen::Backend*>("OrgKdeKscreenBackendInterface");
@@ -359,19 +354,11 @@ void BackendManager::setConfig(ConfigPtr c)
     mConfig = c;
 }
 
-void BackendManager::setConfigInProcess(ConfigPtr c)
-{
-    Q_ASSERT(mInProcessBackend);
-    mInProcessBackend->setConfig(c);
-}
-
 void BackendManager::shutdownBackend()
 {
     if (mMode == InProcess) {
         mLoader->deleteLater();
         mLoader = nullptr;
-        mInProcessBackend->deleteLater();
-        mInProcessBackend = nullptr;
         for (auto k: m_inProcessBackends.keys()) {
             auto pair = m_inProcessBackends[k];
             m_inProcessBackends.remove(k);

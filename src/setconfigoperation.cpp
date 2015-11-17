@@ -69,13 +69,6 @@ void SetConfigOperationPrivate::backendReady(org::kde::kscreen::Backend* backend
         q->emitResult();
         return;
     }
-    if (BackendManager::instance()->mode() == BackendManager::InProcess) {
-        auto b = BackendManager::instance()->mInProcessBackend;
-        Q_ASSERT(b);
-        b->setConfig(config);
-        q->emitResult();
-        return;
-    }
 
     const QVariantMap map = ConfigSerializer::serializeConfig(config).toVariantMap();
     if (map.isEmpty()) {
