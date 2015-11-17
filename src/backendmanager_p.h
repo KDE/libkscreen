@@ -123,8 +123,6 @@ private:
 
     // For in-process operation
     QPluginLoader *mLoader;
-    KScreen::AbstractBackend *mInProcessBackend;
-    void setConfigInProcess(ConfigPtr config);
     QHash<QString, QPair<KScreen::AbstractBackend*, QVariantMap>> m_inProcessBackends;
 
     Mode mMode;
