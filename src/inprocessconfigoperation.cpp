@@ -52,7 +52,6 @@ public:
     InProcessConfigOperation::Options options;
     ConfigPtr config;
     KScreen::AbstractBackend* backend;
-    QPluginLoader *mLoader;
 
 private:
     Q_DECLARE_PUBLIC(InProcessConfigOperation)
@@ -64,7 +63,6 @@ InProcessConfigOperationPrivate::InProcessConfigOperationPrivate(ConfigOperation
     : ConfigOperationPrivate(qq)
     , options(options)
     , backend(nullptr)
-    , mLoader(nullptr)
 {
 }
 
@@ -81,10 +79,6 @@ InProcessConfigOperation::InProcessConfigOperation(Options options, QObject* par
 
 InProcessConfigOperation::~InProcessConfigOperation()
 {
-//     qDebug() << "RESET CURRENT";
-//     Q_D(InProcessConfigOperation);
-//     KScreen::ConfigPtr cfg;
-//     BackendManager::instance()->setConfig(cfg);
 }
 
 KScreen::ConfigPtr InProcessConfigOperation::config() const
@@ -100,7 +94,6 @@ void InProcessConfigOperationPrivate::loadBackend()
     const QString &name = qgetenv("KSCREEN_BACKEND").constData();
     auto beargs = QString::fromLocal8Bit(qgetenv("KSCREEN_BACKEND_ARGS"));
     if (beargs.startsWith("TEST_DATA=")) {
-        //"TEST_DATA=" = "multipleclone.json");
         arguments["TEST_DATA"] = beargs.remove("TEST_DATA=");
     }
 
@@ -113,8 +106,6 @@ void InProcessConfigOperationPrivate::loadBackend()
         return;
     }
     config = backend->config();
-    //KScreen::BackendManager::instance()->mInProcessBackend = backend;
-    qDebug() << "BE SET CONFIG";
     KScreen::BackendManager::instance()->setConfig(config);
     loadEdid();
     q->emitResult();

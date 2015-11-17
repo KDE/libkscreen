@@ -261,14 +261,14 @@ void TestInProcess::testConfigApply()
     auto op = ConfigOperation::create();
     op->exec();
     auto config = op->config();
-    qDebug() << "op:" << config->outputs().count();
+//     qDebug() << "op:" << config->outputs().count();
     auto output = config->outputs().first();
-    qDebug() << "res:" << output->geometry();
-    qDebug() << "modes:" << output->modes();
+//     qDebug() << "res:" << output->geometry();
+//     qDebug() << "modes:" << output->modes();
     auto m0 = output->modes().first();
-    qDebug() << "m0:" << m0->id() << m0;
+    //qDebug() << "m0:" << m0->id() << m0;
     output->setCurrentModeId(m0->id());
-    Config::canBeApplied(config);
+    QVERIFY(Config::canBeApplied(config));
 
     // expected to fail, SetConfigOperation is out-of-process only
     auto setfail = new SetConfigOperation(config);
