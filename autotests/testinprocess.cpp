@@ -92,6 +92,7 @@ void TestInProcess::loadConfig()
 
 void TestInProcess::testModeSwitching()
 {
+    KScreen::BackendManager::instance()->shutdownBackend();
     // Load QScreen backend in-process
 //     qDebug() << "TT qscreen in-process";
     setenv("KSCREEN_BACKEND", "QScreen", 1);
@@ -224,21 +225,31 @@ void TestInProcess::testBackendCaching()
 
 void TestInProcess::testCreateJob()
 {
-    //auto cp = new InProcessConfigOperation();
-    //auto cp = BackendManager::
-    setenv("KSCREEN_BACKEND_INPROCESS", "1", 1);
-    auto *op = ConfigOperation::create();
-
-    auto _op = qobject_cast<InProcessConfigOperation*>(op);
-    QVERIFY(_op != nullptr);
-    //BackendManager::instance()->setMode(BackendManager::InProcess);
-
-    QCOMPARE(BackendManager::instance()->mode(), BackendManager::InProcess);
-    op->exec();
-    auto cc = op->config();
-    QVERIFY(cc != nullptr);
-    QVERIFY(cc->isValid());
-
+    KScreen::BackendManager::instance()->shutdownBackend();
+    {
+        BackendManager::instance()->setMode(BackendManager::InProcess);
+        auto *op = ConfigOperation::create();
+        auto _op = qobject_cast<InProcessConfigOperation*>(op);
+        QVERIFY(_op != nullptr);
+        QCOMPARE(BackendManager::instance()->mode(), BackendManager::InProcess);
+        op->exec();
+        auto cc = op->config();
+        QVERIFY(cc != nullptr);
+        QVERIFY(cc->isValid());
+    }
+    {
+        BackendManager::instance()->setMode(BackendManager::OutOfProcess);
+        auto *op = ConfigOperation::create();
+        auto _op = qobject_cast<GetConfigOperation*>(op);
+        QVERIFY(_op != nullptr);
+        QCOMPARE(BackendManager::instance()->mode(), BackendManager::OutOfProcess);
+        op->exec();
+        auto cc = op->config();
+        QVERIFY(cc != nullptr);
+        QVERIFY(cc->isValid());
+    }
+    KScreen::BackendManager::instance()->shutdownBackend();
+    BackendManager::instance()->setMode(BackendManager::InProcess);
 }
 
 void TestInProcess::testConfigApply()
