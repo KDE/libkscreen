@@ -72,13 +72,12 @@ ConfigPtr SetInProcessOperation::config() const
     return d->config;
 }
 
-
 void SetInProcessOperation::start()
 {
     Q_D(SetInProcessOperation);
     d->loadBackend();
-
 }
+
 void SetInProcessOperationPrivate::loadBackend()
 {
     Q_Q(SetInProcessOperation);
@@ -86,25 +85,23 @@ void SetInProcessOperationPrivate::loadBackend()
     const QString &name = qgetenv("KSCREEN_BACKEND").constData();
     auto beargs = QString::fromLocal8Bit(qgetenv("KSCREEN_BACKEND_ARGS"));
     if (beargs.startsWith("TEST_DATA=")) {
-        //"TEST_DATA=" = "multipleclone.json");
         arguments["TEST_DATA"] = beargs.remove("TEST_DATA=");
     }
-
     backend = KScreen::BackendManager::instance()->loadBackend(name, arguments);
     if (backend == nullptr) {
         qCDebug(KSCREEN) << "plugin does not provide valid KScreen backend";
-        //q->setError(finfo.fileName() + "does not provide valid KScreen backend");
         q->setError("Plugin does not provide valid KScreen backend");
         q->emitResult();
         return;
     }
-    //config = backend->config();
-    //KScreen::BackendManager::instance()->mInProcessBackend = backend;
-    qDebug() << "BE SET CONFIG";
-    //KScreen::BackendManager::instance()->setConfig(config);
+
+    connect(backend, &AbstractBackend::configChanged, [this, q](const KScreen::ConfigPtr newconfig) {
+        qDebug() << "Yay, configChanged: " << config->outputs();
+        q->emitResult();
+    });
+
+    qDebug() << "Calling Backend::setConfig().";
     backend->setConfig(config);
-    q->emitResult();
-    return;
 }
 
 #include "setinprocessoperation.moc"

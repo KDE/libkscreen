@@ -56,10 +56,6 @@ SetConfigOperationPrivate::SetConfigOperationPrivate(const ConfigPtr &config, Co
     , config(config)
 {
     Q_Q(SetConfigOperation);
-    if (BackendManager::instance()->mode() == BackendManager::InProcess) {
-        const QString e = QStringLiteral("SetConfigOperation is not suitable for InProcess backends");
-        qWarning() << e;
-    }
 }
 
 void SetConfigOperationPrivate::backendReady(org::kde::kscreen::Backend* backend)
@@ -134,7 +130,7 @@ void SetConfigOperation::start()
 {
     Q_D(SetConfigOperation);
     if (BackendManager::instance()->mode() == BackendManager::InProcess) {
-        const QString e = QStringLiteral("SetConfigOperation is not suitable for InProcess backends");
+        const QString e = QStringLiteral("SetConfigOperation is not suitable for InProcess backends. Clients should use ConfigOperation::setOperation(config).");
         qWarning() << e;
         setError(e);
         emitResult();
