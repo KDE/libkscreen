@@ -62,7 +62,9 @@ KScreen::ScreenPtr XRandRScreen::toKScreenScreen() const
     kscreenScreen->setMaxSize(m_maxSize);
     kscreenScreen->setMinSize(m_minSize);
     kscreenScreen->setCurrentSize(m_currentSize);
-    kscreenScreen->setMaxActiveOutputsCount(XRandR::screenResources()->num_crtcs);
+
+    XCB::ScopedPointer<xcb_randr_get_screen_resources_reply_t> screenResources(XRandR::screenResources());
+    kscreenScreen->setMaxActiveOutputsCount(screenResources->num_crtcs);
 
     return kscreenScreen;
 }
