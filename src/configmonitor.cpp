@@ -207,13 +207,10 @@ ConfigMonitor::ConfigMonitor():
     QObject(),
     d(new Private(this))
 {
-    if (BackendManager::instance()->mode()
- == BackendManager::OutOfProcess) {
+    if (BackendManager::instance()->mode() == BackendManager::OutOfProcess) {
         connect(BackendManager::instance(), &BackendManager::backendReady,
                 d, &ConfigMonitor::Private::onBackendReady);
         BackendManager::instance()->requestBackend();
-    } else {
-        qDebug() << "in-process configmonitor";
     }
 }
 
@@ -246,13 +243,10 @@ void ConfigMonitor::connectInProcessBackend(KScreen::AbstractBackend* backend)
 {
     connect(backend, &AbstractBackend::configChanged, [=](KScreen::ConfigPtr config) {
         if (config.isNull()) {
-            qDebug() << "Config NULL";
             return;
         }
         const QWeakPointer<Config> weakConfig = config.toWeakRef();
-        qDebug() << "checking if emit configurationChanged()";
         if (d->watchedConfigs.contains(weakConfig)) {
-            qDebug() << "... Yes, I do!!!";
             emit configurationChanged();
         }
     });

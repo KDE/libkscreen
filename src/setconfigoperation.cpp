@@ -103,7 +103,6 @@ void SetConfigOperationPrivate::onConfigSet(QDBusPendingCallWatcher *watcher)
     q->emitResult();
 }
 
-
 SetConfigOperation::SetConfigOperation(const ConfigPtr &config, QObject* parent)
     : ConfigOperation(new SetConfigOperationPrivate(config, this), parent)
 {
@@ -125,13 +124,7 @@ void SetConfigOperation::start()
     if (BackendManager::instance()->mode() == BackendManager::InProcess) {
         d->loadBackend();
         d->backend->setConfig(d->config);
-
         emitResult();
-//         const QString e = QStringLiteral("SetConfigOperation is not suitable for InProcess backends. Clients should use ConfigOperation::setOperation(config).");
-//         qWarning() << e;
-//         setError(e);
-//         emitResult();
-        return;
     } else {
         d->requestBackend();
     }
