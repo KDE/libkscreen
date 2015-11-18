@@ -64,8 +64,7 @@ ConfigMonitor::Private::Private(ConfigMonitor *q)
 
 void ConfigMonitor::Private::onBackendReady(org::kde::kscreen::Backend *backend)
 {
-    Q_ASSERT(BackendManager::instance()->mode()
- == BackendManager::OutOfProcess);
+    Q_ASSERT(BackendManager::instance()->mode() == BackendManager::OutOfProcess);
     if (backend == mBackend) {
         return;
     }
@@ -97,6 +96,7 @@ void ConfigMonitor::Private::onBackendReady(org::kde::kscreen::Backend *backend)
 
 void ConfigMonitor::Private::getConfigFinished(ConfigOperation* op)
 {
+    Q_ASSERT(BackendManager::instance()->mode() == BackendManager::OutOfProcess);
     if (op->hasError()) {
         qCWarning(KSCREEN) << "Failed to retrieve current config: " << op->errorString();
         return;
@@ -108,6 +108,7 @@ void ConfigMonitor::Private::getConfigFinished(ConfigOperation* op)
 
 void ConfigMonitor::Private::backendConfigChanged(const QVariantMap &configMap)
 {
+    Q_ASSERT(BackendManager::instance()->mode() == BackendManager::OutOfProcess);
     ConfigPtr newConfig = ConfigSerializer::deserializeConfig(configMap);
     if (!newConfig) {
         qCWarning(KSCREEN) << "Failed to deserialize config from DBus change notification";
