@@ -49,7 +49,7 @@ class KSCREEN_EXPORT BackendManager : public QObject
     Q_OBJECT
 
 public:
-    enum Mode {
+    enum Method {
         InProcess,
         OutOfProcess
     };
@@ -75,8 +75,8 @@ public:
     KScreen::AbstractBackend *loadBackendInProcess(const QString &name,
                                           const QVariantMap &arguments);
 
-    BackendManager::Mode mode() const;
-    void setMode(BackendManager::Mode m);
+    BackendManager::Method method() const;
+    void setMethod(BackendManager::Method m);
 
     // For out-of-process operation
     void requestBackend();
@@ -125,7 +125,7 @@ private:
     QPluginLoader *mLoader;
     QPair<KScreen::AbstractBackend*, QVariantMap> m_inProcessBackend;
 
-    Mode mMode;
+    Method mMode;
 };
 
 }

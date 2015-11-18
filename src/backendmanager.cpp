@@ -91,7 +91,7 @@ void BackendManager::initMode(bool fromctor)
     }
 }
 
-void BackendManager::setMode(BackendManager::Mode m)
+void BackendManager::setMethod(BackendManager::Method m)
 {
     if (mMode == m) {
         return;
@@ -101,7 +101,7 @@ void BackendManager::setMode(BackendManager::Mode m)
     initMode();
 }
 
-BackendManager::Mode BackendManager::mode() const
+BackendManager::Method BackendManager::method() const
 {
     return mMode;
 }

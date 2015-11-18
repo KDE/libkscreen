@@ -64,7 +64,7 @@ ConfigMonitor::Private::Private(ConfigMonitor *q)
 
 void ConfigMonitor::Private::onBackendReady(org::kde::kscreen::Backend *backend)
 {
-    Q_ASSERT(BackendManager::instance()->mode() == BackendManager::OutOfProcess);
+    Q_ASSERT(BackendManager::instance()->method() == BackendManager::OutOfProcess);
     if (backend == mBackend) {
         return;
     }
@@ -96,7 +96,7 @@ void ConfigMonitor::Private::onBackendReady(org::kde::kscreen::Backend *backend)
 
 void ConfigMonitor::Private::getConfigFinished(ConfigOperation* op)
 {
-    Q_ASSERT(BackendManager::instance()->mode() == BackendManager::OutOfProcess);
+    Q_ASSERT(BackendManager::instance()->method() == BackendManager::OutOfProcess);
     if (op->hasError()) {
         qCWarning(KSCREEN) << "Failed to retrieve current config: " << op->errorString();
         return;
@@ -108,7 +108,7 @@ void ConfigMonitor::Private::getConfigFinished(ConfigOperation* op)
 
 void ConfigMonitor::Private::backendConfigChanged(const QVariantMap &configMap)
 {
-    Q_ASSERT(BackendManager::instance()->mode() == BackendManager::OutOfProcess);
+    Q_ASSERT(BackendManager::instance()->method() == BackendManager::OutOfProcess);
     ConfigPtr newConfig = ConfigSerializer::deserializeConfig(configMap);
     if (!newConfig) {
         qCWarning(KSCREEN) << "Failed to deserialize config from DBus change notification";
@@ -136,7 +136,7 @@ void ConfigMonitor::Private::backendConfigChanged(const QVariantMap &configMap)
 
 void ConfigMonitor::Private::edidReady(QDBusPendingCallWatcher* watcher)
 {
-    Q_ASSERT(BackendManager::instance()->mode() == BackendManager::OutOfProcess);
+    Q_ASSERT(BackendManager::instance()->method() == BackendManager::OutOfProcess);
 
     const int outputId = watcher->property("outputId").toInt();
     const ConfigPtr config = watcher->property("config").value<KScreen::ConfigPtr>();
@@ -167,7 +167,7 @@ void ConfigMonitor::Private::edidReady(QDBusPendingCallWatcher* watcher)
 
 void ConfigMonitor::Private::updateConfigs(const KScreen::ConfigPtr &newConfig)
 {
-    Q_ASSERT(BackendManager::instance()->mode() == BackendManager::OutOfProcess);
+    Q_ASSERT(BackendManager::instance()->method() == BackendManager::OutOfProcess);
     QMutableListIterator<QWeakPointer<Config>> iter(watchedConfigs);
     while (iter.hasNext()) {
         KScreen::ConfigPtr config = iter.next().toStrongRef();
@@ -208,7 +208,7 @@ ConfigMonitor::ConfigMonitor():
     QObject(),
     d(new Private(this))
 {
-    if (BackendManager::instance()->mode() == BackendManager::OutOfProcess) {
+    if (BackendManager::instance()->method() == BackendManager::OutOfProcess) {
         connect(BackendManager::instance(), &BackendManager::backendReady,
                 d, &ConfigMonitor::Private::onBackendReady);
         BackendManager::instance()->requestBackend();
@@ -242,7 +242,7 @@ void ConfigMonitor::removeConfig(const ConfigPtr &config)
 
 void ConfigMonitor::connectInProcessBackend(KScreen::AbstractBackend* backend)
 {
-    Q_ASSERT(BackendManager::instance()->mode() == BackendManager::InProcess);
+    Q_ASSERT(BackendManager::instance()->method() == BackendManager::InProcess);
     connect(backend, &AbstractBackend::configChanged, [=](KScreen::ConfigPtr config) {
         if (config.isNull()) {
             return;

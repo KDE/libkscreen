@@ -121,7 +121,7 @@ ConfigPtr SetConfigOperation::config() const
 void SetConfigOperation::start()
 {
     Q_D(SetConfigOperation);
-    if (BackendManager::instance()->mode() == BackendManager::InProcess) {
+    if (BackendManager::instance()->method() == BackendManager::InProcess) {
         d->loadBackend();
         d->backend->setConfig(d->config);
         emitResult();
