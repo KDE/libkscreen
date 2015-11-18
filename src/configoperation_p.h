@@ -20,6 +20,7 @@
 #include <QObject>
 
 #include "configoperation.h"
+#include "abstractbackend.h"
 #include "backendinterface.h"
 
 namespace KScreen
@@ -33,8 +34,13 @@ public:
     ConfigOperationPrivate(ConfigOperation *qq);
     virtual ~ConfigOperationPrivate();
 
+    // For out-of-process
     void requestBackend();
     virtual void backendReady(org::kde::kscreen::Backend *backend);
+
+    // For in-process
+    void loadBackend();
+    KScreen::AbstractBackend* backend;
 
 public Q_SLOTS:
     void doEmitResult();

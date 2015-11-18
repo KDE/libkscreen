@@ -45,13 +45,11 @@ class InProcessConfigOperationPrivate : public ConfigOperationPrivate
 public:
     InProcessConfigOperationPrivate(ConfigOperation::Options options, InProcessConfigOperation *qq);
 
-    void loadBackend();
     void loadEdid();
 
 public:
     InProcessConfigOperation::Options options;
     ConfigPtr config;
-    KScreen::AbstractBackend* backend;
 
 private:
     Q_DECLARE_PUBLIC(InProcessConfigOperation)
@@ -62,7 +60,6 @@ private:
 InProcessConfigOperationPrivate::InProcessConfigOperationPrivate(ConfigOperation::Options options, InProcessConfigOperation* qq)
     : ConfigOperationPrivate(qq)
     , options(options)
-    , backend(nullptr)
 {
 }
 
@@ -89,27 +86,6 @@ KScreen::ConfigPtr InProcessConfigOperation::config() const
 {
     Q_D(const InProcessConfigOperation);
     return d->config;
-}
-
-void InProcessConfigOperationPrivate::loadBackend()
-{
-    Q_Q(InProcessConfigOperation);
-    QVariantMap arguments;
-    const QString &name = qgetenv("KSCREEN_BACKEND").constData();
-    auto beargs = QString::fromLocal8Bit(qgetenv("KSCREEN_BACKEND_ARGS"));
-    if (beargs.startsWith("TEST_DATA=")) {
-        arguments["TEST_DATA"] = beargs.remove("TEST_DATA=");
-    }
-
-    backend = KScreen::BackendManager::instance()->loadBackendInProcess(name, arguments);
-    if (backend == nullptr) {
-        qCDebug(KSCREEN) << "plugin does not provide valid KScreen backend";
-        //q->setError(finfo.fileName() + "does not provide valid KScreen backend");
-        q->setError("Plugin does not provide valid KScreen backend");
-        q->emitResult();
-        return;
-    }
-    return;
 }
 
 void InProcessConfigOperationPrivate::loadEdid()

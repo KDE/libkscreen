@@ -24,8 +24,8 @@
 
 #include "getconfigoperation.h"
 #include "inprocessconfigoperation.h"
-#include "setinprocessoperation.h"
 #include "setconfigoperation.h"
+#include "debug_p.h"
 
 using namespace KScreen;
 
@@ -33,6 +33,7 @@ ConfigOperationPrivate::ConfigOperationPrivate(ConfigOperation* qq)
     : QObject()
     , isExec(false)
     , q_ptr(qq)
+    , backend(nullptr)
 {
 }
 
@@ -54,14 +55,7 @@ ConfigOperation* ConfigOperation::create(Options options)
 
 ConfigOperation* ConfigOperation::setOperation(KScreen::ConfigPtr newconfig)
 {
-    if (BackendManager::instance()->mode() == BackendManager::InProcess) {
-        qDebug() << "loading backend in-process";
-        return new SetInProcessOperation(newconfig);
-    } else {
-        qDebug() << "loading backend out-of-process";
-        return new SetConfigOperation(newconfig);
-
-    }
+    return new SetConfigOperation(newconfig);
 }
 
 void ConfigOperationPrivate::requestBackend()
@@ -153,4 +147,28 @@ bool ConfigOperation::exec()
     // Schedule the operation for deletion, see doEmitResult()
     deleteLater();
     return !hasError();
+}
+
+void ConfigOperationPrivate::loadBackend()
+{
+    Q_Q(ConfigOperation);
+    QVariantMap arguments;
+    const QString &name = qgetenv("KSCREEN_BACKEND").constData();
+    auto beargs = QString::fromLocal8Bit(qgetenv("KSCREEN_BACKEND_ARGS"));
+    if (beargs.startsWith("TEST_DATA=")) {
+        arguments["TEST_DATA"] = beargs.remove("TEST_DATA=");
+    }
+    backend = KScreen::BackendManager::instance()->loadBackendInProcess(name, arguments);
+    if (backend == nullptr) {
+        qCDebug(KSCREEN) << "plugin does not provide valid KScreen backend";
+        q->setError("Plugin does not provide valid KScreen backend");
+        q->emitResult();
+        return;
+    }
+    qDebug() << "Calling Backend::setConfig().";
+    //     connect(backend, &AbstractBackend::configChanged, [this, q](const KScreen::ConfigPtr newconfig) {
+    //         //qDebug() << "Yay, configChanged: " << config->outputs();
+    //         q->emitResult();
+    //     });
+    //
 }
