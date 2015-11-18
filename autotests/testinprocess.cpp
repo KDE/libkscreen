@@ -70,9 +70,9 @@ TestInProcess::TestInProcess(QObject *parent)
 void TestInProcess::init()
 {
     // Make sure we do everything in-process
-    setenv("KSCREEN_BACKEND_INPROCESS", "1", 1);
+    qputenv("KSCREEN_BACKEND_INPROCESS", "1");
     // Use Fake backend with one of the json configs
-    setenv("KSCREEN_BACKEND", "Fake", 1);
+    qputenv("KSCREEN_BACKEND", "Fake");
     qputenv("KSCREEN_BACKEND_ARGS", "TEST_DATA=" TEST_DATA "multipleoutput.json");
 
     KScreen::BackendManager::instance()->shutdownBackend();
@@ -97,7 +97,7 @@ void TestInProcess::testModeSwitching()
     KScreen::BackendManager::instance()->shutdownBackend();
     // Load QScreen backend in-process
     qDebug() << "TT qscreen in-process";
-    setenv("KSCREEN_BACKEND", "QScreen", 1);
+    qputenv("KSCREEN_BACKEND", "QScreen");
     auto op = new InProcessConfigOperation();
     op->exec();
     auto oc = op->config();
@@ -106,7 +106,7 @@ void TestInProcess::testModeSwitching()
 
     qDebug() << "TT fake in-process";
     // Load the Fake backend in-process
-    setenv("KSCREEN_BACKEND", "Fake", 1);
+    qputenv("KSCREEN_BACKEND", "Fake");
     auto ip = new InProcessConfigOperation();
     ip->exec();
     auto ic = ip->config();
@@ -116,8 +116,8 @@ void TestInProcess::testModeSwitching()
 
     qDebug() << "TT xrandr out-of-process";
     // Load the xrandr backend out-of-process
-    setenv("KSCREEN_BACKEND", "XRandR", 1);
-    setenv("KSCREEN_BACKEND_INPROCESS", "0", 1);
+    qputenv("KSCREEN_BACKEND", "XRandR");
+    qputenv("KSCREEN_BACKEND_INPROCESS", "0");
     BackendManager::instance()->setMode(BackendManager::OutOfProcess);
     auto xp = new GetConfigOperation();
     QCOMPARE(BackendManager::instance()->mode(), BackendManager::OutOfProcess);
@@ -128,10 +128,10 @@ void TestInProcess::testModeSwitching()
     QVERIFY(xc->outputs().count());
     qDebug() << "TT fake in-process";
 
-    setenv("KSCREEN_BACKEND_INPROCESS", "1", 1);
+    qputenv("KSCREEN_BACKEND_INPROCESS", "1");
     BackendManager::instance()->setMode(BackendManager::InProcess);
     // Load the Fake backend in-process
-    setenv("KSCREEN_BACKEND", "Fake", 1);
+    qputenv("KSCREEN_BACKEND", "Fake");
     auto fp = new InProcessConfigOperation();
     QCOMPARE(BackendManager::instance()->mode(), BackendManager::InProcess);
     fp->exec();
@@ -149,7 +149,7 @@ void TestInProcess::testModeSwitching()
 void TestInProcess::testBackendCaching()
 {
     KScreen::BackendManager::instance()->shutdownBackend();
-    setenv("KSCREEN_BACKEND", "Fake", 1);
+    qputenv("KSCREEN_BACKEND", "Fake");
     QElapsedTimer t;
     BackendManager::instance()->setMode(BackendManager::InProcess);
     QCOMPARE(BackendManager::instance()->mode(), BackendManager::InProcess);
@@ -190,8 +190,8 @@ void TestInProcess::testBackendCaching()
     // Check if all our configs are still valid after the backend is gone
     KScreen::BackendManager::instance()->shutdownBackend();
 
-    //setenv("KSCREEN_BACKEND", "QScreen", 1);
-    setenv("KSCREEN_BACKEND_INPROCESS", "0", 1);
+    //qputenv("KSCREEN_BACKEND", "QScreen");
+    qputenv("KSCREEN_BACKEND_INPROCESS", "0");
     BackendManager::instance()->setMode(BackendManager::OutOfProcess);
     QCOMPARE(BackendManager::instance()->mode(), BackendManager::OutOfProcess);
     int t_x_cold;
@@ -256,7 +256,7 @@ void TestInProcess::testCreateJob()
 
 void TestInProcess::testConfigApply()
 {
-    setenv("KSCREEN_BACKEND", "Fake", 1);
+    qputenv("KSCREEN_BACKEND", "Fake");
     KScreen::BackendManager::instance()->shutdownBackend();
     BackendManager::instance()->setMode(BackendManager::InProcess);
     auto op = ConfigOperation::create();
@@ -286,7 +286,7 @@ void TestInProcess::testConfigApply()
 
 void TestInProcess::testConfigMonitor()
 {
-    setenv("KSCREEN_BACKEND", "Fake", 1);
+    qputenv("KSCREEN_BACKEND", "Fake");
 
     KScreen::BackendManager::instance()->shutdownBackend();
     BackendManager::instance()->setMode(BackendManager::InProcess);

@@ -46,7 +46,7 @@ void testXRandR::initTestCase()
 
 void testXRandR::singleOutput()
 {
-    setenv("KSCREEN_BACKEND", "XRandR", 1);
+    qputenv("KSCREEN_BACKEND", "XRandR");
 
     GetConfigOperation *op = new GetConfigOperation();
     QVERIFY(op->exec());

@@ -47,7 +47,7 @@ private Q_SLOTS:
 
 ConfigPtr testScreenConfig::getConfig()
 {
-    setenv("KSCREEN_BACKEND_INPROCESS", "1", 1);
+    qputenv("KSCREEN_BACKEND_INPROCESS", "1");
     auto *op = ConfigOperation::create();
     if (!op->exec()) {
         qWarning("ConfigOperation error: %s", qPrintable(op->errorString()));
@@ -63,7 +63,7 @@ ConfigPtr testScreenConfig::getConfig()
 
 void testScreenConfig::initTestCase()
 {
-    setenv("KSCREEN_BACKEND", "Fake", 1);
+    qputenv("KSCREEN_BACKEND", "Fake");
 }
 
 void testScreenConfig::cleanupTestCase()
