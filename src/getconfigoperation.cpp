@@ -44,8 +44,11 @@ public:
 public:
     GetConfigOperation::Options options;
     ConfigPtr config;
-    int pendingEDIDs;
+    // For in-process
+    void loadEdid();
 
+    // For out-of-process
+    int pendingEDIDs;
     QPointer<org::kde::kscreen::Backend> mBackend;
 
 private:
@@ -162,7 +165,29 @@ KScreen::ConfigPtr GetConfigOperation::config() const
 void GetConfigOperation::start()
 {
     Q_D(GetConfigOperation);
-    d->requestBackend();
+    if (BackendManager::instance()->mode() == BackendManager::InProcess) {
+        d->loadBackend();
+        d->config = d->backend->config();
+        KScreen::BackendManager::instance()->setConfig(d->config);
+        d->loadEdid();
+        emitResult();
+    } else {
+        d->requestBackend();
+    }
+}
+
+void GetConfigOperationPrivate::loadEdid()
+{
+    Q_Q(GetConfigOperation);
+    if (options & KScreen::ConfigOperation::NoEDID) {
+        return;
+    }
+    Q_FOREACH (auto output, config->outputs()) {
+        if (output->edid() == nullptr) {
+            const QByteArray edidData = backend->edid(output->id());
+            output->setEdid(edidData);
+        }
+    }
 }
 
 

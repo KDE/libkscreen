@@ -85,7 +85,10 @@ void TestInProcess::cleanup()
 
 void TestInProcess::loadConfig()
 {
-    InProcessConfigOperation *op = new InProcessConfigOperation();
+    qputenv("KSCREEN_BACKEND_INPROCESS", "1");
+    BackendManager::instance()->setMode(BackendManager::InProcess);
+
+    auto *op = new GetConfigOperation();
     op->exec();
     m_config = op->config();
     QVERIFY(m_config);
@@ -95,10 +98,11 @@ void TestInProcess::loadConfig()
 void TestInProcess::testModeSwitching()
 {
     KScreen::BackendManager::instance()->shutdownBackend();
+    BackendManager::instance()->setMode(BackendManager::InProcess);
     // Load QScreen backend in-process
     qDebug() << "TT qscreen in-process";
     qputenv("KSCREEN_BACKEND", "QScreen");
-    auto op = new InProcessConfigOperation();
+    auto op = new GetConfigOperation();
     op->exec();
     auto oc = op->config();
     QVERIFY(oc != nullptr);
@@ -107,7 +111,7 @@ void TestInProcess::testModeSwitching()
     qDebug() << "TT fake in-process";
     // Load the Fake backend in-process
     qputenv("KSCREEN_BACKEND", "Fake");
-    auto ip = new InProcessConfigOperation();
+    auto ip = new GetConfigOperation();
     ip->exec();
     auto ic = ip->config();
     QVERIFY(ic != nullptr);
@@ -132,7 +136,7 @@ void TestInProcess::testModeSwitching()
     BackendManager::instance()->setMode(BackendManager::InProcess);
     // Load the Fake backend in-process
     qputenv("KSCREEN_BACKEND", "Fake");
-    auto fp = new InProcessConfigOperation();
+    auto fp = new GetConfigOperation();
     QCOMPARE(BackendManager::instance()->mode(), BackendManager::InProcess);
     fp->exec();
     auto fc = fp->config();
@@ -158,7 +162,7 @@ void TestInProcess::testBackendCaching()
 
     {
         t.start();
-        auto cp = new InProcessConfigOperation();
+        auto cp = new GetConfigOperation();
         cp->exec();
         auto cc = cp->config();
         t_cold = t.nsecsElapsed();
@@ -170,7 +174,7 @@ void TestInProcess::testBackendCaching()
         //KScreen::BackendManager::instance()->shutdownBackend();
         QCOMPARE(BackendManager::instance()->mode(), BackendManager::InProcess);
         t.start();
-        auto cp = new InProcessConfigOperation();
+        auto cp = new GetConfigOperation();
         cp->exec();
         auto cc = cp->config();
         t_warm = t.nsecsElapsed();
@@ -179,7 +183,7 @@ void TestInProcess::testBackendCaching()
         QVERIFY(cc->outputs().count());
     }
     {
-        auto cp = new InProcessConfigOperation();
+        auto cp = new GetConfigOperation();
         QCOMPARE(BackendManager::instance()->mode(), BackendManager::InProcess);
         cp->exec();
         auto cc = cp->config();
@@ -231,7 +235,7 @@ void TestInProcess::testCreateJob()
     {
         BackendManager::instance()->setMode(BackendManager::InProcess);
         auto op = ConfigOperation::create();
-        auto _op = qobject_cast<InProcessConfigOperation*>(op);
+        auto _op = qobject_cast<GetConfigOperation*>(op);
         QVERIFY(_op != nullptr);
         QCOMPARE(BackendManager::instance()->mode(), BackendManager::InProcess);
         op->exec();
