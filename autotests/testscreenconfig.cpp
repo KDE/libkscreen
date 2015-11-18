@@ -23,7 +23,7 @@
 #include "../src/config.h"
 #include "../src/output.h"
 #include "../src/mode.h"
-#include "../src/configoperation.h"
+#include "../src/getconfigoperation.h"
 #include "../src/backendmanager_p.h"
 
 using namespace KScreen;
@@ -48,7 +48,7 @@ private Q_SLOTS:
 ConfigPtr testScreenConfig::getConfig()
 {
     qputenv("KSCREEN_BACKEND_INPROCESS", "1");
-    auto *op = ConfigOperation::create();
+    auto *op = new GetConfigOperation();
     if (!op->exec()) {
         qWarning("ConfigOperation error: %s", qPrintable(op->errorString()));
         BackendManager::instance()->shutdownBackend();

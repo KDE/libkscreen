@@ -46,9 +46,6 @@ public:
     bool hasError() const;
     QString errorString() const;
 
-    static ConfigOperation* create(Options options = NoOptions);
-    static ConfigOperation* setOperation(KScreen::ConfigPtr newconfig);
-
     virtual KScreen::ConfigPtr config() const = 0;
 
     bool exec();

@@ -27,6 +27,7 @@
 #include "../src/configmonitor.h"
 #include "../src/configoperation.h"
 #include "../src/getconfigoperation.h"
+#include "../src/setconfigoperation.h"
 #include "../src/backendmanager_p.h"
 #include <QtTest/qsignalspy.h>
 
@@ -42,7 +43,7 @@ public:
 
     KScreen::ConfigPtr getConfig()
     {
-        auto op = KScreen::ConfigOperation::create();
+        auto op = new KScreen::GetConfigOperation();
         if (!op->exec()) {
             qWarning("Failed to retrieve backend: %s", qPrintable(op->errorString()));
             return KScreen::ConfigPtr();
@@ -115,7 +116,7 @@ private Q_SLOTS:
         auto output = config->outputs().first();
 
         output->setEnabled(false);
-        auto setop = KScreen::ConfigOperation::setOperation(config);
+        auto setop = new KScreen::SetConfigOperation(config);
         QVERIFY(!setop->hasError());
         setop->exec();
         QTRY_VERIFY(!spy.isEmpty());
@@ -125,7 +126,7 @@ private Q_SLOTS:
         QCOMPARE(config->output(1)->isEnabled(), false);
 
         output->setEnabled(false);
-        auto setop2 = KScreen::ConfigOperation::setOperation(config);
+        auto setop2 = new KScreen::SetConfigOperation(config);
         QVERIFY(!setop2->hasError());
         setop2->exec();
         QTRY_VERIFY(!spy.isEmpty());
