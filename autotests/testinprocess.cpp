@@ -233,7 +233,7 @@ void TestInProcess::testCreateJob()
     KScreen::BackendManager::instance()->shutdownBackend();
     {
         BackendManager::instance()->setMode(BackendManager::InProcess);
-        auto op = ConfigOperation::create();
+        auto op = new GetConfigOperation();
         auto _op = qobject_cast<GetConfigOperation*>(op);
         QVERIFY(_op != nullptr);
         QCOMPARE(BackendManager::instance()->mode(), BackendManager::InProcess);
@@ -244,7 +244,7 @@ void TestInProcess::testCreateJob()
     }
     {
         BackendManager::instance()->setMode(BackendManager::OutOfProcess);
-        auto op = ConfigOperation::create();
+        auto op = new GetConfigOperation();
         auto _op = qobject_cast<GetConfigOperation*>(op);
         QVERIFY(_op != nullptr);
         QCOMPARE(BackendManager::instance()->mode(), BackendManager::OutOfProcess);
@@ -262,7 +262,7 @@ void TestInProcess::testConfigApply()
     qputenv("KSCREEN_BACKEND", "Fake");
     KScreen::BackendManager::instance()->shutdownBackend();
     BackendManager::instance()->setMode(BackendManager::InProcess);
-    auto op = ConfigOperation::create();
+    auto op = new GetConfigOperation();
     op->exec();
     auto config = op->config();
 //     qDebug() << "op:" << config->outputs().count();
@@ -288,7 +288,7 @@ void TestInProcess::testConfigMonitor()
 
     KScreen::BackendManager::instance()->shutdownBackend();
     BackendManager::instance()->setMode(BackendManager::InProcess);
-    auto op = ConfigOperation::create();
+    auto op = new GetConfigOperation();
     op->exec();
     auto config = op->config();
     //     qDebug() << "op:" << config->outputs().count();
@@ -304,7 +304,7 @@ void TestInProcess::testConfigMonitor()
     qDebug() << "MOnitorspy connencted.";
     ConfigMonitor::instance()->addConfig(config);
 
-    auto setop = ConfigOperation::setOperation(config);
+    auto setop = new SetConfigOperation(config);
     QVERIFY(!setop->hasError());
     // do not cal setop->exec(), this must not block as the signalspy already blocks
     QVERIFY(monitorSpy.wait(500));

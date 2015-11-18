@@ -40,16 +40,6 @@ ConfigOperationPrivate::~ConfigOperationPrivate()
 {
 }
 
-ConfigOperation* ConfigOperation::create(Options options)
-{
-    return new GetConfigOperation(options);
-}
-
-ConfigOperation* ConfigOperation::setOperation(KScreen::ConfigPtr newconfig)
-{
-    return new SetConfigOperation(newconfig);
-}
-
 void ConfigOperationPrivate::requestBackend()
 {
     Q_ASSERT(BackendManager::instance()->mode() == BackendManager::OutOfProcess);
@@ -158,6 +148,5 @@ void ConfigOperationPrivate::loadBackend()
         qCDebug(KSCREEN) << "plugin does not provide valid KScreen backend";
         q->setError("Plugin does not provide valid KScreen backend");
         q->emitResult();
-        return;
     }
 }

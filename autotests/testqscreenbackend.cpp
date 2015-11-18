@@ -63,7 +63,7 @@ void testQScreenBackend::initTestCase()
 
     QElapsedTimer t;
     t.start();
-    auto *op = ConfigOperation::create();
+    auto *op = new GetConfigOperation();
     op->exec();
     m_config = op->config();
     const int n = t.nsecsElapsed();
@@ -155,7 +155,7 @@ void testQScreenBackend::verifyModes()
 
 void testQScreenBackend::commonUsagePattern()
 {
-    auto *op = ConfigOperation::create();
+    auto *op = new GetConfigOperation();
     op->exec();
 
     const KScreen::OutputList outputs = op->config()->outputs();
