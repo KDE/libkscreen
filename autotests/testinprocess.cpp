@@ -272,12 +272,7 @@ void TestInProcess::testConfigApply()
     QVERIFY(Config::canBeApplied(config));
 
     // expected to fail, SetConfigOperation is out-of-process only
-    auto setfail = new SetConfigOperation(config);
-    QVERIFY(!setfail->hasError());
-    setfail->exec();
-    QVERIFY(setfail->hasError());
-    qDebug() << "----------------------------------------------------------";
-    auto setop = ConfigOperation::setOperation(config);
+    auto setop = new SetConfigOperation(config);
     QVERIFY(!setop->hasError());
     setop->exec();
 

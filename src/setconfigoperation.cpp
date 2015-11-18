@@ -123,14 +123,18 @@ void SetConfigOperation::start()
 {
     Q_D(SetConfigOperation);
     if (BackendManager::instance()->mode() == BackendManager::InProcess) {
-        const QString e = QStringLiteral("SetConfigOperation is not suitable for InProcess backends. Clients should use ConfigOperation::setOperation(config).");
-        qWarning() << e;
-        setError(e);
-        emitResult();
-        return;
-    }
+        d->loadBackend();
+        d->backend->setConfig(d->config);
 
-    d->requestBackend();
+        emitResult();
+//         const QString e = QStringLiteral("SetConfigOperation is not suitable for InProcess backends. Clients should use ConfigOperation::setOperation(config).");
+//         qWarning() << e;
+//         setError(e);
+//         emitResult();
+        return;
+    } else {
+        d->requestBackend();
+    }
 }
 
 #include "setconfigoperation.moc"

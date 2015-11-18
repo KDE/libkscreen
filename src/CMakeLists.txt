@@ -10,7 +10,6 @@ set(libkscreen_SRCS
     getconfigoperation.cpp
     inprocessconfigoperation.cpp
     setconfigoperation.cpp
-    setinprocessoperation.cpp
     configmonitor.cpp
     configserializer.cpp
     screen.cpp
