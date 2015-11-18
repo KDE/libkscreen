@@ -89,8 +89,6 @@ void BackendManager::initMode(bool fromctor)
                 this, [=]() {
                     mCrashCount = 0;
                 });
-    } else {
-
     }
 }
 
@@ -111,7 +109,6 @@ BackendManager::Mode BackendManager::mode() const
 
 BackendManager::~BackendManager()
 {
-    //qDebug() << "BackendManager gone...";
     shutdownBackend();
 }
 
@@ -185,11 +182,11 @@ KScreen::AbstractBackend *BackendManager::loadBackendPlugin(QPluginLoader *loade
 KScreen::AbstractBackend *BackendManager::loadBackendInProcess(const QString &name,
                                                       const QVariantMap &arguments)
 {
+    Q_ASSERT(mMode == InProcess);
     if (mMode == OutOfProcess) {
         qWarning(KSCREEN) << "You are trying to load a backend in process, while the BackendManager is set to use OutOfProcess communication. Use the static version of loadBackend instead.";
         return nullptr;
     }
-    Q_ASSERT(mMode == InProcess);
     if (m_inProcessBackend.first != nullptr && m_inProcessBackend.first->name() == name) {
         auto _backend = m_inProcessBackend.first;
         if (m_inProcessBackend.second != arguments) {
