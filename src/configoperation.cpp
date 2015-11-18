@@ -30,9 +30,9 @@ using namespace KScreen;
 
 ConfigOperationPrivate::ConfigOperationPrivate(ConfigOperation* qq)
     : QObject()
+    , backend(nullptr)
     , isExec(false)
     , q_ptr(qq)
-    , backend(nullptr)
 {
 }
 
@@ -42,7 +42,7 @@ ConfigOperationPrivate::~ConfigOperationPrivate()
 
 void ConfigOperationPrivate::requestBackend()
 {
-    Q_ASSERT(BackendManager::instance()->mode() == BackendManager::OutOfProcess);
+    Q_ASSERT(BackendManager::instance()->method() == BackendManager::OutOfProcess);
     connect(BackendManager::instance(), &BackendManager::backendReady,
             this, &ConfigOperationPrivate::backendReady);
     BackendManager::instance()->requestBackend();
@@ -50,7 +50,7 @@ void ConfigOperationPrivate::requestBackend()
 
 void ConfigOperationPrivate::backendReady(org::kde::kscreen::Backend *backend)
 {
-    Q_ASSERT(BackendManager::instance()->mode() == BackendManager::OutOfProcess);
+    Q_ASSERT(BackendManager::instance()->method() == BackendManager::OutOfProcess);
     Q_UNUSED(backend);
 
     disconnect(BackendManager::instance(), &BackendManager::backendReady,
@@ -135,7 +135,7 @@ bool ConfigOperation::exec()
 
 void ConfigOperationPrivate::loadBackend()
 {
-    Q_ASSERT(BackendManager::instance()->mode() == BackendManager::InProcess);
+    Q_ASSERT(BackendManager::instance()->method() == BackendManager::InProcess);
     Q_Q(ConfigOperation);
     QVariantMap arguments;
     const QString &name = qgetenv("KSCREEN_BACKEND").constData();

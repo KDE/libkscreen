@@ -100,7 +100,7 @@ private Q_SLOTS:
     {
         qputenv("KSCREEN_BACKEND_INPROCESS", "1");
         KScreen::BackendManager::instance()->shutdownBackend();
-        KScreen::BackendManager::instance()->setMode(KScreen::BackendManager::InProcess);
+        KScreen::BackendManager::instance()->setMethod(KScreen::BackendManager::InProcess);
         //json file for the fake backend
         qputenv("KSCREEN_BACKEND_ARGS", "TEST_DATA=" TEST_DATA "singleoutput.json");
 
