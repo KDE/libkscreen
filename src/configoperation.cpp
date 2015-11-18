@@ -43,14 +43,7 @@ ConfigOperationPrivate::~ConfigOperationPrivate()
 
 ConfigOperation* ConfigOperation::create(Options options)
 {
-    if (BackendManager::instance()->mode() == BackendManager::InProcess) {
-        qDebug() << "loading backend in-process";
-        return new InProcessConfigOperation(options);
-    } else {
-        qDebug() << "loading backend out-of-process";
-        return new GetConfigOperation(options);
-
-    }
+    return new GetConfigOperation(options);
 }
 
 ConfigOperation* ConfigOperation::setOperation(KScreen::ConfigPtr newconfig)
