@@ -23,7 +23,6 @@
 #include "backendmanager_p.h"
 
 #include "getconfigoperation.h"
-#include "inprocessconfigoperation.h"
 #include "setconfigoperation.h"
 #include "debug_p.h"
 

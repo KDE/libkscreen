@@ -28,7 +28,6 @@
 #include "../src/mode.h"
 #include "../src/edid.h"
 #include "../src/getconfigoperation.h"
-#include "../src/inprocessconfigoperation.h"
 #include "../src/backendmanager_p.h"
 
 Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.qscreen");
