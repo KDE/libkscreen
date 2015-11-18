@@ -76,7 +76,6 @@ BackendManager::BackendManager()
 void BackendManager::initMode(bool fromctor)
 {
     if (mMode == OutOfProcess) {
-        //qDebug() << "Setting up dbus";
         qRegisterMetaType<org::kde::kscreen::Backend*>("OrgKdeKscreenBackendInterface");
 
         mServiceWatcher.setConnection(QDBusConnection::sessionBus());
@@ -126,7 +125,7 @@ KScreen::AbstractBackend *BackendManager::loadBackendPlugin(QPluginLoader *loade
                        QDir::NoDotAndDotDot | QDir::Files);
         const QFileInfoList finfos = dir.entryInfoList();
         Q_FOREACH (const QFileInfo &finfo, finfos) {
-            //qDebug() << "path:" << finfo.path();
+            //qCDebug(KSCREEN) << "path:" << finfo.path();
             // Skip "Fake" backend unless explicitly specified via KSCREEN_BACKEND
             if (name.isEmpty() && (finfo.fileName().contains(QLatin1String("KSC_Fake")) || finfo.fileName().contains(QLatin1String("KSC_FakeUI")))) {
                 continue;
@@ -184,7 +183,7 @@ KScreen::AbstractBackend *BackendManager::loadBackendInProcess(const QString &na
 {
     Q_ASSERT(mMode == InProcess);
     if (mMode == OutOfProcess) {
-        qWarning(KSCREEN) << "You are trying to load a backend in process, while the BackendManager is set to use OutOfProcess communication. Use the static version of loadBackend instead.";
+        qCWarning(KSCREEN) << "You are trying to load a backend in process, while the BackendManager is set to use OutOfProcess communication. Use the static version of loadBackend instead.";
         return nullptr;
     }
     if (m_inProcessBackend.first != nullptr && m_inProcessBackend.first->name() == name) {
@@ -199,7 +198,7 @@ KScreen::AbstractBackend *BackendManager::loadBackendInProcess(const QString &na
         mLoader = new QPluginLoader(this);
     }
     auto backend = BackendManager::loadBackendPlugin(mLoader, name, arguments);
-    qDebug() << "Connecting ConfigMonitor";
+    qCDebug(KSCREEN) << "Connecting ConfigMonitor to backend.";
     ConfigMonitor::instance()->connectInProcessBackend(backend);
     m_inProcessBackend = qMakePair<KScreen::AbstractBackend*, QVariantMap>(backend, arguments);
     return backend;
@@ -250,7 +249,7 @@ void BackendManager::emitBackendReady()
 
 void BackendManager::startBackend(const QString &backend, const QVariantMap &arguments)
 {
-    qDebug() << "starting external backend launcher for" << backend;;
+    qCDebug(KSCREEN) << "starting external backend launcher for" << backend;
     // This will autostart the launcher if it's not running already, calling
     // requestBackend(backend) will:
     //   a) if the launcher is started it will force it to load the correct backend,
@@ -346,7 +345,7 @@ ConfigPtr BackendManager::config() const
 
 void BackendManager::setConfig(ConfigPtr c)
 {
-    qDebug() << "setConfig" << c->outputs().count();
+    qCDebug(KSCREEN) << "BackendManager::setConfig, outputs:" << c->outputs().count();
     mConfig = c;
 }
 

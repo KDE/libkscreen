@@ -38,9 +38,9 @@ class KSCREEN_EXPORT GetConfigOperation : public KScreen::ConfigOperation
 public:
 
     explicit GetConfigOperation(Options options = NoOptions, QObject* parent = 0);
-    ~GetConfigOperation();
+    virtual ~GetConfigOperation();
 
-    virtual KScreen::ConfigPtr config() const override;
+    virtual KScreen::ConfigPtr config() const Q_DECL_OVERRIDE;
 
 protected:
     void start();

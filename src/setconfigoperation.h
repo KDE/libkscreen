@@ -35,7 +35,7 @@ public:
     explicit SetConfigOperation(const KScreen::ConfigPtr &config, QObject* parent = 0);
     ~SetConfigOperation();
 
-    KScreen::ConfigPtr config() const;
+    KScreen::ConfigPtr config() const Q_DECL_OVERRIDE;
 
 protected:
     void start();
