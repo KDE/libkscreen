@@ -52,6 +52,7 @@ ConfigOperation* ConfigOperation::setOperation(KScreen::ConfigPtr newconfig)
 
 void ConfigOperationPrivate::requestBackend()
 {
+    Q_ASSERT(BackendManager::instance()->mode() == BackendManager::OutOfProcess);
     connect(BackendManager::instance(), &BackendManager::backendReady,
             this, &ConfigOperationPrivate::backendReady);
     BackendManager::instance()->requestBackend();
@@ -59,6 +60,7 @@ void ConfigOperationPrivate::requestBackend()
 
 void ConfigOperationPrivate::backendReady(org::kde::kscreen::Backend *backend)
 {
+    Q_ASSERT(BackendManager::instance()->mode() == BackendManager::OutOfProcess);
     Q_UNUSED(backend);
 
     disconnect(BackendManager::instance(), &BackendManager::backendReady,
@@ -143,6 +145,7 @@ bool ConfigOperation::exec()
 
 void ConfigOperationPrivate::loadBackend()
 {
+    Q_ASSERT(BackendManager::instance()->mode() == BackendManager::InProcess);
     Q_Q(ConfigOperation);
     QVariantMap arguments;
     const QString &name = qgetenv("KSCREEN_BACKEND").constData();
@@ -157,10 +160,4 @@ void ConfigOperationPrivate::loadBackend()
         q->emitResult();
         return;
     }
-    qDebug() << "Calling Backend::setConfig().";
-    //     connect(backend, &AbstractBackend::configChanged, [this, q](const KScreen::ConfigPtr newconfig) {
-    //         //qDebug() << "Yay, configChanged: " << config->outputs();
-    //         q->emitResult();
-    //     });
-    //
 }

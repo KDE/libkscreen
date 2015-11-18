@@ -65,6 +65,7 @@ GetConfigOperationPrivate::GetConfigOperationPrivate(GetConfigOperation::Options
 
 void GetConfigOperationPrivate::backendReady(org::kde::kscreen::Backend *backend)
 {
+    Q_ASSERT(BackendManager::instance()->mode() == BackendManager::OutOfProcess);
     ConfigOperationPrivate::backendReady(backend);
 
     Q_Q(GetConfigOperation);
@@ -83,6 +84,7 @@ void GetConfigOperationPrivate::backendReady(org::kde::kscreen::Backend *backend
 
 void GetConfigOperationPrivate::onConfigReceived(QDBusPendingCallWatcher *watcher)
 {
+    Q_ASSERT(BackendManager::instance()->mode() == BackendManager::OutOfProcess);
     Q_Q(GetConfigOperation);
 
     QDBusPendingReply<QVariantMap> reply = *watcher;
@@ -126,6 +128,7 @@ void GetConfigOperationPrivate::onConfigReceived(QDBusPendingCallWatcher *watche
 
 void GetConfigOperationPrivate::onEDIDReceived(QDBusPendingCallWatcher* watcher)
 {
+    Q_ASSERT(BackendManager::instance()->mode() == BackendManager::OutOfProcess);
     Q_Q(GetConfigOperation);
 
     QDBusPendingReply<QByteArray> reply = *watcher;
@@ -178,6 +181,7 @@ void GetConfigOperation::start()
 
 void GetConfigOperationPrivate::loadEdid()
 {
+    Q_ASSERT(BackendManager::instance()->mode() == BackendManager::InProcess);
     Q_Q(GetConfigOperation);
     if (options & KScreen::ConfigOperation::NoEDID) {
         return;
