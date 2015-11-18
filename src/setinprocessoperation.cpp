@@ -76,6 +76,9 @@ void SetInProcessOperation::start()
 {
     Q_D(SetInProcessOperation);
     d->loadBackend();
+    d->backend->setConfig(d->config);
+
+    emitResult();
 }
 
 void SetInProcessOperationPrivate::loadBackend()
@@ -95,9 +98,6 @@ void SetInProcessOperationPrivate::loadBackend()
         return;
     }
     qDebug() << "Calling Backend::setConfig().";
-    backend->setConfig(config);
-
-    q->emitResult();
 //     connect(backend, &AbstractBackend::configChanged, [this, q](const KScreen::ConfigPtr newconfig) {
 //         //qDebug() << "Yay, configChanged: " << config->outputs();
 //         q->emitResult();

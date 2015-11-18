@@ -70,6 +70,10 @@ void InProcessConfigOperation::start()
 {
     Q_D(InProcessConfigOperation);
     d->loadBackend();
+    d->config = d->backend->config();
+    KScreen::BackendManager::instance()->setConfig(d->config);
+    d->loadEdid();
+    emitResult();
 }
 
 InProcessConfigOperation::InProcessConfigOperation(Options options, QObject* parent)
@@ -105,10 +109,6 @@ void InProcessConfigOperationPrivate::loadBackend()
         q->emitResult();
         return;
     }
-    config = backend->config();
-    KScreen::BackendManager::instance()->setConfig(config);
-    loadEdid();
-    q->emitResult();
     return;
 }
 
