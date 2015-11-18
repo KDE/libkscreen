@@ -65,17 +65,17 @@ BackendManager::BackendManager()
     , mShuttingDown(false)
     , mRequestsCounter(0)
     , mLoader(0)
-    , mMode(OutOfProcess)
+    , mMethod(OutOfProcess)
 {
     if (qgetenv("KSCREEN_BACKEND_INPROCESS") == QByteArray("1")) {
-        mMode = InProcess;
+        mMethod = InProcess;
     }
-    initMode(true);
+    initMethod(true);
 }
 
-void BackendManager::initMode(bool fromctor)
+void BackendManager::initMethod(bool fromctor)
 {
-    if (mMode == OutOfProcess) {
+    if (mMethod == OutOfProcess) {
         qRegisterMetaType<org::kde::kscreen::Backend*>("OrgKdeKscreenBackendInterface");
 
         mServiceWatcher.setConnection(QDBusConnection::sessionBus());
@@ -93,17 +93,17 @@ void BackendManager::initMode(bool fromctor)
 
 void BackendManager::setMethod(BackendManager::Method m)
 {
-    if (mMode == m) {
+    if (mMethod == m) {
         return;
     }
     shutdownBackend();
-    mMode = m;
-    initMode();
+    mMethod = m;
+    initMethod();
 }
 
 BackendManager::Method BackendManager::method() const
 {
-    return mMode;
+    return mMethod;
 }
 
 BackendManager::~BackendManager()
@@ -181,8 +181,8 @@ KScreen::AbstractBackend *BackendManager::loadBackendPlugin(QPluginLoader *loade
 KScreen::AbstractBackend *BackendManager::loadBackendInProcess(const QString &name,
                                                       const QVariantMap &arguments)
 {
-    Q_ASSERT(mMode == InProcess);
-    if (mMode == OutOfProcess) {
+    Q_ASSERT(mMethod == InProcess);
+    if (mMethod == OutOfProcess) {
         qCWarning(KSCREEN) << "You are trying to load a backend in process, while the BackendManager is set to use OutOfProcess communication. Use the static version of loadBackend instead.";
         return nullptr;
     }
@@ -206,7 +206,7 @@ KScreen::AbstractBackend *BackendManager::loadBackendInProcess(const QString &na
 
 void BackendManager::requestBackend()
 {
-    Q_ASSERT(mMode == OutOfProcess);
+    Q_ASSERT(mMethod == OutOfProcess);
     if (mInterface && mInterface->isValid()) {
         ++mRequestsCounter;
         QMetaObject::invokeMethod(this, "emitBackendReady", Qt::QueuedConnection);
@@ -237,7 +237,7 @@ void BackendManager::requestBackend()
 
 void BackendManager::emitBackendReady()
 {
-    Q_ASSERT(mMode == OutOfProcess);
+    Q_ASSERT(mMethod == OutOfProcess);
     Q_EMIT backendReady(mInterface);
     --mRequestsCounter;
     if (mShutdownLoop.isRunning()) {
@@ -267,7 +267,7 @@ void BackendManager::startBackend(const QString &backend, const QVariantMap &arg
 
 void BackendManager::onBackendRequestDone(QDBusPendingCallWatcher *watcher)
 {
-    Q_ASSERT(mMode == OutOfProcess);
+    Q_ASSERT(mMethod == OutOfProcess);
     watcher->deleteLater();
     QDBusPendingReply<bool> reply = *watcher;
     // Most probably we requested an explicit backend that is different than the
@@ -324,7 +324,7 @@ void BackendManager::onBackendRequestDone(QDBusPendingCallWatcher *watcher)
 
 void BackendManager::backendServiceUnregistered(const QString &serviceName)
 {
-    Q_ASSERT(mMode == OutOfProcess);
+    Q_ASSERT(mMethod == OutOfProcess);
     mServiceWatcher.removeWatchedService(serviceName);
 
     invalidateInterface();
@@ -333,7 +333,7 @@ void BackendManager::backendServiceUnregistered(const QString &serviceName)
 
 void BackendManager::invalidateInterface()
 {
-    Q_ASSERT(mMode == OutOfProcess);
+    Q_ASSERT(mMethod == OutOfProcess);
     delete mInterface;
     mInterface = 0;
     mBackendService.clear();
@@ -352,7 +352,7 @@ void BackendManager::setConfig(ConfigPtr c)
 
 void BackendManager::shutdownBackend()
 {
-    if (mMode == InProcess) {
+    if (mMethod == InProcess) {
         mLoader->deleteLater();
         mLoader = nullptr;
         m_inProcessBackend.second.clear();

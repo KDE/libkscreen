@@ -103,7 +103,7 @@ private:
     explicit BackendManager();
     static BackendManager *sInstance;
 
-    void initMode(bool fromctor = false);
+    void initMethod(bool fromctor = false);
 
     // For out-of-process operation
     void invalidateInterface();
@@ -125,7 +125,7 @@ private:
     QPluginLoader *mLoader;
     QPair<KScreen::AbstractBackend*, QVariantMap> m_inProcessBackend;
 
-    Method mMode;
+    Method mMethod;
 };
 
 }
