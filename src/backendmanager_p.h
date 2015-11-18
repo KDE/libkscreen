@@ -103,7 +103,7 @@ private:
     explicit BackendManager();
     static BackendManager *sInstance;
 
-    void initMethod(bool fromctor = false);
+    void initMethod();
 
     // For out-of-process operation
     void invalidateInterface();

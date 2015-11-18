@@ -70,10 +70,10 @@ BackendManager::BackendManager()
     if (qgetenv("KSCREEN_BACKEND_INPROCESS") == QByteArray("1")) {
         mMethod = InProcess;
     }
-    initMethod(true);
+    initMethod();
 }
 
-void BackendManager::initMethod(bool fromctor)
+void BackendManager::initMethod()
 {
     if (mMethod == OutOfProcess) {
         qRegisterMetaType<org::kde::kscreen::Backend*>("OrgKdeKscreenBackendInterface");
