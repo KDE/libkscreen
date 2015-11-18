@@ -136,8 +136,7 @@ void ConfigMonitor::Private::backendConfigChanged(const QVariantMap &configMap)
 
 void ConfigMonitor::Private::edidReady(QDBusPendingCallWatcher* watcher)
 {
-    Q_ASSERT(BackendManager::instance()->mode()
- == BackendManager::OutOfProcess);
+    Q_ASSERT(BackendManager::instance()->mode() == BackendManager::OutOfProcess);
 
     const int outputId = watcher->property("outputId").toInt();
     const ConfigPtr config = watcher->property("config").value<KScreen::ConfigPtr>();
@@ -168,6 +167,7 @@ void ConfigMonitor::Private::edidReady(QDBusPendingCallWatcher* watcher)
 
 void ConfigMonitor::Private::updateConfigs(const KScreen::ConfigPtr &newConfig)
 {
+    Q_ASSERT(BackendManager::instance()->mode() == BackendManager::OutOfProcess);
     QMutableListIterator<QWeakPointer<Config>> iter(watchedConfigs);
     while (iter.hasNext()) {
         KScreen::ConfigPtr config = iter.next().toStrongRef();
@@ -242,6 +242,7 @@ void ConfigMonitor::removeConfig(const ConfigPtr &config)
 
 void ConfigMonitor::connectInProcessBackend(KScreen::AbstractBackend* backend)
 {
+    Q_ASSERT(BackendManager::instance()->mode() == BackendManager::InProcess);
     connect(backend, &AbstractBackend::configChanged, [=](KScreen::ConfigPtr config) {
         if (config.isNull()) {
             return;
