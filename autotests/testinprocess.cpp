@@ -22,7 +22,6 @@
 #include <QSignalSpy>
 
 #include "../src/backendmanager_p.h"
-#include "../src/inprocessconfigoperation.h"
 #include "../src/getconfigoperation.h"
 #include "../src/setconfigoperation.h"
 #include "../src/config.h"
