@@ -22,8 +22,6 @@
 #include "configoperation_p.h"
 #include "backendmanager_p.h"
 
-#include "getconfigoperation.h"
-#include "setconfigoperation.h"
 #include "debug_p.h"
 
 using namespace KScreen;
