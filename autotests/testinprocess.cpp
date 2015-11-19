@@ -88,7 +88,7 @@ void TestInProcess::loadConfig()
     BackendManager::instance()->setMethod(BackendManager::InProcess);
 
     auto *op = new GetConfigOperation();
-    op->exec();
+    QVERIFY(op->exec());
     m_config = op->config();
     QVERIFY(m_config);
     QVERIFY(m_config->isValid());
@@ -102,7 +102,7 @@ void TestInProcess::testModeSwitching()
     qDebug() << "TT qscreen in-process";
     qputenv("KSCREEN_BACKEND", "QScreen");
     auto op = new GetConfigOperation();
-    op->exec();
+    QVERIFY(op->exec());
     auto oc = op->config();
     QVERIFY(oc != nullptr);
     QVERIFY(oc->isValid());
@@ -111,7 +111,7 @@ void TestInProcess::testModeSwitching()
     // Load the Fake backend in-process
     qputenv("KSCREEN_BACKEND", "Fake");
     auto ip = new GetConfigOperation();
-    ip->exec();
+    QVERIFY(ip->exec());
     auto ic = ip->config();
     QVERIFY(ic != nullptr);
     QVERIFY(ic->isValid());
@@ -124,7 +124,7 @@ void TestInProcess::testModeSwitching()
     BackendManager::instance()->setMethod(BackendManager::OutOfProcess);
     auto xp = new GetConfigOperation();
     QCOMPARE(BackendManager::instance()->method(), BackendManager::OutOfProcess);
-    xp->exec();
+    QVERIFY(xp->exec());
     auto xc = xp->config();
     QVERIFY(xc != nullptr);
     QVERIFY(xc->isValid());
@@ -137,7 +137,7 @@ void TestInProcess::testModeSwitching()
     qputenv("KSCREEN_BACKEND", "Fake");
     auto fp = new GetConfigOperation();
     QCOMPARE(BackendManager::instance()->method(), BackendManager::InProcess);
-    fp->exec();
+    QVERIFY(fp->exec());
     auto fc = fp->config();
     QVERIFY(fc != nullptr);
     QVERIFY(fc->isValid());
@@ -237,7 +237,7 @@ void TestInProcess::testCreateJob()
         auto _op = qobject_cast<GetConfigOperation*>(op);
         QVERIFY(_op != nullptr);
         QCOMPARE(BackendManager::instance()->method(), BackendManager::InProcess);
-        op->exec();
+        QVERIFY(op->exec());
         auto cc = op->config();
         QVERIFY(cc != nullptr);
         QVERIFY(cc->isValid());
@@ -248,7 +248,7 @@ void TestInProcess::testCreateJob()
         auto _op = qobject_cast<GetConfigOperation*>(op);
         QVERIFY(_op != nullptr);
         QCOMPARE(BackendManager::instance()->method(), BackendManager::OutOfProcess);
-        op->exec();
+        QVERIFY(op->exec());
         auto cc = op->config();
         QVERIFY(cc != nullptr);
         QVERIFY(cc->isValid());
@@ -277,7 +277,7 @@ void TestInProcess::testConfigApply()
     // expected to fail, SetConfigOperation is out-of-process only
     auto setop = new SetConfigOperation(config);
     QVERIFY(!setop->hasError());
-    setop->exec();
+    QVERIFY(setop->exec());
 
     QVERIFY(!setop->hasError());
 }
