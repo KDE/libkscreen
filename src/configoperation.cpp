@@ -30,7 +30,6 @@ using namespace KScreen;
 
 ConfigOperationPrivate::ConfigOperationPrivate(ConfigOperation* qq)
     : QObject()
-    , backend(nullptr)
     , isExec(false)
     , q_ptr(qq)
 {
@@ -133,7 +132,7 @@ bool ConfigOperation::exec()
     return !hasError();
 }
 
-void ConfigOperationPrivate::loadBackend()
+KScreen::AbstractBackend* ConfigOperationPrivate::loadBackend()
 {
     Q_ASSERT(BackendManager::instance()->method() == BackendManager::InProcess);
     Q_Q(ConfigOperation);
@@ -143,11 +142,12 @@ void ConfigOperationPrivate::loadBackend()
     if (beargs.startsWith("TEST_DATA=")) {
         arguments["TEST_DATA"] = beargs.remove("TEST_DATA=");
     }
-    backend = KScreen::BackendManager::instance()->loadBackendInProcess(name, arguments);
+    auto backend = KScreen::BackendManager::instance()->loadBackendInProcess(name, arguments);
     if (backend == nullptr) {
         const QString &e = QStringLiteral("Plugin does not provide valid KScreen backend");
         qCDebug(KSCREEN) << e;
         q->setError(e);
         q->emitResult();
     }
+    return backend;
 }

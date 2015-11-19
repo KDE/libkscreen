@@ -122,8 +122,8 @@ void SetConfigOperation::start()
 {
     Q_D(SetConfigOperation);
     if (BackendManager::instance()->method() == BackendManager::InProcess) {
-        d->loadBackend();
-        d->backend->setConfig(d->config);
+        auto backend = d->loadBackend();
+        backend->setConfig(d->config);
         emitResult();
     } else {
         d->requestBackend();
