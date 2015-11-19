@@ -39,8 +39,7 @@ public:
     virtual void backendReady(org::kde::kscreen::Backend *backend);
 
     // For in-process
-    void loadBackend();
-    KScreen::AbstractBackend* backend;
+    KScreen::AbstractBackend* loadBackend();
 
 public Q_SLOTS:
     void doEmitResult();

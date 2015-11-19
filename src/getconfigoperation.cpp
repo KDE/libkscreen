@@ -45,7 +45,7 @@ public:
     GetConfigOperation::Options options;
     ConfigPtr config;
     // For in-process
-    void loadEdid();
+    void loadEdid(KScreen::AbstractBackend* backend);
 
     // For out-of-process
     int pendingEDIDs;
@@ -169,17 +169,17 @@ void GetConfigOperation::start()
 {
     Q_D(GetConfigOperation);
     if (BackendManager::instance()->method() == BackendManager::InProcess) {
-        d->loadBackend();
-        d->config = d->backend->config();
+        auto backend = d->loadBackend();
+        d->config = backend->config();
         KScreen::BackendManager::instance()->setConfig(d->config);
-        d->loadEdid();
+        d->loadEdid(backend);
         emitResult();
     } else {
         d->requestBackend();
     }
 }
 
-void GetConfigOperationPrivate::loadEdid()
+void GetConfigOperationPrivate::loadEdid(KScreen::AbstractBackend* backend)
 {
     Q_ASSERT(BackendManager::instance()->method() == BackendManager::InProcess);
     Q_Q(GetConfigOperation);
