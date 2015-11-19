@@ -178,8 +178,7 @@ KScreen::AbstractBackend *BackendManager::loadBackendPlugin(QPluginLoader *loade
     return Q_NULLPTR;
 }
 
-KScreen::AbstractBackend *BackendManager::loadBackendInProcess(const QString &name,
-                                                      const QVariantMap &arguments)
+KScreen::AbstractBackend *BackendManager::loadBackendInProcess(const QString &name)
 {
     Q_ASSERT(mMethod == InProcess);
     if (mMethod == OutOfProcess) {
@@ -187,15 +186,18 @@ KScreen::AbstractBackend *BackendManager::loadBackendInProcess(const QString &na
         return nullptr;
     }
     if (m_inProcessBackend.first != nullptr && m_inProcessBackend.first->name() == name) {
-        auto _backend = m_inProcessBackend.first;
-        if (m_inProcessBackend.second != arguments) {
-            _backend->init(arguments);
-        }
-        return _backend;
-
+        return m_inProcessBackend.first;
+    } else if (m_inProcessBackend.first != nullptr && m_inProcessBackend.first->name() != name) {
+        shutdownBackend();
     }
+
     if (mLoader == nullptr) {
         mLoader = new QPluginLoader(this);
+    }
+    QVariantMap arguments;
+    auto beargs = QString::fromLocal8Bit(qgetenv("KSCREEN_BACKEND_ARGS"));
+    if (beargs.startsWith("TEST_DATA=")) {
+        arguments["TEST_DATA"] = beargs.remove("TEST_DATA=");
     }
     auto backend = BackendManager::loadBackendPlugin(mLoader, name, arguments);
     qCDebug(KSCREEN) << "Connecting ConfigMonitor to backend.";

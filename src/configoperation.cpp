@@ -134,13 +134,8 @@ KScreen::AbstractBackend* ConfigOperationPrivate::loadBackend()
 {
     Q_ASSERT(BackendManager::instance()->method() == BackendManager::InProcess);
     Q_Q(ConfigOperation);
-    QVariantMap arguments;
     const QString &name = qgetenv("KSCREEN_BACKEND").constData();
-    auto beargs = QString::fromLocal8Bit(qgetenv("KSCREEN_BACKEND_ARGS"));
-    if (beargs.startsWith("TEST_DATA=")) {
-        arguments["TEST_DATA"] = beargs.remove("TEST_DATA=");
-    }
-    auto backend = KScreen::BackendManager::instance()->loadBackendInProcess(name, arguments);
+    auto backend = KScreen::BackendManager::instance()->loadBackendInProcess(name);
     if (backend == nullptr) {
         const QString &e = QStringLiteral("Plugin does not provide valid KScreen backend");
         qCDebug(KSCREEN) << e;
