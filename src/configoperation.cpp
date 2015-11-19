@@ -145,8 +145,9 @@ void ConfigOperationPrivate::loadBackend()
     }
     backend = KScreen::BackendManager::instance()->loadBackendInProcess(name, arguments);
     if (backend == nullptr) {
-        qCDebug(KSCREEN) << "plugin does not provide valid KScreen backend";
-        q->setError("Plugin does not provide valid KScreen backend");
+        const QString &e = QStringLiteral("Plugin does not provide valid KScreen backend");
+        qCDebug(KSCREEN) << e;
+        q->setError(e);
         q->emitResult();
     }
 }
