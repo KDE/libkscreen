@@ -72,8 +72,7 @@ public:
                                                  const QString &name,
                                                  const QVariantMap &arguments);
 
-    KScreen::AbstractBackend *loadBackendInProcess(const QString &name,
-                                          const QVariantMap &arguments);
+    KScreen::AbstractBackend *loadBackendInProcess(const QString &name);
 
     BackendManager::Method method() const;
     void setMethod(BackendManager::Method m);
