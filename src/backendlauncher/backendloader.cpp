@@ -119,8 +119,7 @@ KScreen::AbstractBackend *BackendLoader::loadBackend(const QString &name,
         std::unique_ptr<QPluginLoader, void(*)(QPluginLoader *)> loader(new QPluginLoader(), pluginDeleter);
         mLoader = loader.release();
     }
-    auto backend = KScreen::BackendManager::loadBackendPlugin(mLoader, name, arguments);
-    return backend;
+    return KScreen::BackendManager::loadBackendPlugin(mLoader, name, arguments);
 }
 
 void BackendLoader::quit()
