@@ -139,7 +139,7 @@ KScreen::AbstractBackend *BackendManager::loadBackendPlugin(QPluginLoader *loade
                 continue;
             }
             if (name.isEmpty() &&
-                finfo.fileName().contains(QLatin1String("KSC_Wayland"))) {
+                finfo.fileName().contains(QLatin1String("KSC_KWayland"))) {
                 continue;
             }
 

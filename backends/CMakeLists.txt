@@ -3,7 +3,7 @@ add_subdirectory(qscreen)
 
 if(ENABLE_WAYLAND)
     message(STATUS "Will build Wayland backend")
-    add_subdirectory(wayland)
+    add_subdirectory(kwayland)
 else()
     message(STATUS "Not building Wayland backend")
 endif()

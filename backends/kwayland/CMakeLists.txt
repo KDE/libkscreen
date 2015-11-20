@@ -10,17 +10,17 @@ set(wayland_SRCS
     waylandscreen.cpp
 )
 
-add_library(KSC_Wayland MODULE ${wayland_SRCS})
+add_library(KSC_KWayland MODULE ${wayland_SRCS})
 
-set_target_properties(KSC_Wayland PROPERTIES PREFIX "")
-target_link_libraries(KSC_Wayland Qt5::Core
+set_target_properties(KSC_KWayland PROPERTIES PREFIX "")
+target_link_libraries(KSC_KWayland Qt5::Core
                                   Qt5::Gui
                                   Qt5::DBus
                                   Qt5::Test
                                   Wayland::Client
-                                  Wayland::Cursor
+#                                   Wayland::Cursor
                                   KF5::Screen
                                   KF5::WaylandClient
 )
 
-install(TARGETS KSC_Wayland DESTINATION ${PLUGIN_INSTALL_DIR}/kf5/kscreen/)
+install(TARGETS KSC_KWayland DESTINATION ${PLUGIN_INSTALL_DIR}/kf5/kscreen/)

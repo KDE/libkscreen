@@ -91,7 +91,7 @@ testWaylandBackend::testWaylandBackend(QObject *parent)
 
 void testWaylandBackend::initTestCase()
 {
-    qputenv("KSCREEN_BACKEND", "wayland");
+    qputenv("KSCREEN_BACKEND", "kwayland");
     KScreen::BackendManager::instance()->shutdownBackend();
     m_startServer =  qgetenv("KSCREEN_EXTERNAL_WAYLAND_SERVER").isEmpty();
 
@@ -271,4 +271,4 @@ void testWaylandBackend::cleanupTestCase()
 
 QTEST_GUILESS_MAIN(testWaylandBackend)
 
-#include "testwaylandbackend.moc"
+#include "testkwaylandbackend.moc"
