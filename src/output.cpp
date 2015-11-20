@@ -412,7 +412,6 @@ void Output::setClones(QList<int> outputlist)
 void Output::setEdid(const QByteArray& rawData)
 {
     Q_ASSERT(d->edid == 0);
-
     d->edid = new Edid(rawData);
 }
 
@@ -451,7 +450,7 @@ void Output::apply(const OutputPtr& other)
     QList<ChangeSignal> changes;
 
     // We block all signals, and emit them only after we have set up everything
-    // This is necessary in order to prevent clients from accessig inconsistent
+    // This is necessary in order to prevent clients from accessing inconsistent
     // outputs from intermediate change signals
     const bool keepBlocked = signalsBlocked();
     blockSignals(true);
@@ -517,7 +516,6 @@ void Output::apply(const OutputPtr& other)
         changes.removeAll(sig);
     }
 }
-
 
 QDebug operator<<(QDebug dbg, const KScreen::OutputPtr &output)
 {

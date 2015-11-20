@@ -18,6 +18,9 @@
  */
 
 #include "setconfigoperation.h"
+
+#include "abstractbackend.h"
+#include "backendmanager_p.h"
 #include "configoperation_p.h"
 #include "config.h"
 #include "configserializer_p.h"
@@ -52,6 +55,7 @@ SetConfigOperationPrivate::SetConfigOperationPrivate(const ConfigPtr &config, Co
     : ConfigOperationPrivate(qq)
     , config(config)
 {
+    Q_Q(SetConfigOperation);
 }
 
 void SetConfigOperationPrivate::backendReady(org::kde::kscreen::Backend* backend)
@@ -99,7 +103,6 @@ void SetConfigOperationPrivate::onConfigSet(QDBusPendingCallWatcher *watcher)
     q->emitResult();
 }
 
-
 SetConfigOperation::SetConfigOperation(const ConfigPtr &config, QObject* parent)
     : ConfigOperation(new SetConfigOperationPrivate(config, this), parent)
 {
@@ -115,11 +118,16 @@ ConfigPtr SetConfigOperation::config() const
     return d->config;
 }
 
-
 void SetConfigOperation::start()
 {
     Q_D(SetConfigOperation);
-    d->requestBackend();
+    if (BackendManager::instance()->method() == BackendManager::InProcess) {
+        auto backend = d->loadBackend();
+        backend->setConfig(d->config);
+        emitResult();
+    } else {
+        d->requestBackend();
+    }
 }
 
 #include "setconfigoperation.moc"

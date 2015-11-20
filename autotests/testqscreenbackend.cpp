@@ -17,10 +17,9 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
-#define QT_GUI_LIB
-
 #include <QtTest/QtTest>
 #include <QtCore/QObject>
+#include <QElapsedTimer>
 
 #include "../src/config.h"
 #include "../src/output.h"
@@ -54,15 +53,19 @@ private:
 
 void testQScreenBackend::initTestCase()
 {
-    setenv("KSCREEN_BACKEND", "qscreen", 1);
+    qputenv("KSCREEN_BACKEND", "qscreen");
+    qputenv("KSCREEN_BACKEND_INPROCESS", "1");
     KScreen::BackendManager::instance()->shutdownBackend();
 
-//     setenv("KSCREEN_BACKEND", "xrandr", 1);
     m_backend = qgetenv("KSCREEN_BACKEND").constData();
 
-    GetConfigOperation *op = new GetConfigOperation();
+    QElapsedTimer t;
+    t.start();
+    auto *op = new GetConfigOperation();
     op->exec();
     m_config = op->config();
+    const int n = t.nsecsElapsed();
+    qDebug() << "Test took: " << n << "ns";
 }
 
 void testQScreenBackend::verifyConfig()
@@ -91,10 +94,8 @@ void testQScreenBackend::verifyScreen()
 
 void testQScreenBackend::verifyOutputs()
 {
-
     bool primaryFound = false;
     foreach (const KScreen::OutputPtr &op, m_config->outputs()) {
-        qDebug() << "CHecking at all";
         if (op->isPrimary()) {
             primaryFound = true;
         }
@@ -106,11 +107,10 @@ void testQScreenBackend::verifyOutputs()
     }
 
     const KScreen::OutputPtr primary = m_config->primaryOutput();
-    qDebug() << "ppp" << primary;
     QVERIFY(primary->isEnabled());
     QVERIFY(primary->isConnected());
     //qDebug() << "Primary geometry? " << primary->geometry();
-    qDebug() << " prim modes: " << primary->modes();
+    //qDebug() << " prim modes: " << primary->modes();
 
 
     QList<int> ids;
@@ -153,7 +153,7 @@ void testQScreenBackend::verifyModes()
 
 void testQScreenBackend::commonUsagePattern()
 {
-    GetConfigOperation *op = new GetConfigOperation();
+    auto *op = new GetConfigOperation();
     op->exec();
 
     const KScreen::OutputList outputs = op->config()->outputs();

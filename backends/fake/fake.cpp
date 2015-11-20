@@ -45,13 +45,21 @@ Fake::Fake()
 {
     QLoggingCategory::setFilterRules(QStringLiteral("kscreen.fake.debug = true"));
 
-    QTimer::singleShot(0, this, SLOT(delayedInit()));
+
+    if (qgetenv("KSCREEN_BACKEND_INPROCESS") != QByteArray("1")) {
+        QTimer::singleShot(0, this, SLOT(delayedInit()));
+    }
 }
 
 void Fake::init(const QVariantMap &arguments)
 {
+    if (!mConfig.isNull()) {
+        mConfig.clear();
+    }
+
     mConfigFile = arguments[QStringLiteral("TEST_DATA")].toString();
     qCDebug(KSCREEN_FAKE) << "Fake profile file:" << mConfigFile;
+
 }
 
 void Fake::delayedInit()
@@ -85,7 +93,9 @@ ConfigPtr Fake::config() const
 
 void Fake::setConfig(const ConfigPtr &config)
 {
-    Q_UNUSED(config)
+    qDebug() << "set config" << config->outputs();
+    mConfig = config;
+    emit configChanged(mConfig);
 }
 
 bool Fake::isValid() const
@@ -122,6 +132,7 @@ void Fake::setConnected(int outputId, bool connected)
     }
 
     output->setConnected(connected);
+	qDebug() << "emitting configChanged in Fake";
     Q_EMIT configChanged(mConfig);
 }
 

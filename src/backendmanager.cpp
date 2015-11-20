@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2014  Daniel Vratil <dvratil@redhat.com>
+ * Copyright 2015 Sebastian Kügler <sebas@kde.org>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,7 +18,12 @@
  *
  */
 
+
 #include "backendmanager_p.h"
+
+#include "abstractbackend.h"
+#include "config.h"
+#include "configmonitor.h"
 #include "backendinterface.h"
 #include "debug_p.h"
 #include "getconfigoperation.h"
@@ -30,6 +36,10 @@
 #include <QDBusConnectionInterface>
 #include <QStandardPaths>
 #include <QThread>
+#include <QX11Info>
+
+#include <memory>
+
 
 using namespace KScreen;
 
@@ -54,27 +64,151 @@ BackendManager::BackendManager()
     , mCrashCount(0)
     , mShuttingDown(false)
     , mRequestsCounter(0)
+    , mLoader(0)
+    , mMethod(OutOfProcess)
 {
-    qRegisterMetaType<org::kde::kscreen::Backend*>("OrgKdeKscreenBackendInterface");
+    if (qgetenv("KSCREEN_BACKEND_INPROCESS") == QByteArray("1")) {
+        mMethod = InProcess;
+    }
+    initMethod();
+}
 
-    mServiceWatcher.setConnection(QDBusConnection::sessionBus());
-    connect(&mServiceWatcher, &QDBusServiceWatcher::serviceUnregistered,
-            this, &BackendManager::backendServiceUnregistered);
+void BackendManager::initMethod()
+{
+    if (mMethod == OutOfProcess) {
+        qRegisterMetaType<org::kde::kscreen::Backend*>("OrgKdeKscreenBackendInterface");
 
-    mResetCrashCountTimer.setSingleShot(true);
-    mResetCrashCountTimer.setInterval(60000);
-    connect(&mResetCrashCountTimer, &QTimer::timeout,
-            this, [=]() {
-                mCrashCount = 0;
-            });
+        mServiceWatcher.setConnection(QDBusConnection::sessionBus());
+        connect(&mServiceWatcher, &QDBusServiceWatcher::serviceUnregistered,
+                this, &BackendManager::backendServiceUnregistered);
+
+        mResetCrashCountTimer.setSingleShot(true);
+        mResetCrashCountTimer.setInterval(60000);
+        connect(&mResetCrashCountTimer, &QTimer::timeout,
+                this, [=]() {
+                    mCrashCount = 0;
+                });
+    }
+}
+
+void BackendManager::setMethod(BackendManager::Method m)
+{
+    if (mMethod == m) {
+        return;
+    }
+    shutdownBackend();
+    mMethod = m;
+    initMethod();
+}
+
+BackendManager::Method BackendManager::method() const
+{
+    return mMethod;
 }
 
 BackendManager::~BackendManager()
 {
+    shutdownBackend();
+}
+
+KScreen::AbstractBackend *BackendManager::loadBackendPlugin(QPluginLoader *loader, const QString &name,
+                                                     const QVariantMap &arguments)
+{
+    //qCDebug(KSCREEN) << "Requested backend:" << name;
+    const QString backendFilter = QString::fromLatin1("KSC_%1*").arg(name);
+    const QStringList paths = QCoreApplication::libraryPaths();
+    //qCDebug(KSCREEN) << "Lookup paths: " << paths;
+    Q_FOREACH (const QString &path, paths) {
+        const QDir dir(path + QLatin1String("/kf5/kscreen/"),
+                       backendFilter,
+                       QDir::SortFlags(QDir::QDir::NoSort),
+                       QDir::NoDotAndDotDot | QDir::Files);
+        const QFileInfoList finfos = dir.entryInfoList();
+        Q_FOREACH (const QFileInfo &finfo, finfos) {
+            //qCDebug(KSCREEN) << "path:" << finfo.path();
+            // Skip "Fake" backend unless explicitly specified via KSCREEN_BACKEND
+            if (name.isEmpty() && (finfo.fileName().contains(QLatin1String("KSC_Fake")) || finfo.fileName().contains(QLatin1String("KSC_FakeUI")))) {
+                continue;
+            }
+
+            // When on X11, skip the QScreen backend, instead use the XRandR backend,
+            // if not specified in KSCREEN_BACKEND
+            if (name.isEmpty() &&
+                finfo.fileName().contains(QLatin1String("KSC_QScreen")) &&
+                QX11Info::isPlatformX11()) {
+                continue;
+            }
+            if (name.isEmpty() &&
+                finfo.fileName().contains(QLatin1String("KSC_Wayland"))) {
+                continue;
+            }
+
+            // When not on X11, skip the XRandR backend, and fall back to QSCreen
+            // if not specified in KSCREEN_BACKEND
+            if (name.isEmpty() &&
+                finfo.fileName().contains(QLatin1String("KSC_XRandR")) &&
+                !QX11Info::isPlatformX11()) {
+                continue;
+            }
+
+            //qCDebug(KSCREEN) << "Trying" << finfo.filePath() << loader->isLoaded();
+            loader->setFileName(finfo.filePath());
+            QObject *instance = loader->instance();
+            if (!instance) {
+                qCDebug(KSCREEN) << loader->errorString();
+                continue;
+            }
+
+            auto backend = qobject_cast<KScreen::AbstractBackend*>(instance);
+            if (backend) {
+                backend->init(arguments);
+                if (!backend->isValid()) {
+                    qCDebug(KSCREEN) << "Skipping" << backend->name() << "backend";
+                    delete backend;
+                    continue;
+                }
+                qCDebug(KSCREEN) << "Loading" << backend->name() << "backend";
+                return backend;
+            } else {
+                qCDebug(KSCREEN) << finfo.fileName() << "does not provide valid KScreen backend";
+            }
+        }
+    }
+
+    return Q_NULLPTR;
+}
+
+KScreen::AbstractBackend *BackendManager::loadBackendInProcess(const QString &name)
+{
+    Q_ASSERT(mMethod == InProcess);
+    if (mMethod == OutOfProcess) {
+        qCWarning(KSCREEN) << "You are trying to load a backend in process, while the BackendManager is set to use OutOfProcess communication. Use the static version of loadBackend instead.";
+        return nullptr;
+    }
+    if (m_inProcessBackend.first != nullptr && m_inProcessBackend.first->name() == name) {
+        return m_inProcessBackend.first;
+    } else if (m_inProcessBackend.first != nullptr && m_inProcessBackend.first->name() != name) {
+        shutdownBackend();
+    }
+
+    if (mLoader == nullptr) {
+        mLoader = new QPluginLoader(this);
+    }
+    QVariantMap arguments;
+    auto beargs = QString::fromLocal8Bit(qgetenv("KSCREEN_BACKEND_ARGS"));
+    if (beargs.startsWith("TEST_DATA=")) {
+        arguments["TEST_DATA"] = beargs.remove("TEST_DATA=");
+    }
+    auto backend = BackendManager::loadBackendPlugin(mLoader, name, arguments);
+    qCDebug(KSCREEN) << "Connecting ConfigMonitor to backend.";
+    ConfigMonitor::instance()->connectInProcessBackend(backend);
+    m_inProcessBackend = qMakePair<KScreen::AbstractBackend*, QVariantMap>(backend, arguments);
+    return backend;
 }
 
 void BackendManager::requestBackend()
 {
+    Q_ASSERT(mMethod == OutOfProcess);
     if (mInterface && mInterface->isValid()) {
         ++mRequestsCounter;
         QMetaObject::invokeMethod(this, "emitBackendReady", Qt::QueuedConnection);
@@ -105,6 +239,7 @@ void BackendManager::requestBackend()
 
 void BackendManager::emitBackendReady()
 {
+    Q_ASSERT(mMethod == OutOfProcess);
     Q_EMIT backendReady(mInterface);
     --mRequestsCounter;
     if (mShutdownLoop.isRunning()) {
@@ -114,6 +249,7 @@ void BackendManager::emitBackendReady()
 
 void BackendManager::startBackend(const QString &backend, const QVariantMap &arguments)
 {
+    qCDebug(KSCREEN) << "starting external backend launcher for" << backend;
     // This will autostart the launcher if it's not running already, calling
     // requestBackend(backend) will:
     //   a) if the launcher is started it will force it to load the correct backend,
@@ -133,6 +269,7 @@ void BackendManager::startBackend(const QString &backend, const QVariantMap &arg
 
 void BackendManager::onBackendRequestDone(QDBusPendingCallWatcher *watcher)
 {
+    Q_ASSERT(mMethod == OutOfProcess);
     watcher->deleteLater();
     QDBusPendingReply<bool> reply = *watcher;
     // Most probably we requested an explicit backend that is different than the
@@ -189,6 +326,7 @@ void BackendManager::onBackendRequestDone(QDBusPendingCallWatcher *watcher)
 
 void BackendManager::backendServiceUnregistered(const QString &serviceName)
 {
+    Q_ASSERT(mMethod == OutOfProcess);
     mServiceWatcher.removeWatchedService(serviceName);
 
     invalidateInterface();
@@ -197,6 +335,7 @@ void BackendManager::backendServiceUnregistered(const QString &serviceName)
 
 void BackendManager::invalidateInterface()
 {
+    Q_ASSERT(mMethod == OutOfProcess);
     delete mInterface;
     mInterface = 0;
     mBackendService.clear();
@@ -207,30 +346,45 @@ ConfigPtr BackendManager::config() const
     return mConfig;
 }
 
+void BackendManager::setConfig(ConfigPtr c)
+{
+    qCDebug(KSCREEN) << "BackendManager::setConfig, outputs:" << c->outputs().count();
+    mConfig = c;
+}
+
 void BackendManager::shutdownBackend()
 {
-    if (mBackendService.isEmpty() && !mInterface) {
-        return;
-    }
+    if (mMethod == InProcess) {
+        mLoader->deleteLater();
+        mLoader = nullptr;
+        m_inProcessBackend.second.clear();
+        delete m_inProcessBackend.first;
+        m_inProcessBackend.first = nullptr;
+    } else {
 
-    // If there are some currently pending requests, then wait for them to
-    // finish before quitting
-    while (mRequestsCounter > 0) {
-        mShutdownLoop.exec();
-    }
+        if (mBackendService.isEmpty() && !mInterface) {
+            return;
+        }
 
-    mServiceWatcher.removeWatchedService(mBackendService);
-    mShuttingDown = true;
+        // If there are some currently pending requests, then wait for them to
+        // finish before quitting
+        while (mRequestsCounter > 0) {
+            mShutdownLoop.exec();
+        }
 
-    QDBusMessage call = QDBusMessage::createMethodCall(QStringLiteral("org.kde.KScreen"),
-                                                       QStringLiteral("/"),
-                                                       QStringLiteral("org.kde.KScreen"),
-                                                       QStringLiteral("quit"));
-    // Call synchronously
-    QDBusConnection::sessionBus().call(call);
-    invalidateInterface();
+        mServiceWatcher.removeWatchedService(mBackendService);
+        mShuttingDown = true;
 
-    while (QDBusConnection::sessionBus().interface()->isServiceRegistered(QStringLiteral("org.kde.KScreen"))) {
-        QThread::msleep(100);
+        QDBusMessage call = QDBusMessage::createMethodCall(QStringLiteral("org.kde.KScreen"),
+                                                        QStringLiteral("/"),
+                                                        QStringLiteral("org.kde.KScreen"),
+                                                        QStringLiteral("quit"));
+        // Call synchronously
+        QDBusConnection::sessionBus().call(call);
+        invalidateInterface();
+
+        while (QDBusConnection::sessionBus().interface()->isServiceRegistered(QStringLiteral("org.kde.KScreen"))) {
+            QThread::msleep(100);
+        }
     }
 }

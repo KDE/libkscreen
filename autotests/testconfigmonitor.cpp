@@ -21,10 +21,13 @@
 #include <QtTest>
 #include <QSignalSpy>
 
+#include "../src/backendmanager_p.h"
 #include "../src/config.h"
 #include "../src/output.h"
 #include "../src/configmonitor.h"
+#include "../src/configoperation.h"
 #include "../src/getconfigoperation.h"
+#include "../src/setconfigoperation.h"
 #include "../src/backendmanager_p.h"
 #include <QtTest/qsignalspy.h>
 
@@ -40,7 +43,7 @@ public:
 
     KScreen::ConfigPtr getConfig()
     {
-        KScreen::GetConfigOperation *op = new KScreen::GetConfigOperation();
+        auto op = new KScreen::GetConfigOperation();
         if (!op->exec()) {
             qWarning("Failed to retrieve backend: %s", qPrintable(op->errorString()));
             return KScreen::ConfigPtr();
@@ -52,7 +55,9 @@ public:
 private Q_SLOTS:
     void initTestCase()
     {
-        setenv("KSCREEN_BACKEND", "Fake", 1);
+        qputenv("KSCREEN_BACKEND", "Fake");
+        // This particular test is only useful for out of process operation, so enforce that
+        qputenv("KSCREEN_BACKEND_INPROCESS", "0");
         KScreen::BackendManager::instance()->shutdownBackend();
     }
 
@@ -61,7 +66,7 @@ private Q_SLOTS:
         KScreen::BackendManager::instance()->shutdownBackend();
     }
 
-    void testChangeNotify()
+    void testChangeNotifyOutOfProcess()
     {
         //json file for the fake backend
         qputenv("KSCREEN_BACKEND_ARGS", "TEST_DATA=" TEST_DATA "singleoutput.json");
@@ -89,6 +94,43 @@ private Q_SLOTS:
         QCOMPARE(enabledSpy.size(), 1);
         QCOMPARE(config->output(1)->isEnabled(), false);
 
+    }
+
+    void testChangeNotifyInProcess()
+    {
+        qputenv("KSCREEN_BACKEND_INPROCESS", "1");
+        KScreen::BackendManager::instance()->shutdownBackend();
+        KScreen::BackendManager::instance()->setMethod(KScreen::BackendManager::InProcess);
+        //json file for the fake backend
+        qputenv("KSCREEN_BACKEND_ARGS", "TEST_DATA=" TEST_DATA "singleoutput.json");
+
+        // Prepare monitor
+        KScreen::ConfigMonitor *monitor = KScreen::ConfigMonitor::instance();
+        QSignalSpy spy(monitor, SIGNAL(configurationChanged()));
+
+        // Get config and monitor it for changes
+        KScreen::ConfigPtr config = getConfig();
+        monitor->addConfig(config);
+        QSignalSpy enabledSpy(config->outputs().first().data(), SIGNAL(isEnabledChanged()));
+
+        auto output = config->outputs().first();
+
+        output->setEnabled(false);
+        auto setop = new KScreen::SetConfigOperation(config);
+        QVERIFY(!setop->hasError());
+        setop->exec();
+        QTRY_VERIFY(!spy.isEmpty());
+
+        QCOMPARE(spy.size(), 1);
+        QCOMPARE(enabledSpy.size(), 1);
+        QCOMPARE(config->output(1)->isEnabled(), false);
+
+        output->setEnabled(false);
+        auto setop2 = new KScreen::SetConfigOperation(config);
+        QVERIFY(!setop2->hasError());
+        setop2->exec();
+        QTRY_VERIFY(!spy.isEmpty());
+        QCOMPARE(spy.size(), 2);
     }
 
 };

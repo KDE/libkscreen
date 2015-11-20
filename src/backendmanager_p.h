@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2014  Daniel Vratil <dvratil@redhat.com>
+ * Copyright 2015 Sebastian Kügler <sebas@kde.org>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,6 +28,7 @@
 #define KSCREEN_BACKENDMANAGER_H
 
 #include <QObject>
+#include <QPluginLoader>
 #include <QProcess>
 #include <QDBusServiceWatcher>
 #include <QTimer>
@@ -40,18 +42,44 @@ class OrgKdeKscreenBackendInterface;
 
 namespace KScreen {
 
+class AbstractBackend;
+
 class KSCREEN_EXPORT BackendManager : public QObject
 {
     Q_OBJECT
 
 public:
+    enum Method {
+        InProcess,
+        OutOfProcess
+    };
+
     static BackendManager *instance();
     ~BackendManager();
 
+    KScreen::ConfigPtr config() const;
+    void setConfig(KScreen::ConfigPtr c);
+
+    /** Encapsulates the plugin loading logic.
+     *
+     * @param loader a pointer to the QPluginLoader, the caller is
+     * responsible for its memory management.
+     * @param name name of the backend plugin
+     * @param arguments arguments, used for unit tests
+     * @return a pointer to the backend loaded from the plugin
+     */
+    static KScreen::AbstractBackend *loadBackendPlugin(QPluginLoader *loader,
+                                                 const QString &name,
+                                                 const QVariantMap &arguments);
+
+    KScreen::AbstractBackend *loadBackendInProcess(const QString &name);
+
+    BackendManager::Method method() const;
+    void setMethod(BackendManager::Method m);
+
+    // For out-of-process operation
     void requestBackend();
     void shutdownBackend();
-
-    KScreen::ConfigPtr config() const;
 
 Q_SIGNALS:
     void backendReady(OrgKdeKscreenBackendInterface *backend);
@@ -66,14 +94,21 @@ private Q_SLOTS:
     void backendServiceUnregistered(const QString &serviceName);
 
 private:
-    void invalidateInterface();
-    void backendServiceReady();
-
+    friend class SetInProcessOperation;
+    friend class InProcessConfigOperationPrivate;
+    friend class SetConfigOperation;
+    friend class SetConfigOperationPrivate;
 
     explicit BackendManager();
     static BackendManager *sInstance;
-    static const int sMaxCrashCount;
 
+    void initMethod();
+
+    // For out-of-process operation
+    void invalidateInterface();
+    void backendServiceReady();
+
+    static const int sMaxCrashCount;
     OrgKdeKscreenBackendInterface *mInterface;
     int mCrashCount;
 
@@ -82,10 +117,14 @@ private:
     KScreen::ConfigPtr mConfig;
     QTimer mResetCrashCountTimer;
     bool mShuttingDown;
-
     int mRequestsCounter;
     QEventLoop mShutdownLoop;
 
+    // For in-process operation
+    QPluginLoader *mLoader;
+    QPair<KScreen::AbstractBackend*, QVariantMap> m_inProcessBackend;
+
+    Method mMethod;
 };
 
 }

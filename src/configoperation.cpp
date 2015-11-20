@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2014  Daniel Vratil <dvratil@redhat.com>
+ * Copyright 2015 Sebastian Kügler <sebas@kde.org>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,6 +22,8 @@
 #include "configoperation_p.h"
 #include "backendmanager_p.h"
 
+#include "debug_p.h"
+
 using namespace KScreen;
 
 ConfigOperationPrivate::ConfigOperationPrivate(ConfigOperation* qq)
@@ -36,6 +39,7 @@ ConfigOperationPrivate::~ConfigOperationPrivate()
 
 void ConfigOperationPrivate::requestBackend()
 {
+    Q_ASSERT(BackendManager::instance()->method() == BackendManager::OutOfProcess);
     connect(BackendManager::instance(), &BackendManager::backendReady,
             this, &ConfigOperationPrivate::backendReady);
     BackendManager::instance()->requestBackend();
@@ -43,6 +47,7 @@ void ConfigOperationPrivate::requestBackend()
 
 void ConfigOperationPrivate::backendReady(org::kde::kscreen::Backend *backend)
 {
+    Q_ASSERT(BackendManager::instance()->method() == BackendManager::OutOfProcess);
     Q_UNUSED(backend);
 
     disconnect(BackendManager::instance(), &BackendManager::backendReady,
@@ -123,4 +128,19 @@ bool ConfigOperation::exec()
     // Schedule the operation for deletion, see doEmitResult()
     deleteLater();
     return !hasError();
+}
+
+KScreen::AbstractBackend* ConfigOperationPrivate::loadBackend()
+{
+    Q_ASSERT(BackendManager::instance()->method() == BackendManager::InProcess);
+    Q_Q(ConfigOperation);
+    const QString &name = qgetenv("KSCREEN_BACKEND").constData();
+    auto backend = KScreen::BackendManager::instance()->loadBackendInProcess(name);
+    if (backend == nullptr) {
+        const QString &e = QStringLiteral("Plugin does not provide valid KScreen backend");
+        qCDebug(KSCREEN) << e;
+        q->setError(e);
+        q->emitResult();
+    }
+    return backend;
 }

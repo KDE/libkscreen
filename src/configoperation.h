@@ -24,6 +24,7 @@
 #include <QtCore/QObject>
 
 #include "kscreen_export.h"
+#include "types.h"
 
 namespace KScreen {
 
@@ -34,12 +35,21 @@ class KSCREEN_EXPORT ConfigOperation : public QObject
     Q_OBJECT
 
 public:
+    enum Option {
+        NoOptions,
+        NoEDID
+    };
+    Q_DECLARE_FLAGS(Options, Option)
+
     virtual ~ConfigOperation();
 
     bool hasError() const;
     QString errorString() const;
 
+    virtual KScreen::ConfigPtr config() const = 0;
+
     bool exec();
+
 Q_SIGNALS:
     void finished(ConfigOperation *operation);
 

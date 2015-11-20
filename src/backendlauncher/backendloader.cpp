@@ -22,6 +22,7 @@
 #include "backenddbuswrapper.h"
 #include "debug_p.h"
 #include "src/abstractbackend.h"
+#include "src/backendmanager_p.h"
 
 #include <QCoreApplication>
 #include <QDBusConnectionInterface>
@@ -114,73 +115,11 @@ bool BackendLoader::requestBackend(const QString &backendName, const QVariantMap
 KScreen::AbstractBackend *BackendLoader::loadBackend(const QString &name,
                                                      const QVariantMap &arguments)
 {
-    qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Requested backend:" << name;
-    const QString backendFilter = QString::fromLatin1("KSC_%1*").arg(name);
-    const QStringList paths = QCoreApplication::libraryPaths();
-    //qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Lookup paths: " << paths;
-    Q_FOREACH (const QString &path, paths) {
-        const QDir dir(path + QLatin1String("/kf5/kscreen/"),
-                       backendFilter,
-                       QDir::SortFlags(QDir::QDir::NoSort),
-                       QDir::NoDotAndDotDot | QDir::Files);
-        const QFileInfoList finfos = dir.entryInfoList();
-        Q_FOREACH (const QFileInfo &finfo, finfos) {
-            // Skip "Fake" backend unless explicitly specified via KSCREEN_BACKEND
-            if (name.isEmpty() && (finfo.fileName().contains(QLatin1String("KSC_Fake")) || finfo.fileName().contains(QLatin1String("KSC_FakeUI")))) {
-                continue;
-            }
-
-            // When on X11, skip the QScreen backend, instead use the XRandR backend,
-            // if not specified in KSCREEN_BACKEND
-            if (name.isEmpty() &&
-                    finfo.fileName().contains(QLatin1String("KSC_QScreen")) &&
-                    QX11Info::isPlatformX11()) {
-                continue;
-            }
-
-            if (name.isEmpty() &&
-                    finfo.fileName().contains(QLatin1String("KSC_Wayland"))) {
-                continue;
-            }
-
-            // When not on X11, skip the XRandR backend, and fall back to QScreen
-            // if not specified in KSCREEN_BACKEND
-            if (name.isEmpty() &&
-                    finfo.fileName().contains(QLatin1String("KSC_XRandR")) &&
-                    !QX11Info::isPlatformX11()) {
-                continue;
-            }
-
-            //qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Trying" << finfo.filePath();
-            // Make sure we unload() and delete the loader whenever it goes out of scope here
-            std::unique_ptr<QPluginLoader, void(*)(QPluginLoader *)> loader(new QPluginLoader(finfo.filePath()), pluginDeleter);
-            QObject *instance = loader->instance();
-            if (!instance) {
-                qCDebug(KSCREEN_BACKEND_LAUNCHER) << loader->errorString();
-                continue;
-            }
-
-            auto backend = qobject_cast<KScreen::AbstractBackend*>(instance);
-            if (backend) {
-                backend->init(arguments);
-                if (!backend->isValid()) {
-                    qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Skipping" << backend->name() << "backend";
-                    delete backend;
-                    continue;
-                }
-
-                // This is the only case we don't want to unload() and delete the loader, instead
-                // we store it and unload it when the backendloader terminates.
-                mLoader = loader.release();
-                qCDebug(KSCREEN_BACKEND_LAUNCHER) << "Loading" << backend->name() << "backend";
-                return backend;
-            } else {
-                qCDebug(KSCREEN_BACKEND_LAUNCHER) << finfo.fileName() << "does not provide valid KScreen backend";
-            }
-        }
+    if (mLoader == Q_NULLPTR) {
+        std::unique_ptr<QPluginLoader, void(*)(QPluginLoader *)> loader(new QPluginLoader(), pluginDeleter);
+        mLoader = loader.release();
     }
-
-    return Q_NULLPTR;
+    return KScreen::BackendManager::loadBackendPlugin(mLoader, name, arguments);
 }
 
 void BackendLoader::quit()

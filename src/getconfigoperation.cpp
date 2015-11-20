@@ -44,8 +44,11 @@ public:
 public:
     GetConfigOperation::Options options;
     ConfigPtr config;
-    int pendingEDIDs;
+    // For in-process
+    void loadEdid(KScreen::AbstractBackend* backend);
 
+    // For out-of-process
+    int pendingEDIDs;
     QPointer<org::kde::kscreen::Backend> mBackend;
 
 private:
@@ -62,6 +65,7 @@ GetConfigOperationPrivate::GetConfigOperationPrivate(GetConfigOperation::Options
 
 void GetConfigOperationPrivate::backendReady(org::kde::kscreen::Backend *backend)
 {
+    Q_ASSERT(BackendManager::instance()->method() == BackendManager::OutOfProcess);
     ConfigOperationPrivate::backendReady(backend);
 
     Q_Q(GetConfigOperation);
@@ -80,6 +84,7 @@ void GetConfigOperationPrivate::backendReady(org::kde::kscreen::Backend *backend
 
 void GetConfigOperationPrivate::onConfigReceived(QDBusPendingCallWatcher *watcher)
 {
+    Q_ASSERT(BackendManager::instance()->method() == BackendManager::OutOfProcess);
     Q_Q(GetConfigOperation);
 
     QDBusPendingReply<QVariantMap> reply = *watcher;
@@ -123,6 +128,7 @@ void GetConfigOperationPrivate::onConfigReceived(QDBusPendingCallWatcher *watche
 
 void GetConfigOperationPrivate::onEDIDReceived(QDBusPendingCallWatcher* watcher)
 {
+    Q_ASSERT(BackendManager::instance()->method() == BackendManager::OutOfProcess);
     Q_Q(GetConfigOperation);
 
     QDBusPendingReply<QByteArray> reply = *watcher;
@@ -162,7 +168,30 @@ KScreen::ConfigPtr GetConfigOperation::config() const
 void GetConfigOperation::start()
 {
     Q_D(GetConfigOperation);
-    d->requestBackend();
+    if (BackendManager::instance()->method() == BackendManager::InProcess) {
+        auto backend = d->loadBackend();
+        d->config = backend->config();
+        KScreen::BackendManager::instance()->setConfig(d->config);
+        d->loadEdid(backend);
+        emitResult();
+    } else {
+        d->requestBackend();
+    }
+}
+
+void GetConfigOperationPrivate::loadEdid(KScreen::AbstractBackend* backend)
+{
+    Q_ASSERT(BackendManager::instance()->method() == BackendManager::InProcess);
+    Q_Q(GetConfigOperation);
+    if (options & KScreen::ConfigOperation::NoEDID) {
+        return;
+    }
+    Q_FOREACH (auto output, config->outputs()) {
+        if (output->edid() == nullptr) {
+            const QByteArray edidData = backend->edid(output->id());
+            output->setEdid(edidData);
+        }
+    }
 }
 
 

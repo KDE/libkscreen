@@ -197,7 +197,6 @@ Config::Config()
 {
 }
 
-
 Config::~Config()
 {
     delete d;

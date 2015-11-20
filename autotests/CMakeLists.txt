@@ -19,6 +19,7 @@ kscreen_add_test(testscreenconfig)
 kscreen_add_test(testqscreenbackend)
 kscreen_add_test(testconfigserializer)
 kscreen_add_test(testconfigmonitor)
+kscreen_add_test(testinprocess)
 
 if(ENABLE_WAYLAND AND KF5Config_FOUND)
     set(KSCREEN_WAYLAND_LIBS

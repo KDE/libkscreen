@@ -47,9 +47,10 @@ private Q_SLOTS:
 
 ConfigPtr testScreenConfig::getConfig()
 {
-    GetConfigOperation *op = new GetConfigOperation();
+    qputenv("KSCREEN_BACKEND_INPROCESS", "1");
+    auto *op = new GetConfigOperation();
     if (!op->exec()) {
-        qWarning("GetConfigOperation error: %s", qPrintable(op->errorString()));
+        qWarning("ConfigOperation error: %s", qPrintable(op->errorString()));
         BackendManager::instance()->shutdownBackend();
         return ConfigPtr();
     }
@@ -62,7 +63,7 @@ ConfigPtr testScreenConfig::getConfig()
 
 void testScreenConfig::initTestCase()
 {
-    setenv("KSCREEN_BACKEND", "Fake", 1);
+    qputenv("KSCREEN_BACKEND", "Fake");
 }
 
 void testScreenConfig::cleanupTestCase()
@@ -208,7 +209,9 @@ void testScreenConfig::configCanBeApplied()
     QVERIFY(!Config::canBeApplied(brokenConfig));
     primaryBroken->setCurrentModeId(currentPrimary->currentModeId());
     QVERIFY(!Config::canBeApplied(brokenConfig));
+    qDebug() << "brokenConfig.modes" << primaryBroken->mode("3");
     primaryBroken->mode(QLatin1String("3"))->setSize(QSize(1280, 800));
+    qDebug() << "brokenConfig.modes" << primaryBroken->mode("3");
     QVERIFY(Config::canBeApplied(brokenConfig));
 
 
