@@ -97,9 +97,6 @@ private:
     KWayland::Client::Registry *m_registry;
     KWayland::Client::OutputManagement *m_outputManagement;
 
-
-
-
     QMap<int, WaylandOutput*> m_outputMap;
     QMap<KWayland::Client::OutputDevice*, int> m_outputIds;
     QList<int> m_initializingOutputs;

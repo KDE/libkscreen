@@ -36,6 +36,7 @@
 
 #include "../src/backendmanager_p.h"
 #include "../src/getconfigoperation.h"
+#include "../src/setconfigoperation.h"
 #include "../src/config.h"
 #include "../src/configmonitor.h"
 #include "../src/output.h"
@@ -69,6 +70,8 @@ private Q_SLOTS:
     void verifyIds();
     void cleanupTestCase();
 
+    void simpleWrite();
+
 private:
     ConfigPtr m_config;
     bool m_startServer;
@@ -88,7 +91,7 @@ testWaylandBackend::testWaylandBackend(QObject *parent)
 
 void testWaylandBackend::initTestCase()
 {
-    setenv("KSCREEN_BACKEND", "wayland", 1);
+    qputenv("KSCREEN_BACKEND", "wayland");
     KScreen::BackendManager::instance()->shutdownBackend();
     m_startServer =  qgetenv("KSCREEN_EXTERNAL_WAYLAND_SERVER").isEmpty();
 
@@ -234,6 +237,26 @@ void testWaylandBackend::verifyIds()
         ids << output->id();
     }
 }
+
+void testWaylandBackend::simpleWrite()
+{
+    KScreen::BackendManager::instance()->shutdownBackend();
+    GetConfigOperation *op = new GetConfigOperation();
+    op->exec();
+    m_config = op->config();
+    qDebug() << "Ouptuts: " << m_config->outputs();
+    auto output = m_config->output(1);
+    auto n_mode = QStringLiteral("800x600@60");
+    auto o_mode = output->currentModeId();
+    qDebug() << "Current mode: " << o_mode;
+    qDebug() << "o->m" << output->modes();
+    output->setCurrentModeId(n_mode);
+
+    auto setop = new SetConfigOperation(m_config);
+    setop->exec();
+
+}
+
 
 void testWaylandBackend::cleanupTestCase()
 {
