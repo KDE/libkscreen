@@ -93,7 +93,7 @@ ConfigPtr Fake::config() const
 
 void Fake::setConfig(const ConfigPtr &config)
 {
-    qDebug() << "set config" << config->outputs();
+    qCDebug(KSCREEN_FAKE) << "set config" << config->outputs();
     mConfig = config;
     emit configChanged(mConfig);
 }
@@ -132,7 +132,7 @@ void Fake::setConnected(int outputId, bool connected)
     }
 
     output->setConnected(connected);
-	qDebug() << "emitting configChanged in Fake";
+    qCDebug(KSCREEN_FAKE) << "emitting configChanged in Fake";
     Q_EMIT configChanged(mConfig);
 }
 
