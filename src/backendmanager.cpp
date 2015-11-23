@@ -182,7 +182,7 @@ KScreen::AbstractBackend *BackendManager::loadBackendInProcess(const QString &na
 {
     Q_ASSERT(mMethod == InProcess);
     if (mMethod == OutOfProcess) {
-        qCWarning(KSCREEN) << "You are trying to load a backend in process, while the BackendManager is set to use OutOfProcess communication. Use the static version of loadBackend instead.";
+        qCWarning(KSCREEN) << "You are trying to load a backend in process, while the BackendManager is set to use OutOfProcess communication. Use loadBackendPlugin() instead.";
         return nullptr;
     }
     if (m_inProcessBackend.first != nullptr && m_inProcessBackend.first->name() == name) {
