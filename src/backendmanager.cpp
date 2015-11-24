@@ -108,7 +108,9 @@ BackendManager::Method BackendManager::method() const
 
 BackendManager::~BackendManager()
 {
-    shutdownBackend();
+    if (mMethod == InProcess) {
+        shutdownBackend();
+    }
 }
 
 KScreen::AbstractBackend *BackendManager::loadBackendPlugin(QPluginLoader *loader, const QString &name,
@@ -182,7 +184,7 @@ KScreen::AbstractBackend *BackendManager::loadBackendInProcess(const QString &na
 {
     Q_ASSERT(mMethod == InProcess);
     if (mMethod == OutOfProcess) {
-        qCWarning(KSCREEN) << "You are trying to load a backend in process, while the BackendManager is set to use OutOfProcess communication. Use the static version of loadBackend instead.";
+        qCWarning(KSCREEN) << "You are trying to load a backend in process, while the BackendManager is set to use OutOfProcess communication. Use loadBackendPlugin() instead.";
         return nullptr;
     }
     if (m_inProcessBackend.first != nullptr && m_inProcessBackend.first->name() == name) {
@@ -355,7 +357,7 @@ void BackendManager::setConfig(ConfigPtr c)
 void BackendManager::shutdownBackend()
 {
     if (mMethod == InProcess) {
-        mLoader->deleteLater();
+        delete mLoader;
         mLoader = nullptr;
         m_inProcessBackend.second.clear();
         delete m_inProcessBackend.first;

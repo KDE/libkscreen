@@ -43,6 +43,7 @@ if(ENABLE_WAYLAND AND KF5Config_FOUND)
     set(KSCREEN_WAYLAND_SRCS "")
 endif()
 
+
 if (ENABLE_XRANDR_TESTS)
     kscreen_add_test(textxrandr)
 endif()

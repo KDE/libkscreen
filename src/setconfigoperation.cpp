@@ -55,7 +55,6 @@ SetConfigOperationPrivate::SetConfigOperationPrivate(const ConfigPtr &config, Co
     : ConfigOperationPrivate(qq)
     , config(config)
 {
-    Q_Q(SetConfigOperation);
 }
 
 void SetConfigOperationPrivate::backendReady(org::kde::kscreen::Backend* backend)
