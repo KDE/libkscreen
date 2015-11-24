@@ -108,7 +108,9 @@ BackendManager::Method BackendManager::method() const
 
 BackendManager::~BackendManager()
 {
-    shutdownBackend();
+    if (mMethod == InProcess) {
+        shutdownBackend();
+    }
 }
 
 KScreen::AbstractBackend *BackendManager::loadBackendPlugin(QPluginLoader *loader, const QString &name,
