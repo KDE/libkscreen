@@ -357,7 +357,7 @@ void BackendManager::setConfig(ConfigPtr c)
 void BackendManager::shutdownBackend()
 {
     if (mMethod == InProcess) {
-        mLoader->deleteLater();
+        delete mLoader;
         mLoader = nullptr;
         m_inProcessBackend.second.clear();
         delete m_inProcessBackend.first;
