@@ -73,15 +73,19 @@ ConfigPtr WaylandBackend::config() const
     return internalConfig()->toKScreenConfig();
 }
 
-void WaylandBackend::setConfig(const KScreen::ConfigPtr &config)
+void WaylandBackend::setConfig(const KScreen::ConfigPtr &newconfig)
 {
-    if (!config) {
+    if (!newconfig) {
         return;
     }
+    auto oldconfig = internalConfig()->toKScreenConfig();
     QString configfile = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation);
 
     //WaylandConfigWriter::writeJson(config, configfile+"/waylandconfig.json");
-    WaylandConfigWriter::writeConfig(config, configfile+"/waylandconfigrc");
+    //WaylandConfigWriter::writeConfig(config, configfile+"/waylandconfigrc");
+    foreach (auto o_new, newconfig->outputs()) {
+        qDebug() << "output:" << o_new->id() << " enabled? " << o_new->isEnabled() << "was" << oldconfig->output(o_new->id())->isEnabled();
+    }
 }
 
 // Edid *WaylandBackend::edid(int outputId) const
