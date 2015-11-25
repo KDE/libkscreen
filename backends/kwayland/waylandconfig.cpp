@@ -169,14 +169,14 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
 {
     m_newOutputId++;
     quint32 new_id = m_newOutputId;
-    qDebug() << "*********** WL Adding output" << name << new_id;
+    //qDebug() << "*********** WL Adding output" << name << new_id;
     if (m_outputMap.keys().contains(new_id)) {
-        qDebug() << "Output already known!!!!";
+        //qDebug() << "Output already known!!!!";
         return;
     }
     if (!m_initializingOutputs.contains(name)) {
         m_initializingOutputs << name;
-        qDebug() << "Adding " << name << "to m_initializingOutputs" << m_initializingOutputs;
+        //qDebug() << "Adding " << name << "to m_initializingOutputs" << m_initializingOutputs;
     }
 
     //const int new_id = m_outputMap.count() + m_initializingOutputs.count() + 1;
@@ -187,14 +187,14 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
 
     connect(waylandoutput, &WaylandOutput::complete, [=]{
         m_outputMap[waylandoutput->id()] = waylandoutput;
-        qCDebug(KSCREEN_WAYLAND) << "\\n+++++++++++++++++++++++++++++ New Output complete, ID:" << waylandoutput->id() << waylandoutput->output()->model() << m_outputMap.count();
+        //qCDebug(KSCREEN_WAYLAND) << "\\n+++++++++++++++++++++++++++++ New Output complete, ID:" << waylandoutput->id() << waylandoutput->output()->model() << m_outputMap.count();
         m_initializingOutputs.removeAll(name);
-        qCDebug(KSCREEN_WAYLAND) << "Initializing: " << m_initializingOutputs;
+//         qCDebug(KSCREEN_WAYLAND) << "Initializing: " << m_initializingOutputs;
         checkInitialized();
 
         if (!m_blockSignals && m_initializingOutputs.empty()) {
             //KScreen::ConfigMonitor::instance()->notifyUpdate();
-            qDebug() << "emitting configChanged() ====================================================";
+            //qDebug() << "emitting configChanged() ====================================================";
             Q_EMIT configChanged(toKScreenConfig());
         }
     });
@@ -202,10 +202,10 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
 
 void WaylandConfig::checkInitialized()
 {
-    qDebug() << "CHECK: " << !m_blockSignals << m_registryInitialized << m_initializingOutputs.isEmpty() << m_outputMap.count() << (m_outputManagement != nullptr);
+    //qDebug() << "CHECK: " << !m_blockSignals << m_registryInitialized << m_initializingOutputs.isEmpty() << m_outputMap.count() << (m_outputManagement != nullptr);
     if (!m_blockSignals && m_registryInitialized &&
         m_initializingOutputs.isEmpty() && m_outputMap.count() && m_outputManagement != nullptr) {
-        qDebug() << "\n ===================== config initialized." << m_outputMap.count();
+        //qDebug() << "\n ===================== config initialized." << m_outputMap.count();
         m_screen->setOutputs(m_outputMap.values());
         emit initialized();
     };
@@ -226,7 +226,7 @@ int WaylandConfig::outputId(KWayland::Client::OutputDevice *wlo)
     }
     int _id = qHash(wlo->uuid());
     m_outputIds[wlo] = _id;
-    qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!! New id: " << _id;
+    //qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!! New id: " << _id;
     return _id;
     /*
     Q_FOREACH (auto output, m_outputMap.values()) {
