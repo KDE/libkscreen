@@ -102,20 +102,28 @@ void TestKWaylandConfig::changeConfig()
     auto op = new GetConfigOperation();
     QVERIFY(op->exec());
     auto config = op->config();
+    QVERIFY(config);
+
+    // Prepare monitor & spy
+    KScreen::ConfigMonitor *monitor = KScreen::ConfigMonitor::instance();
+    monitor->addConfig(config);
+    QSignalSpy configSpy(monitor, &KScreen::ConfigMonitor::configurationChanged);
+
 
     // The first output is currently disabled, let's try to enable it
     auto output = config->outputs().first();
     qDebug() << "Changing output: " << output << "enabled?" << output->isEnabled();
     output->setEnabled(true);
 
+    QSignalSpy serverSpy(m_server, &WaylandTestServer::configChanged);
     auto sop = new SetConfigOperation(config, this);
     sop->exec(); // fire and forget...
 
+    QVERIFY(configSpy.wait(200));
     // check if the server changed
-    QSignalSpy serverSpy(m_server, &WaylandTestServer::configChanged);
-    QVERIFY(serverSpy.wait(200));
+    QCOMPARE(serverSpy.count(), 1);
+    QCOMPARE(configSpy.count(), 1);
 
-    QVERIFY(config);
 
 }
 
