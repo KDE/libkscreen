@@ -26,6 +26,7 @@
 #include <KWayland/Client/connection_thread.h>
 #include <KWayland/Client/event_queue.h>
 #include <KWayland/Client/registry.h>
+#include <KWayland/Client/outputconfiguration.h>
 #include <KWayland/Client/outputdevice.h>
 #include <KWayland/Client/outputmanagement.h>
 
@@ -301,3 +302,28 @@ QMap<int, WaylandOutput*> WaylandConfig::outputMap() const
     return m_outputMap;
 }
 
+void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newzconfig)
+{
+    using namespace KWayland::Client;
+    // Create a new configuration object
+    auto config = m_outputManagement->createConfiguration();
+
+    // handle applied and failed signals
+    connect(config, &OutputConfiguration::applied, []() {
+        qDebug() << "Configuration applied!";
+    });
+    connect(config, &OutputConfiguration::failed, []() {
+        qDebug() << "Configuration failed!";
+    });
+    /*
+     *    auto device =
+    // Change settings
+    config->setMode(output, m_clientOutputs.first()->modes().last().id);
+    config->setTransform(output, OutputDevice::Transform::Normal);
+    config->setPosition(output, QPoint(0, 1920));
+    config->setScale(output, 2);
+*/
+    // Now ask the compositor to apply the changes
+    config->apply();
+
+}

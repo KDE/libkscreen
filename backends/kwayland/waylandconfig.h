@@ -77,6 +77,8 @@ public:
     void addOutput(quint32 name, quint32 version);
     void removeOutput(quint32 id);
 
+    void applyConfig(const KScreen::ConfigPtr &newzconfig);
+
 Q_SIGNALS:
     void configChanged(const KScreen::ConfigPtr &config);
     void initialized();

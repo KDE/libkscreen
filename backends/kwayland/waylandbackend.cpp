@@ -79,10 +79,9 @@ void WaylandBackend::setConfig(const KScreen::ConfigPtr &newconfig)
         return;
     }
     auto oldconfig = internalConfig()->toKScreenConfig();
-    QString configfile = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation);
+    Q_ASSERT(oldconfig);
 
-    //WaylandConfigWriter::writeJson(config, configfile+"/waylandconfig.json");
-    //WaylandConfigWriter::writeConfig(config, configfile+"/waylandconfigrc");
+    internalConfig()->applyConfig(newconfig);
     foreach (auto o_new, newconfig->outputs()) {
         qDebug() << "output:" << o_new->id() << " enabled? " << o_new->isEnabled() << "was" << oldconfig->output(o_new->id())->isEnabled();
     }
