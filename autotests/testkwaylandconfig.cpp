@@ -103,11 +103,15 @@ void TestKWaylandConfig::changeConfig()
     QVERIFY(op->exec());
     auto config = op->config();
 
+    // The first output is currently disabled, let's try to enable it
     auto output = config->outputs().first();
     qDebug() << "Changing output: " << output << "enabled?" << output->isEnabled();
+    output->setEnabled(true);
 
     auto sop = new SetConfigOperation(config, this);
+    sop->exec(); // fire and forget...
 
+    // check if the server changed
     QSignalSpy serverSpy(m_server, &WaylandTestServer::configChanged);
     QVERIFY(serverSpy.wait(200));
 
