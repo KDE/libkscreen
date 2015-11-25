@@ -24,6 +24,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QFile>
+#include <QUuid>
 
 #include "edid.h"
 
@@ -46,9 +47,9 @@ void WaylandConfigReader::outputsFromConfig(const QString& configfile, KWayland:
         const QVariantMap &output = value.toObject().toVariantMap();
         if (output["connected"].toBool()) {
             outputs << createOutputDevice(output, display);
-            qDebug() << "new Output created: " << output["name"].toString();
+            //qDebug() << "new Output created: " << output["name"].toString();
         } else {
-            qDebug() << "disconnected Output" << output["name"].toString();
+            //qDebug() << "disconnected Output" << output["name"].toString();
         }
     }
 
@@ -60,6 +61,7 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
     KWayland::Server::OutputDeviceInterface *output = display->createOutputDevice(display);
 
     QByteArray data = QByteArray::fromBase64(outputConfig["edid"].toByteArray());
+    output->setEdid(data);
     Edid edid(data, display);
 
 //     qDebug() << "EDID Info: ";
@@ -85,6 +87,8 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
         output->setManufacturer(outputConfig["manufacturer"].toString());
         output->setModel(outputConfig["model"].toString());
     }
+    const QString uuid_base = QString(output->model() + output->manufacturer()).remove(" ");
+    output->setUuid(uuid_base.toLocal8Bit());
     qDebug() << "Creating output device" << output->model() << output->manufacturer();
 
     QMap <int, KWayland::Server::OutputDeviceInterface::Transform> transformMap;
@@ -131,7 +135,7 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
         m0.flags = flags;
         //OutputDeviceInterface::ModeFlags(OutputDeviceInterface::ModeFlag::Preferred);
         output->addMode(m0);
-        qDebug() << "Mode: " << m0.size << m0.id << (isCurrent ? "*" : "");
+        //qDebug() << "Mode: " << m0.size << m0.id << (isCurrent ? "*" : "");
         //output->addMode(_size, flags, refresh);
 
         if (isCurrent) {
