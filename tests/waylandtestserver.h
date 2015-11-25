@@ -25,6 +25,7 @@
 #include <KWayland/Server/compositor_interface.h>
 #include <KWayland/Server/display.h>
 #include <KWayland/Server/outputdevice_interface.h>
+#include <KWayland/Server/outputconfiguration_interface.h>
 #include <KWayland/Server/seat_interface.h>
 #include <KWayland/Server/shell_interface.h>
 #include <KWayland/Server/outputmanagement_interface.h>
@@ -65,18 +66,18 @@ Q_SIGNALS:
 
     void started();
 
+    void configChanged();
+
+private Q_SLOTS:
+    void configurationChangeRequested(KWayland::Server::OutputConfigurationInterface *configurationInterface);
+
 private:
     bool outputFromConfigGroup(const KConfigGroup& config, KWayland::Server::OutputDeviceInterface* output);
 
     QString m_configFile;
     KWayland::Server::Display *m_display;
-    KWayland::Server::CompositorInterface *m_compositor;
     QList<KWayland::Server::OutputDeviceInterface*> m_outputs;
-    KWayland::Server::SeatInterface *m_seat;
-    KWayland::Server::ShellInterface *m_shell;
     KWayland::Server::OutputManagementInterface *m_outputManagement;
-    KDirWatch *m_configWatch;
-    QString m_outputConfigFile;
 };
 
 } // namespace

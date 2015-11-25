@@ -36,16 +36,12 @@
 #include "../src/edid.h"
 
 using namespace KScreen;
-//using namespace KWayland::Server;
+using namespace KWayland::Server;
 
 WaylandTestServer::WaylandTestServer(QObject *parent)
     : QObject(parent)
     , m_configFile(TEST_DATA + QStringLiteral("default.json"))
     , m_display(nullptr)
-    , m_compositor(nullptr)
-    , m_seat(nullptr)
-    , m_shell(nullptr)
-    , m_configWatch(nullptr)
 {
 }
 
@@ -68,18 +64,9 @@ void WaylandTestServer::start()
     }
     m_display->start();
 
-    // Enable once we actually use these things...
-    /*
-    m_display->createShm();
-    m_compositor = m_display->createCompositor();
-    m_compositor->create();
-    m_seat = m_display->createSeat();
-    m_seat->create();
-    m_shell = m_display->createShell();
-    m_shell->create();
-    */
     m_outputManagement = m_display->createOutputManagement();
     m_outputManagement->create();
+    connect(m_outputManagement, &OutputManagementInterface::configurationChangeRequested, this, &WaylandTestServer::configurationChangeRequested);
 
     KScreen::WaylandConfigReader::outputsFromConfig(m_configFile, m_display, m_outputs);
 
@@ -104,7 +91,7 @@ void WaylandTestServer::stop()
     m_display = nullptr;
 }
 
-KWayland::Server::Display* KScreen::WaylandTestServer::display()
+KWayland::Server::Display* WaylandTestServer::display()
 {
     return m_display;
 }
@@ -119,3 +106,8 @@ int WaylandTestServer::outputCount() const
     return m_outputs.count();
 }
 
+void WaylandTestServer::configurationChangeRequested(KWayland::Server::OutputConfigurationInterface* configurationInterface)
+{
+    qDebug() << "Server received change request, changes:" << configurationInterface->changes().count();
+    Q_EMIT configChanged();
+}
