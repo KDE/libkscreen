@@ -83,7 +83,7 @@ bool WaylandOutput::enabled() const
     return m_output != nullptr;
 }
 
-KWayland::Client::OutputDevice* WaylandOutput::output() const
+KWayland::Client::OutputDevice* WaylandOutput::outputDevice() const
 {
     return m_output;
 }
@@ -193,6 +193,6 @@ QString WaylandOutput::name() const
 
 QDebug operator<<(QDebug dbg, const WaylandOutput *output)
 {
-    dbg << "WaylandOutput(Id:" << output->id() <<", Name:" << QString(output->output()->manufacturer() + " " + output->output()->model())  << ")";
+    dbg << "WaylandOutput(Id:" << output->id() <<", Name:" << QString(output->outputDevice()->manufacturer() + " " + output->outputDevice()->model())  << ")";
     return dbg;
 }
