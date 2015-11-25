@@ -109,5 +109,28 @@ int WaylandTestServer::outputCount() const
 void WaylandTestServer::configurationChangeRequested(KWayland::Server::OutputConfigurationInterface* configurationInterface)
 {
     qDebug() << "Server received change request, changes:" << configurationInterface->changes().count();
+
+    auto changes = configurationInterface->changes();
+    for (auto outputdevice: changes.keys()) {
+        auto c = changes[outputdevice];
+        if (c->enabledChanged()) {
+            qDebug() << "Setting enabled!!!";
+            outputdevice->setEnabled(c->enabled());
+        }
+        if (c->modeChanged()) {
+            outputdevice->setCurrentMode(c->mode());
+        }
+        if (c->transformChanged()) {
+            outputdevice->setTransform(c->transform());
+        }
+        if (c->positionChanged()) {
+            outputdevice->setGlobalPosition(c->position());
+        }
+        if (c->scaleChanged()) {
+            outputdevice->setScale(c->scale());
+        }
+    }
+
+    configurationInterface->setApplied();
     Q_EMIT configChanged();
 }
