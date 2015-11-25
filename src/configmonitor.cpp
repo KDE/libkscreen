@@ -242,8 +242,10 @@ void ConfigMonitor::removeConfig(const ConfigPtr &config)
 
 void ConfigMonitor::connectInProcessBackend(KScreen::AbstractBackend* backend)
 {
+    qDebug() << "connecting in process backend";
     Q_ASSERT(BackendManager::instance()->method() == BackendManager::InProcess);
     connect(backend, &AbstractBackend::configChanged, [=](KScreen::ConfigPtr config) {
+        qDebug() << "cfg changed in monitor";
         if (config.isNull()) {
             return;
         }
