@@ -69,8 +69,9 @@ private Q_SLOTS:
     void testConfigs_data();
     void testConfigs();
 
-private:
     void writeConfig();
+
+private:
     void changeConfig();
     void addOutput();
     void changeOutput();
@@ -105,6 +106,7 @@ void testWaylandWrite::init()
 
 void testWaylandWrite::cleanup()
 {
+    qDebug() << "Shutting down";
     KScreen::BackendManager::instance()->shutdownBackend();
     delete m_server;
 }
