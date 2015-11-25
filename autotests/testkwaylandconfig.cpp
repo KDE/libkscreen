@@ -119,9 +119,10 @@ void TestKWaylandConfig::changeConfig()
     auto sop = new SetConfigOperation(config, this);
     sop->exec(); // fire and forget...
 
-    QVERIFY(configSpy.wait(200));
+    QVERIFY(configSpy.wait(2000));
     // check if the server changed
     QCOMPARE(serverSpy.count(), 1);
+
     QCOMPARE(configSpy.count(), 1);
 
 
