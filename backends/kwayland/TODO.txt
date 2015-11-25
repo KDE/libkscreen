@@ -1,3 +1,15 @@
+23 Nov 2015:
+* why doesn't configChange make it through the monitor
+* add test that checks output->enabledChanged()
+* finish wiring up enabled
+* wire up transform
+* wire up scale
+* wire up mode
+* make sure edid goes through
+* make sure edid is parsed
+
+
+
 libkscreen TODO:
 * waylandconfiguration has QHash<OutputDevice, id> and creates new ids
 * testwaylandbackend should also test to write config
@@ -5,8 +17,8 @@ libkscreen TODO:
 
 KWayland review by Martin Gräßlin, 3 November, 2015
 
-* KWayland uuid becomes QByteArray
-* KWayland edid becomes QByteArray
+o KWayland uuid becomes QByteArray
+o KWayland edid becomes QByteArray
 o you use qWarning instead of qCWarning (that's in outputdevice_interface.cpp)
 o ChangeSet sounds a little bit too generic for my taste. Maybe OutputChangeSet
 o methods and variable in ChangeSet protected? Sounds like they should be private. No inheriting class

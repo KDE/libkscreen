@@ -44,8 +44,13 @@ WaylandBackend::WaylandBackend()
     if (s_internalConfig == 0) {
         //qCDebug(KSCREEN_WAYLAND) << "Loading Wayland backend.";
         s_internalConfig = new WaylandConfig();
+//         connect(s_internalConfig, &WaylandConfig::configChanged,
+//                 this, &WaylandBackend::configChanged);
         connect(s_internalConfig, &WaylandConfig::configChanged,
-                this, &WaylandBackend::configChanged);
+                [=](const KScreen::ConfigPtr cfg){
+                    qDebug() << "Backend emitting change...";
+                    Q_EMIT configChanged(cfg);
+                });
     }
 }
 
@@ -82,9 +87,6 @@ void WaylandBackend::setConfig(const KScreen::ConfigPtr &newconfig)
     Q_ASSERT(oldconfig);
 
     internalConfig()->applyConfig(newconfig);
-    foreach (auto o_new, newconfig->outputs()) {
-        qDebug() << "output:" << o_new->id() << " enabled? " << o_new->isEnabled() << "was" << oldconfig->output(o_new->id())->isEnabled();
-    }
 }
 
 // Edid *WaylandBackend::edid(int outputId) const

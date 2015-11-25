@@ -198,6 +198,10 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
             //qDebug() << "emitting configChanged() ====================================================";
             Q_EMIT configChanged(toKScreenConfig());
         }
+        connect(waylandoutput, &WaylandOutput::changed, [=]() {
+            qDebug() << "config emitting configChanged";
+            Q_EMIT WaylandBackend::internalConfig()->configChanged(toKScreenConfig());
+        });
     });
 }
 
@@ -302,7 +306,7 @@ QMap<int, WaylandOutput*> WaylandConfig::outputMap() const
     return m_outputMap;
 }
 
-void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newzconfig)
+void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newconfig)
 {
     using namespace KWayland::Client;
     // Create a new configuration object
@@ -315,6 +319,19 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newzconfig)
     connect(config, &OutputConfiguration::failed, []() {
         qDebug() << "Configuration failed!";
     });
+
+    foreach (auto o_new, newconfig->outputs()) {
+        auto o_old = m_outputMap[o_new->id()];
+        Q_ASSERT(o_old != nullptr);
+
+        bool old_enabled = (o_old->outputDevice()->enabled() == OutputDevice::Enablement::Enabled);
+        qDebug() << "output:" << o_new->id() << " enabled? " << o_new->isEnabled() << "was" << old_enabled;
+
+        if (old_enabled != o_new->isEnabled()) {
+            auto _enablement = o_new->isEnabled() ? OutputDevice::Enablement::Enabled : OutputDevice::Enablement::Disabled;
+            config->setEnabled(o_old->outputDevice(), _enablement);
+        }
+    }
     /*
      *    auto device =
     // Change settings

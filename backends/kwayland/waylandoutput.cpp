@@ -95,8 +95,12 @@ void WaylandOutput::bindOutputDevice(KWayland::Client::Registry* registry, KWayl
     }
     m_output = op;
 
-    connect(m_output, &KWayland::Client::OutputDevice::done,
-            this, &WaylandOutput::complete);
+    connect(m_output, &KWayland::Client::OutputDevice::done, [=]() {
+                Q_EMIT complete();
+                connect(m_output, &KWayland::Client::OutputDevice::changed,
+                        this, &WaylandOutput::changed);
+
+    });
 
     m_output->setup(registry->bindOutputDevice(name, version));
     emit changed();
