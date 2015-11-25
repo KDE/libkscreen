@@ -266,9 +266,9 @@ void Config::setPrimaryOutput(const OutputPtr &newPrimary)
         return;
     }
 
-    qCDebug(KSCREEN) << "Primary output changed from" << primaryOutput()
-                     << "(" << (primaryOutput().isNull() ? "none" : primaryOutput()->name()) << ") to"
-                     << newPrimary << "(" << (newPrimary.isNull() ? "none" : newPrimary->name()) << ")";
+//     qCDebug(KSCREEN) << "Primary output changed from" << primaryOutput()
+//                      << "(" << (primaryOutput().isNull() ? "none" : primaryOutput()->name()) << ") to"
+//                      << newPrimary << "(" << (newPrimary.isNull() ? "none" : newPrimary->name()) << ")";
 
     for (OutputPtr &output : d->outputs) {
         disconnect(output.data(), &KScreen::Output::isPrimaryChanged,
