@@ -257,7 +257,6 @@ void testWaylandBackend::simpleWrite()
 
 }
 
-
 void testWaylandBackend::cleanupTestCase()
 {
     if (m_startServer) {
