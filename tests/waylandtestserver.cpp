@@ -47,18 +47,12 @@ WaylandTestServer::WaylandTestServer(QObject *parent)
     , m_shell(nullptr)
     , m_configWatch(nullptr)
 {
-    m_outputConfigFile = QStandardPaths::writableLocation(
-                                 QStandardPaths::GenericConfigLocation) +
-                                 "/waylandconfigrc";
-                                 //"/waylandconfigtestrc";
-    //qDebug() << "m_outputConfigFile" << m_outputConfigFile;
-
 }
 
 WaylandTestServer::~WaylandTestServer()
 {
     stop();
-    qDebug() << "Shutting down server" << (m_display != nullptr);
+    qDebug() << "Wayland server shut down.";
 }
 
 void WaylandTestServer::start()
@@ -89,16 +83,14 @@ void WaylandTestServer::start()
 
     KScreen::WaylandConfigReader::outputsFromConfig(m_configFile, m_display, m_outputs);
 
-//     qDebug() << "WL m_outputs" << m_outputs.count();
-//
-//     m_configWatch = new KDirWatch(this);
-//     m_configWatch->addFile(m_outputConfigFile);
-//     qDebug() << "KDirWatch::Added: " << m_outputConfigFile;
-//     connect(m_configWatch, &KDirWatch::dirty, this, &WaylandTestServer::pickupConfigFile);
-//     connect(m_configWatch, &KDirWatch::created, this, &WaylandTestServer::pickupConfigFile);
+    QString os;
+    foreach (auto o, m_outputs) {
+        bool enabled = (o->enabled() == KWayland::Server::OutputDeviceInterface::Enablement::Enabled);
+        //os.append(QString());
+        os.append(QString("[ %1 : %2-%3 (%4)] ").arg(o->uuid(), o->manufacturer(), o->model(), (enabled ? "enabled" : "disabled")));
 
-
-    qDebug() << "Wayland server running. Outputs: " << m_outputs.count();
+    }
+    qDebug() << "Wayland server running. Outputs: " << m_outputs.count() << os;
 }
 
 void WaylandTestServer::stop()
@@ -120,93 +112,6 @@ KWayland::Server::Display* KScreen::WaylandTestServer::display()
 void WaylandTestServer::setConfig(const QString& configfile)
 {
     m_configFile = configfile;
-}
-
-bool WaylandTestServer::outputFromConfigGroup(const KConfigGroup& config, KWayland::Server::OutputDeviceInterface* output)
-{
-    return true;
-    /*
-    bool changed = false;
-
-    const QSize ps = QSize(config.readEntry("width", -1), config.readEntry("height", -1));
-    const int refresh = config.readEntry("refreshRate", 60000);
-    if (ps != output->pixelSize() || refresh != output->refreshRate()) {
-        output->setCurrentMode(ps, refresh);
-        changed = true;
-    }
-
-    const QPoint pos = QPoint(config.readEntry("x", 0), config.readEntry("y", 0));
-    if (pos != output->globalPosition()) {
-        output->setGlobalPosition(pos);
-        changed = true;
-    }
-
-    // FIXME : rotation
-
-    return changed;
-    */
-}
-
-void WaylandTestServer::pickupConfigFile(const QString& configfile)
-{
-    return;
-    bool changed = false;
-    //KConfig cfg(m_outputConfigFile, KConfig::SimpleConfig);
-    auto cfg = KSharedConfig::openConfig(configfile, KConfig::SimpleConfig);
-    cfg->reparseConfiguration();
-    qDebug() << "===== Updating outputs from config" << configfile;
-    qDebug() << "Groups:" << cfg->groupList();
-    QStringList os;
-    // Check for changed outputs
-    for (auto o: m_outputs) {
-        // Note: this string concatenation is roughly what kwin does
-        // it should not be encoded in the backend since it is too fragile,
-        // but for tests it suffices
-        const QString oname = o->manufacturer() + QStringLiteral("-") + o->model();
-
-        qDebug() << " Before" << o->globalPosition() << o->pixelSize();
-
-        // Check for changed or removed outputs
-        if (cfg->groupList().contains(oname)) {
-            if (outputFromConfigGroup(cfg->group(oname), o)) {
-                changed = true;
-                qDebug() << " ***** " << oname << " :: " << o->manufacturer() << o->model();
-                qDebug() << " CHANGED! After" << o->globalPosition() << o->pixelSize();
-            }
-            os << oname;
-        } else {
-
-            qDebug() << " ---- " << oname << " :: " << o->manufacturer() << o->model();
-            qDebug() << " ++Output gone++";
-            m_outputs.removeAll(o);
-            m_display->removeOutputDevice(o);
-            changed = true;
-            //delete o;
-        }
-    }
-
-    // Check for added outputs
-    foreach (const QString& oname, cfg->groupList()) {
-        if (!os.contains(oname)) {
-
-            KWayland::Server::OutputDeviceInterface *o = m_display->createOutputDevice(m_display);
-            o->setManufacturer(oname.split("-").at(0));
-            o->setModel(oname.split("-").at(1));
-            outputFromConfigGroup(cfg->group(oname), o);
-            qDebug() << " ***** " << oname << " :: " << o->manufacturer() << o->model();
-            qDebug() << " Added: " << o->globalPosition() << o->pixelSize();
-            m_outputs << o;
-
-            changed = true;
-        }
-    }
-
-
-    // Notify
-    if (changed) {
-        qDebug() << "Outputs: " << m_outputs.count();
-        emit outputsChanged();
-    }
 }
 
 int WaylandTestServer::outputCount() const
