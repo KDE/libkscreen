@@ -105,6 +105,10 @@ int WaylandTestServer::outputCount() const
 {
     return m_outputs.count();
 }
+QList<KWayland::Server::OutputDeviceInterface*> WaylandTestServer::outputs() const
+{
+    return m_outputs;
+}
 
 void WaylandTestServer::configurationChangeRequested(KWayland::Server::OutputConfigurationInterface* configurationInterface)
 {
@@ -118,7 +122,15 @@ void WaylandTestServer::configurationChangeRequested(KWayland::Server::OutputCon
             outputdevice->setEnabled(c->enabled());
         }
         if (c->modeChanged()) {
-            qDebug() << "Setting enabled!!!";
+            KWayland::Server::OutputDeviceInterface::Mode m;
+            QSize s;
+            for (auto _m: outputdevice->modes()) {
+                if (_m.id == c->mode()) {
+                    qDebug() << "Setting new mode!!!" << c->mode() << QString("%1 x %2 @ %3").arg(QString::number(_m.size.width()), \
+                    QString::number(_m.size.height()), QString::number(_m.refreshRate));
+                }
+            }
+
             outputdevice->setCurrentMode(c->mode());
         }
         if (c->transformChanged()) {

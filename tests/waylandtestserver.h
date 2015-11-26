@@ -58,6 +58,7 @@ public:
     void pickupConfigFile(const QString &configfile);
 
     KWayland::Server::Display* display();
+    QList<KWayland::Server::OutputDeviceInterface*> outputs() const;
 
     int outputCount() const;
 
