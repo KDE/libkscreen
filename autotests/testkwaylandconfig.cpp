@@ -66,6 +66,7 @@ private Q_SLOTS:
     void changeConfig();
     void testPositionChange();
     void testRotationChange();
+    void testModeChange();
 
 private:
 
@@ -190,9 +191,30 @@ void TestKWaylandConfig::testRotationChange()
     QCOMPARE(serverSpy.count(), 1);
 
     QVERIFY(configSpy.count() > 0);
-
 }
 
+
+void TestKWaylandConfig::testModeChange()
+{
+    auto op = new GetConfigOperation();
+    QVERIFY(op->exec());
+    auto config = op->config();
+    QVERIFY(config);
+
+    // Prepare monitor & spy
+    KScreen::ConfigMonitor *monitor = KScreen::ConfigMonitor::instance();
+    monitor->addConfig(config);
+    QSignalSpy configSpy(monitor, &KScreen::ConfigMonitor::configurationChanged);
+
+    auto output = config->outputs()[1]; // is this id stable enough?
+    foreach (const auto mode, output->modes()) {
+        qDebug() << "output has modes:" << mode->id() << mode->name() << mode->size() << mode->refreshRate();
+    }
+    qDebug() << "Changing output rotation:: " << output->rotation() << "Inverted";
+
+
+
+}
 
 
 QTEST_GUILESS_MAIN(TestKWaylandConfig)
