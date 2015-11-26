@@ -77,6 +77,16 @@ KWayland::Client::OutputDevice::Transform WaylandOutput::toKWaylandTransform(con
     return m_rotationMap.key(rotation);
 }
 
+QString WaylandOutput::toKScreenModeId(int kwaylandmodeid) const
+{
+    return m_modeIdMap.key(kwaylandmodeid);
+}
+
+int WaylandOutput::toKWaylandModeId(const QString &kscreenmodeid) const
+{
+    return m_modeIdMap[kscreenmodeid];
+}
+
 WaylandOutput::~WaylandOutput()
 {
     qDebug() << "bye bye output";
@@ -154,21 +164,25 @@ void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output)
     output->setRotation(m_rotationMap[m_output->transform()]);
     KScreen::ModeList modeList;
     m_modeIdMap.clear();
+    QString currentModeId("-1");
     Q_FOREACH (const KWayland::Client::OutputDevice::Mode &m, m_output->modes()) {
         KScreen::ModePtr mode(new KScreen::Mode());
-        const QString modename = modeName(m);
         QString modeid = QString::number(m.id);
         m_modeIdMap[modeid] = m.id;
         Q_ASSERT(!modeid.isEmpty());
+        const QString modename = modeName(m);
+
         mode->setId(modeid);
         mode->setRefreshRate(m.refreshRate);
         mode->setSize(m.size);
         mode->setName(modename);
         if (m.flags.testFlag(KWayland::Client::OutputDevice::Mode::Flag::Current)) {
-            output->setCurrentModeId(modeid);
+            currentModeId = modeid;
+            qDebug() << "current mode:" << m.id;
         }
-        modeList[modename] = mode;
+        modeList[modeid] = mode;
     }
+    output->setCurrentModeId(currentModeId);
 
     output->setModes(modeList);
 }

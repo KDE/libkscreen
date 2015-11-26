@@ -65,6 +65,9 @@ public:
     KScreen::Output::Rotation toKScreenRotation(const KWayland::Client::OutputDevice::Transform transform) const;
     KWayland::Client::OutputDevice::Transform toKWaylandTransform(const KScreen::Output::Rotation rotation) const;
 
+    QString toKScreenModeId(int kwaylandmodeid) const;
+    int toKWaylandModeId(const QString &kscreenmodeid) const;
+
 Q_SIGNALS:
     void complete();
 

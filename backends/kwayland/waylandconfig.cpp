@@ -316,31 +316,38 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newconfig)
 //         qDebug() << "Configuration failed!";
 //     });
 //
-    foreach (auto o_new, newconfig->outputs()) {
-        auto o_old = m_outputMap[o_new->id()];
+    foreach (auto output, newconfig->outputs()) {
+        auto o_old = m_outputMap[output->id()];
         auto device = o_old->outputDevice();
         Q_ASSERT(o_old != nullptr);
 
         // enabled?
         bool old_enabled = (o_old->outputDevice()->enabled() == OutputDevice::Enablement::Enabled);
-        qDebug() << "output:" << o_new->id() << " enabled? " << o_new->isEnabled() << "was" << old_enabled << o_new->pos() << o_old->outputDevice()->globalPosition();
+        qDebug() << "output:" << output->id() << " enabled? " << output->isEnabled() << "was" << old_enabled << output->pos() << o_old->outputDevice()->globalPosition() << "mode:" << output->currentModeId();
 
-        if (old_enabled != o_new->isEnabled()) {
-            auto _enablement = o_new->isEnabled() ? OutputDevice::Enablement::Enabled : OutputDevice::Enablement::Disabled;
+        if (old_enabled != output->isEnabled()) {
+            auto _enablement = output->isEnabled() ? OutputDevice::Enablement::Enabled : OutputDevice::Enablement::Disabled;
             config->setEnabled(o_old->outputDevice(), _enablement);
         }
 
         // position
-        if (device->globalPosition() != o_new->pos()) {
-            qDebug() << "setting new position: " << o_new->pos();
-            config->setPosition(o_old->outputDevice(), o_new->pos());
+        if (device->globalPosition() != output->pos()) {
+            qDebug() << "setting new position: " << output->pos();
+            config->setPosition(o_old->outputDevice(), output->pos());
         }
 
         // rotation
         auto r_current = o_old->toKScreenRotation(device->transform());
-        auto r_new = o_new->rotation();
+        auto r_new = output->rotation();
         if (r_current != r_new) {
             config->setTransform(device, o_old->toKWaylandTransform(r_new));
+        }
+
+        int w_currentmodeid = device->currentMode().id;
+        QString l_newmodeid = output->currentModeId();
+        int w_newmodeid = o_old->toKWaylandModeId(l_newmodeid);
+        if (w_newmodeid != w_currentmodeid) {
+            config->setMode(device, w_newmodeid);
         }
 
 
