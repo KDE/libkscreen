@@ -118,15 +118,19 @@ void WaylandTestServer::configurationChangeRequested(KWayland::Server::OutputCon
             outputdevice->setEnabled(c->enabled());
         }
         if (c->modeChanged()) {
+            qDebug() << "Setting enabled!!!";
             outputdevice->setCurrentMode(c->mode());
         }
         if (c->transformChanged()) {
+            qDebug() << "Server setting transform: " << (int)(c->transform());
             outputdevice->setTransform(c->transform());
         }
         if (c->positionChanged()) {
+            qDebug() << "Server setting position: " << c->position();
             outputdevice->setGlobalPosition(c->position());
         }
         if (c->scaleChanged()) {
+            qDebug() << "Setting enabled!!!";
             outputdevice->setScale(c->scale());
         }
     }
