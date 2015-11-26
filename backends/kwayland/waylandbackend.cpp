@@ -81,8 +81,7 @@ QString WaylandBackend::serviceName() const
 ConfigPtr WaylandBackend::config() const
 {
     // Note: This should ONLY be called from GetConfigOperation!
-    qDebug() << "RETURN config" << m_config.data();
-    return m_config;
+    return internalConfig()->toKScreenConfig();
 }
 
 void WaylandBackend::setConfig(const KScreen::ConfigPtr &newconfig)
