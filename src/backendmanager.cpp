@@ -350,7 +350,7 @@ ConfigPtr BackendManager::config() const
 
 void BackendManager::setConfig(ConfigPtr c)
 {
-    qCDebug(KSCREEN) << "BackendManager::setConfig, outputs:" << c->outputs().count();
+    //qCDebug(KSCREEN) << "BackendManager::setConfig, outputs:" << c->outputs().count();
     mConfig = c;
 }
 

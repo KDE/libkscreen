@@ -170,6 +170,7 @@ void GetConfigOperation::start()
     Q_D(GetConfigOperation);
     if (BackendManager::instance()->method() == BackendManager::InProcess) {
         auto backend = d->loadBackend();
+        qDebug() << "Backend::config()";
         d->config = backend->config();
         KScreen::BackendManager::instance()->setConfig(d->config);
         d->loadEdid(backend);

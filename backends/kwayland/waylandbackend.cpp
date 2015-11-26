@@ -80,6 +80,7 @@ QString WaylandBackend::serviceName() const
 
 ConfigPtr WaylandBackend::config() const
 {
+    qDebug() << "RETURN config" << m_config.data();
     return m_config;
 }
 
@@ -93,7 +94,7 @@ void WaylandBackend::setConfig(const KScreen::ConfigPtr &newconfig)
 
 void WaylandBackend::emitConfigChanged(const KScreen::ConfigPtr cfg)
 {
-    Q_EMIT configChanged(config());
+    Q_EMIT configChanged(m_config);
 }
 
 

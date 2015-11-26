@@ -253,7 +253,7 @@ void testWaylandBackend::simpleWrite()
     output->setCurrentModeId(n_mode);
 
     auto setop = new SetConfigOperation(m_config);
-    setop->exec();
+    QVERIFY(setop->exec());
 
 }
 
