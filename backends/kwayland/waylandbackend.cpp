@@ -38,19 +38,24 @@ WaylandConfig* WaylandBackend::s_internalConfig = 0;
 WaylandBackend::WaylandBackend()
     : KScreen::AbstractBackend()
     , m_isValid(true)
+    , m_config(nullptr)
 {
     QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.wayland.debug = true"));
 
     if (s_internalConfig == 0) {
-        //qCDebug(KSCREEN_WAYLAND) << "Loading Wayland backend.";
+        qCDebug(KSCREEN_WAYLAND) << "Loading Wayland backend.";
         s_internalConfig = new WaylandConfig();
-//         connect(s_internalConfig, &WaylandConfig::configChanged,
-//                 this, &WaylandBackend::configChanged);
-        connect(s_internalConfig, &WaylandConfig::configChanged,
-                [=](const KScreen::ConfigPtr cfg){
-                    qDebug() << "Backend emitting change...";
-                    Q_EMIT configChanged(cfg);
-                });
+        m_config = internalConfig()->toKScreenConfig();
+//                 connect(s_internalConfig, &WaylandConfig::configChanged,
+//                         this, &WaylandBackend::configChanged);
+//         qDebug() << "connecing config: " << s_internalConfig;
+            connect(s_internalConfig, &WaylandConfig::configChanged,
+                    this, &WaylandBackend::emitConfigChanged);
+// //         connect(s_internalConfig, &WaylandConfig::configChanged,
+// //                 [=](const KScreen::ConfigPtr cfg){
+// //                     qDebug() << "Backend emitting change..." << this;
+// //                     Q_EMIT BackendManager::instance()->backend()->configChanged(cfg);
+// //                 });
     }
 }
 
@@ -65,7 +70,7 @@ WaylandConfig* WaylandBackend::internalConfig()
 
 QString WaylandBackend::name() const
 {
-    return QString("Wayland");
+    return QString("kwayland");
 }
 
 QString WaylandBackend::serviceName() const
@@ -75,7 +80,7 @@ QString WaylandBackend::serviceName() const
 
 ConfigPtr WaylandBackend::config() const
 {
-    return internalConfig()->toKScreenConfig();
+    return m_config;
 }
 
 void WaylandBackend::setConfig(const KScreen::ConfigPtr &newconfig)
@@ -83,11 +88,19 @@ void WaylandBackend::setConfig(const KScreen::ConfigPtr &newconfig)
     if (!newconfig) {
         return;
     }
-    auto oldconfig = internalConfig()->toKScreenConfig();
-    Q_ASSERT(oldconfig);
-
+//     auto oldconfig = internalConfig()->toKScreenConfig();
+//     Q_ASSERT(oldconfig);
+//
     internalConfig()->applyConfig(newconfig);
 }
+
+void WaylandBackend::emitConfigChanged(const KScreen::ConfigPtr cfg)
+{
+    qDebug() << "BACKEND emitting configChanged";
+    Q_EMIT configChanged(config());
+    //Q_EMIT ConfigMonitor::instance()->configurationChanged();
+}
+
 
 // Edid *WaylandBackend::edid(int outputId) const
 // {

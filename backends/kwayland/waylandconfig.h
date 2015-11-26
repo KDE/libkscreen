@@ -68,7 +68,7 @@ public:
     explicit WaylandConfig(QObject *parent = 0);
     virtual ~WaylandConfig();
 
-    KScreen::ConfigPtr toKScreenConfig() const;
+    KScreen::ConfigPtr toKScreenConfig();
     void updateKScreenConfig(KScreen::ConfigPtr &config) const;
 
     QMap<int, WaylandOutput *> outputMap() const;
@@ -107,6 +107,7 @@ private:
     int m_lastOutputId = -1;
     bool m_blockSignals;
     QEventLoop m_syncLoop;
+    KScreen::ConfigPtr m_kscreenConfig;
 
     int m_newOutputId;
 };

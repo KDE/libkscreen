@@ -51,14 +51,17 @@ WaylandConfig::WaylandConfig(QObject *parent)
     , m_blockSignals(true)
     , m_registryInitialized(false)
     , m_newOutputId(0)
+    , m_kscreenConfig(nullptr)
 {
     qDebug() << " Config creating.";
     connect(this, &WaylandConfig::initialized, &m_syncLoop, &QEventLoop::quit);
     QTimer::singleShot(1000, [=] {
-        qWarning() << "Connection to Wayland server at socket:" << m_connection->socketName() << "timed out.";
-        m_syncLoop.quit();
-        m_thread->quit();
-        m_thread->wait();
+        if (m_syncLoop.isRunning()) {
+            qWarning() << "Connection to Wayland server at socket:" << m_connection->socketName() << "timed out.";
+            m_syncLoop.quit();
+            m_thread->quit();
+            m_thread->wait();
+        }
     });
     initConnection();
     m_syncLoop.exec();
@@ -198,9 +201,9 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
             //qDebug() << "emitting configChanged() ====================================================";
             Q_EMIT configChanged(toKScreenConfig());
         }
-        connect(waylandoutput, &WaylandOutput::changed, [=]() {
-            qDebug() << "config emitting configChanged";
-            Q_EMIT WaylandBackend::internalConfig()->configChanged(toKScreenConfig());
+        connect(waylandoutput, &WaylandOutput::changed, [this]() {
+            Q_EMIT configChanged(WaylandBackend::internalConfig()->toKScreenConfig());
+            //Q_EMIT WaylandBackend::internalConfig()->configChanged(toKScreenConfig());
         });
     });
 }
@@ -216,12 +219,19 @@ void WaylandConfig::checkInitialized()
     };
 }
 
-KScreen::ConfigPtr WaylandConfig::toKScreenConfig() const
+KScreen::ConfigPtr WaylandConfig::toKScreenConfig()
 {
-    KScreen::ConfigPtr config(new Config);
-    config->setScreen(m_screen->toKScreenScreen(config));
-    updateKScreenConfig(config);
-    return config;
+    if (m_kscreenConfig == nullptr) {
+        m_kscreenConfig = KScreen::ConfigPtr(new Config);
+    }
+    const QWeakPointer<Config> weakConfig = m_kscreenConfig.toWeakRef();
+    //KScreen::ConfigPtr config2(new Config);
+    //const QWeakPointer<Config> weakConfig2 = config2.toWeakRef();
+    qDebug() << "############# New'ing config.." << m_kscreenConfig.data();
+    m_kscreenConfig->setScreen(m_screen->toKScreenScreen(m_kscreenConfig));
+
+    updateKScreenConfig(m_kscreenConfig);
+    return m_kscreenConfig;
 }
 
 int WaylandConfig::outputId(KWayland::Client::OutputDevice *wlo)
@@ -308,18 +318,19 @@ QMap<int, WaylandOutput*> WaylandConfig::outputMap() const
 
 void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newconfig)
 {
+    qDebug() << "apply " << newconfig.data();
     using namespace KWayland::Client;
     // Create a new configuration object
     auto config = m_outputManagement->createConfiguration();
 
-    // handle applied and failed signals
-    connect(config, &OutputConfiguration::applied, []() {
-        qDebug() << "Configuration applied!";
-    });
-    connect(config, &OutputConfiguration::failed, []() {
-        qDebug() << "Configuration failed!";
-    });
-
+//     // handle applied and failed signals
+//     connect(config, &OutputConfiguration::applied, []() {
+//         qDebug() << "Configuration applied!";
+//     });
+//     connect(config, &OutputConfiguration::failed, []() {
+//         qDebug() << "Configuration failed!";
+//     });
+//
     foreach (auto o_new, newconfig->outputs()) {
         auto o_old = m_outputMap[o_new->id()];
         Q_ASSERT(o_old != nullptr);
