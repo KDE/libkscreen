@@ -171,12 +171,13 @@ void testWaylandBackend::verifyOutputs()
 
     QList<int> ids;
     foreach (auto output, m_config->outputs()) {
-//         qDebug() << " _____________________ Output: " << output;
-//         qDebug() << "   output name: " << output->name();
-//         qDebug() << "   output modes: " << output->modes().count() << output->modes();
-//         qDebug() << "   output enabled: " << output->isEnabled();
-//         qDebug() << "   output connect: " << output->isConnected();
-//         qDebug() << "   output sizeMm : " << output->sizeMm();
+        qDebug() << " _____________________ Output: " << output;
+        qDebug() << "   output name: " << output->name();
+        qDebug() << "   output modes: " << output->currentModeId() << output->modes();
+        qDebug() << "   output geometry: " << output->geometry();
+        qDebug() << "   output enabled: " << output->isEnabled();
+        qDebug() << "   output connect: " << output->isConnected();
+        qDebug() << "   output sizeMm : " << output->sizeMm();
         QVERIFY(!output->name().isEmpty());
         QVERIFY(output->id() > -1);
         QVERIFY(output->isConnected());
