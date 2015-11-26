@@ -44,8 +44,8 @@ class WaylandOutput : public QObject
 public:
     virtual ~WaylandOutput();
 
-    KScreen::OutputPtr toKScreenOutput() const;
-    void updateKScreenOutput(KScreen::OutputPtr &output) const;
+    KScreen::OutputPtr toKScreenOutput();
+    void updateKScreenOutput(KScreen::OutputPtr &output);
 
     quint32 id() const;
     /**
@@ -86,6 +86,7 @@ private:
     quint32 m_id;
 
     QMap<KWayland::Client::OutputDevice::Transform, KScreen::Output::Rotation> m_rotationMap;
+    QMap<QString, int> m_modeIdMap; // left-hand-side: KScreen::Mode, right-hand-side: kwayland's mode.id
 };
 
 } // namespace

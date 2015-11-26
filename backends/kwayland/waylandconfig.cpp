@@ -342,6 +342,8 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newconfig)
         if (r_current != r_new) {
             config->setTransform(device, o_old->toKWaylandTransform(r_new));
         }
+
+
     }
     /*
      *    auto device =
