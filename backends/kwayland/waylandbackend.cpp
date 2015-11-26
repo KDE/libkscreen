@@ -46,16 +46,8 @@ WaylandBackend::WaylandBackend()
         qCDebug(KSCREEN_WAYLAND) << "Loading Wayland backend.";
         s_internalConfig = new WaylandConfig();
         m_config = internalConfig()->toKScreenConfig();
-//                 connect(s_internalConfig, &WaylandConfig::configChanged,
-//                         this, &WaylandBackend::configChanged);
-//         qDebug() << "connecing config: " << s_internalConfig;
-            connect(s_internalConfig, &WaylandConfig::configChanged,
-                    this, &WaylandBackend::emitConfigChanged);
-// //         connect(s_internalConfig, &WaylandConfig::configChanged,
-// //                 [=](const KScreen::ConfigPtr cfg){
-// //                     qDebug() << "Backend emitting change..." << this;
-// //                     Q_EMIT BackendManager::instance()->backend()->configChanged(cfg);
-// //                 });
+        connect(s_internalConfig, &WaylandConfig::configChanged,
+                this, &WaylandBackend::emitConfigChanged);
     }
 }
 
