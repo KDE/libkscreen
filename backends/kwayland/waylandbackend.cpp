@@ -88,17 +88,12 @@ void WaylandBackend::setConfig(const KScreen::ConfigPtr &newconfig)
     if (!newconfig) {
         return;
     }
-//     auto oldconfig = internalConfig()->toKScreenConfig();
-//     Q_ASSERT(oldconfig);
-//
     internalConfig()->applyConfig(newconfig);
 }
 
 void WaylandBackend::emitConfigChanged(const KScreen::ConfigPtr cfg)
 {
-    qDebug() << "BACKEND emitting configChanged";
     Q_EMIT configChanged(config());
-    //Q_EMIT ConfigMonitor::instance()->configurationChanged();
 }
 
 

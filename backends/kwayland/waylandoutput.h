@@ -61,6 +61,10 @@ public:
 
     QString name() const;
 
+    // translation methods
+    KScreen::Output::Rotation toKScreenRotation(const KWayland::Client::OutputDevice::Transform transform) const;
+    KWayland::Client::OutputDevice::Transform toKWaylandTransform(const KScreen::Output::Rotation rotation) const;
+
 Q_SIGNALS:
     void complete();
 

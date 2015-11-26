@@ -67,6 +67,16 @@ WaylandOutput::WaylandOutput(quint32 id, WaylandConfig *parent)
     m_rotationMap[KWayland::Client::OutputDevice::Transform::Flipped270] = KScreen::Output::Left;
 }
 
+KScreen::Output::Rotation WaylandOutput::toKScreenRotation(const KWayland::Client::OutputDevice::Transform  transform) const
+{
+    return m_rotationMap[transform];
+}
+
+KWayland::Client::OutputDevice::Transform WaylandOutput::toKWaylandTransform(const KScreen::Output::Rotation rotation) const
+{
+    return m_rotationMap.key(rotation);
+}
+
 WaylandOutput::~WaylandOutput()
 {
     qDebug() << "bye bye output";

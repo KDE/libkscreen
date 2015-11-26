@@ -173,18 +173,13 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
 {
     m_newOutputId++;
     quint32 new_id = m_newOutputId;
-    //qDebug() << "*********** WL Adding output" << name << new_id;
     if (m_outputMap.keys().contains(new_id)) {
-        //qDebug() << "Output already known!!!!";
         return;
     }
     if (!m_initializingOutputs.contains(name)) {
         m_initializingOutputs << name;
-        //qDebug() << "Adding " << name << "to m_initializingOutputs" << m_initializingOutputs;
     }
 
-    //const int new_id = m_outputMap.count() + m_initializingOutputs.count() + 1;
-    //auto ids =
     auto op = new KWayland::Client::OutputDevice(this);
     WaylandOutput *waylandoutput = new WaylandOutput(new_id, this);
     waylandoutput->bindOutputDevice(m_registry, op, name, version);
@@ -193,17 +188,13 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
         m_outputMap[waylandoutput->id()] = waylandoutput;
         //qCDebug(KSCREEN_WAYLAND) << "\\n+++++++++++++++++++++++++++++ New Output complete, ID:" << waylandoutput->id() << waylandoutput->output()->model() << m_outputMap.count();
         m_initializingOutputs.removeAll(name);
-//         qCDebug(KSCREEN_WAYLAND) << "Initializing: " << m_initializingOutputs;
         checkInitialized();
 
         if (!m_blockSignals && m_initializingOutputs.empty()) {
-            //KScreen::ConfigMonitor::instance()->notifyUpdate();
-            //qDebug() << "emitting configChanged() ====================================================";
             Q_EMIT configChanged(toKScreenConfig());
         }
         connect(waylandoutput, &WaylandOutput::changed, [this]() {
-            Q_EMIT configChanged(WaylandBackend::internalConfig()->toKScreenConfig());
-            //Q_EMIT WaylandBackend::internalConfig()->configChanged(toKScreenConfig());
+            Q_EMIT configChanged(toKScreenConfig());
         });
     });
 }
@@ -224,10 +215,6 @@ KScreen::ConfigPtr WaylandConfig::toKScreenConfig()
     if (m_kscreenConfig == nullptr) {
         m_kscreenConfig = KScreen::ConfigPtr(new Config);
     }
-    const QWeakPointer<Config> weakConfig = m_kscreenConfig.toWeakRef();
-    //KScreen::ConfigPtr config2(new Config);
-    //const QWeakPointer<Config> weakConfig2 = config2.toWeakRef();
-    qDebug() << "############# New'ing config.." << m_kscreenConfig.data();
     m_kscreenConfig->setScreen(m_screen->toKScreenScreen(m_kscreenConfig));
 
     updateKScreenConfig(m_kscreenConfig);
@@ -268,7 +255,6 @@ void WaylandConfig::removeOutput(quint32 id)
         }
     }
     if (!m_blockSignals) {
-        //KScreen::ConfigMonitor::instance()->notifyUpdate();
         Q_EMIT configChanged(toKScreenConfig());
     }
 }
@@ -318,7 +304,6 @@ QMap<int, WaylandOutput*> WaylandConfig::outputMap() const
 
 void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newconfig)
 {
-    qDebug() << "apply " << newconfig.data();
     using namespace KWayland::Client;
     // Create a new configuration object
     auto config = m_outputManagement->createConfiguration();
@@ -333,14 +318,29 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newconfig)
 //
     foreach (auto o_new, newconfig->outputs()) {
         auto o_old = m_outputMap[o_new->id()];
+        auto device = o_old->outputDevice();
         Q_ASSERT(o_old != nullptr);
 
+        // enabled?
         bool old_enabled = (o_old->outputDevice()->enabled() == OutputDevice::Enablement::Enabled);
-        qDebug() << "output:" << o_new->id() << " enabled? " << o_new->isEnabled() << "was" << old_enabled;
+        qDebug() << "output:" << o_new->id() << " enabled? " << o_new->isEnabled() << "was" << old_enabled << o_new->pos() << o_old->outputDevice()->globalPosition();
 
         if (old_enabled != o_new->isEnabled()) {
             auto _enablement = o_new->isEnabled() ? OutputDevice::Enablement::Enabled : OutputDevice::Enablement::Disabled;
             config->setEnabled(o_old->outputDevice(), _enablement);
+        }
+
+        // position
+        if (device->globalPosition() != o_new->pos()) {
+            qDebug() << "setting new position: " << o_new->pos();
+            config->setPosition(o_old->outputDevice(), o_new->pos());
+        }
+
+        // rotation
+        auto r_current = o_old->toKScreenRotation(device->transform());
+        auto r_new = o_new->rotation();
+        if (r_current != r_new) {
+            config->setTransform(device, o_old->toKWaylandTransform(r_new));
         }
     }
     /*
