@@ -60,10 +60,12 @@ public:
     explicit TestKWaylandConfig(QObject *parent = nullptr);
 
 private Q_SLOTS:
-    void init();
-    void cleanup();
+    void initTestCase();
+    void cleanupTestCase();
 
     void changeConfig();
+    void testPositionChange();
+    void testRotationChange();
 
 private:
 
@@ -77,7 +79,7 @@ TestKWaylandConfig::TestKWaylandConfig(QObject *parent)
 {
 }
 
-void TestKWaylandConfig::init()
+void TestKWaylandConfig::initTestCase()
 {
     setenv("KSCREEN_BACKEND", "kwayland", 1);
     KScreen::BackendManager::instance()->shutdownBackend();
@@ -90,7 +92,7 @@ void TestKWaylandConfig::init()
     m_server->start();
 }
 
-void TestKWaylandConfig::cleanup()
+void TestKWaylandConfig::cleanupTestCase()
 {
     qDebug() << "Shutting down";
     KScreen::BackendManager::instance()->shutdownBackend();
@@ -112,8 +114,14 @@ void TestKWaylandConfig::changeConfig()
 
     // The first output is currently disabled, let's try to enable it
     auto output = config->outputs().first();
-    qDebug() << "Changing output: " << output << "enabled?" << output->isEnabled();
+    qDebug() << "Changing output: " << output << "enabled?" << output->isEnabled() << " to enabled";
     output->setEnabled(true);
+
+    qDebug() << config->outputs().keys();
+    auto output2 = config->outputs()[2]; // is this id stable enough?
+    qDebug() << "Changing output position: " << output2 << output2->pos();
+    output2->setPos(QPoint(4000, 1080));
+    output2->setRotation(KScreen::Output::Left);
 
     QSignalSpy serverSpy(m_server, &WaylandTestServer::configChanged);
     auto sop = new SetConfigOperation(config, this);
@@ -123,10 +131,68 @@ void TestKWaylandConfig::changeConfig()
     // check if the server changed
     QCOMPARE(serverSpy.count(), 1);
 
-    QCOMPARE(configSpy.count(), 1);
+    QVERIFY(configSpy.count() > 3);
 
+    monitor->removeConfig(config);
+}
+
+void TestKWaylandConfig::testPositionChange()
+{
+    auto op = new GetConfigOperation();
+    QVERIFY(op->exec());
+    auto config = op->config();
+    QVERIFY(config);
+
+    // Prepare monitor & spy
+    KScreen::ConfigMonitor *monitor = KScreen::ConfigMonitor::instance();
+    monitor->addConfig(config);
+    QSignalSpy configSpy(monitor, &KScreen::ConfigMonitor::configurationChanged);
+
+    auto output = config->outputs()[2]; // is this id stable enough?
+    auto new_pos = QPoint(3840, 1080);
+    qDebug() << "Changing output position:: " << output->pos() << new_pos;
+    output->setPos(new_pos);
+
+    QSignalSpy serverSpy(m_server, &WaylandTestServer::configChanged);
+    auto sop = new SetConfigOperation(config, this);
+    sop->exec(); // fire and forget...
+
+    QVERIFY(configSpy.wait(2000));
+    // check if the server changed
+    QCOMPARE(serverSpy.count(), 1);
+
+    QVERIFY(configSpy.count() > 0);
 
 }
+
+void TestKWaylandConfig::testRotationChange()
+{
+    auto op = new GetConfigOperation();
+    QVERIFY(op->exec());
+    auto config = op->config();
+    QVERIFY(config);
+
+    // Prepare monitor & spy
+    KScreen::ConfigMonitor *monitor = KScreen::ConfigMonitor::instance();
+    monitor->addConfig(config);
+    QSignalSpy configSpy(monitor, &KScreen::ConfigMonitor::configurationChanged);
+
+    auto output = config->outputs()[2]; // is this id stable enough?
+    qDebug() << "Changing output rotation:: " << output->rotation() << "Inverted";
+    output->setRotation(KScreen::Output::Inverted);
+
+    QSignalSpy serverSpy(m_server, &WaylandTestServer::configChanged);
+    auto sop = new SetConfigOperation(config, this);
+    sop->exec(); // fire and forget...
+
+    QVERIFY(configSpy.wait(2000));
+    // check if the server changed
+    QCOMPARE(serverSpy.count(), 1);
+
+    QVERIFY(configSpy.count() > 0);
+
+}
+
 
 
 QTEST_GUILESS_MAIN(TestKWaylandConfig)
