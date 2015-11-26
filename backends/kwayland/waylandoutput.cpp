@@ -167,10 +167,15 @@ void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output)
     QString currentModeId("-1");
     Q_FOREACH (const KWayland::Client::OutputDevice::Mode &m, m_output->modes()) {
         KScreen::ModePtr mode(new KScreen::Mode());
-        QString modeid = QString::number(m.id);
-        m_modeIdMap[modeid] = m.id;
-        Q_ASSERT(!modeid.isEmpty());
         const QString modename = modeName(m);
+        QString modeid = QString::number(m.id);
+        if (modeid.isEmpty()) {
+            qCWarning(KSCREEN_WAYLAND) << "Could not create mode id from" << m.id << ", using" << modename << "instead.";
+            modeid = modename;
+        }
+        if (m_modeIdMap.keys().contains(modeid)) {
+            qCWarning(KSCREEN_WAYLAND) << "Mode id already in use:" << modeid;
+        }
 
         mode->setId(modeid);
         mode->setRefreshRate(m.refreshRate);
@@ -178,9 +183,14 @@ void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output)
         mode->setName(modename);
         if (m.flags.testFlag(KWayland::Client::OutputDevice::Mode::Flag::Current)) {
             currentModeId = modeid;
-            qDebug() << "current mode:" << m.id;
         }
+        // Update the kscreen => kwayland mode id translation map
+        m_modeIdMap[modeid] = m.id;
+        // Add to the modelist which gets set on the output
         modeList[modeid] = mode;
+    }
+    if (currentModeId == "-1") {
+        qCWarning(KSCREEN_WAYLAND) << "Could not find the current mode id" << modeList;
     }
     output->setCurrentModeId(currentModeId);
 
