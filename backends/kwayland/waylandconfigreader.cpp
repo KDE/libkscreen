@@ -87,8 +87,12 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
         output->setManufacturer(outputConfig["manufacturer"].toString());
         output->setModel(outputConfig["model"].toString());
     }
-    const QString uuid_base = QString(QString::number(outputConfig["id"].toInt()) + output->model() + output->manufacturer()).remove(" ");
-    output->setUuid(uuid_base.toLocal8Bit());
+    auto uuid = QUuid::createUuid().toByteArray();
+    auto _id = outputConfig["id"].toInt();
+    if (_id) {
+        uuid = QString::number(_id).toLocal8Bit();
+    }
+    output->setUuid(uuid);
     //qDebug() << "Creating output device" << output->model() << output->manufacturer();
 
     QMap <int, KWayland::Server::OutputDeviceInterface::Transform> transformMap;
