@@ -323,7 +323,7 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newconfig)
 
         // enabled?
         bool old_enabled = (o_old->outputDevice()->enabled() == OutputDevice::Enablement::Enabled);
-        qDebug() << "output:" << output->id() << " enabled? " << output->isEnabled() << "was" << old_enabled << output->pos() << o_old->outputDevice()->globalPosition() << "mode:" << output->currentModeId();
+        //qDebug() << "output:" << output->id() << " enabled? " << output->isEnabled() << "was" << old_enabled << output->pos() << o_old->outputDevice()->globalPosition() << "mode:" << output->currentModeId();
 
         if (old_enabled != output->isEnabled()) {
             auto _enablement = output->isEnabled() ? OutputDevice::Enablement::Enabled : OutputDevice::Enablement::Disabled;
