@@ -69,15 +69,8 @@ void WaylandTestServer::start()
     connect(m_outputManagement, &OutputManagementInterface::configurationChangeRequested, this, &WaylandTestServer::configurationChangeRequested);
 
     KScreen::WaylandConfigReader::outputsFromConfig(m_configFile, m_display, m_outputs);
-
-    QString os;
-    foreach (auto o, m_outputs) {
-        bool enabled = (o->enabled() == KWayland::Server::OutputDeviceInterface::Enablement::Enabled);
-        //os.append(QString());
-        os.append(QString("[ %1 : %2-%3 (%4)] ").arg(o->uuid(), o->manufacturer(), o->model(), (enabled ? "enabled" : "disabled")));
-
-    }
-    qDebug() << "Wayland server running. Outputs: " << m_outputs.count() << os;
+    qDebug() << QString("export WAYLAND_DISPLAY="+m_display->socketName());
+    showOutputs();
 }
 
 void WaylandTestServer::stop()
@@ -118,19 +111,11 @@ void WaylandTestServer::configurationChangeRequested(KWayland::Server::OutputCon
     for (auto outputdevice: changes.keys()) {
         auto c = changes[outputdevice];
         if (c->enabledChanged()) {
-            qDebug() << "Setting enabled!!!";
+            qDebug() << "Setting enabled:";
             outputdevice->setEnabled(c->enabled());
         }
         if (c->modeChanged()) {
-            KWayland::Server::OutputDeviceInterface::Mode m;
-            QSize s;
-            for (auto _m: outputdevice->modes()) {
-                if (_m.id == c->mode()) {
-                    qDebug() << "Setting new mode!!!" << c->mode() << QString("%1 x %2 @ %3").arg(QString::number(_m.size.width()), \
-                    QString::number(_m.size.height()), QString::number(_m.refreshRate));
-                }
-            }
-
+            qDebug() << "Setting new mode:" << c->mode() << modeString(outputdevice, c->mode());
             outputdevice->setCurrentMode(c->mode());
         }
         if (c->transformChanged()) {
@@ -142,11 +127,49 @@ void WaylandTestServer::configurationChangeRequested(KWayland::Server::OutputCon
             outputdevice->setGlobalPosition(c->position());
         }
         if (c->scaleChanged()) {
-            qDebug() << "Setting enabled!!!";
+            qDebug() << "Setting enabled:";
             outputdevice->setScale(c->scale());
         }
     }
 
     configurationInterface->setApplied();
+    showOutputs();
     Q_EMIT configChanged();
+}
+
+void WaylandTestServer::showOutputs()
+{
+    qDebug() << "******** Wayland server running: " << m_outputs.count() << " outputs. ********";
+    foreach (auto o, m_outputs) {
+        bool enabled = (o->enabled() == KWayland::Server::OutputDeviceInterface::Enablement::Enabled);
+        qDebug() << "  * Output id: " << o->uuid();
+        qDebug() << "      Enabled: " << (enabled ? "enabled" : "disabled");
+        qDebug() << "         Name: " << QString("%2-%3").arg(o->manufacturer(), o->model());
+        qDebug() << "         Mode: " << modeString(o, o->currentModeId());
+        qDebug() << "          Pos: " << o->globalPosition();
+        // << o->currentMode().size();
+
+    }
+    qDebug() << "******************************************************";
+}
+
+QString WaylandTestServer::modeString(KWayland::Server::OutputDeviceInterface* outputdevice, int mid)
+{
+    QString s;
+    QString ids;
+    int _i = 0;
+    for (auto _m: outputdevice->modes()) {
+        _i++;
+        if (_i < 6) {
+            ids.append(QString::number(_m.id) + ", ");
+        } else {
+            ids.append(".");
+        }
+        if (_m.id == mid) {
+            s = QString("%1x%2 @%3").arg(QString::number(_m.size.width()), \
+            QString::number(_m.size.height()), QString::number(_m.refreshRate));
+        }
+    }
+    return QString("[%1] %2 (%4 modes: %3)").arg(QString::number(mid), s, ids, QString::number(outputdevice->modes().count()));
+
 }

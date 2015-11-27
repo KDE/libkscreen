@@ -57,8 +57,10 @@ public:
     void stop();
     void pickupConfigFile(const QString &configfile);
 
+    void showOutputs();
     KWayland::Server::Display* display();
     QList<KWayland::Server::OutputDeviceInterface*> outputs() const;
+
 
     int outputCount() const;
 
@@ -74,7 +76,7 @@ private Q_SLOTS:
 
 private:
     bool outputFromConfigGroup(const KConfigGroup& config, KWayland::Server::OutputDeviceInterface* output);
-
+    static QString modeString(KWayland::Server::OutputDeviceInterface* outputdevice, int mid);
     QString m_configFile;
     KWayland::Server::Display *m_display;
     QList<KWayland::Server::OutputDeviceInterface*> m_outputs;
