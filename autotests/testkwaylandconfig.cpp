@@ -118,6 +118,7 @@ void TestKWaylandConfig::changeConfig()
     qDebug()<< "GEO:" << output->geometry();
     qDebug() << "Changing output: " << output << "enabled?" << output->isEnabled() << " to enabled";
     output->setEnabled(true);
+    output->setCurrentModeId("76");
 
     qDebug() << config->outputs().keys();
     auto output2 = config->outputs()[2]; // is this id stable enough?
@@ -136,6 +137,7 @@ void TestKWaylandConfig::changeConfig()
     QVERIFY(configSpy.count() > 3);
 
     monitor->removeConfig(config);
+    m_server->showOutputs();
 }
 
 void TestKWaylandConfig::testPositionChange()
@@ -202,32 +204,24 @@ void TestKWaylandConfig::testModeChange()
     auto config = op->config();
     QVERIFY(config);
 
-    // Prepare monitor & spy
     KScreen::ConfigMonitor *monitor = KScreen::ConfigMonitor::instance();
     monitor->addConfig(config);
     QSignalSpy configSpy(monitor, &KScreen::ConfigMonitor::configurationChanged);
 
     auto output = config->outputs()[1]; // is this id stable enough?
-    foreach (const auto mode, output->modes()) {
-        qDebug() << "output has modes:" << mode->id() << mode->name() << mode->size() << mode->refreshRate();
-    }
-    qDebug() << "Current Mode: " << output->currentModeId();
-    qDebug() << "Changing output mode:: " << output->rotation() << "Inverted";
 
     QString new_mode = QStringLiteral("74");
     output->setCurrentModeId(new_mode);
 
     QSignalSpy serverSpy(m_server, &WaylandTestServer::configChanged);
     auto sop = new SetConfigOperation(config, this);
-    sop->exec(); // fire and forget...
+    sop->exec();
 
-    QVERIFY(configSpy.wait(2000));
+    QVERIFY(configSpy.wait(200));
     // check if the server changed
     QCOMPARE(serverSpy.count(), 1);
 
     QVERIFY(configSpy.count() > 0);
-
-    //qDebug() << "OOO" << m_server->outputs().first()->modes().first().size;
 }
 
 
