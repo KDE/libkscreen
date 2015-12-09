@@ -37,26 +37,6 @@ WaylandOutput::WaylandOutput(quint32 id, WaylandConfig *parent)
     , m_protocolName(0)
     , m_protocolVersion(0)
 {
-    /*
-    enum class Transform {
-        Normal,
-        Rotated90,
-        Rotated180,
-        Rotated270,
-        Flipped,
-        Flipped90,
-        Flipped180,
-        Flipped270
-    };
-
-    enum Rotation {
-        None = 1,
-        Left = 2,
-        Inverted = 4,
-        Right = 8
-    };
-    */
-
     m_rotationMap[KWayland::Client::OutputDevice::Transform::Normal] = KScreen::Output::None;
     m_rotationMap[KWayland::Client::OutputDevice::Transform::Rotated90] = KScreen::Output::Right;
     m_rotationMap[KWayland::Client::OutputDevice::Transform::Rotated180] = KScreen::Output::Inverted;
@@ -148,17 +128,15 @@ KScreen::OutputPtr WaylandOutput::toKScreenOutput()
 
 void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output)
 {
-    //qCDebug(KSCREEN_WAYLAND) << "updateKScreenOutput OUTPUT";
     // Initialize primary output
     output->setId(m_id);
     output->setEnabled(m_output->enabled() == KWayland::Client::OutputDevice::Enablement::Enabled);
     output->setConnected(true);
-    output->setPrimary(true); // FIXME
+    output->setPrimary(true); // FIXME: wayland doesn't have the concept of a primary display
 
     output->setName(m_output->manufacturer() + QStringLiteral("-") + m_output->model());
     // Physical size
     output->setSizeMm(m_output->physicalSize());
-    //qCDebug(KSCREEN_WAYLAND) << "  ####### setSizeMm: " << physicalSize() << geometry();
     output->setPos(m_output->globalPosition());
     output->setRotation(m_rotationMap[m_output->transform()]);
     KScreen::ModeList modeList;
@@ -198,32 +176,9 @@ void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output)
 
 QString WaylandOutput::modeName(const KWayland::Client::OutputDevice::Mode &m) const
 {
-    return QString::number(m.size.width()) + QLatin1Char('x') + QString::number(m.size.height()) + QLatin1Char('@') + QString::number((int)(m.refreshRate/1000));
-}
-
-void WaylandOutput::showOutput()
-{
-    if (true) {
-        qCDebug(KSCREEN_WAYLAND) << "_______________ " << (m_output->isValid() ? "Valid" : "Invalid");
-        qCDebug(KSCREEN_WAYLAND) << "Output changes... ";
-        qCDebug(KSCREEN_WAYLAND) << "  id:              " << id();
-        qCDebug(KSCREEN_WAYLAND) << "  Pixel Size:      " << m_output->pixelSize();
-        qCDebug(KSCREEN_WAYLAND) << "  Physical Size:   " << m_output->physicalSize();
-        qCDebug(KSCREEN_WAYLAND) << "  Global Position: " << m_output->globalPosition();
-        qCDebug(KSCREEN_WAYLAND) << "  Manufacturer   : " << m_output->manufacturer();
-        qCDebug(KSCREEN_WAYLAND) << "  Model:           " << m_output->model();
-    }
-    foreach (auto m, m_output->modes()) {
-        QString modename = modeName(m);
-        if (m.flags.testFlag(KWayland::Client::OutputDevice::Mode::Flag::Current)) {
-            modename = modename + " (current)";
-        }
-        if (m.flags.testFlag(KWayland::Client::OutputDevice::Mode::Flag::Preferred)) {
-            modename = modename + " (Preferred)";
-        }
-        //qCDebug(KSCREEN_WAYLAND) << "            Mode : " << modename;
-
-    }
+    return QString::number(m.size.width()) + QLatin1Char('x') +
+           QString::number(m.size.height()) + QLatin1Char('@') +
+           QString::number((int)(m.refreshRate/1000));
 }
 
 QString WaylandOutput::name() const
@@ -234,6 +189,8 @@ QString WaylandOutput::name() const
 
 QDebug operator<<(QDebug dbg, const WaylandOutput *output)
 {
-    dbg << "WaylandOutput(Id:" << output->id() <<", Name:" << QString(output->outputDevice()->manufacturer() + " " + output->outputDevice()->model())  << ")";
+    dbg << "WaylandOutput(Id:" << output->id() <<", Name:" << \
+        QString(output->outputDevice()->manufacturer() + " " + \
+        output->outputDevice()->model())  << ")";
     return dbg;
 }
