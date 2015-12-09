@@ -28,7 +28,6 @@ if(ENABLE_WAYLAND AND KF5Config_FOUND)
 
     # For WaylandConfigWriter and -Reader and TestServer
     set(KSCREEN_WAYLAND_SRCS
-        ${CMAKE_SOURCE_DIR}/tests/waylandconfigwriter.cpp
         ${CMAKE_SOURCE_DIR}/tests/waylandconfigreader.cpp
         ${CMAKE_SOURCE_DIR}/tests/waylandtestserver.cpp
     )

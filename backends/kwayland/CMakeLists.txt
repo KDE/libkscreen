@@ -17,7 +17,6 @@ target_link_libraries(KSC_KWayland Qt5::Core
                                   Qt5::DBus
                                   Qt5::Test
                                   Wayland::Client
-#                                   Wayland::Cursor
                                   KF5::Screen
                                   KF5::WaylandClient
 )
