@@ -21,16 +21,6 @@
 #include <QObject>
 #include <QSignalSpy>
 
-#include <KSharedConfig>
-#include <KConfigGroup>
-
-// KWayland
-#include <KWayland/Client/connection_thread.h>
-#include <KWayland/Client/event_queue.h>
-#include <KWayland/Client/registry.h>
-
-#include <KWayland/Server/display.h>
-#include <KWayland/Server/output_interface.h>
 
 #include "../src/backendmanager_p.h"
 #include "../src/getconfigoperation.h"
@@ -44,8 +34,6 @@
 #include "../tests/waylandtestserver.h"
 
 Q_LOGGING_CATEGORY(KSCREEN_WAYLAND, "kscreen.wayland");
-
-//static const QString s_socketName = QStringLiteral("libkscreen-test-wayland-backend-0");
 
 using namespace KScreen;
 
@@ -112,14 +100,10 @@ void TestKWaylandConfig::changeConfig()
 
     // The first output is currently disabled, let's try to enable it
     auto output = config->outputs().first();
-    qDebug()<< "GEO:" << output->geometry();
-    qDebug() << "Changing output: " << output << "enabled?" << output->isEnabled() << " to enabled";
     output->setEnabled(true);
     output->setCurrentModeId("76");
 
-    qDebug() << config->outputs().keys();
     auto output2 = config->outputs()[2]; // is this id stable enough?
-    qDebug() << "Changing output position: " << output2 << output2->geometry();
     output2->setPos(QPoint(4000, 1080));
     output2->setRotation(KScreen::Output::Left);
 
@@ -151,7 +135,6 @@ void TestKWaylandConfig::testPositionChange()
 
     auto output = config->outputs()[2]; // is this id stable enough?
     auto new_pos = QPoint(3840, 1080);
-    qDebug() << "Changing output position:: " << output->pos() << new_pos;
     output->setPos(new_pos);
 
     QSignalSpy serverSpy(m_server, &WaylandTestServer::configChanged);
@@ -163,7 +146,6 @@ void TestKWaylandConfig::testPositionChange()
     QCOMPARE(serverSpy.count(), 1);
 
     QVERIFY(configSpy.count() > 0);
-
 }
 
 void TestKWaylandConfig::testRotationChange()
@@ -179,7 +161,6 @@ void TestKWaylandConfig::testRotationChange()
     QSignalSpy configSpy(monitor, &KScreen::ConfigMonitor::configurationChanged);
 
     auto output = config->outputs()[2]; // is this id stable enough?
-    qDebug() << "Changing output rotation:: " << output->rotation() << "Inverted";
     output->setRotation(KScreen::Output::Inverted);
 
     QSignalSpy serverSpy(m_server, &WaylandTestServer::configChanged);

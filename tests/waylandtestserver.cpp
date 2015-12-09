@@ -139,6 +139,7 @@ void WaylandTestServer::configurationChangeRequested(KWayland::Server::OutputCon
 
 void WaylandTestServer::showOutputs()
 {
+    return;
     qDebug() << "******** Wayland server running: " << m_outputs.count() << " outputs. ********";
     foreach (auto o, m_outputs) {
         bool enabled = (o->enabled() == KWayland::Server::OutputDeviceInterface::Enablement::Enabled);
