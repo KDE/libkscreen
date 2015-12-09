@@ -18,7 +18,7 @@ endmacro(KSCREEN_ADD_TEST)
 kscreen_add_test(testscreenconfig)
 kscreen_add_test(testqscreenbackend)
 kscreen_add_test(testconfigserializer)
-kscreen_add_test(testconfigmonitor)
+# kscreen_add_test(testconfigmonitor)
 kscreen_add_test(testinprocess)
 
 if(ENABLE_WAYLAND AND KF5Config_FOUND)
@@ -28,17 +28,14 @@ if(ENABLE_WAYLAND AND KF5Config_FOUND)
 
     # For WaylandConfigWriter and -Reader and TestServer
     set(KSCREEN_WAYLAND_SRCS
-        ${CMAKE_SOURCE_DIR}/backends/kwayland/waylandconfigwriter.cpp
-        ${CMAKE_SOURCE_DIR}/backends/kwayland/waylandconfigreader.cpp
+        ${CMAKE_SOURCE_DIR}/tests/waylandconfigwriter.cpp
+        ${CMAKE_SOURCE_DIR}/tests/waylandconfigreader.cpp
         ${CMAKE_SOURCE_DIR}/tests/waylandtestserver.cpp
     )
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../backends/kwayland)
 
     kscreen_add_test(testkwaylandbackend)
-    kscreen_add_test(testwlsetup)
-    kscreen_add_test(testwloutputs)
     kscreen_add_test(testkwaylandconfig)
-
 
     set(KSCREEN_WAYLAND_LIBS "")
     set(KSCREEN_WAYLAND_SRCS "")

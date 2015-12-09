@@ -5,7 +5,6 @@ include_directories(${CMAKE_SOURCE_DIR}/src
 set(wayland_SRCS
     waylandbackend.cpp
     waylandconfig.cpp
-    waylandconfigwriter.cpp
     waylandoutput.cpp
     waylandscreen.cpp
 )

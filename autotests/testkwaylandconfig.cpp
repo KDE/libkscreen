@@ -32,9 +32,6 @@
 #include <KWayland/Server/display.h>
 #include <KWayland/Server/output_interface.h>
 
-#include "waylandconfigwriter.h"
-#include "waylandconfigreader.h"
-
 #include "../src/backendmanager_p.h"
 #include "../src/getconfigoperation.h"
 #include "../src/setconfigoperation.h"

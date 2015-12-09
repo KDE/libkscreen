@@ -43,8 +43,6 @@
 #include "../src/mode.h"
 #include "../src/edid.h"
 
-#include "waylandconfigwriter.h"
-#include "waylandconfigreader.h"
 #include "../tests/waylandtestserver.h"
 
 Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.wayland");

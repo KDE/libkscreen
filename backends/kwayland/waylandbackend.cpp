@@ -20,7 +20,6 @@
 
 #include "waylandbackend.h"
 #include "waylandconfig.h"
-#include "waylandconfigwriter.h"
 #include "waylandoutput.h"
 
 #include <configmonitor.h>
