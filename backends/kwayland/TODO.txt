@@ -1,10 +1,24 @@
+9 Dec 2015:
+- clean up debug in waylandconfig.cpp
+- clean up debug in waylandoutput.cpp
+- move waylandserver into subdir
+- rename waylandservermain.cpp to main.cpp
+- add tests for removing and adding outputs at runtime
+
+o kill configreader
+o kill configwriter
+o kill configSerializerMinimal
+o kill 3 redundant autotests (check, check and ... check)
+-> 900 lines of code removed, lossless
+
+
 23 Nov 2015:
-* why doesn't configChange make it through the monitor
-* add test that checks output->enabledChanged()
-* finish wiring up enabled
-* wire up transform
-* wire up scale
-* wire up mode
+o why doesn't configChange make it through the monitor
+o add test that checks output->enabledChanged()
+o finish wiring up enabled
+o wire up transform
+o wire up scale
+o wire up mode
 * make sure edid goes through
 * make sure edid is parsed
 
@@ -154,19 +168,19 @@ why?
 
 TODO
 
-- remove serializeConfigMinimal
-- discuss with mgraesslin wether to move to kwaylandintegration or not
-    - disconnected outputs protocol easier to share?
-- port writeConfig to KConfig
+o remove serializeConfigMinimal
+o discuss with mgraesslin wether to move to kwaylandintegration or not
+    o disconnected outputs protocol easier to share?
+o port writeConfig to KConfig
 
-- output rotation needs reading and writing code + unit tests
-- output scale needs reading and writing code + unit tests
-- waylandserver picks up config changes
-- autotest for server roundtrip with new config
-- WaylandScreen takes aggregate size of outputs
-- create Edid from output-internal information (which?)
-- update Output object
-- update Screen object
+o output rotation needs reading and writing code + unit tests
+o output scale needs reading and writing code + unit tests
+o waylandserver picks up config changes
+o autotest for server roundtrip with new config
+o WaylandScreen takes aggregate size of outputs
+o create Edid from output-internal information (which?)
+o update Output object
+o update Screen object
 
 DONE
 
