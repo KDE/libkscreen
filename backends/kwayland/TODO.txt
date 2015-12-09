@@ -4,6 +4,7 @@
 - move waylandserver into subdir
 - rename waylandservermain.cpp to main.cpp
 - add tests for removing and adding outputs at runtime
+- fix WaylandScreen::updateKScreenScreen
 
 o kill configreader
 o kill configwriter
