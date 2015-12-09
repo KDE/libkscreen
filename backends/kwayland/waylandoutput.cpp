@@ -89,7 +89,6 @@ int WaylandOutput::toKWaylandModeId(const QString &kscreenmodeid) const
 
 WaylandOutput::~WaylandOutput()
 {
-    qDebug() << "bye bye output";
 }
 
 quint32 WaylandOutput::id() const

@@ -107,7 +107,6 @@ bool WaylandBackend::isValid() const
 
 void WaylandBackend::updateConfig(ConfigPtr &config)
 {
-    qDebug() << "Update config";
     Q_ASSERT(config != 0);
     internalConfig()->updateKScreenConfig(config);
 }
