@@ -21,24 +21,22 @@ kscreen_add_test(testconfigserializer)
 # kscreen_add_test(testconfigmonitor)
 kscreen_add_test(testinprocess)
 
-if(ENABLE_WAYLAND AND KF5Config_FOUND)
-    set(KSCREEN_WAYLAND_LIBS
-        KF5::WaylandServer KF5::WaylandClient KF5::CoreAddons KF5::ConfigCore
-    )
+set(KSCREEN_WAYLAND_LIBS
+    KF5::WaylandServer KF5::WaylandClient
+)
 
-    # For WaylandConfigWriter and -Reader and TestServer
-    set(KSCREEN_WAYLAND_SRCS
-        ${CMAKE_SOURCE_DIR}/tests/kwayland/waylandconfigreader.cpp
-        ${CMAKE_SOURCE_DIR}/tests/kwayland/waylandtestserver.cpp
-    )
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../backends/kwayland)
+# For WaylandConfigReader and TestServer
+set(KSCREEN_WAYLAND_SRCS
+    ${CMAKE_SOURCE_DIR}/tests/kwayland/waylandconfigreader.cpp
+    ${CMAKE_SOURCE_DIR}/tests/kwayland/waylandtestserver.cpp
+)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../backends/kwayland)
 
-    kscreen_add_test(testkwaylandbackend)
-    kscreen_add_test(testkwaylandconfig)
+kscreen_add_test(testkwaylandbackend)
+kscreen_add_test(testkwaylandconfig)
 
-    set(KSCREEN_WAYLAND_LIBS "")
-    set(KSCREEN_WAYLAND_SRCS "")
-endif()
+set(KSCREEN_WAYLAND_LIBS "")
+set(KSCREEN_WAYLAND_SRCS "")
 
 
 if (ENABLE_XRANDR_TESTS)
