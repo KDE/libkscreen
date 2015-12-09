@@ -93,7 +93,6 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
         uuid = QString::number(_id).toLocal8Bit();
     }
     output->setUuid(uuid);
-    //qDebug() << "Creating output device" << output->model() << output->manufacturer();
 
     QMap <int, KWayland::Server::OutputDeviceInterface::Transform> transformMap;
     transformMap[0] = KWayland::Server::OutputDeviceInterface::Transform::Normal;
@@ -101,7 +100,6 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
     transformMap[2] = KWayland::Server::OutputDeviceInterface::Transform::Rotated270;
     transformMap[3] = KWayland::Server::OutputDeviceInterface::Transform::Rotated180;
     transformMap[4] = KWayland::Server::OutputDeviceInterface::Transform::Rotated90;
-
 
     output->setTransform(transformMap[outputConfig["rotation"].toInt()]);
     int currentModeId = outputConfig["currentModeId"].toInt();
@@ -113,7 +111,6 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
         const QVariantMap &mode = _mode.toMap();
         OutputDeviceInterface::Mode m0;
         const QSize _size = sizeFromJson(mode["size"]);
-        int refresh = 60000;
 
         if (mode.keys().contains("refreshRate")) {
             m0.refreshRate = qRound(mode["refreshRate"].toReal() * 1000); // config has it in Hz
@@ -121,7 +118,6 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
         bool isCurrent = currentModeId == mode["id"].toInt();
         bool isPreferred = preferredModes.contains(mode["id"]);
 
-        //qDebug() << "Mode: " << _size << isCurrent << isPreferred;
         OutputDeviceInterface::ModeFlags flags;
         if (isPreferred) {
             flags &= OutputDeviceInterface::ModeFlags(OutputDeviceInterface::ModeFlag::Preferred);
@@ -129,7 +125,6 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
         if (isCurrent) {
             flags &= OutputDeviceInterface::ModeFlags(OutputDeviceInterface::ModeFlag::Preferred);
         }
-        //qDebug() << "add mode for " << output->model() << _size << refresh;
         if (mode.keys().contains("id")) {
             m0.id = mode["id"].toInt();
         } else {
@@ -137,30 +132,15 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
         }
         m0.size = _size;
         m0.flags = flags;
-        //OutputDeviceInterface::ModeFlags(OutputDeviceInterface::ModeFlag::Preferred);
         output->addMode(m0);
-        //qDebug() << "Mode: " << m0.size << m0.id << (isCurrent ? "*" : "");
-        //output->addMode(_size, flags, refresh);
 
         if (isCurrent) {
             output->setCurrentMode(m0.id);
-//             qDebug() << "Current Mode: " << m0.size << m0.id;
         }
     }
 
     output->setGlobalPosition(pointFromJson(outputConfig["pos"]));
     output->setEnabled(outputConfig["enabled"].toBool() ? OutputDeviceInterface::Enablement::Enabled : OutputDeviceInterface::Enablement::Disabled);
-
-//     int _id = outputConfig["id"].toInt();
-//     qDebug() << "read ID" << _id << s_outputIds;
-//     while (s_outputIds.contains(_id)) {
-//         _id = _id + 1000;
-//     }
-//     s_outputIds << _id;
-//     qDebug() << "SETTING ID" << _id;
-
-    //output->setId(_id);
-    //qDebug() << "enabled? " << output->enabled();
     output->create();
 
     return output;

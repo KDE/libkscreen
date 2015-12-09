@@ -25,13 +25,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QFile>
-#include <QSignalSpy>
 #include <QStandardPaths>
-
-#include <KConfig>
-#include <KConfigGroup>
-#include <KSharedConfig>
-#include <KDirWatch>
 
 #include "../src/edid.h"
 

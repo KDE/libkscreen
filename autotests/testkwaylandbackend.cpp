@@ -30,7 +30,7 @@
 #include "../src/mode.h"
 #include "../src/edid.h"
 
-#include "../tests/waylandtestserver.h"
+#include "waylandtestserver.h"
 
 Q_LOGGING_CATEGORY(KSCREEN_WAYLAND, "kscreen.wayland");
 

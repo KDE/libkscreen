@@ -21,17 +21,16 @@
 #include <QObject>
 #include <QSignalSpy>
 
+#include "backendmanager_p.h"
+#include "getconfigoperation.h"
+#include "setconfigoperation.h"
+#include "config.h"
+#include "configmonitor.h"
+#include "output.h"
+#include "mode.h"
+#include "edid.h"
 
-#include "../src/backendmanager_p.h"
-#include "../src/getconfigoperation.h"
-#include "../src/setconfigoperation.h"
-#include "../src/config.h"
-#include "../src/configmonitor.h"
-#include "../src/output.h"
-#include "../src/mode.h"
-#include "../src/edid.h"
-
-#include "../tests/waylandtestserver.h"
+#include "waylandtestserver.h"
 
 Q_LOGGING_CATEGORY(KSCREEN_WAYLAND, "kscreen.wayland");
 

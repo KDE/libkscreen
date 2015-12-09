@@ -1,6 +1,6 @@
 add_definitions(-DTEST_DATA="${CMAKE_CURRENT_SOURCE_DIR}/configs/")
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}/tests/kwayland/)
 
 macro(KSCREEN_ADD_TEST)
     foreach(_testname ${ARGN})
@@ -28,8 +28,8 @@ if(ENABLE_WAYLAND AND KF5Config_FOUND)
 
     # For WaylandConfigWriter and -Reader and TestServer
     set(KSCREEN_WAYLAND_SRCS
-        ${CMAKE_SOURCE_DIR}/tests/waylandconfigreader.cpp
-        ${CMAKE_SOURCE_DIR}/tests/waylandtestserver.cpp
+        ${CMAKE_SOURCE_DIR}/tests/kwayland/waylandconfigreader.cpp
+        ${CMAKE_SOURCE_DIR}/tests/kwayland/waylandtestserver.cpp
     )
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../backends/kwayland)
 

@@ -30,11 +30,6 @@
 #include <KWayland/Server/shell_interface.h>
 #include <KWayland/Server/outputmanagement_interface.h>
 
-// KConfigCore
-#include <KConfigGroup>
-
-class KDirWatch;
-
 namespace KScreen
 {
 class WaylandConfig;
@@ -75,7 +70,6 @@ private Q_SLOTS:
     void configurationChangeRequested(KWayland::Server::OutputConfigurationInterface *configurationInterface);
 
 private:
-    bool outputFromConfigGroup(const KConfigGroup& config, KWayland::Server::OutputDeviceInterface* output);
     static QString modeString(KWayland::Server::OutputDeviceInterface* outputdevice, int mid);
     QString m_configFile;
     KWayland::Server::Display *m_display;
