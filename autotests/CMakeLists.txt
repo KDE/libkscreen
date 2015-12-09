@@ -18,7 +18,7 @@ endmacro(KSCREEN_ADD_TEST)
 kscreen_add_test(testscreenconfig)
 kscreen_add_test(testqscreenbackend)
 kscreen_add_test(testconfigserializer)
-# kscreen_add_test(testconfigmonitor)
+kscreen_add_test(testconfigmonitor)
 kscreen_add_test(testinprocess)
 
 set(KSCREEN_WAYLAND_LIBS
