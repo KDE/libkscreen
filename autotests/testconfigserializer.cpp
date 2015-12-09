@@ -188,17 +188,6 @@ private Q_SLOTS:
         const QJsonObject sizeMm = obj[QLatin1String("sizeMM")].toObject();
         QCOMPARE(sizeMm[QLatin1String("width")].toInt(), output->sizeMm().width());
         QCOMPARE(sizeMm[QLatin1String("height")].toInt(), output->sizeMm().height());
-
-        obj = KScreen::ConfigSerializer::serializeOutputMinimal(output);
-        QVERIFY(!obj.isEmpty());
-        QCOMPARE(obj[QLatin1String("id")].toInt(), output->id());
-        QCOMPARE(obj[QLatin1String("name")].toString(), output->name());
-        const QJsonArray ms = obj[QLatin1String("modes")].toArray();
-        QCOMPARE(ms.size(), 1);
-        pos = obj[QLatin1String("pos")].toObject();
-        QCOMPARE(pos[QLatin1String("x")].toInt(), output->pos().x());
-        QCOMPARE(pos[QLatin1String("y")].toInt(), output->pos().y());
-
     }
 };
 

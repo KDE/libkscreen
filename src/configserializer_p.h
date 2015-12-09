@@ -51,9 +51,6 @@ KSCREEN_EXPORT QJsonObject serializeOutput(const KScreen::OutputPtr &output);
 KSCREEN_EXPORT QJsonObject serializeMode(const KScreen::ModePtr &mode);
 KSCREEN_EXPORT QJsonObject serializeScreen(const KScreen::ScreenPtr &screen);
 
-KSCREEN_EXPORT QJsonObject serializeConfigMinimal(const KScreen::ConfigPtr &config);
-KSCREEN_EXPORT QJsonObject serializeOutputMinimal(const KScreen::OutputPtr &output);
-
 KSCREEN_EXPORT QPoint deserializePoint(const QDBusArgument &map);
 KSCREEN_EXPORT QSize deserializeSize(const QDBusArgument &map);
 template<typename T>
