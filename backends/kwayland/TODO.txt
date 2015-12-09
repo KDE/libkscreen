@@ -1,10 +1,13 @@
 9 Dec 2015:
-- clean up debug in waylandconfig.cpp
-- clean up debug in waylandoutput.cpp
+o clean up debug in waylandconfig.cpp
+o clean up debug in waylandoutput.cpp
 - move waylandserver into subdir
 - rename waylandservermain.cpp to main.cpp
 - add tests for removing and adding outputs at runtime
 - fix WaylandScreen::updateKScreenScreen
+- make sure edid goes through
+- make sure edid is parsed
+- decide about id assignment
 
 o kill configreader
 o kill configwriter
@@ -20,10 +23,6 @@ o finish wiring up enabled
 o wire up transform
 o wire up scale
 o wire up mode
-* make sure edid goes through
-* make sure edid is parsed
-
-
 
 libkscreen TODO:
 * waylandconfiguration has QHash<OutputDevice, id> and creates new ids
