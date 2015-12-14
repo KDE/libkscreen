@@ -1,5 +1,5 @@
 /*************************************************************************************
- *  Copyright 2014 by Sebastian Kügler <sebas@kde.org>                               *
+ *  Copyright 2014-2015 by Sebastian Kügler <sebas@kde.org>                          *
  *                                                                                   *
  *  This program is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU General Public License                      *
@@ -23,13 +23,12 @@
 
 #include <QDebug>
 
-using namespace KScreen;
 
 int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
 
-    WaylandTestServer server;
+    KScreen::WaylandTestServer server;
 
     QCommandLineOption config = QCommandLineOption(QStringList() << QStringLiteral("c") << "config",
                                                   QStringLiteral("Config file"), "config");
@@ -43,7 +42,6 @@ int main(int argc, char **argv)
         server.setConfig(parser.value(config));
     } else {
         server.setConfig(QString::fromLocal8Bit(TEST_DATA)+"/multipleoutput.json");
-        //    server.setConfig(QString::fromLocal8Bit(TEST_DATA)+"/singleoutput.json");
     }
     server.start();
     return app.exec();
