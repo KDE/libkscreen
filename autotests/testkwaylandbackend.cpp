@@ -207,6 +207,7 @@ void testWaylandBackend::addOutput()
     GetConfigOperation *op = new GetConfigOperation();
     op->exec();
     auto config = op->config();
+    QCOMPARE(config->outputs().count(), 2);
     KScreen::ConfigMonitor *monitor = KScreen::ConfigMonitor::instance();
     monitor->addConfig(config);
     QSignalSpy configSpy(monitor, &KScreen::ConfigMonitor::configurationChanged);
