@@ -72,10 +72,10 @@ public:
     void updateKScreenConfig(KScreen::ConfigPtr &config) const;
 
     QMap<int, WaylandOutput *> outputMap() const;
-    int outputId(KWayland::Client::OutputDevice *wlo);
+    //int outputId(KWayland::Client::OutputDevice *wlo);
 
     void addOutput(quint32 name, quint32 version);
-    void removeOutput(quint32 id);
+    void removeOutput(quint32 name);
 
     void applyConfig(const KScreen::ConfigPtr &newconfig);
 
@@ -100,7 +100,9 @@ private:
     KWayland::Client::OutputManagement *m_outputManagement;
 
     QMap<int, WaylandOutput*> m_outputMap;
-    QMap<KWayland::Client::OutputDevice*, int> m_outputIds;
+    // Map between kwayland's outputdevice names and kscreen output ids
+    // key: wayland's name, value: kscreen id
+    QMap<int, int> m_outputIds;
     QList<int> m_initializingOutputs;
     bool m_registryInitialized;
     WaylandScreen *m_screen;
