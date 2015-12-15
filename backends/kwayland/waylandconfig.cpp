@@ -53,7 +53,6 @@ WaylandConfig::WaylandConfig(QObject *parent)
     , m_newOutputId(0)
     , m_kscreenConfig(nullptr)
 {
-    qDebug() << "Creating config ---------------- " << this;
     connect(this, &WaylandConfig::initialized, &m_syncLoop, &QEventLoop::quit);
     QTimer::singleShot(1000, [=] {
         if (m_syncLoop.isRunning()) {
@@ -156,12 +155,10 @@ void WaylandConfig::setupRegistry()
 
 void WaylandConfig::addOutput(quint32 name, quint32 version)
 {
-    qDebug() << "outputinterface announced";
     m_newOutputId++;
     quint32 new_id = m_newOutputId;
     m_outputIds[name] = new_id;
     if (m_outputMap.keys().contains(new_id)) {
-        qDebug() << "return early";
         return;
     }
     if (!m_initializingOutputs.contains(name)) {
@@ -173,7 +170,6 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
     waylandoutput->bindOutputDevice(m_registry, op, name, version);
 
     connect(waylandoutput, &WaylandOutput::complete, [=]{
-        qDebug() << "clientOutput complete" << waylandoutput->id();
 
         m_outputMap[waylandoutput->id()] = waylandoutput;
         m_initializingOutputs.removeAll(name);
@@ -181,11 +177,9 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
 
         if (!m_blockSignals && m_initializingOutputs.empty()) {
             m_screen->setOutputs(m_outputMap.values());
-            qDebug() << "emit!!" << m_outputMap.count();
             Q_EMIT configChanged(toKScreenConfig());
         }
         connect(waylandoutput, &WaylandOutput::changed, [this]() {
-            qDebug() << "changed emit!!";
             Q_EMIT configChanged(toKScreenConfig());
         });
     });
@@ -213,11 +207,10 @@ KScreen::ConfigPtr WaylandConfig::toKScreenConfig()
 
 void WaylandConfig::removeOutput(quint32 name)
 {
-    qDebug() << "remove output" << name << m_outputIds;
     int kscreen_id = m_outputIds[name]; //
     auto output = m_outputMap[kscreen_id];
-    qDebug() << "removing ..." << kscreen_id << m_outputMap.keys();
     m_outputMap.remove(kscreen_id);
+    m_screen->setOutputs(m_outputMap.values());
     delete output;
     if (!m_blockSignals) {
         Q_EMIT configChanged(toKScreenConfig());
@@ -235,7 +228,6 @@ void WaylandConfig::updateKScreenConfig(KScreen::ConfigPtr &config) const
     Q_FOREACH (KScreen::OutputPtr output, outputs) {
         if (!m_outputMap.keys().contains(output->id())) {
             config->removeOutput(output->id());
-            qCWarning(KSCREEN_WAYLAND) << " outputs removed from config" << m_outputMap.keys();
         }
     }
 
@@ -250,7 +242,7 @@ void WaylandConfig::updateKScreenConfig(KScreen::ConfigPtr &config) const
         if (kscreenOutput && m_outputMap.count() == 1) {
             kscreenOutput->setPrimary(true);
         } else if (m_outputMap.count() > 1) {
-            // FIXME: primaryScreen concept doesn't exist in kwayland
+            // primaryScreen concept doesn't exist in kwayland, so we don't set one
             //qCWarning(KSCREEN_WAYLAND) << "Multiple outputs, but no way to figure out the primary one. :/";
         }
         output->updateKScreenOutput(kscreenOutput);

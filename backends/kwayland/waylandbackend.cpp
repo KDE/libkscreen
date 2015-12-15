@@ -46,7 +46,6 @@ WaylandBackend::WaylandBackend()
         s_internalConfig = new WaylandConfig();
     }
     m_config = internalConfig()->toKScreenConfig();
-    qDebug() << "connecting" << s_internalConfig;
     connect(s_internalConfig, &WaylandConfig::configChanged,
             this, &WaylandBackend::emitConfigChanged);
 }
@@ -86,7 +85,6 @@ void WaylandBackend::setConfig(const KScreen::ConfigPtr &newconfig)
 
 void WaylandBackend::emitConfigChanged(const KScreen::ConfigPtr cfg)
 {
-    qDebug() << "Blarghl";
     // we have to pass the original config here, since ConfigMonitor needs it to match
     // the connected configs
     Q_EMIT configChanged(m_config);
