@@ -168,8 +168,6 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
         m_initializingOutputs << name;
     }
 
-    Q_EMIT this->configChanged(toKScreenConfig());
-
     auto op = new KWayland::Client::OutputDevice(this);
     WaylandOutput *waylandoutput = new WaylandOutput(new_id, this);
     waylandoutput->bindOutputDevice(m_registry, op, name, version);
