@@ -30,6 +30,10 @@
 #include "../src/mode.h"
 #include "../src/edid.h"
 
+// KWayland
+#include <KWayland/Server/display.h>
+#include <KWayland/Server/outputdevice_interface.h>
+
 #include "waylandtestserver.h"
 
 Q_LOGGING_CATEGORY(KSCREEN_WAYLAND, "kscreen.wayland");
@@ -45,6 +49,7 @@ public:
 
 private Q_SLOTS:
     void initTestCase();
+    void cleanupTestCase();
     void loadConfig();
 
     void verifyConfig();
@@ -52,14 +57,16 @@ private Q_SLOTS:
     void verifyModes();
     void verifyScreen();
     void verifyIds();
-    void cleanupTestCase();
-
     void simpleWrite();
+    void addOutput();
+    void removeOutput();
+
+
 
 private:
     ConfigPtr m_config;
     WaylandTestServer *m_server;
-
+    KWayland::Server::OutputDeviceInterface *m_serverOutputDevice;
 };
 
 testWaylandBackend::testWaylandBackend(QObject *parent)
@@ -90,7 +97,7 @@ void testWaylandBackend::loadConfig()
     op->exec();
     m_config = op->config();
     QVERIFY(m_config->isValid());
-    qDebug() << m_config->outputs();
+    qDebug() << "ops" << m_config->outputs();
 }
 
 void testWaylandBackend::verifyConfig()
@@ -194,6 +201,69 @@ void testWaylandBackend::cleanupTestCase()
     KScreen::BackendManager::instance()->shutdownBackend();
 }
 
+void testWaylandBackend::addOutput()
+{
+    KScreen::BackendManager::instance()->shutdownBackend();
+    GetConfigOperation *op = new GetConfigOperation();
+    op->exec();
+    auto config = op->config();
+    KScreen::ConfigMonitor *monitor = KScreen::ConfigMonitor::instance();
+    monitor->addConfig(config);
+    QSignalSpy configSpy(monitor, &KScreen::ConfigMonitor::configurationChanged);
+
+    // Now add an outputdevice on the server side
+    m_serverOutputDevice = m_server->display()->createOutputDevice(this);
+    m_serverOutputDevice->setUuid("1337");
+
+    OutputDeviceInterface::Mode m0;
+    m0.id = 0;
+    m0.size = QSize(800, 600);
+    m0.flags = OutputDeviceInterface::ModeFlags(OutputDeviceInterface::ModeFlag::Preferred);
+    m_serverOutputDevice->addMode(m0);
+
+    OutputDeviceInterface::Mode m1;
+    m1.id = 1;
+    m1.size = QSize(1024, 768);
+    m_serverOutputDevice->addMode(m1);
+
+    OutputDeviceInterface::Mode m2;
+    m2.id = 2;
+    m2.size = QSize(1280, 1024);
+    m2.refreshRate = 90000;
+    m_serverOutputDevice->addMode(m2);
+
+    m_serverOutputDevice->setCurrentMode(1);
+
+    QByteArray edid = "AP///////wAQrBbwTExLQQ4WAQOANCB46h7Frk80sSYOUFSlSwCBgKlA0QBxTwEBAQEBAQEBKDyAoHCwI0AwIDYABkQhAAAaAAAA/wBGNTI1TTI0NUFLTEwKAAAA/ABERUxMIFUyNDEwCiAgAAAA/QA4TB5REQAKICAgICAgAToCAynxUJAFBAMCBxYBHxITFCAVEQYjCQcHZwMMABAAOC2DAQAA4wUDAQI6gBhxOC1AWCxFAAZEIQAAHgEdgBhxHBYgWCwlAAZEIQAAngEdAHJR0B4gbihVAAZEIQAAHowK0Iog4C0QED6WAAZEIQAAGAAAAAAAAAAAAAAAAAAAPg==";
+    m_serverOutputDevice->setEdid(edid);
+
+    m_serverOutputDevice->create();
+
+    QVERIFY(configSpy.wait(100));
+    GetConfigOperation *op2 = new GetConfigOperation();
+    op2->exec();
+    auto newconfig = op2->config();
+    QCOMPARE(newconfig->outputs().count(), 3);
+}
+
+void testWaylandBackend::removeOutput()
+{
+    KScreen::BackendManager::instance()->shutdownBackend();
+    GetConfigOperation *op = new GetConfigOperation();
+    op->exec();
+    auto config = op->config();
+    QCOMPARE(config->outputs().count(), 3);
+    KScreen::ConfigMonitor *monitor = KScreen::ConfigMonitor::instance();
+    monitor->addConfig(config);
+    QSignalSpy configSpy(monitor, &KScreen::ConfigMonitor::configurationChanged);
+
+    delete m_serverOutputDevice;
+    QVERIFY(configSpy.wait(100));
+    GetConfigOperation *op2 = new GetConfigOperation();
+    op2->exec();
+    auto newconfig = op2->config();
+    QCOMPARE(newconfig->outputs().count(), 2);
+}
 
 QTEST_GUILESS_MAIN(testWaylandBackend)
 
