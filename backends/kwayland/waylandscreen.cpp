@@ -1,5 +1,5 @@
 /*************************************************************************************
- *  Copyright 2014 Sebastian Kügler <sebas@kde.org>                                  *
+ *  Copyright 2014-2015 Sebastian Kügler <sebas@kde.org>                             *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -57,15 +57,9 @@ void WaylandScreen::setOutputs(const QList<WaylandOutput*> outputs)
 
 void WaylandScreen::updateKScreenScreen(KScreen::ScreenPtr &screen) const
 {
-//     screen->setCurrentSize(_s);
-//     screen->setId(1);
-//     screen->setMaxSize(_s);
-//     screen->setMinSize(_s);
-//     screen->setCurrentSize(_s);
-//     screen->setMaxActiveOutputsCount(QGuiApplication::screens().count());
     screen->setMinSize(QSize(0, 0));
-    screen->setMaxSize(QSize(64000, 64000));
+    screen->setMaxSize(QSize(64000, 64000)); // 64000^2 should be enough for everyone.
     screen->setCurrentSize(m_size);
-    screen->setMaxActiveOutputsCount(m_outputCount); // FIXME
+    screen->setMaxActiveOutputsCount(m_outputCount);
 }
 

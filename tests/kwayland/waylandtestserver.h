@@ -56,7 +56,6 @@ public:
     KWayland::Server::Display* display();
     QList<KWayland::Server::OutputDeviceInterface*> outputs() const;
 
-
     int outputCount() const;
 
 Q_SIGNALS:
