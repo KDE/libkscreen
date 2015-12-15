@@ -1,19 +1,22 @@
-9 Dec 2015:
-o clean up debug in waylandconfig.cpp
-o clean up debug in waylandoutput.cpp
-- move waylandserver into subdir
-- rename waylandservermain.cpp to main.cpp
-- add tests for removing and adding outputs at runtime
+14 Dec
+o add tests for removing and adding outputs at runtime
+o decide about id assignment
 - fix WaylandScreen::updateKScreenScreen
 - make sure edid goes through
 - make sure edid is parsed
-- decide about id assignment
+
+
+9 Dec 2015:
+o clean up debug in waylandconfig.cpp
+o clean up debug in waylandoutput.cpp
+o move waylandserver into subdir
+o rename waylandservermain.cpp to main.cpp
 
 o kill configreader
 o kill configwriter
 o kill configSerializerMinimal
 o kill 3 redundant autotests (check, check and ... check)
--> 900 lines of code removed, lossless
+-> 1000+ lines of code removed, lossless
 
 
 23 Nov 2015:
@@ -25,8 +28,8 @@ o wire up scale
 o wire up mode
 
 libkscreen TODO:
-* waylandconfiguration has QHash<OutputDevice, id> and creates new ids
-* testwaylandbackend should also test to write config
+o waylandconfiguration has QHash<OutputDevice, id> and creates new ids
+o testwaylandbackend should also test to write config
 
 
 KWayland review by Martin Gräßlin, 3 November, 2015
