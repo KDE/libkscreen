@@ -32,7 +32,7 @@ using namespace KScreen;
 
 Q_LOGGING_CATEGORY(KSCREEN_WAYLAND, "kscreen.wayland");
 
-WaylandConfig* WaylandBackend::s_internalConfig = 0;
+WaylandConfig* WaylandBackend::s_internalConfig = nullptr;
 
 WaylandBackend::WaylandBackend()
     : KScreen::AbstractBackend()
@@ -41,7 +41,7 @@ WaylandBackend::WaylandBackend()
 {
     QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.wayland.debug = true"));
 
-    if (s_internalConfig == 0) {
+    if (s_internalConfig == nullptr) {
         qCDebug(KSCREEN_WAYLAND) << "Loading Wayland backend.";
         s_internalConfig = new WaylandConfig();
     }
@@ -61,12 +61,12 @@ WaylandConfig* WaylandBackend::internalConfig()
 
 QString WaylandBackend::name() const
 {
-    return QString("kwayland");
+    return QStringLiteral("kwayland");
 }
 
 QString WaylandBackend::serviceName() const
 {
-    return QLatin1Literal("org.kde.KScreen.Backend.Wayland");
+    return QLatin1Literal("org.kde.KScreen.Backend.KWayland");
 }
 
 ConfigPtr WaylandBackend::config() const
