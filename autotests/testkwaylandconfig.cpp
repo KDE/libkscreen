@@ -50,6 +50,7 @@ private Q_SLOTS:
     void changeConfig();
     void testPositionChange();
     void testRotationChange();
+    void testRotationChange_data();
     void testModeChange();
 
 private:
@@ -147,8 +148,19 @@ void TestKWaylandConfig::testPositionChange()
     QVERIFY(configSpy.count() > 0);
 }
 
+void TestKWaylandConfig::testRotationChange_data()
+{
+    QTest::addColumn<KScreen::Output::Rotation>("rotation");
+    QTest::newRow("left") << KScreen::Output::Left;
+    QTest::newRow("inverted") << KScreen::Output::Inverted;
+    QTest::newRow("right") << KScreen::Output::Right;
+    QTest::newRow("none") << KScreen::Output::None;
+}
+
 void TestKWaylandConfig::testRotationChange()
 {
+    QFETCH(KScreen::Output::Rotation, rotation);
+
     auto op = new GetConfigOperation();
     QVERIFY(op->exec());
     auto config = op->config();
@@ -159,8 +171,8 @@ void TestKWaylandConfig::testRotationChange()
     monitor->addConfig(config);
     QSignalSpy configSpy(monitor, &KScreen::ConfigMonitor::configurationChanged);
 
-    auto output = config->outputs()[2]; // is this id stable enough?
-    output->setRotation(KScreen::Output::Inverted);
+    auto output = config->outputs().first(); // is this id stable enough?
+    output->setRotation(rotation);
 
     QSignalSpy serverSpy(m_server, &WaylandTestServer::configChanged);
     auto sop = new SetConfigOperation(config, this);
@@ -171,6 +183,16 @@ void TestKWaylandConfig::testRotationChange()
     QCOMPARE(serverSpy.count(), 1);
 
     QVERIFY(configSpy.count() > 0);
+
+    // Get a new config, then compare the output with the expected new value
+    auto newop = new GetConfigOperation();
+    QVERIFY(newop->exec());
+    auto newconfig = newop->config();
+    QVERIFY(newconfig);
+
+    auto newoutput = newconfig->outputs().first();
+    QCOMPARE(newoutput->rotation(), rotation);
+
 }
 
 
