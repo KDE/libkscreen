@@ -157,7 +157,6 @@ void WaylandConfig::setupRegistry()
     m_registry->create(m_connection);
     m_registry->setEventQueue(m_queue);
     m_registry->setup();
-    wl_display_flush(m_connection->display());
 }
 
 void WaylandConfig::addOutput(quint32 name, quint32 version)

@@ -32,10 +32,7 @@ using namespace KScreen;
 WaylandOutput::WaylandOutput(quint32 id, WaylandConfig *parent)
     : QObject(parent)
     , m_id(id)
-    , m_edid(new Edid(QByteArray(), this))
     , m_output(nullptr)
-    , m_protocolName(0)
-    , m_protocolVersion(0)
 {
     m_rotationMap[KWayland::Client::OutputDevice::Transform::Normal] = KScreen::Output::None;
     m_rotationMap[KWayland::Client::OutputDevice::Transform::Rotated90] = KScreen::Output::Right;

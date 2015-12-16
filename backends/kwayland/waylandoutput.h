@@ -48,11 +48,6 @@ public:
     void updateKScreenOutput(KScreen::OutputPtr &output);
 
     quint32 id() const;
-    /**
-     * Access to the Output's Edid object.
-     */
-    //KScreen::Edid edid();
-    void setEdid(const QString &edidstring);
 
     bool enabled() const;
 
@@ -80,13 +75,9 @@ private:
     void showOutput();
     QString modeName(const KWayland::Client::OutputDevice::Mode &m) const;
 
-    mutable QSharedPointer<KScreen::Edid> m_edid;
-
+    quint32 m_id;
     KWayland::Client::OutputDevice* m_output;
     KWayland::Client::Registry* m_registry;
-    quint32 m_protocolName;
-    quint32 m_protocolVersion;
-    quint32 m_id;
 
     QMap<KWayland::Client::OutputDevice::Transform, KScreen::Output::Rotation> m_rotationMap;
     QMap<QString, int> m_modeIdMap; // left-hand-side: KScreen::Mode, right-hand-side: kwayland's mode.id
