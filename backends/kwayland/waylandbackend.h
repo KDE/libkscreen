@@ -47,7 +47,7 @@ public:
     virtual KScreen::ConfigPtr config() const;
     virtual void setConfig(const KScreen::ConfigPtr &config);
     virtual bool isValid() const;
-    //virtual KScreen::Edid *edid(int outputId) const;
+    virtual QByteArray edid(int outputId) const;
     virtual void updateConfig(KScreen::ConfigPtr &config);
 
 private:

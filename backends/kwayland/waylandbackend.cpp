@@ -91,16 +91,14 @@ void WaylandBackend::emitConfigChanged(const KScreen::ConfigPtr cfg)
 }
 
 
-// Edid *WaylandBackend::edid(int outputId) const
-// {
-//     WaylandOutput *output = internalConfig()->outputMap().value(outputId);
-//     if (!output) {
-//         return 0;
-//     }
-//     return output->edid();
-//
-//     return 0;
-// }
+QByteArray WaylandBackend::edid(int outputId) const
+{
+    WaylandOutput *output = internalConfig()->outputMap().value(outputId);
+    if (!output) {
+        return QByteArray();
+    }
+    return output->outputDevice()->edid();
+}
 
 bool WaylandBackend::isValid() const
 {

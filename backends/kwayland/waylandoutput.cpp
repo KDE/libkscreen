@@ -102,21 +102,7 @@ void WaylandOutput::bindOutputDevice(KWayland::Client::Registry* registry, KWayl
     });
 
     m_output->setup(registry->bindOutputDevice(name, version));
-    emit changed();
 }
-
-
-/*
-KScreen::Edid WaylandOutput::edid()
-{
-    if (!m_edid) {
-        m_edid(new KScreen::Edid(QByteArray(), this));
-    }
-    return m_edid;
-    //return KScreen::Edid(QByteArray(), this);
-    return 0;
-}
-*/
 
 KScreen::OutputPtr WaylandOutput::toKScreenOutput()
 {
@@ -133,7 +119,6 @@ void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output)
     output->setEnabled(m_output->enabled() == KWayland::Client::OutputDevice::Enablement::Enabled);
     output->setConnected(true);
     output->setPrimary(true); // FIXME: wayland doesn't have the concept of a primary display
-
     output->setName(m_output->manufacturer() + QStringLiteral("-") + m_output->model());
     // Physical size
     output->setSizeMm(m_output->physicalSize());
