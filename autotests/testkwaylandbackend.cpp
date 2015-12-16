@@ -97,7 +97,7 @@ void testWaylandBackend::loadConfig()
     op->exec();
     m_config = op->config();
     QVERIFY(m_config->isValid());
-    qDebug() << "ops" << m_config->outputs();
+    qCDebug(KSCREEN_WAYLAND) << "ops" << m_config->outputs();
 }
 
 void testWaylandBackend::verifyConfig()
@@ -131,7 +131,7 @@ void testWaylandBackend::verifyOutputs()
             primaryFound = true;
         }
     }
-    //qDebug() << "Primary found? " << primaryFound << m_config->outputs();
+    //qCDebug(KSCREEN_WAYLAND) << "Primary found? " << primaryFound << m_config->outputs();
     QVERIFY(primaryFound);
     QVERIFY(m_config->outputs().count());
     QCOMPARE(m_server->outputCount(), m_config->outputs().count());
@@ -165,7 +165,7 @@ void testWaylandBackend::verifyModes()
         foreach (auto mode, output->modes()) {
             QVERIFY(!mode->name().isEmpty());
             QVERIFY(mode->refreshRate() > 0);
-            QVERIFY(mode->size() != QSize());
+            QVERIFY(mode->size().isValid());
         }
     }
 }
@@ -268,7 +268,7 @@ void testWaylandBackend::testEdid()
     m_server->showOutputs();
 
     QByteArray data = QByteArray::fromBase64("AP///////wAQrBbwTExLQQ4WAQOANCB46h7Frk80sSYOUFSlSwCBgKlA0QBxTwEBAQEBAQEBKDyAoHCwI0AwIDYABkQhAAAaAAAA/wBGNTI1TTI0NUFLTEwKAAAA/ABERUxMIFUyNDEwCiAgAAAA/QA4TB5REQAKICAgICAgAToCAynxUJAFBAMCBxYBHxITFCAVEQYjCQcHZwMMABAAOC2DAQAA4wUDAQI6gBhxOC1AWCxFAAZEIQAAHgEdgBhxHBYgWCwlAAZEIQAAngEdAHJR0B4gbihVAAZEIQAAHowK0Iog4C0QED6WAAZEIQAAGAAAAAAAAAAAAAAAAAAAPg==");
-    //m_serverOutputDevice->setEdid(edid);
+
     auto edid = new Edid(data);
     QVERIFY(edid->isValid());
 
@@ -278,7 +278,7 @@ void testWaylandBackend::testEdid()
     QVERIFY(config->outputs().count() > 0);
 
     auto o = config->outputs().last();
-    qDebug() << "Edid: " << o->edid()->isValid();
+    qCDebug(KSCREEN_WAYLAND) << "Edid: " << o->edid()->isValid();
     QVERIFY(o->edid()->isValid());
     QCOMPARE(o->edid()->deviceId(), edid->deviceId());
     QCOMPARE(o->edid()->name(), edid->name());
