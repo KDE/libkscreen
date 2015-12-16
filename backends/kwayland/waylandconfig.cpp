@@ -135,9 +135,9 @@ void WaylandConfig::setupRegistry()
     m_registry = new KWayland::Client::Registry(this);
 
     connect(m_registry, &KWayland::Client::Registry::outputDeviceAnnounced,
-            this, &WaylandConfig::addOutput, Qt::DirectConnection);
+            this, &WaylandConfig::addOutput);
     connect(m_registry, &KWayland::Client::Registry::outputDeviceRemoved,
-            this, &WaylandConfig::removeOutput, Qt::DirectConnection);
+            this, &WaylandConfig::removeOutput);
 
     connect(m_registry, &KWayland::Client::Registry::outputManagementAnnounced, [=](quint32 name, quint32 version) {
         m_outputManagement = m_registry->createOutputManagement(name, version, m_registry);
