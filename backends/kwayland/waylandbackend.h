@@ -18,17 +18,15 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
-#ifndef WAYLAND_BACKEND_H
-#define WAYLAND_BACKEND_H
+#ifndef KWAYLAND_BACKEND_H
+#define KWAYLAND_BACKEND_H
 
 #include "abstractbackend.h"
 
-#include <QSize>
 #include <QLoggingCategory>
 
 namespace KScreen
 {
-class Output;
 class WaylandConfig;
 
 class WaylandBackend : public KScreen::AbstractBackend
@@ -40,15 +38,15 @@ public:
     explicit WaylandBackend();
     virtual ~WaylandBackend();
 
-    static WaylandConfig *internalConfig();
+    QString name() const Q_DECL_OVERRIDE;
+    QString serviceName() const Q_DECL_OVERRIDE;
+    KScreen::ConfigPtr config() const Q_DECL_OVERRIDE;
+    void setConfig(const KScreen::ConfigPtr &config) Q_DECL_OVERRIDE;
+    bool isValid() const Q_DECL_OVERRIDE;
+    QByteArray edid(int outputId) const Q_DECL_OVERRIDE;
 
-    virtual QString name() const;
-    virtual QString serviceName() const;
-    virtual KScreen::ConfigPtr config() const;
-    virtual void setConfig(const KScreen::ConfigPtr &config);
-    virtual bool isValid() const;
-    virtual QByteArray edid(int outputId) const;
-    virtual void updateConfig(KScreen::ConfigPtr &config);
+    static WaylandConfig *internalConfig();
+    void updateConfig(KScreen::ConfigPtr &config);
 
 private:
     bool m_isValid;
@@ -57,9 +55,8 @@ private:
     void emitConfigChanged(const KScreen::ConfigPtr cfg);
 };
 
-
 } // namespace
 
 Q_DECLARE_LOGGING_CATEGORY(KSCREEN_WAYLAND)
 
-#endif //WAYLAND_BACKEND_H
+#endif //KWAYLAND_BACKEND_H
