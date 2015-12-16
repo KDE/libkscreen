@@ -1,9 +1,9 @@
 # Design of libkscreen's Wayland backend
 
-This backend uses KWayland's OutputManagement protocol for enlisting and
+This backend uses KWayland's OutputManagement protocol for listing and
 configuring devices. This is described here.
 
-## Enlisting outputs
+## Listing outputs
 
 KScreen's outputs are created from KWayland::Client::OutputDevice objects,
 they copy the data into kscreen's Outputs, and update these objects. A list
