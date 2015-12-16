@@ -146,11 +146,13 @@ void WaylandConfig::setupRegistry()
             }
     );
 
-    connect(m_registry, &KWayland::Client::Registry::interfacesAnnounced, [=] {
-        m_registryInitialized = true;
-        m_blockSignals = false;
-        checkInitialized();
-    });
+    connect(m_registry, &KWayland::Client::Registry::interfacesAnnounced,
+            this, [this] {
+                m_registryInitialized = true;
+                m_blockSignals = false;
+                checkInitialized();
+            }
+    );
 
     m_registry->create(m_connection);
     m_registry->setEventQueue(m_queue);
