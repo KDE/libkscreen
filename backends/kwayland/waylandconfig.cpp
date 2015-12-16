@@ -139,10 +139,12 @@ void WaylandConfig::setupRegistry()
     connect(m_registry, &KWayland::Client::Registry::outputDeviceRemoved,
             this, &WaylandConfig::removeOutput);
 
-    connect(m_registry, &KWayland::Client::Registry::outputManagementAnnounced, [=](quint32 name, quint32 version) {
-        m_outputManagement = m_registry->createOutputManagement(name, version, m_registry);
-        checkInitialized();
-    });
+    connect(m_registry, &KWayland::Client::Registry::outputManagementAnnounced,
+            this, [this](quint32 name, quint32 version) {
+                m_outputManagement = m_registry->createOutputManagement(name, version, m_registry);
+                checkInitialized();
+            }
+    );
 
     connect(m_registry, &KWayland::Client::Registry::interfacesAnnounced, [=] {
         m_registryInitialized = true;
