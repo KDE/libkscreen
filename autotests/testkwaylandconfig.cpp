@@ -178,7 +178,7 @@ void TestKWaylandConfig::testRotationChange()
     auto sop = new SetConfigOperation(config, this);
     sop->exec(); // fire and forget...
 
-    QVERIFY(configSpy.wait(2000));
+    QVERIFY(configSpy.wait());
     // check if the server changed
     QCOMPARE(serverSpy.count(), 1);
 
@@ -194,7 +194,6 @@ void TestKWaylandConfig::testRotationChange()
     QCOMPARE(newoutput->rotation(), rotation);
 
 }
-
 
 void TestKWaylandConfig::testModeChange()
 {
@@ -216,7 +215,7 @@ void TestKWaylandConfig::testModeChange()
     auto sop = new SetConfigOperation(config, this);
     sop->exec();
 
-    QVERIFY(configSpy.wait(200));
+    QVERIFY(configSpy.wait());
     // check if the server changed
     QCOMPARE(serverSpy.count(), 1);
 
