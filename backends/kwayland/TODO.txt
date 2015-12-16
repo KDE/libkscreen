@@ -2,8 +2,8 @@
 o add tests for removing and adding outputs at runtime
 o decide about id assignment
 o fix WaylandScreen::updateKScreenScreen
-- make sure edid goes through
-- make sure edid is parsed
+o make sure edid goes through
+o make sure edid is parsed
 
 
 9 Dec 2015:
