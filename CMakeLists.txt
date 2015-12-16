@@ -20,7 +20,6 @@ set(REQUIRED_QT_VERSION 5.2.0)
 find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Core DBus Gui Test X11Extras)
 
 # Wayland backend
-find_package(Wayland 1.2 COMPONENTS Client)
 find_package(KF5Wayland CONFIG)
 add_feature_info("KF5Wayland" KF5Wayland_FOUND "Required for building libkscreen's KWayland backend")
 
