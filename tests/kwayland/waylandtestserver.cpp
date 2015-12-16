@@ -64,7 +64,7 @@ void WaylandTestServer::start()
 
     KScreen::WaylandConfigReader::outputsFromConfig(m_configFile, m_display, m_outputs);
     qDebug() << QString("export WAYLAND_DISPLAY="+m_display->socketName());
-    showOutputs();
+    //showOutputs();
 }
 
 void WaylandTestServer::stop()
@@ -127,13 +127,12 @@ void WaylandTestServer::configurationChangeRequested(KWayland::Server::OutputCon
     }
 
     configurationInterface->setApplied();
-    showOutputs();
+    //showOutputs();
     Q_EMIT configChanged();
 }
 
 void WaylandTestServer::showOutputs()
 {
-    return;
     qDebug() << "******** Wayland server running: " << m_outputs.count() << " outputs. ********";
     foreach (auto o, m_outputs) {
         bool enabled = (o->enabled() == KWayland::Server::OutputDeviceInterface::Enablement::Enabled);
@@ -142,6 +141,7 @@ void WaylandTestServer::showOutputs()
         qDebug() << "         Name: " << QString("%2-%3").arg(o->manufacturer(), o->model());
         qDebug() << "         Mode: " << modeString(o, o->currentModeId());
         qDebug() << "          Pos: " << o->globalPosition();
+        qDebug() << "         Edid: " << o->edid();
         // << o->currentMode().size();
 
     }
