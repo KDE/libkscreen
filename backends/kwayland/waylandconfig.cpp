@@ -101,25 +101,27 @@ void WaylandConfig::initConnection()
 void WaylandConfig::disconnected()
 {
     qCWarning(KSCREEN_WAYLAND) << "Wayland disconnected, cleaning up.";
+    Q_FOREACH (auto output, m_outputMap.values()) {
+        delete output;
+    }
+    m_outputMap.clear();
+
     // Clean up
     if (m_queue) {
         delete m_queue;
         m_queue = nullptr;
     }
+
+    m_connection->deleteLater();
+    m_connection = nullptr;
+
     if (m_thread) {
         m_thread->quit();
         m_thread->wait();
         delete m_thread;
         m_thread = nullptr;
     }
-    delete m_connection;
-    m_connection = nullptr;
 
-
-    Q_FOREACH (auto output, m_outputMap.values()) {
-        delete output;
-    }
-    m_outputMap.clear();
 
     Q_EMIT configChanged(toKScreenConfig());
     Q_EMIT gone();
