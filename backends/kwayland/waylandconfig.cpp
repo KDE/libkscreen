@@ -80,10 +80,6 @@ void WaylandConfig::initConnection()
     //m_queue = new KWayland::Client::EventQueue(this);
     m_connection = new KWayland::Client::ConnectionThread;
 
-    m_connection->moveToThread(m_thread);
-    m_thread->start();
-    m_connection->initConnection();
-
     connect(m_connection, &KWayland::Client::ConnectionThread::connected,
             this, &WaylandConfig::setupRegistry, Qt::QueuedConnection);
 
@@ -95,11 +91,16 @@ void WaylandConfig::initConnection()
         m_thread->quit();
         m_thread->wait();
     });
+
+    m_connection->moveToThread(m_thread);
+    m_thread->start();
+    m_connection->initConnection();
+
 }
 
 void WaylandConfig::disconnected()
 {
-	qCWarning(KSCREEN_WAYLAND) << "Wayland disconnected, cleaning up.";
+    qCWarning(KSCREEN_WAYLAND) << "Wayland disconnected, cleaning up.";
     // Clean up
     if (m_queue) {
         delete m_queue;
