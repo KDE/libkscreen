@@ -1,16 +1,15 @@
-
-Design of libkscreen's Wayland backend
+# Design of libkscreen's Wayland backend
 
 This backend uses KWayland's OutputManagement protocol for enlisting and
 configuring devices. This is described here.
 
-Enlisting outputs
+## Enlisting outputs
 
 KScreen's outputs are created from KWayland::Client::OutputDevice objects,
 they copy the data into kscreen's Outputs, and update these objects. A list
 of outputs is requested from the client Registry object.
 
-Configuring outputs
+## Configuring outputs
 
 The backend asks the global OutputManagement interface for an OutputConfiguration
 object, then sets the changes per outputdevice on this object, and asks the
@@ -20,7 +19,7 @@ For this to work, the compositor should support the Wayland org_kde_kwin_outputd
 and org_kde_kwin_outputmanagement protocols, for example through
 KWayland::Server classes OutputDevice, OutputManagmenent and OuputConfiguration.
 
-General working
+## General working
 
 WaylandBackend creates a global static internal config, available through
 WaylandBackend::internalConfig(). WaylandConfig binds to the wl_registry
@@ -40,7 +39,7 @@ backends, the objects which are handed out to the lib's user are expected
 to be deleted by the user, the backend only takes ownership of its internal
 data representation objects.
 
-Note about scope of output ids
+## Note about scope of output ids
 
 The ids of the outputdevices are internal to the wayland backend. The id is
 generated in the wayland backend, and does not match kwin's output ids. Do
