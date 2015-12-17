@@ -237,7 +237,9 @@ void testWaylandBackend::addOutput()
 
     m_serverOutputDevice->create();
 
-    QVERIFY(configSpy.wait(100));
+    QVERIFY(configSpy.wait());
+    //QTRY_VERIFY(configSpy.count());
+
     GetConfigOperation *op2 = new GetConfigOperation();
     op2->exec();
     auto newconfig = op2->config();
@@ -256,7 +258,7 @@ void testWaylandBackend::removeOutput()
     QSignalSpy configSpy(monitor, &KScreen::ConfigMonitor::configurationChanged);
 
     delete m_serverOutputDevice;
-    QVERIFY(configSpy.wait(100));
+    QVERIFY(configSpy.wait());
     GetConfigOperation *op2 = new GetConfigOperation();
     op2->exec();
     auto newconfig = op2->config();
