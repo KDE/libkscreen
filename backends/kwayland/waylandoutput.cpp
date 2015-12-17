@@ -169,7 +169,7 @@ QString WaylandOutput::modeName(const KWayland::Client::OutputDevice::Mode &m) c
 {
     return QString::number(m.size.width()) + QLatin1Char('x') +
            QString::number(m.size.height()) + QLatin1Char('@') +
-           QString::number((int)(m.refreshRate/1000));
+           QString::number(qRound(m.refreshRate/1000.0));
 }
 
 QString WaylandOutput::name() const
