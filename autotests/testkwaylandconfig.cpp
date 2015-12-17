@@ -100,6 +100,7 @@ void TestKWaylandConfig::changeConfig()
 
     // The first output is currently disabled, let's try to enable it
     auto output = config->outputs().first();
+    QVERIFY(output->isEnabled() == false);
     output->setEnabled(true);
     output->setCurrentModeId("76");
 
