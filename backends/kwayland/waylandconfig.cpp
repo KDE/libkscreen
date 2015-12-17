@@ -190,7 +190,9 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
             Q_EMIT configChanged(toKScreenConfig());
         }
         connect(waylandoutput, &WaylandOutput::changed, [this]() {
-            Q_EMIT configChanged(toKScreenConfig());
+            if (!m_blockSignals) {
+                Q_EMIT configChanged(toKScreenConfig());
+            }
         });
     });
 }
@@ -269,7 +271,7 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newconfig)
 {
     using namespace KWayland::Client;
     // Create a new configuration object
-    auto config = m_outputManagement->createConfiguration();
+    auto wlOutputConfiguration = m_outputManagement->createConfiguration();
 
     foreach (auto output, newconfig->outputs()) {
         auto o_old = m_outputMap[output->id()];
@@ -280,19 +282,19 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newconfig)
         bool old_enabled = (o_old->outputDevice()->enabled() == OutputDevice::Enablement::Enabled);
         if (old_enabled != output->isEnabled()) {
             auto _enablement = output->isEnabled() ? OutputDevice::Enablement::Enabled : OutputDevice::Enablement::Disabled;
-            config->setEnabled(o_old->outputDevice(), _enablement);
+            wlOutputConfiguration->setEnabled(o_old->outputDevice(), _enablement);
         }
 
         // position
         if (device->globalPosition() != output->pos()) {
-            config->setPosition(o_old->outputDevice(), output->pos());
+            wlOutputConfiguration->setPosition(o_old->outputDevice(), output->pos());
         }
 
         // rotation
         auto r_current = o_old->toKScreenRotation(device->transform());
         auto r_new = output->rotation();
         if (r_current != r_new) {
-            config->setTransform(device, o_old->toKWaylandTransform(r_new));
+            wlOutputConfiguration->setTransform(device, o_old->toKWaylandTransform(r_new));
         }
 
         // mode
@@ -300,12 +302,28 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newconfig)
         QString l_newmodeid = output->currentModeId();
         int w_newmodeid = o_old->toKWaylandModeId(l_newmodeid);
         if (w_newmodeid != w_currentmodeid) {
-            config->setMode(device, w_newmodeid);
+            wlOutputConfiguration->setMode(device, w_newmodeid);
         }
 
         // FIXME: scale
     }
+
+    // We now block changes in order to compress events while the compositor is doing its thing
+    // once it's done or failed, we'll trigger configChanged() only once, and not per individual
+    // property change.
+    connect(wlOutputConfiguration, &OutputConfiguration::applied, this, [this, wlOutputConfiguration] {
+        wlOutputConfiguration->deleteLater();
+        m_blockSignals = false;
+        Q_EMIT configChanged(toKScreenConfig());
+    });
+    connect(wlOutputConfiguration, &OutputConfiguration::failed, this, [this, wlOutputConfiguration] {
+        wlOutputConfiguration->deleteLater();
+        m_blockSignals = false;
+        Q_EMIT configChanged(toKScreenConfig());
+    });
+    m_blockSignals = true;
     // Now ask the compositor to apply the changes
-    config->apply();
+    wlOutputConfiguration->apply();
+
 
 }

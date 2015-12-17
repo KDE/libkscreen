@@ -116,7 +116,7 @@ void TestKWaylandConfig::changeConfig()
     // check if the server changed
     QCOMPARE(serverSpy.count(), 1);
 
-    QVERIFY(configSpy.count() > 3);
+    QCOMPARE(configSpy.count(), 1);
 
     monitor->removeConfig(config);
     m_server->showOutputs();
@@ -146,7 +146,7 @@ void TestKWaylandConfig::testPositionChange()
     // check if the server changed
     QCOMPARE(serverSpy.count(), 1);
 
-    QVERIFY(configSpy.count() > 0);
+    QCOMPARE(configSpy.count(), 1);
 }
 
 void TestKWaylandConfig::testRotationChange_data()
@@ -183,7 +183,7 @@ void TestKWaylandConfig::testRotationChange()
     // check if the server changed
     QCOMPARE(serverSpy.count(), 1);
 
-    QVERIFY(configSpy.count() > 0);
+    QCOMPARE(configSpy.count(), 1);
 
     // Get a new config, then compare the output with the expected new value
     auto newop = new GetConfigOperation();
@@ -220,7 +220,7 @@ void TestKWaylandConfig::testModeChange()
     // check if the server changed
     QCOMPARE(serverSpy.count(), 1);
 
-    QVERIFY(configSpy.count() > 0);
+    QCOMPARE(configSpy.count(), 1);
 }
 
 
