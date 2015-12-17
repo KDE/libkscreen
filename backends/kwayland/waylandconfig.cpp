@@ -177,7 +177,9 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
     WaylandOutput *waylandoutput = new WaylandOutput(new_id, this);
     waylandoutput->bindOutputDevice(m_registry, op, name, version);
 
-    connect(waylandoutput, &WaylandOutput::complete, [=]{
+    // finalize: when the output is done, we put it in the known outputs map,
+    // remove if from the list of initializing outputs, and emit configChanged()
+    connect(waylandoutput, &WaylandOutput::complete, this, [this, waylandoutput, name]{
 
         m_outputMap[waylandoutput->id()] = waylandoutput;
         m_initializingOutputs.removeAll(name);

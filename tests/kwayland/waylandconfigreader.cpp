@@ -107,7 +107,7 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
     QVariantList preferredModes = outputConfig["preferredModes"].toList();
 
     int mode_id = 0;
-    Q_FOREACH(const QVariant &_mode, outputConfig["modes"].toList()) {
+    Q_FOREACH (const QVariant &_mode, outputConfig["modes"].toList()) {
         mode_id++;
         const QVariantMap &mode = _mode.toMap();
         OutputDeviceInterface::Mode m0;
