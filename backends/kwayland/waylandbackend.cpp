@@ -30,33 +30,28 @@
 
 using namespace KScreen;
 
-Q_LOGGING_CATEGORY(KSCREEN_WAYLAND, "kscreen.wayland");
+Q_LOGGING_CATEGORY(KSCREEN_WAYLAND, "kscreen.kwayland");
 
-WaylandConfig* WaylandBackend::s_internalConfig = nullptr;
 
 WaylandBackend::WaylandBackend()
     : KScreen::AbstractBackend()
     , m_isValid(true)
     , m_config(nullptr)
+    , m_internalConfig(nullptr)
 {
-    QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.wayland.debug = true"));
+    QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.kwayland.debug = true"));
 
-    if (s_internalConfig == nullptr) {
+    if (m_internalConfig == nullptr) {
         qCDebug(KSCREEN_WAYLAND) << "Loading Wayland backend.";
-        s_internalConfig = new WaylandConfig();
+        m_internalConfig = new WaylandConfig(this);
     }
-    m_config = internalConfig()->toKScreenConfig();
-    connect(s_internalConfig, &WaylandConfig::configChanged,
+    m_config = m_internalConfig->toKScreenConfig();
+    connect(m_internalConfig, &WaylandConfig::configChanged,
             this, &WaylandBackend::emitConfigChanged);
 }
 
 WaylandBackend::~WaylandBackend()
 {
-}
-
-WaylandConfig* WaylandBackend::internalConfig()
-{
-    return s_internalConfig;
 }
 
 QString WaylandBackend::name() const
@@ -72,7 +67,7 @@ QString WaylandBackend::serviceName() const
 ConfigPtr WaylandBackend::config() const
 {
     // Note: This should ONLY be called from GetConfigOperation!
-    return internalConfig()->toKScreenConfig();
+    return m_internalConfig->toKScreenConfig();
 }
 
 void WaylandBackend::setConfig(const KScreen::ConfigPtr &newconfig)
@@ -80,7 +75,7 @@ void WaylandBackend::setConfig(const KScreen::ConfigPtr &newconfig)
     if (!newconfig) {
         return;
     }
-    internalConfig()->applyConfig(newconfig);
+    m_internalConfig->applyConfig(newconfig);
 }
 
 void WaylandBackend::emitConfigChanged(const KScreen::ConfigPtr cfg)
@@ -93,7 +88,7 @@ void WaylandBackend::emitConfigChanged(const KScreen::ConfigPtr cfg)
 
 QByteArray WaylandBackend::edid(int outputId) const
 {
-    WaylandOutput *output = internalConfig()->outputMap().value(outputId);
+    WaylandOutput *output = m_internalConfig->outputMap().value(outputId);
     if (!output) {
         return QByteArray();
     }
@@ -108,7 +103,7 @@ bool WaylandBackend::isValid() const
 void WaylandBackend::updateConfig(ConfigPtr &config)
 {
     Q_ASSERT(config != 0);
-    internalConfig()->updateKScreenConfig(config);
+    m_internalConfig->updateKScreenConfig(config);
 }
 
 

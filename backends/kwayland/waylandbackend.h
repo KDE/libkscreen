@@ -45,12 +45,11 @@ public:
     bool isValid() const Q_DECL_OVERRIDE;
     QByteArray edid(int outputId) const Q_DECL_OVERRIDE;
 
-    static WaylandConfig *internalConfig();
     void updateConfig(KScreen::ConfigPtr &config);
 
 private:
     bool m_isValid;
-    static WaylandConfig *s_internalConfig;
+    WaylandConfig *m_internalConfig;
     KScreen::ConfigPtr m_config;
     void emitConfigChanged(const KScreen::ConfigPtr cfg);
 };
