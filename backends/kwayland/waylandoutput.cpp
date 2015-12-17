@@ -59,12 +59,18 @@ KWayland::Client::OutputDevice::Transform WaylandOutput::toKWaylandTransform(con
 
 QString WaylandOutput::toKScreenModeId(int kwaylandmodeid) const
 {
-    return m_modeIdMap.key(kwaylandmodeid);
+    if (!m_modeIdMap.values().contains(kwaylandmodeid)) {
+        qCWarning(KSCREEN_WAYLAND) << "Invalid kwayland mode id:" << kwaylandmodeid << m_modeIdMap;
+    }
+    return m_modeIdMap.key(kwaylandmodeid, QStringLiteral("invalid_mode_id"));
 }
 
 int WaylandOutput::toKWaylandModeId(const QString &kscreenmodeid) const
 {
-    return m_modeIdMap[kscreenmodeid];
+    if (!m_modeIdMap.contains(kscreenmodeid)) {
+        qCWarning(KSCREEN_WAYLAND) << "Invalid kscreen mode id:" << kscreenmodeid << m_modeIdMap;
+    }
+    return m_modeIdMap.value(kscreenmodeid, -1);
 }
 
 WaylandOutput::~WaylandOutput()
