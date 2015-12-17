@@ -141,7 +141,7 @@ void testWaylandBackend::verifyOutputs()
     QVERIFY(primary->isConnected());
 
     QList<int> ids;
-    foreach (auto output, m_config->outputs()) {
+    foreach (const auto &output, m_config->outputs()) {
         QVERIFY(!output->name().isEmpty());
         QVERIFY(output->id() > -1);
         QVERIFY(output->isConnected());
@@ -161,7 +161,7 @@ void testWaylandBackend::verifyModes()
     QVERIFY(primary);
     QVERIFY(primary->modes().count() > 0);
 
-    foreach (auto output, m_config->outputs()) {
+    foreach (const auto &output, m_config->outputs()) {
         foreach (auto mode, output->modes()) {
             QVERIFY(!mode->name().isEmpty());
             QVERIFY(mode->refreshRate() > 0);
@@ -173,7 +173,7 @@ void testWaylandBackend::verifyModes()
 void testWaylandBackend::verifyIds()
 {
     QList<quint32> ids;
-    foreach (auto output, m_config->outputs()) {
+    foreach (const auto &output, m_config->outputs()) {
         QVERIFY(ids.contains(output->id()) == false);
         QVERIFY(output->id() > 0);
         ids << output->id();
