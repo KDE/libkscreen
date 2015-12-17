@@ -80,11 +80,8 @@ void WaylandBackend::setConfig(const KScreen::ConfigPtr &newconfig)
 
 void WaylandBackend::emitConfigChanged(const KScreen::ConfigPtr cfg)
 {
-    // we have to pass the original config here, since ConfigMonitor needs it to match
-    // the connected configs
-    Q_EMIT configChanged(m_config);
+    Q_EMIT configChanged(cfg);
 }
-
 
 QByteArray WaylandBackend::edid(int outputId) const
 {
