@@ -117,11 +117,13 @@ void WaylandConfig::disconnected()
 
     if (m_thread) {
         m_thread->quit();
-        m_thread->wait();
+        if (!m_thread->wait(3000)) {
+            m_thread->terminate();
+            m_thread()->wait();
+        }
         delete m_thread;
         m_thread = nullptr;
     }
-
 
     Q_EMIT configChanged(toKScreenConfig());
     Q_EMIT gone();
