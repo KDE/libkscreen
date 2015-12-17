@@ -119,7 +119,7 @@ void WaylandConfig::disconnected()
         m_thread->quit();
         if (!m_thread->wait(3000)) {
             m_thread->terminate();
-            m_thread()->wait();
+            m_thread->wait();
         }
         delete m_thread;
         m_thread = nullptr;
@@ -233,7 +233,7 @@ void WaylandConfig::updateKScreenConfig(KScreen::ConfigPtr &config) const
 
     //Removing removed outputs
     KScreen::OutputList outputs = config->outputs();
-    Q_FOREACH (KScreen::OutputPtr output, outputs) {
+    Q_FOREACH (const KScreen::OutputPtr &output, outputs) {
         if (!m_outputMap.keys().contains(output->id())) {
             config->removeOutput(output->id());
         }
@@ -241,7 +241,7 @@ void WaylandConfig::updateKScreenConfig(KScreen::ConfigPtr &config) const
 
     // Add KScreen::Outputs that aren't in the list yet, handle primaryOutput
     KScreen::OutputList kscreenOutputs = config->outputs();
-    Q_FOREACH (auto output, m_outputMap.values()) {
+    Q_FOREACH (const auto &output, m_outputMap.values()) {
         KScreen::OutputPtr kscreenOutput = kscreenOutputs[output->id()];
         if (!kscreenOutput) {
             kscreenOutput = output->toKScreenOutput();
