@@ -175,13 +175,13 @@ QString WaylandOutput::modeName(const KWayland::Client::OutputDevice::Mode &m) c
 QString WaylandOutput::name() const
 {
     Q_ASSERT(m_output);
-    return QString("%1 %2").arg(m_output->manufacturer(), m_output->model());
+    return QStringLiteral("%1 %2").arg(m_output->manufacturer(), m_output->model());
 }
 
 QDebug operator<<(QDebug dbg, const WaylandOutput *output)
 {
     dbg << "WaylandOutput(Id:" << output->id() <<", Name:" << \
-        QString(output->outputDevice()->manufacturer() + " " + \
+        QString(output->outputDevice()->manufacturer() + QStringLiteral(" ") + \
         output->outputDevice()->model())  << ")";
     return dbg;
 }
