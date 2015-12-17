@@ -34,14 +34,16 @@ WaylandOutput::WaylandOutput(quint32 id, WaylandConfig *parent)
     , m_id(id)
     , m_output(nullptr)
 {
-    m_rotationMap[KWayland::Client::OutputDevice::Transform::Normal] = KScreen::Output::None;
-    m_rotationMap[KWayland::Client::OutputDevice::Transform::Rotated90] = KScreen::Output::Right;
-    m_rotationMap[KWayland::Client::OutputDevice::Transform::Rotated180] = KScreen::Output::Inverted;
-    m_rotationMap[KWayland::Client::OutputDevice::Transform::Rotated270] = KScreen::Output::Left;
-    m_rotationMap[KWayland::Client::OutputDevice::Transform::Flipped] = KScreen::Output::None;
-    m_rotationMap[KWayland::Client::OutputDevice::Transform::Flipped90] = KScreen::Output::Right;
-    m_rotationMap[KWayland::Client::OutputDevice::Transform::Flipped180] = KScreen::Output::Inverted;
-    m_rotationMap[KWayland::Client::OutputDevice::Transform::Flipped270] = KScreen::Output::Left;
+    m_rotationMap = {
+        {KWayland::Client::OutputDevice::Transform::Normal, KScreen::Output::None},
+        {KWayland::Client::OutputDevice::Transform::Rotated90, KScreen::Output::Right},
+        {KWayland::Client::OutputDevice::Transform::Rotated180, KScreen::Output::Inverted},
+        {KWayland::Client::OutputDevice::Transform::Rotated270, KScreen::Output::Left},
+        {KWayland::Client::OutputDevice::Transform::Flipped, KScreen::Output::None},
+        {KWayland::Client::OutputDevice::Transform::Flipped90, KScreen::Output::Right},
+        {KWayland::Client::OutputDevice::Transform::Flipped180, KScreen::Output::Inverted},
+        {KWayland::Client::OutputDevice::Transform::Flipped270, KScreen::Output::Left}
+    };
 }
 
 KScreen::Output::Rotation WaylandOutput::toKScreenRotation(const KWayland::Client::OutputDevice::Transform  transform) const
