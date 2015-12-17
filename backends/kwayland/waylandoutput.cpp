@@ -48,7 +48,8 @@ WaylandOutput::WaylandOutput(quint32 id, WaylandConfig *parent)
 
 KScreen::Output::Rotation WaylandOutput::toKScreenRotation(const KWayland::Client::OutputDevice::Transform  transform) const
 {
-    return m_rotationMap[transform];
+    auto it = m_rotationMap.constFind(transform);
+    return it.value();
 }
 
 KWayland::Client::OutputDevice::Transform WaylandOutput::toKWaylandTransform(const KScreen::Output::Rotation rotation) const
