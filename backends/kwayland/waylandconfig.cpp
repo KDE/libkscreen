@@ -54,7 +54,7 @@ WaylandConfig::WaylandConfig(QObject *parent)
     , m_kscreenConfig(nullptr)
 {
     connect(this, &WaylandConfig::initialized, &m_syncLoop, &QEventLoop::quit);
-    QTimer::singleShot(1000, [=] {
+    QTimer::singleShot(1000, [this] {
         if (m_syncLoop.isRunning()) {
             qCWarning(KSCREEN_WAYLAND) << "Connection to Wayland server at socket:" << m_connection->socketName() << "timed out.";
             m_syncLoop.quit();
@@ -64,7 +64,6 @@ WaylandConfig::WaylandConfig(QObject *parent)
     });
     initConnection();
     m_syncLoop.exec();
-    m_blockSignals = false;
 }
 
 WaylandConfig::~WaylandConfig()
@@ -85,17 +84,29 @@ void WaylandConfig::initConnection()
 
     connect(m_connection, &KWayland::Client::ConnectionThread::connectionDied,
             this, &WaylandConfig::disconnected, Qt::QueuedConnection);
-    connect(m_connection, &KWayland::Client::ConnectionThread::failed, [=] {
-		qCWarning(KSCREEN_WAYLAND) << "Failed to connect to Wayland server at socket:" << m_connection->socketName();
+    connect(m_connection, &KWayland::Client::ConnectionThread::failed, [this] {
+        qCWarning(KSCREEN_WAYLAND) << "Failed to connect to Wayland server at socket:" << m_connection->socketName();
         m_syncLoop.quit();
         m_thread->quit();
         m_thread->wait();
     });
 
-    m_connection->moveToThread(m_thread);
     m_thread->start();
+    m_connection->moveToThread(m_thread);
     m_connection->initConnection();
 
+}
+
+void WaylandConfig::blockSignals()
+{
+    Q_ASSERT(m_blockSignals == false);
+    m_blockSignals = true;
+}
+
+void WaylandConfig::unblockSignals()
+{
+    Q_ASSERT(m_blockSignals == true);
+    m_blockSignals = false;
 }
 
 void WaylandConfig::disconnected()
@@ -151,7 +162,7 @@ void WaylandConfig::setupRegistry()
     connect(m_registry, &KWayland::Client::Registry::interfacesAnnounced,
             this, [this] {
                 m_registryInitialized = true;
-                m_blockSignals = false;
+                unblockSignals();
                 checkInitialized();
             }
     );
@@ -313,17 +324,15 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newconfig)
     // property change.
     connect(wlOutputConfiguration, &OutputConfiguration::applied, this, [this, wlOutputConfiguration] {
         wlOutputConfiguration->deleteLater();
-        m_blockSignals = false;
+        unblockSignals();
         Q_EMIT configChanged(toKScreenConfig());
     });
     connect(wlOutputConfiguration, &OutputConfiguration::failed, this, [this, wlOutputConfiguration] {
         wlOutputConfiguration->deleteLater();
-        m_blockSignals = false;
+        unblockSignals();
         Q_EMIT configChanged(toKScreenConfig());
     });
-    m_blockSignals = true;
+    blockSignals();
     // Now ask the compositor to apply the changes
     wlOutputConfiguration->apply();
-
-
 }

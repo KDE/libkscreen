@@ -72,7 +72,6 @@ public:
     void updateKScreenConfig(KScreen::ConfigPtr &config) const;
 
     QMap<int, WaylandOutput *> outputMap() const;
-    //int outputId(KWayland::Client::OutputDevice *wlo);
 
     void addOutput(quint32 name, quint32 version);
     void removeOutput(quint32 name);
@@ -91,6 +90,8 @@ private Q_SLOTS:
 
 private:
     void initConnection();
+    void blockSignals();
+    void unblockSignals();
 
     KWayland::Client::ConnectionThread *m_connection;
     KWayland::Client::EventQueue *m_queue;
