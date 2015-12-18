@@ -192,7 +192,7 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
     // remove if from the list of initializing outputs, and emit configChanged()
     connect(waylandoutput, &WaylandOutput::complete, this, [this, waylandoutput, name]{
 
-        m_outputMap[waylandoutput->id()] = waylandoutput;
+        m_outputMap.insert(waylandoutput->id(), waylandoutput);
         m_initializingOutputs.removeAll(name);
         checkInitialized();
 
@@ -200,7 +200,7 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
             m_screen->setOutputs(m_outputMap.values());
             Q_EMIT configChanged(toKScreenConfig());
         }
-        connect(waylandoutput, &WaylandOutput::changed, [this]() {
+        connect(waylandoutput, &WaylandOutput::changed, this, [this]() {
             if (!m_blockSignals) {
                 Q_EMIT configChanged(toKScreenConfig());
             }
@@ -230,7 +230,7 @@ KScreen::ConfigPtr WaylandConfig::toKScreenConfig()
 
 void WaylandConfig::removeOutput(quint32 name)
 {
-    int kscreen_id = m_outputIds[name]; //
+    const int kscreen_id = m_outputIds[name];
     auto output = m_outputMap[kscreen_id];
     m_outputMap.remove(kscreen_id);
     m_screen->setOutputs(m_outputMap.values());
@@ -284,7 +284,7 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newconfig)
     // Create a new configuration object
     auto wlOutputConfiguration = m_outputManagement->createConfiguration();
 
-    foreach (auto output, newconfig->outputs()) {
+    Q_FOREACH (auto output, newconfig->outputs()) {
         auto o_old = m_outputMap[output->id()];
         auto device = o_old->outputDevice();
         Q_ASSERT(o_old != nullptr);

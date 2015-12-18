@@ -100,7 +100,7 @@ void WaylandOutput::bindOutputDevice(KWayland::Client::Registry* registry, KWayl
     }
     m_output = op;
 
-    connect(m_output, &KWayland::Client::OutputDevice::done, [=]() {
+    connect(m_output, &KWayland::Client::OutputDevice::done, this, [this]() {
                 Q_EMIT complete();
                 connect(m_output, &KWayland::Client::OutputDevice::changed,
                         this, &WaylandOutput::changed);
@@ -132,7 +132,7 @@ void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output)
     output->setRotation(m_rotationMap[m_output->transform()]);
     KScreen::ModeList modeList;
     m_modeIdMap.clear();
-    QString currentModeId("-1");
+    QString currentModeId = QStringLiteral("-1");
     Q_FOREACH (const KWayland::Client::OutputDevice::Mode &m, m_output->modes()) {
         KScreen::ModePtr mode(new KScreen::Mode());
         const QString modename = modeName(m);
@@ -157,7 +157,7 @@ void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output)
         // Add to the modelist which gets set on the output
         modeList[modeid] = mode;
     }
-    if (currentModeId == "-1") {
+    if (currentModeId == QLatin1String("-1")) {
         qCWarning(KSCREEN_WAYLAND) << "Could not find the current mode id" << modeList;
     }
     output->setCurrentModeId(currentModeId);
