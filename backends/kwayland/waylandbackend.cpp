@@ -37,14 +37,12 @@ WaylandBackend::WaylandBackend()
     : KScreen::AbstractBackend()
     , m_isValid(true)
     , m_config(nullptr)
-    , m_internalConfig(nullptr)
+    , m_internalConfig(new WaylandConfig(this))
 {
     QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.kwayland.debug = true"));
 
-    if (m_internalConfig == nullptr) {
-        qCDebug(KSCREEN_WAYLAND) << "Loading Wayland backend.";
-        m_internalConfig = new WaylandConfig(this);
-    }
+    qCDebug(KSCREEN_WAYLAND) << "Loading Wayland backend.";
+    m_internalConfig = new WaylandConfig(this);
     m_config = m_internalConfig->toKScreenConfig();
     connect(m_internalConfig, &WaylandConfig::configChanged,
             this, &WaylandBackend::emitConfigChanged);
