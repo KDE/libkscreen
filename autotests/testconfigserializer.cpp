@@ -158,7 +158,7 @@ private Q_SLOTS:
         output->setClones(QList<int>() << 50 << 60);
         output->setSizeMm(QSize(310, 250));
 
-        QJsonObject obj = KScreen::ConfigSerializer::serializeOutput(output);
+        const QJsonObject obj = KScreen::ConfigSerializer::serializeOutput(output);
         QVERIFY(!obj.isEmpty());
 
         QCOMPARE(obj[QLatin1String("id")].toInt(), output->id());

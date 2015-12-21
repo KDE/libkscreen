@@ -102,7 +102,7 @@ void WaylandTestServer::configurationChangeRequested(KWayland::Server::OutputCon
     qDebug() << "Server received change request, changes:" << configurationInterface->changes().count();
 
     auto changes = configurationInterface->changes();
-    for (auto outputdevice: changes.keys()) {
+    Q_FOREACH (const auto &outputdevice, changes.keys()) {
         auto c = changes[outputdevice];
         if (c->enabledChanged()) {
             qDebug() << "Setting enabled:";
@@ -153,7 +153,7 @@ QString WaylandTestServer::modeString(KWayland::Server::OutputDeviceInterface* o
     QString s;
     QString ids;
     int _i = 0;
-    for (auto _m: outputdevice->modes()) {
+    Q_FOREACH (const auto &_m, outputdevice->modes()) {
         _i++;
         if (_i < 6) {
             ids.append(QString::number(_m.id) + ", ");

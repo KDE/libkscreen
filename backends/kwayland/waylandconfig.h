@@ -65,7 +65,7 @@ class WaylandConfig : public QObject
     Q_OBJECT
 
 public:
-    explicit WaylandConfig(QObject *parent = 0);
+    explicit WaylandConfig(QObject *parent = nullptr);
     virtual ~WaylandConfig();
 
     KScreen::ConfigPtr toKScreenConfig();

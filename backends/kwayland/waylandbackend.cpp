@@ -48,10 +48,6 @@ WaylandBackend::WaylandBackend()
             this, &WaylandBackend::emitConfigChanged);
 }
 
-WaylandBackend::~WaylandBackend()
-{
-}
-
 QString WaylandBackend::name() const
 {
     return QStringLiteral("kwayland");
@@ -76,7 +72,7 @@ void WaylandBackend::setConfig(const KScreen::ConfigPtr &newconfig)
     m_internalConfig->applyConfig(newconfig);
 }
 
-void WaylandBackend::emitConfigChanged(const KScreen::ConfigPtr cfg)
+void WaylandBackend::emitConfigChanged(const KScreen::ConfigPtr &cfg)
 {
     Q_EMIT configChanged(cfg);
 }

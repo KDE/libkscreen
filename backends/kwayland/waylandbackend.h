@@ -36,7 +36,7 @@ class WaylandBackend : public KScreen::AbstractBackend
 
 public:
     explicit WaylandBackend();
-    virtual ~WaylandBackend();
+    virtual ~WaylandBackend() = default;
 
     QString name() const Q_DECL_OVERRIDE;
     QString serviceName() const Q_DECL_OVERRIDE;
@@ -51,7 +51,7 @@ private:
     bool m_isValid;
     WaylandConfig *m_internalConfig;
     KScreen::ConfigPtr m_config;
-    void emitConfigChanged(const KScreen::ConfigPtr cfg);
+    void emitConfigChanged(const KScreen::ConfigPtr &cfg);
 };
 
 } // namespace
