@@ -27,7 +27,6 @@ using namespace KScreen;
 
 WaylandScreen::WaylandScreen(WaylandConfig *config)
     : QObject(config)
-    , m_size(QSize())
     , m_outputCount(0)
 {
 }

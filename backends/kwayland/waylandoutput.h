@@ -71,7 +71,7 @@ Q_SIGNALS:
 
 private:
     friend WaylandConfig;
-    explicit WaylandOutput(quint32 id, WaylandConfig *parent = 0);
+    explicit WaylandOutput(quint32 id, WaylandConfig *parent = nullptr);
     void showOutput();
     QString modeName(const KWayland::Client::OutputDevice::Mode &m) const;
 

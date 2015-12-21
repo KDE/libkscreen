@@ -112,8 +112,7 @@ void WaylandConfig::unblockSignals()
 void WaylandConfig::disconnected()
 {
     qCWarning(KSCREEN_WAYLAND) << "Wayland disconnected, cleaning up.";
-    qDeleteAll(m_outputMap.values());
-    m_outputMap.clear();
+    qDeleteAll(m_outputMap);
 
     // Clean up
     if (m_queue) {

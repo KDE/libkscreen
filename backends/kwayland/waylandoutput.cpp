@@ -153,7 +153,7 @@ void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output)
             currentModeId = modeid;
         }
         // Update the kscreen => kwayland mode id translation map
-        m_modeIdMap[modeid] = m.id;
+        m_modeIdMap.insert(modeid, m.id);
         // Add to the modelist which gets set on the output
         modeList[modeid] = mode;
     }

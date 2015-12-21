@@ -45,7 +45,7 @@ class KSCREEN_EXPORT Screen : public QObject
 
         /**
          * The id of this screen.
-         * @return Minimum screen size in pixels
+         * @return id of this screen
          */
         int id() const;
         /**
