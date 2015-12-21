@@ -52,7 +52,7 @@ public:
     bool enabled() const;
 
     KWayland::Client::OutputDevice* outputDevice() const;
-    void bindOutputDevice(KWayland::Client::Registry* registry, KWayland::Client::OutputDevice* op, quint32 name, quint32 version);
+    void bindOutputDevice(KWayland::Client::Registry *registry, KWayland::Client::OutputDevice *op, quint32 name, quint32 version);
 
     QString name() const;
 

@@ -54,7 +54,7 @@ WaylandConfig::WaylandConfig(QObject *parent)
     , m_kscreenConfig(nullptr)
 {
     connect(this, &WaylandConfig::initialized, &m_syncLoop, &QEventLoop::quit);
-    QTimer::singleShot(1000, [this] {
+    QTimer::singleShot(1000, this, [this] {
         if (m_syncLoop.isRunning()) {
             qCWarning(KSCREEN_WAYLAND) << "Connection to Wayland server at socket:" << m_connection->socketName() << "timed out.";
             m_syncLoop.quit();
@@ -84,7 +84,7 @@ void WaylandConfig::initConnection()
 
     connect(m_connection, &KWayland::Client::ConnectionThread::connectionDied,
             this, &WaylandConfig::disconnected, Qt::QueuedConnection);
-    connect(m_connection, &KWayland::Client::ConnectionThread::failed, [this] {
+    connect(m_connection, &KWayland::Client::ConnectionThread::failed, this, [this] {
         qCWarning(KSCREEN_WAYLAND) << "Failed to connect to Wayland server at socket:" << m_connection->socketName();
         m_syncLoop.quit();
         m_thread->quit();
@@ -112,9 +112,7 @@ void WaylandConfig::unblockSignals()
 void WaylandConfig::disconnected()
 {
     qCWarning(KSCREEN_WAYLAND) << "Wayland disconnected, cleaning up.";
-    Q_FOREACH (auto output, m_outputMap.values()) {
-        delete output;
-    }
+    qDeleteAll(m_outputMap.values());
     m_outputMap.clear();
 
     // Clean up
@@ -174,10 +172,10 @@ void WaylandConfig::setupRegistry()
 
 void WaylandConfig::addOutput(quint32 name, quint32 version)
 {
-    m_newOutputId++;
+    ++m_newOutputId;
     quint32 new_id = m_newOutputId;
     m_outputIds[name] = new_id;
-    if (m_outputMap.keys().contains(new_id)) {
+    if (m_outputMap.contains(new_id)) {
         return;
     }
     if (!m_initializingOutputs.contains(name)) {
@@ -231,8 +229,7 @@ KScreen::ConfigPtr WaylandConfig::toKScreenConfig()
 void WaylandConfig::removeOutput(quint32 name)
 {
     const int kscreen_id = m_outputIds[name];
-    auto output = m_outputMap[kscreen_id];
-    m_outputMap.remove(kscreen_id);
+    auto output = m_outputMap.take(kscreen_id);
     m_screen->setOutputs(m_outputMap.values());
     delete output;
     if (!m_blockSignals) {
@@ -247,16 +244,16 @@ void WaylandConfig::updateKScreenConfig(KScreen::ConfigPtr &config) const
     m_screen->updateKScreenScreen(screen);
 
     //Removing removed outputs
-    KScreen::OutputList outputs = config->outputs();
+    const KScreen::OutputList outputs = config->outputs();
     Q_FOREACH (const KScreen::OutputPtr &output, outputs) {
-        if (!m_outputMap.keys().contains(output->id())) {
+        if (!m_outputMap.contains(output->id())) {
             config->removeOutput(output->id());
         }
     }
 
     // Add KScreen::Outputs that aren't in the list yet, handle primaryOutput
     KScreen::OutputList kscreenOutputs = config->outputs();
-    Q_FOREACH (const auto &output, m_outputMap.values()) {
+    Q_FOREACH (const auto &output, m_outputMap) {
         KScreen::OutputPtr kscreenOutput = kscreenOutputs[output->id()];
         if (!kscreenOutput) {
             kscreenOutput = output->toKScreenOutput();
@@ -278,13 +275,13 @@ QMap<int, WaylandOutput*> WaylandConfig::outputMap() const
     return m_outputMap;
 }
 
-void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newconfig)
+void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
 {
     using namespace KWayland::Client;
     // Create a new configuration object
     auto wlOutputConfiguration = m_outputManagement->createConfiguration();
 
-    Q_FOREACH (auto output, newconfig->outputs()) {
+    Q_FOREACH (auto output, newConfig->outputs()) {
         auto o_old = m_outputMap[output->id()];
         auto device = o_old->outputDevice();
         Q_ASSERT(o_old != nullptr);
