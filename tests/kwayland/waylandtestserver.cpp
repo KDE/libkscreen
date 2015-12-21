@@ -69,7 +69,7 @@ void WaylandTestServer::start()
 
 void WaylandTestServer::stop()
 {
-    for (auto o: m_outputs) {
+    Q_FOREACH (const auto &o, m_outputs) {
         delete o;
     }
     m_outputs.clear();

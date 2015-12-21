@@ -214,7 +214,7 @@ void WaylandConfig::checkInitialized()
         m_initializingOutputs.isEmpty() && m_outputMap.count() && m_outputManagement != nullptr) {
         m_screen->setOutputs(m_outputMap.values());
         emit initialized();
-    };
+    }
 }
 
 KScreen::ConfigPtr WaylandConfig::toKScreenConfig()
