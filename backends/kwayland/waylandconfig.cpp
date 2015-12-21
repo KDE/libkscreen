@@ -113,6 +113,7 @@ void WaylandConfig::disconnected()
 {
     qCWarning(KSCREEN_WAYLAND) << "Wayland disconnected, cleaning up.";
     qDeleteAll(m_outputMap);
+    m_outputMap.clear();
 
     // Clean up
     if (m_queue) {
@@ -210,7 +211,7 @@ void WaylandConfig::checkInitialized()
     if (!m_blockSignals && m_registryInitialized &&
         m_initializingOutputs.isEmpty() && m_outputMap.count() && m_outputManagement != nullptr) {
         m_screen->setOutputs(m_outputMap.values());
-        emit initialized();
+        Q_EMIT initialized();
     }
 }
 
