@@ -30,9 +30,6 @@
 #include <KWayland/Client/outputdevice.h>
 #include <KWayland/Client/outputmanagement.h>
 
-// Wayland
-#include <wayland-client-protocol.h>
-
 
 // Qt
 #include <QTimer>
