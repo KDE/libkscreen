@@ -54,7 +54,6 @@ void WaylandTestServer::start()
         m_display->setSocketName(s_socketName);
     } else {
         m_display->setSocketName(qgetenv("WAYLAND_DISPLAY").constData());
-
     }
     m_display->start();
 
@@ -64,6 +63,7 @@ void WaylandTestServer::start()
 
     KScreen::WaylandConfigReader::outputsFromConfig(m_configFile, m_display, m_outputs);
     qDebug() << QString("export WAYLAND_DISPLAY="+m_display->socketName());
+    qDebug() << QString("You can specify the WAYLAND_DISPLAY for this server by exporting it in the environment");
     //showOutputs();
 }
 
