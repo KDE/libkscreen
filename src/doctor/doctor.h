@@ -43,6 +43,9 @@ public:
     void showJson();
     int outputCount() const;
 
+    void enable(int id);
+    void disable(int id);
+
 Q_SIGNALS:
     void outputsChanged();
     void started();
