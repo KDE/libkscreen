@@ -1,5 +1,5 @@
 /*************************************************************************************
- *  Copyright 2014-2015 by Sebastian Kügler <sebas@kde.org>                          *
+ *  Copyright 2014-2016 by Sebastian Kügler <sebas@kde.org>                          *
  *                                                                                   *
  *  This program is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU General Public License                      *
@@ -21,9 +21,6 @@
 #include <QCoreApplication>
 #include <QCommandLineParser>
 
-#include <QDebug>
-
-
 int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
@@ -38,7 +35,6 @@ int main(int argc, char **argv)
     parser.process(app);
 
     if (parser.isSet(config)) {
-        qDebug() << "Creating Wayland server from " << parser.value(config);
         server.setConfig(parser.value(config));
     } else {
         server.setConfig(QString::fromLocal8Bit(TEST_DATA)+"/multipleoutput.json");
