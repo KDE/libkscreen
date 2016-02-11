@@ -30,13 +30,20 @@ int main(int argc, char **argv)
 
     KScreen::Doctor server;
 
-    QCommandLineOption config = QCommandLineOption(QStringList() << QStringLiteral("c") << "config",
-                                                  QStringLiteral("Config file"), "config");
-    QCommandLineOption json = QCommandLineOption(QStringList() << QStringLiteral("j") << "json", QStringLiteral("Json output"), "jsonfile");
+    QCommandLineOption outputs = QCommandLineOption(QStringList() << QStringLiteral("o") << "outputs",
+                                                  QStringLiteral("Show outputs"));
+    QCommandLineOption json = QCommandLineOption(QStringList() << QStringLiteral("j") << "json",
+                                                 QStringLiteral("Show configuration in JSON format"));
+    QCommandLineOption enable = QCommandLineOption(QStringList() << QStringLiteral("e") << "enable",
+                                                 QStringLiteral("Output id"), "output_id");
+    QCommandLineOption disable = QCommandLineOption(QStringList() << QStringLiteral("d") << "disable",
+                                                 QStringLiteral("Output id"), "output_id");
     QCommandLineParser parser;
     parser.addHelpOption();
-    parser.addOption(config);
+    parser.addOption(outputs);
     parser.addOption(json);
+    parser.addOption(enable);
+    parser.addOption(disable);
     parser.process(app);
 
     server.start(&parser);
