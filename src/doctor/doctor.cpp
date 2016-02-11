@@ -19,7 +19,6 @@
 #include "doctor.h"
 
 #include <QDebug>
-
 #include <QCommandLineParser>
 #include <QDateTime>
 #include <QJsonArray>
@@ -27,10 +26,12 @@
 #include <QJsonObject>
 #include <QFile>
 #include <QStandardPaths>
+
 #include "../config.h"
 #include "../configoperation.h"
 #include "../getconfigoperation.h"
 #include "../edid.h"
+#include "../output.h"
 
 static QTextStream cout(stdout);
 static QTextStream cerr(stderr);
@@ -51,7 +52,6 @@ Doctor::Doctor(QObject *parent)
     : QObject(parent)
     , m_config(nullptr)
 {
-    cout << "*********************";
 }
 
 Doctor::~Doctor()
@@ -61,8 +61,6 @@ Doctor::~Doctor()
 void Doctor::start(QCommandLineParser *parser)
 {
     m_parser = parser;
-    qDebug() << "START: Requesting Config";
-    cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$";
     KScreen::GetConfigOperation *op = new KScreen::GetConfigOperation();
     QObject::connect(op, &KScreen::GetConfigOperation::finished, this,
                      [&](KScreen::ConfigOperation *op) {
@@ -73,14 +71,17 @@ void Doctor::start(QCommandLineParser *parser)
 
 void Doctor::configReceived(KScreen::ConfigOperation *op)
 {
-    cout << "Config received";
+    cout << "Config received" << endl;
     m_config = op->config();
 
     if (m_parser->isSet("json")) {
         showJson();
-
+        qApp->quit();
     }
-    qApp->quit();
+    if (m_parser->isSet("outputs")) {
+        showOutputs();
+        qApp->quit();
+    }
 }
 
 
@@ -92,14 +93,35 @@ int Doctor::outputCount() const
 
 void Doctor::showOutputs()
 {
-    cout << "show outputs";
+    if (!m_config) {
+        qWarning() << "Invalid config.";
+        return;
+    }
+
+    Q_FOREACH (const auto &output, m_config->outputs()) {
+        cout << "Output: " << output->id();
+        cout << " " << (output->isEnabled() ? "enabled" : "disabled");
+//         QVERIFY(!output->name().isEmpty());
+//         QVERIFY(output->id() > -1);
+//         QVERIFY(output->isConnected());
+//         QVERIFY(output->geometry() != QRectF(1,1,1,1));
+//         QVERIFY(output->geometry() != QRectF());
+//         QVERIFY(output->sizeMm() != QSize());
+        cout << "  Modes: ";
+        Q_FOREACH (auto mode, output->modes()) {
+            cout << mode->id() << ":" << mode->name() << " ";
+//             QVERIFY(!mode->name().isEmpty());
+//             QVERIFY(mode->refreshRate() > 0);
+//             QVERIFY(mode->size().isValid());
+        }
+        cout << endl;
+    }
 }
 
 void Doctor::showJson()
 {
     QJsonDocument doc(KScreen::ConfigSerializer::serializeConfig(m_config));
     cout << doc.toJson(QJsonDocument::Indented);
-
 }
 
 /*
