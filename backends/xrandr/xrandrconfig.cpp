@@ -544,9 +544,9 @@ bool XRandRConfig::changeOutput(const OutputPtr &kscreenOutput) const
 {
     XRandROutput *xOutput = output(kscreenOutput->id());
     Q_ASSERT(xOutput);
-    Q_ASSERT(xOutput->crtc());
     if (!xOutput->crtc()) {
-        qCWarning(KSCREEN_XRANDR) << "Attempting to change output without valid CRTC";
+        qCDebug(KSCREEN_XRANDR) << "Output" << kscreenOutput->id() << "has no CRTC, falling back to enableOutput()";
+        return enableOutput(kscreenOutput);
     }
 
     qCDebug(KSCREEN_XRANDR) << "RRSetCrtcConfig (change output)";
