@@ -18,13 +18,13 @@
 
 #include "doctor.h"
 
-#include <QDebug>
 #include <QCommandLineParser>
 #include <QDateTime>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QFile>
+#include <QLoggingCategory>
 #include <QRect>
 #include <QStandardPaths>
 
@@ -34,6 +34,9 @@
 #include "../setconfigoperation.h"
 #include "../edid.h"
 #include "../output.h"
+
+Q_LOGGING_CATEGORY(KSCREEN_DOCTOR, "kscreen.doctor");
+
 
 static QTextStream cout(stdout);
 static QTextStream cerr(stderr);
@@ -79,6 +82,47 @@ void Doctor::start(QCommandLineParser *parser)
                       });
 }
 
+void Doctor::setOptionList(const QStringList &positionalArgs)
+{
+    m_positionalArgs = positionalArgs;
+}
+
+void Doctor::parsePositionalArgs()
+{
+    Q_FOREACH(const QString &op, m_positionalArgs) {
+        auto ops = op.split('.');
+        qCDebug(KSCREEN_DOCTOR) << ops;
+        if (ops.count() > 2) {
+            if (ops[0] == QStringLiteral("output")) {
+                int output_id = ops[1].toInt();
+                if (ops[2] == QStringLiteral("enable")) {
+                    qCDebug(KSCREEN_DOCTOR) << "enabling" << output_id;
+                    setEnabled(output_id, true);
+                } else if (ops[2] == QStringLiteral("disable")) {
+                    qCDebug(KSCREEN_DOCTOR) << "disabling" << output_id;
+                    setEnabled(output_id, false);
+                } else if (ops.count() == 4 && ops[2] == QStringLiteral("mode")) {
+                    int mode_id = ops[3].toInt();
+                    qCDebug(KSCREEN_DOCTOR) << "Output" << output_id << "set mode" << mode_id;
+                } else if (ops.count() == 4 && ops[2] == QStringLiteral("position")) {
+                    QStringList _pos = ops[3].split(',');
+                    if (_pos.count() != 2) {
+                        qCWarning(KSCREEN_DOCTOR) << "Invalid position:" << ops[3];
+                        continue;
+                    }
+                    int x = _pos[0].toInt();
+                    int y = _pos[1].toInt();
+
+                    QPoint p(x, y);
+                    qCDebug(KSCREEN_DOCTOR) << "Output position" << p;
+                    setPosition(output_id, p);
+            }
+
+        }
+    }
+    applyConfig();
+}
+
 void Doctor::configReceived(KScreen::ConfigOperation *op)
 {
     cout << "Config received" << endl;
@@ -92,6 +136,8 @@ void Doctor::configReceived(KScreen::ConfigOperation *op)
         showOutputs();
         qApp->quit();
     }
+
+    parsePositionalArgs();
     // The following paths will have to call quits at some point,
     // otherwise the app just hangs there.
     if (m_parser->isSet("enable")) {
@@ -132,7 +178,7 @@ void Doctor::showOutputs()
 //         QVERIFY(output->geometry() != QRectF(1,1,1,1));
 //         QVERIFY(output->geometry() != QRectF());
 //         QVERIFY(output->sizeMm() != QSize());
-        cout << blue << "  Modes: " << cr;
+        cout << blue << " Modes: " << cr;
         Q_FOREACH (auto mode, output->modes()) {
             cout << mode->id() << ":" << mode->name() << " ";
 //             QVERIFY(!mode->name().isEmpty());
@@ -140,7 +186,7 @@ void Doctor::showOutputs()
 //             QVERIFY(mode->size().isValid());
         }
         const auto g = output->geometry();
-        cout << yellow << " Geometry: " << cr << g.x() << "," << g.y() << " " << g.width() << "x" << g.height();
+        cout << yellow << "Geometry: " << cr << g.x() << "," << g.y() << " " << g.width() << "x" << g.height();
         cout << endl;
     }
 }
@@ -160,8 +206,26 @@ void Doctor::setEnabled(int id, bool enabled = true)
 
     Q_FOREACH (const auto &output, m_config->outputs()) {
         if (output->id() == id) {
-            cout << "Disable " << id << endl;
+            cout << (enabled ? "Enable" : "Disable ") << id << endl;
             output->setEnabled(enabled);
+            m_changed = true;
+            return;
+        }
+    }
+    cout << "Output with id " << id << " not found." << endl;
+}
+
+void Doctor::setPosition(int id, const QPoint &pos)
+{
+    if (!m_config) {
+        qWarning() << "Invalid config.";
+        return;
+    }
+
+    Q_FOREACH (const auto &output, m_config->outputs()) {
+        if (output->id() == id) {
+            //cout << pos;
+            output->setPos(pos);
             m_changed = true;
             return;
         }
