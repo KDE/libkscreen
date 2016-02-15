@@ -36,6 +36,7 @@ public:
     explicit Doctor(QObject *parent = 0);
     virtual ~Doctor();
 
+    void setOptionList(const QStringList &positionalArgs);
     void start(QCommandLineParser *m_parser);
     void configReceived(KScreen::ConfigOperation *op);
 
@@ -44,6 +45,7 @@ public:
     int outputCount() const;
 
     void setEnabled(int id, bool enabled);
+    void setPosition(int id, const QPoint &pos);
 
 Q_SIGNALS:
     void outputsChanged();
@@ -53,9 +55,11 @@ Q_SIGNALS:
 private:
     //static QString modeString(KWayland::Server::OutputDeviceInterface* outputdevice, int mid);
     void applyConfig();
+    void parsePositionalArgs();
     KScreen::ConfigPtr m_config;
     QCommandLineParser* m_parser;
     bool m_changed;
+    QStringList m_positionalArgs;
 };
 
 } // namespace

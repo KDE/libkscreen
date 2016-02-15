@@ -23,6 +23,9 @@
 
 #include <QDebug>
 
+/** Usage example:
+ * kscreen-doctor --set output.0.disable output.1.mode.1 output.1.enable"
+ */
 
 int main(int argc, char **argv)
 {
@@ -45,6 +48,10 @@ int main(int argc, char **argv)
     parser.addOption(enable);
     parser.addOption(disable);
     parser.process(app);
+
+    if (!parser.positionalArguments().isEmpty()) {
+        server.setOptionList(parser.positionalArguments());
+    }
 
     server.start(&parser);
     return app.exec();
