@@ -31,6 +31,7 @@
 #include "../config.h"
 #include "../configoperation.h"
 #include "../getconfigoperation.h"
+#include "../setconfigoperation.h"
 #include "../edid.h"
 #include "../output.h"
 
@@ -59,6 +60,7 @@ using namespace KScreen;
 Doctor::Doctor(QObject *parent)
     : QObject(parent)
     , m_config(nullptr)
+    , m_changed(false)
 {
 }
 
@@ -93,10 +95,15 @@ void Doctor::configReceived(KScreen::ConfigOperation *op)
     // The following paths will have to call quits at some point,
     // otherwise the app just hangs there.
     if (m_parser->isSet("enable")) {
-        enable(m_parser->value("enable").toInt());
+        setEnabled(m_parser->value("enable").toInt(), true);
     }
     if (m_parser->isSet("disable")) {
-        disable(m_parser->value("disable").toInt());
+        setEnabled(m_parser->value("disable").toInt(), false);
+    }
+
+    if (m_changed) {
+        applyConfig();
+        m_changed = false;
     }
 }
 
@@ -144,14 +151,31 @@ void Doctor::showJson()
     cout << doc.toJson(QJsonDocument::Indented);
 }
 
-void Doctor::enable(int id)
+void Doctor::setEnabled(int id, bool enabled = true)
 {
-    cout << "Enable " << id << endl;
+    if (!m_config) {
+        qWarning() << "Invalid config.";
+        return;
+    }
+
+    Q_FOREACH (const auto &output, m_config->outputs()) {
+        if (output->id() == id) {
+            cout << "Disable " << id << endl;
+            output->setEnabled(enabled);
+            m_changed = true;
+            return;
+        }
+    }
+    cout << "Output with id " << id << " not found." << endl;
 }
 
-void Doctor::disable(int id)
+void Doctor::applyConfig()
 {
-    cout << "Disable " << id << endl;
+    auto setop = new SetConfigOperation(m_config, this);
+    setop->exec();
+
+    qApp->quit();
+
 }
 
 /*
