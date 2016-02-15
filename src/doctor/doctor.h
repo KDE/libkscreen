@@ -43,8 +43,7 @@ public:
     void showJson();
     int outputCount() const;
 
-    void enable(int id);
-    void disable(int id);
+    void setEnabled(int id, bool enabled);
 
 Q_SIGNALS:
     void outputsChanged();
@@ -53,8 +52,10 @@ Q_SIGNALS:
 
 private:
     //static QString modeString(KWayland::Server::OutputDeviceInterface* outputdevice, int mid);
+    void applyConfig();
     KScreen::ConfigPtr m_config;
     QCommandLineParser* m_parser;
+    bool m_changed;
 };
 
 } // namespace
