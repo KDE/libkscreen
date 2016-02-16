@@ -100,12 +100,18 @@ void Doctor::parsePositionalArgs()
                     qApp->exit(3);
                     return;
                 }
-                if (ops[2] == QStringLiteral("enable")) {
+                if (ops.count() == 3 &&  ops[2] == QStringLiteral("enable")) {
                     qCDebug(KSCREEN_DOCTOR) << "enabling" << output_id;
-                    setEnabled(output_id, true);
-                } else if (ops[2] == QStringLiteral("disable")) {
+                    if (!setEnabled(output_id, true)) {
+                        qApp->exit(1);
+                        return;
+                    };
+                } else if (ops.count() == 3 &ops[2] == QStringLiteral("disable")) {
                     qCDebug(KSCREEN_DOCTOR) << "disabling" << output_id;
-                    setEnabled(output_id, false);
+                    if (!setEnabled(output_id, false)) {
+                        qApp->exit(1);
+                        return;
+                    };
                 } else if (ops.count() == 4 && ops[2] == QStringLiteral("mode")) {
                     int mode_id = parseInt(ops[3], ok);
                     if (!ok) {
@@ -132,7 +138,10 @@ void Doctor::parsePositionalArgs()
 
                     QPoint p(x, y);
                     qCDebug(KSCREEN_DOCTOR) << "Output position" << p;
-                    setPosition(output_id, p);
+                    if (!setPosition(output_id, p)) {
+                        qApp->exit(1);
+                        return;
+                    }
                 } else {
                     cerr << "Unable to parse arguments" << op << endl;
                     qApp->exit(2);
@@ -228,11 +237,11 @@ void Doctor::showJson() const
     cout << doc.toJson(QJsonDocument::Indented);
 }
 
-void Doctor::setEnabled(int id, bool enabled = true)
+bool Doctor::setEnabled(int id, bool enabled = true)
 {
     if (!m_config) {
         qWarning() << "Invalid config.";
-        return;
+        return false;
     }
 
     Q_FOREACH (const auto &output, m_config->outputs()) {
@@ -240,18 +249,19 @@ void Doctor::setEnabled(int id, bool enabled = true)
             cout << (enabled ? "Enable" : "Disable ") << id << endl;
             output->setEnabled(enabled);
             m_changed = true;
-            return;
+            return true;
         }
     }
     cerr << "Output with id " << id << " not found." << endl;
     qApp->exit(8);
+    return false;
 }
 
-void Doctor::setPosition(int id, const QPoint &pos)
+bool Doctor::setPosition(int id, const QPoint &pos)
 {
     if (!m_config) {
         qWarning() << "Invalid config.";
-        return;
+        return false;
     }
 
     Q_FOREACH (const auto &output, m_config->outputs()) {
@@ -259,18 +269,24 @@ void Doctor::setPosition(int id, const QPoint &pos)
             //cout << pos;
             output->setPos(pos);
             m_changed = true;
-            return;
+            return true;
         }
     }
     cout << "Output with id " << id << " not found." << endl;
+    return false;
 }
 
 void Doctor::applyConfig()
 {
+    if (!m_changed) {
+        cerr << "Nothing changed" << endl;
+        qApp->exit(1);
+        return;
+    }
     auto setop = new SetConfigOperation(m_config, this);
     setop->exec();
 
-    qApp->quit();
+    qApp->exit(0);
 
 }
 
