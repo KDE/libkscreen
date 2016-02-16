@@ -54,9 +54,9 @@ int main(int argc, char **argv)
     "   Output: 2 DELL U2410 enabled Modes: 1:800x600@60 [...] Geometry: 1280,0 1920x1080\n"
     "\n   Disable the second output, enable the first and set it to a specific mode\n"
     "   $ kscreen-doctor output.2.disable output.1.mode.1 output.1.enable\n"
-    "\n   Position the second output next to a full HD output\n"
-    "   $ kscreen-doctor output.2.position.0,1920\n"
-
+    "\n   Position the second output on the right of the smaller output\n"
+    "   $ kscreen-doctor output.2.position.0,1280 output.1.position.0,0\n";
+/*
     "\nError codes:\n"
     "   2 : general parse error\n"
     "   3 : output id parse error\n"
@@ -65,7 +65,14 @@ int main(int argc, char **argv)
 
     "   8 : invalid output id\n"
     "   9 : invalid mode id\n";
-
+*/
+    const QString syntax = "Specific output settings are separated by spaces, each setting is in the form of\n"
+                           "output.<id>.<setting>[.<value>]\n"
+                           "For example:\n"
+                           "$ kscreen-doctor output.2.enable \\ \n"
+                           "                output.1.mode.4 \\ \n"
+                           "                output.1.position.1280,0\n"
+                           "Multiple settings are passed in order to have kscreen-doctor apply these settings in one go.\n";
 
     QCoreApplication app(argc, argv);
 
@@ -77,7 +84,7 @@ int main(int argc, char **argv)
                                                  QStringLiteral("Show configuration in JSON format"));
     QCommandLineParser parser;
     parser.setApplicationDescription(desc);
-    parser.addPositionalArgument("configuration", QStringLiteral("config to apply"), QStringLiteral("[config]"));
+    parser.addPositionalArgument("config", syntax, QStringLiteral("[output.<id>.<setting> output.<id>.setting [...]]"));
     parser.addHelpOption();
     parser.addOption(outputs);
     parser.addOption(json);
