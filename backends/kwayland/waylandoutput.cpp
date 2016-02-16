@@ -138,7 +138,7 @@ void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output)
         const QString modename = modeName(m);
         QString modeid = QString::number(m.id);
         if (modeid.isEmpty()) {
-            qCWarning(KSCREEN_WAYLAND) << "Could not create mode id from" << m.id << ", using" << modename << "instead.";
+            qCDebug(KSCREEN_WAYLAND) << "Could not create mode id from" << m.id << ", using" << modename << "instead.";
             modeid = modename;
         }
         if (m_modeIdMap.keys().contains(modeid)) {
