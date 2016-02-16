@@ -88,6 +88,7 @@ void Doctor::setOptionList(const QStringList &positionalArgs)
 
 void Doctor::parsePositionalArgs()
 {
+    //qCDebug(KSCREEN_DOCTOR) << "POSARGS" << m_positionalArgs;
     Q_FOREACH(const QString &op, m_positionalArgs) {
         auto ops = op.split('.');
         if (ops.count() > 2) {
@@ -175,14 +176,6 @@ void Doctor::configReceived(KScreen::ConfigOperation *op)
     }
 
     parsePositionalArgs();
-    // The following paths will have to call quits at some point,
-    // otherwise the app just hangs there.
-    if (m_parser->isSet("enable")) {
-        setEnabled(m_parser->value("enable").toInt(), true);
-    }
-    if (m_parser->isSet("disable")) {
-        setEnabled(m_parser->value("disable").toInt(), false);
-    }
 
     if (m_changed) {
         applyConfig();

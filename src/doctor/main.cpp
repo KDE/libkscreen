@@ -40,8 +40,22 @@
 int main(int argc, char **argv)
 {
     const QString desc = "kscreen-doctor allows to change the screen setup from the command-line.\n"
-    "\nUsage examples:\n"
-    "   $ kscreen-doctor output.0.disable output.1.mode.1 output.1.enable\n"
+    "\n"
+    "Setting the output configuration is done in an atomic fashion, all settings\n"
+    "are applied in a single command.\n"
+    "kscreen-doctor can be used to enable and disable outputs, to position screens,\n"
+    "change resolution (mode setting), etc.. You should put all your options into \n"
+    "a single invocation of kscreen-doctor, so they can all be applied at once.\n"
+    "\n"
+    "Usage examples:\n\n"
+    "   Show output information:\n"
+    "   $ kscreen-doctor -o\n"
+    "   Output: 1 Samsung SyncMaster enabled Modes: 1:800x600@60 [...] Geometry: 0,0 1280x800\n"
+    "   Output: 2 DELL U2410 enabled Modes: 1:800x600@60 [...] Geometry: 1280,0 1920x1080\n"
+    "\n   Disable the second output, enable the first and set it to a specific mode\n"
+    "   $ kscreen-doctor output.2.disable output.1.mode.1 output.1.enable\n"
+    "\n   Position the second output next to a full HD output\n"
+    "   $ kscreen-doctor output.2.position.0,1920\n"
 
     "\nError codes:\n"
     "   2 : general parse error\n"
@@ -61,17 +75,12 @@ int main(int argc, char **argv)
                                                   QStringLiteral("Show outputs"));
     QCommandLineOption json = QCommandLineOption(QStringList() << QStringLiteral("j") << "json",
                                                  QStringLiteral("Show configuration in JSON format"));
-    QCommandLineOption enable = QCommandLineOption(QStringList() << QStringLiteral("e") << "enable",
-                                                 QStringLiteral("Output id"), "output_id");
-    QCommandLineOption disable = QCommandLineOption(QStringList() << QStringLiteral("d") << "disable",
-                                                 QStringLiteral("Output id"), "output_id");
     QCommandLineParser parser;
     parser.setApplicationDescription(desc);
+    parser.addPositionalArgument("configuration", QStringLiteral("config to apply"), QStringLiteral("[config]"));
     parser.addHelpOption();
     parser.addOption(outputs);
     parser.addOption(json);
-    parser.addOption(enable);
-    parser.addOption(disable);
     parser.process(app);
 
     if (!parser.positionalArguments().isEmpty()) {
