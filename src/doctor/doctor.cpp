@@ -110,12 +110,12 @@ void Doctor::parsePositionalArgs()
                         return;
                     };
                 } else if (ops.count() == 4 && ops[2] == QStringLiteral("mode")) {
-                    int mode_id = parseInt(ops[3], ok);
-                    if (!ok) {
-                        qApp->exit(4);
+                    QString mode_id = ops[3];
+                    // set mode
+                    if (!setMode(output_id, mode_id)) {
+                        qApp->exit(9);
                         return;
                     }
-                    // set mode
                     qCDebug(KSCREEN_DOCTOR) << "Output" << output_id << "set mode" << mode_id;
 
                 } else if (ops.count() == 4 && ops[2] == QStringLiteral("position")) {
@@ -269,6 +269,30 @@ bool Doctor::setPosition(int id, const QPoint &pos)
         }
     }
     cout << "Output with id " << id << " not found." << endl;
+    return false;
+}
+
+bool Doctor::setMode(int id, const QString &mode_id)
+{
+    if (!m_config) {
+        qWarning() << "Invalid config.";
+        return false;
+    }
+
+    Q_FOREACH (const auto &output, m_config->outputs()) {
+        if (output->id() == id) {
+            // find mode
+            Q_FOREACH (const KScreen::ModePtr mode, output->modes()) {
+               if (mode->id() == mode_id) {
+                    qCDebug(KSCREEN_DOCTOR) << "Taddaaa! Found mode" << mode->id() << mode->name();
+                    output->setCurrentModeId(mode->id());
+                    m_changed = true;
+                    return true;
+               }
+            }
+        }
+    }
+    cout << "Output mode " << id << " not found." << endl;
     return false;
 }
 
