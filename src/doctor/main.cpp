@@ -25,10 +25,34 @@
 
 /** Usage example:
  * kscreen-doctor --set output.0.disable output.1.mode.1 output.1.enable"
+ *
+ * Error codes:
+ * 2 : general parse error
+ * 3 : output id parse error
+ * 4 : mode id parse error
+ * 5 : position parse error
+ *
+ * 8 : invalid output id
+ * 9 : invalid mode id
+ *
  */
 
 int main(int argc, char **argv)
 {
+    const QString desc = "kscreen-doctor allows to change the screen setup from the command-line.\n"
+    "\nUsage examples:\n"
+    "   $ kscreen-doctor output.0.disable output.1.mode.1 output.1.enable\n"
+
+    "\nError codes:\n"
+    "   2 : general parse error\n"
+    "   3 : output id parse error\n"
+    "   4 : mode id parse error\n"
+    "   5 : position parse error\n"
+
+    "   8 : invalid output id\n"
+    "   9 : invalid mode id\n";
+
+
     QCoreApplication app(argc, argv);
 
     KScreen::Doctor server;
@@ -42,6 +66,7 @@ int main(int argc, char **argv)
     QCommandLineOption disable = QCommandLineOption(QStringList() << QStringLiteral("d") << "disable",
                                                  QStringLiteral("Output id"), "output_id");
     QCommandLineParser parser;
+    parser.setApplicationDescription(desc);
     parser.addHelpOption();
     parser.addOption(outputs);
     parser.addOption(json);
