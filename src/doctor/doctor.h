@@ -44,8 +44,8 @@ public:
     void showJson() const;
     int outputCount() const;
 
-    void setEnabled(int id, bool enabled);
-    void setPosition(int id, const QPoint &pos);
+    bool setEnabled(int id, bool enabled);
+    bool setPosition(int id, const QPoint &pos);
 
 Q_SIGNALS:
     void outputsChanged();
