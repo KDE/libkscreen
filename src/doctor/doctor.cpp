@@ -77,7 +77,6 @@ void Doctor::start(QCommandLineParser *parser)
     KScreen::GetConfigOperation *op = new KScreen::GetConfigOperation();
     QObject::connect(op, &KScreen::GetConfigOperation::finished, this,
                      [&](KScreen::ConfigOperation *op) {
-                        qDebug() << "cfg returns";
                         configReceived(op);
                       });
 }
@@ -93,8 +92,14 @@ void Doctor::parsePositionalArgs()
         auto ops = op.split('.');
         qCDebug(KSCREEN_DOCTOR) << ops;
         if (ops.count() > 2) {
+            bool ok;
             if (ops[0] == QStringLiteral("output")) {
-                int output_id = ops[1].toInt();
+                int output_id = parseInt(ops[1], ok);
+                if (!ok) {
+                    cerr << "Unable to parse output id" << ops[1] << endl;
+                    qApp->exit(3);
+                    return;
+                }
                 if (ops[2] == QStringLiteral("enable")) {
                     qCDebug(KSCREEN_DOCTOR) << "enabling" << output_id;
                     setEnabled(output_id, true);
@@ -102,30 +107,56 @@ void Doctor::parsePositionalArgs()
                     qCDebug(KSCREEN_DOCTOR) << "disabling" << output_id;
                     setEnabled(output_id, false);
                 } else if (ops.count() == 4 && ops[2] == QStringLiteral("mode")) {
-                    int mode_id = ops[3].toInt();
+                    int mode_id = parseInt(ops[3], ok);
+                    if (!ok) {
+                        qApp->exit(4);
+                        return;
+                    }
+                    // set mode
                     qCDebug(KSCREEN_DOCTOR) << "Output" << output_id << "set mode" << mode_id;
+
                 } else if (ops.count() == 4 && ops[2] == QStringLiteral("position")) {
                     QStringList _pos = ops[3].split(',');
                     if (_pos.count() != 2) {
                         qCWarning(KSCREEN_DOCTOR) << "Invalid position:" << ops[3];
-                        continue;
+                        qApp->exit(5);
+                        return;
                     }
-                    int x = _pos[0].toInt();
-                    int y = _pos[1].toInt();
+                    int x = parseInt(_pos[0], ok);
+                    int y = parseInt(_pos[1], ok);
+                    if (!ok) {
+                        cerr << "Unable to parse position" << ops[3] << endl;
+                        qApp->exit(5);
+                        return;
+                    }
 
                     QPoint p(x, y);
                     qCDebug(KSCREEN_DOCTOR) << "Output position" << p;
                     setPosition(output_id, p);
+                } else {
+                    cerr << "Unable to parse arguments" << op << endl;
+                    qApp->exit(2);
+                    return;
+                }
             }
-
         }
     }
     applyConfig();
 }
 
+int Doctor::parseInt(const QString &str, bool &ok) const
+{
+    int _id = str.toInt();
+    if (QString::number(_id) == str) {
+        ok = true;
+        return _id;
+    }
+    ok = false;
+    return 0;
+}
+
 void Doctor::configReceived(KScreen::ConfigOperation *op)
 {
-    cout << "Config received" << endl;
     m_config = op->config();
 
     if (m_parser->isSet("json")) {
@@ -162,7 +193,7 @@ int Doctor::outputCount() const
     return m_config->outputs().count();
 }
 
-void Doctor::showOutputs()
+void Doctor::showOutputs() const
 {
     if (!m_config) {
         qWarning() << "Invalid config.";
@@ -191,7 +222,7 @@ void Doctor::showOutputs()
     }
 }
 
-void Doctor::showJson()
+void Doctor::showJson() const
 {
     QJsonDocument doc(KScreen::ConfigSerializer::serializeConfig(m_config));
     cout << doc.toJson(QJsonDocument::Indented);
@@ -212,7 +243,8 @@ void Doctor::setEnabled(int id, bool enabled = true)
             return;
         }
     }
-    cout << "Output with id " << id << " not found." << endl;
+    cerr << "Output with id " << id << " not found." << endl;
+    qApp->exit(8);
 }
 
 void Doctor::setPosition(int id, const QPoint &pos)

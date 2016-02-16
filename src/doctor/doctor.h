@@ -40,8 +40,8 @@ public:
     void start(QCommandLineParser *m_parser);
     void configReceived(KScreen::ConfigOperation *op);
 
-    void showOutputs();
-    void showJson();
+    void showOutputs() const;
+    void showJson() const;
     int outputCount() const;
 
     void setEnabled(int id, bool enabled);
@@ -56,6 +56,7 @@ private:
     //static QString modeString(KWayland::Server::OutputDeviceInterface* outputdevice, int mid);
     void applyConfig();
     void parsePositionalArgs();
+    int parseInt(const QString &str, bool &ok) const;
     KScreen::ConfigPtr m_config;
     QCommandLineParser* m_parser;
     bool m_changed;
