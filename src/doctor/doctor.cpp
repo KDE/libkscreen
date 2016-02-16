@@ -279,8 +279,6 @@ bool Doctor::setPosition(int id, const QPoint &pos)
 void Doctor::applyConfig()
 {
     if (!m_changed) {
-        cerr << "Nothing changed" << endl;
-        qApp->exit(1);
         return;
     }
     auto setop = new SetConfigOperation(m_config, this);
@@ -289,26 +287,3 @@ void Doctor::applyConfig()
     qApp->exit(0);
 
 }
-
-/*
-QString Doctor::modeString(KWayland::Server::OutputDeviceInterface* outputdevice, int mid)
-{
-    QString s;
-    QString ids;
-    int _i = 0;
-    Q_FOREACH (const auto &_m, outputdevice->modes()) {
-        _i++;
-        if (_i < 6) {
-            ids.append(QString::number(_m.id) + ", ");
-        } else {
-            ids.append(".");
-        }
-        if (_m.id == mid) {
-            s = QString("%1x%2 @%3").arg(QString::number(_m.size.width()), \
-            QString::number(_m.size.height()), QString::number(_m.refreshRate));
-        }
-    }
-    return QString("[%1] %2 (%4 modes: %3)").arg(QString::number(mid), s, ids, QString::number(outputdevice->modes().count()));
-
-}
-*/
