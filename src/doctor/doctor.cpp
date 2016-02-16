@@ -90,7 +90,6 @@ void Doctor::parsePositionalArgs()
 {
     Q_FOREACH(const QString &op, m_positionalArgs) {
         auto ops = op.split('.');
-        qCDebug(KSCREEN_DOCTOR) << ops;
         if (ops.count() > 2) {
             bool ok;
             if (ops[0] == QStringLiteral("output")) {
@@ -101,13 +100,11 @@ void Doctor::parsePositionalArgs()
                     return;
                 }
                 if (ops.count() == 3 &&  ops[2] == QStringLiteral("enable")) {
-                    qCDebug(KSCREEN_DOCTOR) << "enabling" << output_id;
                     if (!setEnabled(output_id, true)) {
                         qApp->exit(1);
                         return;
                     };
                 } else if (ops.count() == 3 &ops[2] == QStringLiteral("disable")) {
-                    qCDebug(KSCREEN_DOCTOR) << "disabling" << output_id;
                     if (!setEnabled(output_id, false)) {
                         qApp->exit(1);
                         return;
@@ -246,7 +243,7 @@ bool Doctor::setEnabled(int id, bool enabled = true)
 
     Q_FOREACH (const auto &output, m_config->outputs()) {
         if (output->id() == id) {
-            cout << (enabled ? "Enable" : "Disable ") << id << endl;
+            cout << (enabled ? "Enabling " : "Disabling ") << "output " << id << endl;
             output->setEnabled(enabled);
             m_changed = true;
             return true;
@@ -266,7 +263,6 @@ bool Doctor::setPosition(int id, const QPoint &pos)
 
     Q_FOREACH (const auto &output, m_config->outputs()) {
         if (output->id() == id) {
-            //cout << pos;
             output->setPos(pos);
             m_changed = true;
             return true;
@@ -285,5 +281,4 @@ void Doctor::applyConfig()
     setop->exec();
 
     qApp->exit(0);
-
 }
