@@ -133,26 +133,33 @@ KScreen::AbstractBackend *BackendManager::loadBackendPlugin(QPluginLoader *loade
                 continue;
             }
 
-            // When on X11, skip the QScreen backend, instead use the XRandR backend,
-            // if not specified in KSCREEN_BACKEND
-            if (name.isEmpty() &&
-                finfo.fileName().contains(QLatin1String("KSC_QScreen")) &&
-                QX11Info::isPlatformX11()) {
-                continue;
-            }
-            if (name.isEmpty() &&
-                finfo.fileName().contains(QLatin1String("KSC_KWayland"))) {
-                continue;
-            }
+            if (!QGuiApplication::platformName().startWith(QLating1String("wayland"))) {
+                // When on X11, skip the QScreen backend, instead use the XRandR backend,
+                // if not specified in KSCREEN_BACKEND
+                if (name.isEmpty() &&
+                    finfo.fileName().contains(QLatin1String("KSC_QScreen")) &&
+                    QX11Info::isPlatformX11()) {
+                    continue;
+                }
+                if (name.isEmpty() &&
+                    finfo.fileName().contains(QLatin1String("KSC_KWayland"))) {
+                    continue;
+                }
 
-            // When not on X11, skip the XRandR backend, and fall back to QSCreen
-            // if not specified in KSCREEN_BACKEND
-            if (name.isEmpty() &&
-                finfo.fileName().contains(QLatin1String("KSC_XRandR")) &&
-                !QX11Info::isPlatformX11()) {
-                continue;
+                // When not on X11, skip the XRandR backend, and fall back to QSCreen
+                // if not specified in KSCREEN_BACKEND
+                if (name.isEmpty() &&
+                    finfo.fileName().contains(QLatin1String("KSC_XRandR")) &&
+                    !QX11Info::isPlatformX11()) {
+                    continue;
+                }
+            } else {
+                // This is wayland
+                if (name.isEmpty() &&
+                    !finfo.fileName().contains(QLatin1String("KSC_KWayland"))) {
+                    continue;
+                }
             }
-
             //qCDebug(KSCREEN) << "Trying" << finfo.filePath() << loader->isLoaded();
             loader->setFileName(finfo.filePath());
             QObject *instance = loader->instance();
