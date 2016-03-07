@@ -70,6 +70,9 @@ BackendManager::BackendManager()
 {
     if (qgetenv("KSCREEN_BACKEND_INPROCESS") == QByteArray("1")) {
         mMethod = InProcess;
+    } else if (!QGuiApplication::platformName().startsWith(QLatin1String("wayland")) ||
+               qgetenv("KSCREEN_BACKEND").toLower() == QByteArray("kwayland")) {
+        mMethod = InProcess;
     }
     initMethod();
 }
@@ -160,11 +163,6 @@ KScreen::AbstractBackend *BackendManager::loadBackendPlugin(QPluginLoader *loade
                     !finfo.fileName().contains(QLatin1String("KSC_KWayland"))) {
                     continue;
                 }
-            }
-            if (finfo.fileName().contains(QLatin1String("KSC_XRandR"))) {
-                BackendManager::instance()->setMethod(BackendManager::OutOfProcess);
-            } else {
-                BackendManager::instance()->setMethod(BackendManager::InProcess);
             }
 
             //qCDebug(KSCREEN) << "Trying" << finfo.filePath() << loader->isLoaded();
