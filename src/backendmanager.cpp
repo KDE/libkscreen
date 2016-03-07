@@ -34,6 +34,7 @@
 #include <QDBusPendingCallWatcher>
 #include <QDBusPendingReply>
 #include <QDBusConnectionInterface>
+#include <QGuiApplication>
 #include <QStandardPaths>
 #include <QThread>
 #include <QX11Info>
@@ -133,7 +134,7 @@ KScreen::AbstractBackend *BackendManager::loadBackendPlugin(QPluginLoader *loade
                 continue;
             }
 
-            if (!QGuiApplication::platformName().startWith(QLating1String("wayland"))) {
+            if (!QGuiApplication::platformName().startsWith(QLatin1String("wayland"))) {
                 // When on X11, skip the QScreen backend, instead use the XRandR backend,
                 // if not specified in KSCREEN_BACKEND
                 if (name.isEmpty() &&
@@ -160,6 +161,7 @@ KScreen::AbstractBackend *BackendManager::loadBackendPlugin(QPluginLoader *loade
                     continue;
                 }
             }
+
             //qCDebug(KSCREEN) << "Trying" << finfo.filePath() << loader->isLoaded();
             loader->setFileName(finfo.filePath());
             QObject *instance = loader->instance();
