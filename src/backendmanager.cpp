@@ -161,6 +161,11 @@ KScreen::AbstractBackend *BackendManager::loadBackendPlugin(QPluginLoader *loade
                     continue;
                 }
             }
+            if (!finfo.fileName().contains(QLatin1String("KSC_XRandR"))) {
+                BackendManager::instance()->setMethod(BackendManager::InProcess);
+            } else {
+                BackendManager::instance()->setMethod(BackendManager::OutOfProcess);
+            }
 
             //qCDebug(KSCREEN) << "Trying" << finfo.filePath() << loader->isLoaded();
             loader->setFileName(finfo.filePath());
