@@ -57,6 +57,7 @@ private Q_SLOTS:
     void verifyModes();
     void verifyScreen();
     void verifyIds();
+    void verifyFeatures();
     void simpleWrite();
     void addOutput();
     void removeOutput();
@@ -295,6 +296,16 @@ void testWaylandBackend::testEdid()
     QCOMPARE(o->edid()->green(), edid->green());
     QCOMPARE(o->edid()->blue(), edid->blue());
     QCOMPARE(o->edid()->white(), edid->white());
+}
+
+void testWaylandBackend::verifyFeatures()
+{
+    GetConfigOperation *op = new GetConfigOperation();
+    op->exec();
+    auto config = op->config();
+    QVERIFY(!config->supportedFeatures().testFlag(Config::Feature::None));
+    QVERIFY(config->supportedFeatures().testFlag(Config::Feature::Writable));
+    QVERIFY(!config->supportedFeatures().testFlag(Config::Feature::PrimaryDisplay));
 }
 
 
