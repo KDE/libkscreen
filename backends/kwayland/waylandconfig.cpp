@@ -236,6 +236,8 @@ void WaylandConfig::removeOutput(quint32 name)
 
 void WaylandConfig::updateKScreenConfig(KScreen::ConfigPtr &config) const
 {
+    auto features = Config::Feature::Writable;
+    config->setSupportedFeatures(features);
     config->setValid(m_connection->display());
     KScreen::ScreenPtr screen = config->screen();
     m_screen->updateKScreenScreen(screen);
