@@ -86,6 +86,7 @@ public:
     ScreenPtr screen;
     OutputPtr primaryOutput;
     OutputList outputs;
+    Features supportedFeatures;
 
 private:
     Config *q;
@@ -228,6 +229,16 @@ void Config::setScreen(const ScreenPtr &screen)
 OutputPtr Config::output(int outputId) const
 {
     return d->outputs.value(outputId);
+}
+
+Config::Features Config::supportedFeatures() const
+{
+    return d->supportedFeatures;
+}
+
+void Config::setSupportedFeatures(const Config::Features features)
+{
+    d->supportedFeatures = features;
 }
 
 OutputList Config::outputs() const
