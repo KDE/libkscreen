@@ -43,12 +43,12 @@ using namespace KScreen;
 
 WaylandConfig::WaylandConfig(QObject *parent)
     : QObject(parent)
-    , m_screen(new WaylandScreen(this))
     , m_outputManagement(nullptr)
-    , m_blockSignals(true)
     , m_registryInitialized(false)
+    , m_blockSignals(true)
     , m_newOutputId(0)
     , m_kscreenConfig(nullptr)
+    , m_screen(new WaylandScreen(this))
 {
     connect(this, &WaylandConfig::initialized, &m_syncLoop, &QEventLoop::quit);
     QTimer::singleShot(1000, this, [this] {
