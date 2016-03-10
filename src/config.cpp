@@ -237,7 +237,7 @@ Config::Features Config::supportedFeatures() const
     return d->supportedFeatures;
 }
 
-void Config::setSupportedFeatures(const Config::Features features)
+void Config::setSupportedFeatures(const Config::Features &features)
 {
     d->supportedFeatures = features;
 }
