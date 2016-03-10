@@ -105,7 +105,7 @@ void Doctor::parsePositionalArgs()
                         qApp->exit(1);
                         return;
                     };
-                } else if (ops.count() == 3 &ops[2] == QStringLiteral("disable")) {
+                } else if (ops.count() == 3 && ops[2] == QStringLiteral("disable")) {
                     if (!setEnabled(output_id, false)) {
                         qApp->exit(1);
                         return;
