@@ -91,6 +91,8 @@ bool XRandR11::isValid() const
 KScreen::ConfigPtr XRandR11::config() const
 {
     KScreen::ConfigPtr config(new KScreen::Config);
+    auto features = KScreen::Config::Feature::Writable | KScreen::Config::Feature::PrimaryDisplay;
+    config->setSupportedFeatures(features);
 
     const int screenId = QX11Info::appScreen();
     xcb_screen_t* xcbScreen = XCB::screenOfDisplay(XCB::connection(), screenId);
