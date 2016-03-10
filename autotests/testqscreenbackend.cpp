@@ -42,6 +42,7 @@ private Q_SLOTS:
     void verifyScreen();
     void verifyOutputs();
     void verifyModes();
+    void verifyFeatures();
     void commonUsagePattern();
     void cleanupTestCase();
 
@@ -204,6 +205,15 @@ void testQScreenBackend::cleanupTestCase()
     qApp->exit(0);
 }
 
+void testQScreenBackend::verifyFeatures()
+{
+    GetConfigOperation *op = new GetConfigOperation();
+    op->exec();
+    auto config = op->config();
+    QVERIFY(config->supportedFeatures().testFlag(Config::Feature::None));
+    QVERIFY(!config->supportedFeatures().testFlag(Config::Feature::Writable));
+    QVERIFY(!config->supportedFeatures().testFlag(Config::Feature::PrimaryDisplay));
+}
 
 
 QTEST_MAIN(testQScreenBackend)
