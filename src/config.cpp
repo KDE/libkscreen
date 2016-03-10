@@ -35,6 +35,7 @@ public:
     Private(Config *parent)
         : QObject(parent)
         , valid(true)
+        , supportedFeatures(Config::Feature::None)
         , q(parent)
     { }
 
