@@ -31,6 +31,7 @@
 #include <QPluginLoader>
 #include <QProcess>
 #include <QDBusServiceWatcher>
+#include <QFileInfoList>
 #include <QTimer>
 #include <QEventLoop>
 
@@ -60,6 +61,28 @@ public:
     KScreen::ConfigPtr config() const;
     void setConfig(KScreen::ConfigPtr c);
 
+    /** Choose which backend to use
+     *
+     * This method uses a couple of heuristics to pick the backend to be loaded:
+     *
+     * - If specified, the KSCREEN_BACKEND env var is considered (case insensitive)
+     * - Otherwise, the wayland backend is picked when the runtime platform is Wayland
+     *   (we assume kwin in this case
+     * - Otherwise, if the runtime platform is X11, the XRandR backend is picked
+     * - If neither is the case, we fall back to the QScreen backend, since that is the
+     *   most generally applicable and may work on platforms not explicitely supported
+     *
+     * @return the backend plugin to load
+     * @since 5.7
+     */
+    static QString preferredBackend();
+
+    /** List installed backends
+     * @return a list of installed backend plugins
+     * @since 5.7
+     */
+    static QFileInfoList listBackends();
+
     /** Encapsulates the plugin loading logic.
      *
      * @param loader a pointer to the QPluginLoader, the caller is
@@ -67,6 +90,7 @@ public:
      * @param name name of the backend plugin
      * @param arguments arguments, used for unit tests
      * @return a pointer to the backend loaded from the plugin
+     * @since 5.6
      */
     static KScreen::AbstractBackend *loadBackendPlugin(QPluginLoader *loader,
                                                  const QString &name,

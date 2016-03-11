@@ -117,6 +117,33 @@ BackendManager::~BackendManager()
     }
 }
 
+QString BackendManager::preferredBackend()
+{
+    QString _backend;
+    Q_FOREACH (const QFileInfo &finfo, listBackends()) {
+        _backend = finfo.filePath();
+
+    }
+    return _backend;
+}
+
+QFileInfoList BackendManager::listBackends()
+{
+    // Compile a list of installed backends first
+    const QString backendFilter = QLatin1String("KSC_*");
+    const QStringList paths = QCoreApplication::libraryPaths();
+    QFileInfoList finfos;
+    //qCDebug(KSCREEN) << "Lookup paths: " << paths;
+    Q_FOREACH (const QString &path, paths) {
+        const QDir dir(path + QLatin1String("/kf5/kscreen/"),
+                       backendFilter,
+                       QDir::SortFlags(QDir::QDir::NoSort),
+                       QDir::NoDotAndDotDot | QDir::Files);
+        finfos.append(dir.entryInfoList());
+    }
+    return finfos;
+}
+
 KScreen::AbstractBackend *BackendManager::loadBackendPlugin(QPluginLoader *loader, const QString &name,
                                                      const QVariantMap &arguments)
 {
