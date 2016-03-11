@@ -42,6 +42,7 @@ private Q_SLOTS:
     void multiOutput();
     void clonesOutput();
     void configCanBeApplied();
+    void supportedFeatures();
     void cleanupTestCase();
 };
 
@@ -227,6 +228,18 @@ void testScreenConfig::configCanBeApplied()
     }
     QVERIFY(brokenConfig2->screen()->maxActiveOutputsCount() < enabledOutputsCount);
     QVERIFY(!Config::canBeApplied(brokenConfig2));
+}
+
+void testScreenConfig::supportedFeatures()
+{
+    ConfigPtr config = getConfig();
+
+    QVERIFY(config->supportedFeatures().testFlag(KScreen::Config::Feature::None));
+
+    config->setSupportedFeatures(KScreen::Config::Feature::Writable | KScreen::Config::Feature::PrimaryDisplay);
+
+    QVERIFY(config->supportedFeatures().testFlag(KScreen::Config::Feature::Writable));
+    QVERIFY(config->supportedFeatures().testFlag(KScreen::Config::Feature::PrimaryDisplay));
 }
 
 QTEST_MAIN(testScreenConfig)

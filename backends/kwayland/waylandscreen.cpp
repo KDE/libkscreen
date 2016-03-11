@@ -37,6 +37,7 @@ WaylandScreen::~WaylandScreen()
 
 ScreenPtr WaylandScreen::toKScreenScreen(KScreen::ConfigPtr &parent) const
 {
+    Q_UNUSED(parent);
     KScreen::ScreenPtr kscreenScreen(new KScreen::Screen);
     updateKScreenScreen(kscreenScreen);
     return kscreenScreen;

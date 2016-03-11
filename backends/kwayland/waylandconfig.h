@@ -106,13 +106,13 @@ private:
     QMap<int, int> m_outputIds;
     QList<int> m_initializingOutputs;
     bool m_registryInitialized;
-    WaylandScreen *m_screen;
     int m_lastOutputId = -1;
     bool m_blockSignals;
     QEventLoop m_syncLoop;
-    KScreen::ConfigPtr m_kscreenConfig;
-
     int m_newOutputId;
+    KScreen::ConfigPtr m_kscreenConfig;
+    WaylandScreen *m_screen;
+
 };
 
 } // namespace

@@ -56,6 +56,18 @@ class KSCREEN_EXPORT Config : public QObject
     };
     Q_DECLARE_FLAGS(ValidityFlags, ValidityFlag)
 
+    /** This indicates which features the used backend supports.
+     *
+     * @see supportedFeatures
+     * @since 5.7
+     */
+    enum class Feature {
+        None = 0, ///< None of the mentioned features are supported.
+        PrimaryDisplay = 1, ///< The backend knows about the concept of a primary display, this is mostly limited to X11.
+        Writable = 1 << 1 ///< The backend supports setting the config, it's not read-only.
+    };
+    Q_DECLARE_FLAGS(Features, Feature)
+
     /**
      * Validates that a config can be applied in the current system
      *
@@ -119,6 +131,26 @@ class KSCREEN_EXPORT Config : public QObject
 
     void apply(const ConfigPtr &other);
 
+    /** Indicates features supported by the backend. This exists to allow the user
+     * to find out which of the features offered by libkscreen are actually supported
+     * by the backend. Not all backends are writable (QScreen, for example is
+     * read-only, only XRandR, but not KWayland support the primary display, etc.).
+     *
+     * @return Flags for features that are supported for this config, determined by
+     * the backend.
+     * @see setSupportedFeatures
+     * @since 5.7
+     */
+    Features supportedFeatures() const;
+
+    /** Sets the features supported by this backend. This should not be called by the
+     * user, but by the backend.
+     *
+     * @see supportedFeatures
+     * @since 5.7
+     */
+    void setSupportedFeatures(const Features &features);
+
   Q_SIGNALS:
       void outputAdded(const KScreen::OutputPtr &output);
       void outputRemoved(int outputId);
@@ -133,5 +165,6 @@ class KSCREEN_EXPORT Config : public QObject
 
 } //KScreen namespace
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(KScreen::Config::Features)
 
 #endif //KSCREEN_CONFIG_H

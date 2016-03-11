@@ -105,6 +105,8 @@ void XRandRConfig::removeOutput(xcb_randr_output_t id)
 KScreen::ConfigPtr XRandRConfig::toKScreenConfig() const
 {
     KScreen::ConfigPtr config(new KScreen::Config);
+    auto features = Config::Feature::Writable | Config::Feature::PrimaryDisplay;
+    config->setSupportedFeatures(features);
     KScreen::OutputList kscreenOutputs;
 
     for (auto iter = m_outputs.constBegin(); iter != m_outputs.constEnd(); ++iter) {
