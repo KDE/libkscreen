@@ -20,6 +20,7 @@ kscreen_add_test(testqscreenbackend)
 kscreen_add_test(testconfigserializer)
 kscreen_add_test(testconfigmonitor)
 kscreen_add_test(testinprocess)
+kscreen_add_test(testbackendloader)
 
 set(KSCREEN_WAYLAND_LIBS
     KF5::WaylandServer KF5::WaylandClient
