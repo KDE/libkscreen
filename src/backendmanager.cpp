@@ -68,11 +68,21 @@ BackendManager::BackendManager()
     , mLoader(0)
     , mMethod(OutOfProcess)
 {
-    if (qgetenv("KSCREEN_BACKEND_INPROCESS") == QByteArray("1")) {
+    // Decide wether to run in, or out-of-process
+
+    // if KSCREEN_BACKEND_INPROCESS is set explicitely, we respect that
+    if (!qgetenv("KSCREEN_BACKEND_INPROCESS").isEmpty()) {
+        qDebug() << "inprocess force-enabled";
         mMethod = InProcess;
-    } else if (!QGuiApplication::platformName().startsWith(QLatin1String("wayland")) ||
-               qgetenv("KSCREEN_BACKEND").toLower() == QByteArray("kwayland")) {
-        mMethod = InProcess;
+    } else {
+        // For XRandR backends, use out of process
+        if (preferredBackend().fileName().startsWith("KSC_XRandR")) {
+            qDebug() << "auto-setting oop";
+            mMethod = OutOfProcess;
+        } else {
+            qDebug() << "auto-setting ip";
+            mMethod = InProcess;
+        }
     }
     initMethod();
 }
