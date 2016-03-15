@@ -96,7 +96,9 @@ void Doctor::showBackends() const
 {
     cout << "Environment: " << endl;
     auto env_kscreen_backend = (qgetenv("KSCREEN_BACKEND").isEmpty()) ? QStringLiteral("[not set]") : qgetenv("KSCREEN_BACKEND");
-    cout << "  * KSCREEN_BACKEND is " << env_kscreen_backend << endl;
+    cout << "  * KSCREEN_BACKEND is        : " << env_kscreen_backend << endl;
+    auto env_kscreen_backend_inprocess = (qgetenv("KSCREEN_BACKEND_INPROCESS").isEmpty()) ? QStringLiteral("[not set]") : qgetenv("KSCREEN_BACKEND_INPROCESS");
+    cout << "  * KSCREEN_BACKEND_INPROCESS : " << env_kscreen_backend_inprocess << endl;
     auto backends = BackendManager::instance()->listBackends();
     auto preferred = BackendManager::instance()->preferredBackend();
     cout << "Preferred KSCreen backend : " << green << preferred.fileName() << cr << endl;
