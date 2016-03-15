@@ -37,6 +37,9 @@ public:
 private Q_SLOTS:
 
     void testPreferredBackend();
+    void testEnv();
+    void testEnv_data();
+    void testLoadBackend();
 
 };
 
@@ -48,8 +51,44 @@ TestBackendLoader::TestBackendLoader(QObject *parent)
 void TestBackendLoader::testPreferredBackend()
 {
     auto backends = BackendManager::instance()->listBackends();
-
     QVERIFY(!backends.isEmpty());
+    auto preferred = BackendManager::instance()->preferredBackend();
+    QVERIFY(preferred.exists());
+}
+
+void TestBackendLoader::testEnv_data()
+{
+    // save this to restore it later and avoid surprises
+    auto _b = qgetenv("KSCREEN_BACKEND");
+
+    QTest::addColumn<QString>("var");
+    QTest::addColumn<QString>("backend");
+
+    QTest::newRow("all lower") << "kwayland" << "KSC_KWayland";
+    QTest::newRow("camel case") << "KWayland" << "KSC_KWayland";
+    QTest::newRow("all upper") << "KWAYLAND" << "KSC_KWayland";
+    QTest::newRow("mixed") << "kwAYlaND" << "KSC_KWayland";
+
+    QTest::newRow("xrandr 1.1") << "xrandr11" << "KSC_XRandR11";
+    QTest::newRow("qscreen") << "qscreen" << "KSC_QScreen";
+    QTest::newRow("mixed") << "fake" << "KSC_Fake";
+
+    // set to original value
+    qputenv("KSCREEN_BACKEND", _b);
+}
+
+void TestBackendLoader::testEnv()
+{
+    // We want to be pretty liberal, so this should work
+    QFETCH(QString, var);
+    QFETCH(QString, backend);
+    qputenv("KSCREEN_BACKEND", var.toLocal8Bit());
+    auto preferred = BackendManager::instance()->preferredBackend();
+    QVERIFY(preferred.fileName().startsWith(backend));
+}
+
+void TestBackendLoader::testLoadBackend()
+{
 
 }
 
