@@ -141,14 +141,19 @@ QFileInfo BackendManager::preferredBackend()
             backendFilter = QStringLiteral("QScreen");
         }
     }
-    QFileInfo _backend;
+    QFileInfo fallback;
     Q_FOREACH (const QFileInfo &f, listBackends()) {
+        // Here's the part where we do the match case-insensitive
         if (f.fileName().toLower().startsWith(QString("ksc_%1").arg(backendFilter.toLower()))) {
             return f;
         }
-
+        if (f.fileName().startsWith("KSC_QScreen")) {
+            fallback = f;
+        }
     }
-    return QFileInfo();
+    qCWarning(KSCREEN) << "No preferred backend found. KSCREEN_BACKEND is set to " << env_kscreen_backend;
+    qCWarning(KSCREEN) << "falling back to " << fallback.fileName();
+    return fallback;
 }
 
 QFileInfoList BackendManager::listBackends()
