@@ -75,7 +75,7 @@ public:
      * @return the backend plugin to load
      * @since 5.7
      */
-    static QString preferredBackend();
+    static QFileInfo preferredBackend();
 
     /** List installed backends
      * @return a list of installed backend plugins

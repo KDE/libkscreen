@@ -117,14 +117,38 @@ BackendManager::~BackendManager()
     }
 }
 
-QString BackendManager::preferredBackend()
+QFileInfo BackendManager::preferredBackend()
 {
-    QString _backend;
-    Q_FOREACH (const QFileInfo &finfo, listBackends()) {
-        _backend = finfo.filePath();
+    /** this is the logic to pick a backend, in order of priority
+     *
+     * - env var KSCREEN_BACKEND is considered
+     * - if platform is X11, the XRandR backend is picked
+     * - if platform is wayland, KWayland backend is picked
+     * - if neither is the case, QScreen backend is picked
+     *
+     *
+     */
+    QString backendFilter;
+    auto env_kscreen_backend = qgetenv("KSCREEN_BACKEND");
+    if (!env_kscreen_backend.isEmpty()) {
+        backendFilter = env_kscreen_backend;
+    } else {
+        if (QX11Info::isPlatformX11()) {
+            backendFilter = QStringLiteral("XRandR");
+        } else if (QGuiApplication::platformName().startsWith(QLatin1String("wayland"))) {
+            backendFilter = QStringLiteral("KWayland");
+        } else {
+            backendFilter = QStringLiteral("QScreen");
+        }
+    }
+    QFileInfo _backend;
+    Q_FOREACH (const QFileInfo &f, listBackends()) {
+        if (f.fileName().toLower().startsWith(QString("ksc_%1").arg(backendFilter.toLower()))) {
+            return f;
+        }
 
     }
-    return _backend;
+    return QFileInfo();
 }
 
 QFileInfoList BackendManager::listBackends()
@@ -147,77 +171,32 @@ QFileInfoList BackendManager::listBackends()
 KScreen::AbstractBackend *BackendManager::loadBackendPlugin(QPluginLoader *loader, const QString &name,
                                                      const QVariantMap &arguments)
 {
-    //qCDebug(KSCREEN) << "Requested backend:" << name;
-    const QString backendFilter = QString::fromLatin1("KSC_%1*").arg(name);
-    const QStringList paths = QCoreApplication::libraryPaths();
-    //qCDebug(KSCREEN) << "Lookup paths: " << paths;
-    Q_FOREACH (const QString &path, paths) {
-        const QDir dir(path + QLatin1String("/kf5/kscreen/"),
-                       backendFilter,
-                       QDir::SortFlags(QDir::QDir::NoSort),
-                       QDir::NoDotAndDotDot | QDir::Files);
-        const QFileInfoList finfos = dir.entryInfoList();
-        Q_FOREACH (const QFileInfo &finfo, finfos) {
-            //qCDebug(KSCREEN) << "path:" << finfo.path();
-            // Skip "Fake" backend unless explicitly specified via KSCREEN_BACKEND
-            if (name.isEmpty() && (finfo.fileName().contains(QLatin1String("KSC_Fake")) || finfo.fileName().contains(QLatin1String("KSC_FakeUI")))) {
-                continue;
-            }
+    //qCDebug(KSCREEN) << "Trying" << finfo.filePath() << loader->isLoaded();
+    auto finfo = preferredBackend();
+    loader->setFileName(finfo.filePath());
+    QObject *instance = loader->instance();
+    if (!instance) {
+        qCDebug(KSCREEN) << loader->errorString();
+        return nullptr;
+    }
 
-            if (!QGuiApplication::platformName().startsWith(QLatin1String("wayland"))) {
-                // When on X11, skip the QScreen backend, instead use the XRandR backend,
-                // if not specified in KSCREEN_BACKEND
-                if (name.isEmpty() &&
-                    finfo.fileName().contains(QLatin1String("KSC_QScreen")) &&
-                    QX11Info::isPlatformX11()) {
-                    continue;
-                }
-                if (name.isEmpty() &&
-                    finfo.fileName().contains(QLatin1String("KSC_KWayland"))) {
-                    continue;
-                }
-
-                // When not on X11, skip the XRandR backend, and fall back to QSCreen
-                // if not specified in KSCREEN_BACKEND
-                if (name.isEmpty() &&
-                    finfo.fileName().contains(QLatin1String("KSC_XRandR")) &&
-                    !QX11Info::isPlatformX11()) {
-                    continue;
-                }
-            } else {
-                // This is wayland
-                if (name.isEmpty() &&
-                    !finfo.fileName().contains(QLatin1String("KSC_KWayland"))) {
-                    continue;
-                }
-            }
-
-            //qCDebug(KSCREEN) << "Trying" << finfo.filePath() << loader->isLoaded();
-            loader->setFileName(finfo.filePath());
-            QObject *instance = loader->instance();
-            if (!instance) {
-                qCDebug(KSCREEN) << loader->errorString();
-                continue;
-            }
-
-            auto backend = qobject_cast<KScreen::AbstractBackend*>(instance);
-            if (backend) {
-                backend->init(arguments);
-                if (!backend->isValid()) {
-                    qCDebug(KSCREEN) << "Skipping" << backend->name() << "backend";
-                    delete backend;
-                    continue;
-                }
-                qCDebug(KSCREEN) << "Loading" << backend->name() << "backend";
-                return backend;
-            } else {
-                qCDebug(KSCREEN) << finfo.fileName() << "does not provide valid KScreen backend";
-            }
+    auto backend = qobject_cast<KScreen::AbstractBackend*>(instance);
+    if (backend) {
+        backend->init(arguments);
+        if (!backend->isValid()) {
+            qCDebug(KSCREEN) << "Skipping" << backend->name() << "backend";
+            delete backend;
+            return nullptr;
         }
+        qCDebug(KSCREEN) << "Loading" << backend->name() << "backend";
+        return backend;
+    } else {
+        qCDebug(KSCREEN) << finfo.fileName() << "does not provide valid KScreen backend";
     }
 
     return Q_NULLPTR;
 }
+
 
 KScreen::AbstractBackend *BackendManager::loadBackendInProcess(const QString &name)
 {
