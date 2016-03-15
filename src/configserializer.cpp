@@ -53,6 +53,10 @@ QJsonObject ConfigSerializer::serializeConfig(const ConfigPtr &config)
 {
     QJsonObject obj;
 
+    if (!config) {
+        return obj;
+    }
+
     QJsonArray outputs;
     Q_FOREACH (const OutputPtr &output, config->outputs()) {
         outputs.append(serializeOutput(output));

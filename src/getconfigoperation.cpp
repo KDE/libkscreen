@@ -186,6 +186,9 @@ void GetConfigOperationPrivate::loadEdid(KScreen::AbstractBackend* backend)
     if (options & KScreen::ConfigOperation::NoEDID) {
         return;
     }
+    if (!config) {
+        return;
+    }
     Q_FOREACH (auto output, config->outputs()) {
         if (output->edid() == nullptr) {
             const QByteArray edidData = backend->edid(output->id());
