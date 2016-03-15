@@ -41,7 +41,6 @@ private Q_SLOTS:
     void testPreferredBackend();
     void testEnv();
     void testEnv_data();
-    void testLoadBackend();
     void testFallback();
 private:
     QByteArray _b;
@@ -51,6 +50,8 @@ private:
 TestBackendLoader::TestBackendLoader(QObject *parent)
     : QObject(parent)
 {
+    qputenv("KSCREEN_BACKEND_INPROCESS", QByteArray());
+    qputenv("KSCREEN_BACKEND", QByteArray());
 }
 
 void TestBackendLoader::initTestCase()
@@ -76,7 +77,6 @@ void TestBackendLoader::testPreferredBackend()
 
 void TestBackendLoader::testEnv_data()
 {
-
     QTest::addColumn<QString>("var");
     QTest::addColumn<QString>("backend");
 
@@ -103,19 +103,10 @@ void TestBackendLoader::testEnv()
 
 void TestBackendLoader::testFallback()
 {
-
     qputenv("KSCREEN_BACKEND", "nonsense");
     auto preferred = BackendManager::instance()->preferredBackend();
     QVERIFY(preferred.fileName().startsWith("KSC_QScreen"));
-
 }
-
-
-void TestBackendLoader::testLoadBackend()
-{
-
-}
-
 
 QTEST_GUILESS_MAIN(TestBackendLoader)
 

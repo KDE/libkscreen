@@ -71,9 +71,16 @@ BackendManager::BackendManager()
     // Decide wether to run in, or out-of-process
 
     // if KSCREEN_BACKEND_INPROCESS is set explicitely, we respect that
-    if (!qgetenv("KSCREEN_BACKEND_INPROCESS").isEmpty()) {
-        qDebug() << "inprocess force-enabled";
-        mMethod = InProcess;
+    auto _inprocess = qgetenv("KSCREEN_BACKEND_INPROCESS");
+    if (!(_inprocess.isEmpty())) {
+
+        QByteArrayList falses;
+        falses << QByteArray("0") << QByteArray("false");
+        if (!falses.contains(_inprocess.toLower())) {
+            mMethod = InProcess;
+        } else {
+            mMethod = OutOfProcess;
+        }
     } else {
         // For XRandR backends, use out of process
         if (preferredBackend().fileName().startsWith("KSC_XRandR")) {
