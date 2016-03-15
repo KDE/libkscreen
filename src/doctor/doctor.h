@@ -40,6 +40,7 @@ public:
     void start(QCommandLineParser *m_parser);
     void configReceived(KScreen::ConfigOperation *op);
 
+    void showBackends() const;
     void showOutputs() const;
     void showJson() const;
     int outputCount() const;

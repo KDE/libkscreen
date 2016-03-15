@@ -28,6 +28,7 @@
 #include <QRect>
 #include <QStandardPaths>
 
+#include "../backendmanager_p.h"
 #include "../config.h"
 #include "../configoperation.h"
 #include "../getconfigoperation.h"
@@ -74,11 +75,40 @@ Doctor::~Doctor()
 void Doctor::start(QCommandLineParser *parser)
 {
     m_parser = parser;
-    KScreen::GetConfigOperation *op = new KScreen::GetConfigOperation();
-    QObject::connect(op, &KScreen::GetConfigOperation::finished, this,
-                     [&](KScreen::ConfigOperation *op) {
-                        configReceived(op);
-                      });
+    if (m_parser->isSet("backends")) {
+        showBackends();
+
+    }
+    if (parser->isSet("json") || parser->isSet("outputs")) {
+
+        KScreen::GetConfigOperation *op = new KScreen::GetConfigOperation();
+        QObject::connect(op, &KScreen::GetConfigOperation::finished, this,
+                        [&](KScreen::ConfigOperation *op) {
+                            configReceived(op);
+                        });
+        return;
+    }
+    // We need to kick the event loop, otherwise .quit() hangs
+    QTimer::singleShot(0, qApp->quit);
+}
+
+void Doctor::showBackends() const
+{
+    cout << "Environment: " << endl;
+    auto env_kscreen_backend = (qgetenv("KSCREEN_BACKEND").isEmpty()) ? QStringLiteral("[not set]") : qgetenv("KSCREEN_BACKEND");
+    cout << "  * KSCREEN_BACKEND is " << env_kscreen_backend << endl;
+    auto backends = BackendManager::instance()->listBackends();
+    auto preferred = BackendManager::instance()->preferredBackend();
+    cout << "Preferred KSCreen backend : " << green << preferred.fileName() << cr << endl;
+    cout << "Available KScreen backends:" << endl;
+    Q_FOREACH(const QFileInfo f, backends) {
+        auto c = blue;
+        if (preferred == f) {
+            c = green;
+        }
+        cout << "  * " << c << f.fileName() << cr << ": " << f.absoluteFilePath() << endl;
+    }
+    cout << endl;
 }
 
 void Doctor::setOptionList(const QStringList &positionalArgs)

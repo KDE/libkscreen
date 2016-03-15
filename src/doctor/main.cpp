@@ -78,6 +78,8 @@ int main(int argc, char **argv)
 
     KScreen::Doctor server;
 
+    QCommandLineOption backends = QCommandLineOption(QStringList() << QStringLiteral("b") << "backends",
+                                                  QStringLiteral("Show backend information"));
     QCommandLineOption outputs = QCommandLineOption(QStringList() << QStringLiteral("o") << "outputs",
                                                   QStringLiteral("Show outputs"));
     QCommandLineOption json = QCommandLineOption(QStringList() << QStringLiteral("j") << "json",
@@ -86,8 +88,9 @@ int main(int argc, char **argv)
     parser.setApplicationDescription(desc);
     parser.addPositionalArgument("config", syntax, QStringLiteral("[output.<id>.<setting> output.<id>.setting [...]]"));
     parser.addHelpOption();
-    parser.addOption(outputs);
+    parser.addOption(backends);
     parser.addOption(json);
+    parser.addOption(outputs);
     parser.process(app);
 
     if (!parser.positionalArguments().isEmpty()) {
