@@ -125,7 +125,7 @@ QFileInfo BackendManager::preferredBackend()
      * - if platform is X11, the XRandR backend is picked
      * - if platform is wayland, KWayland backend is picked
      * - if neither is the case, QScreen backend is picked
-     *
+     * - the QScreen backend is also used as fallback
      *
      */
     QString backendFilter;
