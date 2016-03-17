@@ -71,11 +71,10 @@ BackendManager::BackendManager()
     // Decide wether to run in, or out-of-process
 
     // if KSCREEN_BACKEND_INPROCESS is set explicitely, we respect that
-    auto _inprocess = qgetenv("KSCREEN_BACKEND_INPROCESS");
-    if (!(_inprocess.isEmpty())) {
+    const auto _inprocess = qgetenv("KSCREEN_BACKEND_INPROCESS");
+    if (!_inprocess.isEmpty()) {
 
-        QByteArrayList falses;
-        falses << QByteArray("0") << QByteArray("false");
+        const QByteArrayList falses({QByteArray("0"), QByteArray("false")});
         if (!falses.contains(_inprocess.toLower())) {
             mMethod = InProcess;
         } else {
@@ -83,11 +82,9 @@ BackendManager::BackendManager()
         }
     } else {
         // For XRandR backends, use out of process
-        if (preferredBackend().fileName().startsWith("KSC_XRandR")) {
-            qDebug() << "auto-setting oop";
+        if (preferredBackend().fileName().startsWith(QLatin1String("KSC_XRandR"))) {
             mMethod = OutOfProcess;
         } else {
-            qDebug() << "auto-setting ip";
             mMethod = InProcess;
         }
     }
@@ -146,7 +143,7 @@ QFileInfo BackendManager::preferredBackend()
      *
      */
     QString backendFilter;
-    auto env_kscreen_backend = qgetenv("KSCREEN_BACKEND");
+    const auto env_kscreen_backend = qgetenv("KSCREEN_BACKEND");
     if (!env_kscreen_backend.isEmpty()) {
         backendFilter = env_kscreen_backend;
     } else {
@@ -161,26 +158,25 @@ QFileInfo BackendManager::preferredBackend()
     QFileInfo fallback;
     Q_FOREACH (const QFileInfo &f, listBackends()) {
         // Here's the part where we do the match case-insensitive
-        if (f.fileName().toLower().startsWith(QString("ksc_%1").arg(backendFilter.toLower()))) {
+        if (f.fileName().toLower().startsWith(QStringLiteral("ksc_%1").arg(backendFilter.toLower()))) {
             return f;
         }
-        if (f.fileName().startsWith("KSC_QScreen")) {
+        if (f.fileName().startsWith(QLatin1String("KSC_QScreen"))) {
             fallback = f;
         }
     }
-    qCWarning(KSCREEN) << "No preferred backend found. KSCREEN_BACKEND is set to " << env_kscreen_backend;
-    qCWarning(KSCREEN) << "falling back to " << fallback.fileName();
+//     qCWarning(KSCREEN) << "No preferred backend found. KSCREEN_BACKEND is set to " << env_kscreen_backend;
+//     qCWarning(KSCREEN) << "falling back to " << fallback.fileName();
     return fallback;
 }
 
 QFileInfoList BackendManager::listBackends()
 {
     // Compile a list of installed backends first
-    const QString backendFilter = QLatin1String("KSC_*");
+    const QString backendFilter = QStringLiteral("KSC_*");
     const QStringList paths = QCoreApplication::libraryPaths();
     QFileInfoList finfos;
-    //qCDebug(KSCREEN) << "Lookup paths: " << paths;
-    Q_FOREACH (const QString &path, paths) {
+    for (const QString &path : paths) {
         const QDir dir(path + QLatin1String("/kf5/kscreen/"),
                        backendFilter,
                        QDir::SortFlags(QDir::QDir::NoSort),
@@ -193,8 +189,7 @@ QFileInfoList BackendManager::listBackends()
 KScreen::AbstractBackend *BackendManager::loadBackendPlugin(QPluginLoader *loader, const QString &name,
                                                      const QVariantMap &arguments)
 {
-    //qCDebug(KSCREEN) << "Trying" << finfo.filePath() << loader->isLoaded();
-    auto finfo = preferredBackend();
+    const auto finfo = preferredBackend();
     loader->setFileName(finfo.filePath());
     QObject *instance = loader->instance();
     if (!instance) {
@@ -218,7 +213,6 @@ KScreen::AbstractBackend *BackendManager::loadBackendPlugin(QPluginLoader *loade
 
     return Q_NULLPTR;
 }
-
 
 KScreen::AbstractBackend *BackendManager::loadBackendInProcess(const QString &name)
 {

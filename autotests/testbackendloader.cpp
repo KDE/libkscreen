@@ -42,9 +42,6 @@ private Q_SLOTS:
     void testEnv();
     void testEnv_data();
     void testFallback();
-private:
-    QByteArray _b;
-
 };
 
 TestBackendLoader::TestBackendLoader(QObject *parent)
@@ -56,16 +53,13 @@ TestBackendLoader::TestBackendLoader(QObject *parent)
 
 void TestBackendLoader::initTestCase()
 {
-    // save this to restore it later and avoid surprises
-    auto _b = qgetenv("KSCREEN_BACKEND");
 }
 
 void TestBackendLoader::cleanupTestCase()
 {
     // set to original value
-    qputenv("KSCREEN_BACKEND", _b);
+    qputenv("KSCREEN_BACKEND", QByteArray());
 }
-
 
 void TestBackendLoader::testPreferredBackend()
 {
@@ -88,7 +82,6 @@ void TestBackendLoader::testEnv_data()
     QTest::newRow("xrandr 1.1") << "xrandr11" << "KSC_XRandR11";
     QTest::newRow("qscreen") << "qscreen" << "KSC_QScreen";
     QTest::newRow("mixed") << "fake" << "KSC_Fake";
-
 }
 
 void TestBackendLoader::testEnv()
