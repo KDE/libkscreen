@@ -175,6 +175,7 @@ QList<KWayland::Server::OutputInterface *> KScreen::WaylandConfigReader::createO
         output->setModel(outputdevice->model());
         //output->setUuid(outputdevice->uuid());
 
+
         Q_FOREACH (const auto mode, outputdevice->modes()) {
 
             bool isCurrent = mode.flags.testFlag(OutputDeviceInterface::ModeFlag::Current);
@@ -196,13 +197,21 @@ QList<KWayland::Server::OutputInterface *> KScreen::WaylandConfigReader::createO
             if (isCurrent) {
                 output->setCurrentMode(m0.size, m0.refreshRate);
             }
-            qDebug() << "mode added:" << m0.size << m0.refreshRate << isCurrent;
+            //qDebug() << "mode added:" << m0.size << m0.refreshRate << isCurrent;
         }
 
         output->setGlobalPosition(outputdevice->globalPosition());
         output->setPhysicalSize(outputdevice->physicalSize());
         output->setTransform(transformMap.value(outputdevice->transform()));
 
+        output->setDpmsSupported(true);
+        output->setDpmsMode(OutputInterface::DpmsMode::On);
+        QObject::connect(output, &OutputInterface::dpmsModeRequested,
+                [] (KWayland::Server::OutputInterface::DpmsMode requestedMode) {
+                    // FIXME: make sure this happens in the scope of an object!
+                    qDebug() << "DPMS Mode change requested";
+
+                });
         output->create();
         outputs << output;
     }
