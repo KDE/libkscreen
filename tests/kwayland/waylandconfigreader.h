@@ -24,6 +24,7 @@
 
 // KWayland
 #include <KWayland/Server/display.h>
+#include <KWayland/Server/output_interface.h>
 #include <KWayland/Server/outputdevice_interface.h>
 
 namespace KScreen
@@ -38,6 +39,7 @@ public:
     //static QList<KWayland::Server::OutputInterface*> outputsFromConfig(const QString &configfile, KWayland::Server::Display *display);
     static void outputsFromConfig(const QString &configfile, KWayland::Server::Display *display, QList<KWayland::Server::OutputDeviceInterface*>& outputs);
     static OutputDeviceInterface* createOutputDevice(const QVariantMap &outputConfig, KWayland::Server::Display *display);
+    static QList<KWayland::Server::OutputInterface*> createOutputs(KWayland::Server::Display *display, QList<KWayland::Server::OutputDeviceInterface*>& outputdevices);
 
     static QSize sizeFromJson(const QVariant &data);
     static QRect rectFromJson(const QVariant &data);

@@ -25,6 +25,7 @@
 #include <KWayland/Server/compositor_interface.h>
 #include <KWayland/Server/display.h>
 #include <KWayland/Server/outputdevice_interface.h>
+#include <KWayland/Server/dpms_interface.h>
 #include <KWayland/Server/outputconfiguration_interface.h>
 #include <KWayland/Server/seat_interface.h>
 #include <KWayland/Server/shell_interface.h>
@@ -74,6 +75,7 @@ private:
     KWayland::Server::Display *m_display;
     QList<KWayland::Server::OutputDeviceInterface*> m_outputs;
     KWayland::Server::OutputManagementInterface *m_outputManagement;
+    KWayland::Server::DpmsManagerInterface *m_dpmsManager;
 };
 
 } // namespace

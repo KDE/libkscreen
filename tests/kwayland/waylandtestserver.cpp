@@ -39,6 +39,8 @@ WaylandTestServer::WaylandTestServer(QObject *parent)
     : QObject(parent)
     , m_configFile(TEST_DATA + QStringLiteral("default.json"))
     , m_display(nullptr)
+    , m_outputManagement(nullptr)
+    , m_dpmsManager(nullptr)
 {
 }
 
@@ -59,6 +61,9 @@ void WaylandTestServer::start()
         m_display->setSocketName(qgetenv("WAYLAND_DISPLAY").constData());
     }
     m_display->start();
+
+    auto manager = m_display->createDpmsManager();
+    manager->create();
 
     m_outputManagement = m_display->createOutputManagement();
     m_outputManagement->create();
