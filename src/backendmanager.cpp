@@ -158,10 +158,10 @@ QFileInfo BackendManager::preferredBackend()
     QFileInfo fallback;
     Q_FOREACH (const QFileInfo &f, listBackends()) {
         // Here's the part where we do the match case-insensitive
-        if (f.fileName().toLower().startsWith(QStringLiteral("ksc_%1").arg(backendFilter.toLower()))) {
+        if (f.baseName().toLower() == QStringLiteral("ksc_%1").arg(backendFilter.toLower())) {
             return f;
         }
-        if (f.fileName().startsWith(QLatin1String("KSC_QScreen"))) {
+        if (f.baseName() == QLatin1String("KSC_QScreen")) {
             fallback = f;
         }
     }
