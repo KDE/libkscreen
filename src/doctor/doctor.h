@@ -26,6 +26,7 @@
 namespace KScreen
 {
 class ConfigOperation;
+class DpmsClient;
 //static const QString s_socketName = QStringLiteral("libkscreen-test-wayland-backend-0");
 
 class Doctor : public QObject
@@ -39,6 +40,8 @@ public:
     void setOptionList(const QStringList &positionalArgs);
     void start(QCommandLineParser *m_parser);
     void configReceived(KScreen::ConfigOperation *op);
+
+    void showDpms();
 
     void showBackends() const;
     void showOutputs() const;
@@ -63,6 +66,7 @@ private:
     QCommandLineParser* m_parser;
     bool m_changed;
     QStringList m_positionalArgs;
+    DpmsClient *m_dpmsClient;
 };
 
 } // namespace

@@ -84,6 +84,9 @@ int main(int argc, char **argv)
                                                   QStringLiteral("Show outputs"));
     QCommandLineOption json = QCommandLineOption(QStringList() << QStringLiteral("j") << "json",
                                                  QStringLiteral("Show configuration in JSON format"));
+    QCommandLineOption dpms = QCommandLineOption(QStringList() << QStringLiteral("d") << "dpms",
+                                                  QStringLiteral("Display power management"));
+
     QCommandLineParser parser;
     parser.setApplicationDescription(desc);
     parser.addPositionalArgument("config", syntax, QStringLiteral("[output.<id>.<setting> output.<id>.setting [...]]"));
@@ -91,6 +94,7 @@ int main(int argc, char **argv)
     parser.addOption(backends);
     parser.addOption(json);
     parser.addOption(outputs);
+    parser.addOption(dpms);
     parser.process(app);
 
     if (!parser.positionalArguments().isEmpty()) {

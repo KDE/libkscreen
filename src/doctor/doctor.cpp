@@ -17,6 +17,7 @@
  *************************************************************************************/
 
 #include "doctor.h"
+#include "dpmsclient.h"
 
 #include <QCommandLineParser>
 #include <QDateTime>
@@ -65,6 +66,7 @@ Doctor::Doctor(QObject *parent)
     : QObject(parent)
     , m_config(nullptr)
     , m_changed(false)
+    , m_dpmsClient(nullptr)
 {
 }
 
@@ -88,8 +90,23 @@ void Doctor::start(QCommandLineParser *parser)
                         });
         return;
     }
+    if (m_parser->isSet("dpms")) {
+        showDpms();
+        return;
+    }
     // We need to kick the event loop, otherwise .quit() hangs
     QTimer::singleShot(0, qApp->quit);
+}
+
+void Doctor::showDpms()
+{
+    m_dpmsClient = new DpmsClient(this);
+
+    connect(m_dpmsClient, &DpmsClient::ready, this, [=]() {
+        cout << "DPMS.ready()";
+    });
+
+    m_dpmsClient->connect();
 }
 
 void Doctor::showBackends() const
