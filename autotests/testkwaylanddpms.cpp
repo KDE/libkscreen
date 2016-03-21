@@ -25,13 +25,11 @@
 #include <KWayland/Client/dpms.h>
 #include <KWayland/Client/registry.h>
 
-#include "../src/backendmanager_p.h"
-
 static const QString s_socketName = QStringLiteral("libkscreen-test-wayland-backend-0");
+// static const QString s_socketName = QStringLiteral("wayland-0");
 
 Q_LOGGING_CATEGORY(KSCREEN, "kscreen");
 
-using namespace KScreen;
 
 using namespace KWayland::Client;
 
@@ -47,13 +45,18 @@ Q_SIGNALS:
 
 
 private Q_SLOTS:
+
+    void init();
     void initTestCase();
     void cleanupTestCase();
-
+    void testDpmsSupported();
     void testDpmsConnect();
+
+    void testScreens();
 
 private:
     ConnectionThread *m_connection;
+    QThread *m_thread;
     Registry m_registry;
 };
 
@@ -62,51 +65,76 @@ TestDpmsClient::TestDpmsClient(QObject *parent)
 {
 }
 
+void TestDpmsClient::init()
+{
+
+}
+
 void TestDpmsClient::initTestCase()
 {
-    m_connection = new ConnectionThread;
+    // setup connection
+    m_connection = new KWayland::Client::ConnectionThread;
+    m_connection->setSocketName(s_socketName);
+    QSignalSpy connectedSpy(m_connection, SIGNAL(connected()));
     m_connection->setSocketName(s_socketName);
 
-    QSignalSpy announced(&m_registry, &KWayland::Client::Registry::outputDeviceAnnounced);
-    //QVERIFY(m_registry.isValid());
-    //m_registry.setup();
-    //wl_display_flush(m_connection->display());
-    QThread *thread = new QThread;
-    m_connection->moveToThread(thread);
-    thread->start();
+    m_thread = new QThread(this);
+    m_connection->moveToThread(m_thread);
+    m_thread->start();
 
     m_connection->initConnection();
-    m_registry.create(m_connection->display());
+    QVERIFY(connectedSpy.wait());
+
+    QSignalSpy dpmsSpy(this, &TestDpmsClient::dpmsAnnounced);
+    //m_connection->setSocketName(s_socketName);
+
+    m_connection->initConnection();
+    QVERIFY(connectedSpy.wait(100));
+
+    m_registry.create(m_connection);
+    QObject::connect(&m_registry, &Registry::interfacesAnnounced, this,
+        [this] {
+            const bool hasDpms = m_registry.hasInterface(Registry::Interface::Dpms);
+           // QLabel *hasDpmsLabel = new QLabel(&window);
+            if (hasDpms) {
+                qDebug() << QStringLiteral("Compositor provides a DpmsManager");
+            } else {
+                qDebug() << QStringLiteral("Compositor does not provid a DpmsManager");
+            }
+            emit this->dpmsAnnounced();
+        });
     m_registry.setup();
-    QVERIFY(announced.wait(1000));
+
+    QVERIFY(dpmsSpy.wait(100));
+
     qDebug() << "init";
 }
 
 void TestDpmsClient::cleanupTestCase()
 {
+    m_thread->exit();
+    m_thread->wait();
+    delete m_thread;
     delete m_connection;
+}
+
+void TestDpmsClient::testDpmsSupported()
+{
 }
 
 void TestDpmsClient::testDpmsConnect()
 {
-    QSignalSpy connectedSpy(m_connection, SIGNAL(connected()));
-    //m_connection->setSocketName(s_socketName);
 
-    m_connection->initConnection();
-    QVERIFY(connectedSpy.wait());
-
-    qDebug() << "Conenct";
-    QObject::connect(&m_registry, &Registry::interfacesAnnounced, this, [this] {
-            const bool hasDpms = m_registry.hasInterface(Registry::Interface::Dpms);
-            if (hasDpms) {
-                qDebug() << "Compositor provides a DpmsManager";
-            } else {
-                qDebug() << "Compositor does not provide a DpmsManager";
-            }
-            emit this->dpmsAnnounced();
-        });
 
 }
+
+void TestDpmsClient::testScreens()
+{
+
+
+
+}
+
 
 QTEST_GUILESS_MAIN(TestDpmsClient)
 
