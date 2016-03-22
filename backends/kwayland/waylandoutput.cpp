@@ -125,7 +125,7 @@ void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output)
     output->setEnabled(m_output->enabled() == KWayland::Client::OutputDevice::Enablement::Enabled);
     output->setConnected(true);
     output->setPrimary(true); // FIXME: wayland doesn't have the concept of a primary display
-    output->setName(m_output->manufacturer() + QStringLiteral("-") + m_output->model());
+    output->setName(m_output->model());
     // Physical size
     output->setSizeMm(m_output->physicalSize());
     output->setPos(m_output->globalPosition());
