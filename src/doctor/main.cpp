@@ -85,7 +85,7 @@ int main(int argc, char **argv)
     QCommandLineOption json = QCommandLineOption(QStringList() << QStringLiteral("j") << "json",
                                                  QStringLiteral("Show configuration in JSON format"));
     QCommandLineOption dpms = QCommandLineOption(QStringList() << QStringLiteral("d") << "dpms",
-                                                  QStringLiteral("Display power management"));
+                                                  QStringLiteral("Display power management"), QStringLiteral("off"));
 
     QCommandLineParser parser;
     parser.setApplicationDescription(desc);
