@@ -25,11 +25,13 @@
 #include <KWayland/Client/dpms.h>
 #include <KWayland/Client/registry.h>
 
+#include "waylandtestserver.h"
+
+
 static const QString s_socketName = QStringLiteral("libkscreen-test-wayland-backend-0");
 // static const QString s_socketName = QStringLiteral("wayland-0");
 
 Q_LOGGING_CATEGORY(KSCREEN, "kscreen");
-
 
 using namespace KWayland::Client;
 
@@ -46,9 +48,9 @@ Q_SIGNALS:
 
 private Q_SLOTS:
 
-    void init();
     void initTestCase();
     void cleanupTestCase();
+
     void testDpmsSupported();
     void testDpmsConnect();
 
@@ -58,16 +60,17 @@ private:
     ConnectionThread *m_connection;
     QThread *m_thread;
     Registry m_registry;
+
+    KScreen::WaylandTestServer *m_server;
 };
 
 TestDpmsClient::TestDpmsClient(QObject *parent)
     : QObject(parent)
+    , m_server(nullptr)
 {
-}
-
-void TestDpmsClient::init()
-{
-
+    setenv("WAYLAND_DISPLAY", s_socketName.toLocal8Bit(), 1);
+    m_server = new KScreen::WaylandTestServer(this);
+    m_server->start();
 }
 
 void TestDpmsClient::initTestCase()
@@ -86,7 +89,6 @@ void TestDpmsClient::initTestCase()
     QVERIFY(connectedSpy.wait());
 
     QSignalSpy dpmsSpy(this, &TestDpmsClient::dpmsAnnounced);
-    //m_connection->setSocketName(s_socketName);
 
     m_connection->initConnection();
     QVERIFY(connectedSpy.wait(100));
@@ -95,7 +97,6 @@ void TestDpmsClient::initTestCase()
     QObject::connect(&m_registry, &Registry::interfacesAnnounced, this,
         [this] {
             const bool hasDpms = m_registry.hasInterface(Registry::Interface::Dpms);
-           // QLabel *hasDpmsLabel = new QLabel(&window);
             if (hasDpms) {
                 qDebug() << QStringLiteral("Compositor provides a DpmsManager");
             } else {
