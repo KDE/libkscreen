@@ -1,5 +1,5 @@
 /*************************************************************************************
- *  Copyright 2015 Sebastian Kügler <sebas@kde.org>                                  *
+ *  Copyright 2016 Sebastian Kügler <sebas@kde.org>                                  *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -24,6 +24,7 @@
 #include "../config.h"
 
 #include <KWayland/Client/registry.h>
+#include <KWayland/Client/dpms.h>
 
 class QThread;
 
@@ -37,7 +38,6 @@ namespace KWayland
 namespace KScreen
 {
 class ConfigOperation;
-//static const QString s_socketName = QStringLiteral("libkscreen-test-wayland-backend-0");
 
 class DpmsClient : public QObject
 {
@@ -48,28 +48,30 @@ public:
     virtual ~DpmsClient();
 
     void connect();
-
-    void setTimeout(int msec);
-
     void off();
     void on();
 
-    void show();
-
 Q_SIGNALS:
     void ready();
+    void finished();
 
 private Q_SLOTS:
     void connected();
+    void modeChanged();
 
 private:
+    void changeMode(KWayland::Client::Dpms::Mode mode);
     QThread *m_thread;
     KWayland::Client::ConnectionThread *m_connection;
+    KWayland::Client::DpmsManager *m_dpmsManager;
     KWayland::Client::Registry m_registry;
     bool m_setOff = true;
     bool m_setOn = false;
+
+    bool m_supportedOututCount = 0;
+    bool m_modeChanges = 0;
 };
 
 } // namespace
 
-#endif // KSCREEN_WAYLAND_SCREEN_H
+#endif // KSCREEN_DPSMCLIENT_H

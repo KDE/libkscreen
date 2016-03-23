@@ -47,6 +47,7 @@ public:
     void showOutputs() const;
     void showJson() const;
     int outputCount() const;
+    void setDpms(const QString &dpmsArg);
 
     bool setEnabled(int id, bool enabled);
     bool setPosition(int id, const QPoint &pos);

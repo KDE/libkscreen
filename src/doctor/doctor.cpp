@@ -19,6 +19,7 @@
 #include "doctor.h"
 #include "dpmsclient.h"
 
+#include <QCoreApplication>
 #include <QCommandLineParser>
 #include <QDateTime>
 #include <QJsonArray>
@@ -59,7 +60,6 @@ extern QJsonObject serializeConfig(const KScreen::ConfigPtr &config);
 }
 }
 
-
 using namespace KScreen;
 
 Doctor::Doctor(QObject *parent)
@@ -91,12 +91,40 @@ void Doctor::start(QCommandLineParser *parser)
         return;
     }
     if (m_parser->isSet("dpms")) {
-        showDpms();
+        m_dpmsClient = new DpmsClient(this);
+        connect(m_dpmsClient, &DpmsClient::finished, qApp, &QCoreApplication::quit);
+
+        const QString dpmsArg = m_parser->value(QStringLiteral("dpms"));
+        if (dpmsArg == QStringLiteral("show")) {
+            showDpms();
+        } else {
+            setDpms(dpmsArg);
+        }
         return;
     }
     // We need to kick the event loop, otherwise .quit() hangs
-    QTimer::singleShot(0, qApp->quit);
+    QTimer::singleShot(10, qApp->quit);
 }
+
+void KScreen::Doctor::setDpms(const QString& dpmsArg)
+{
+    qDebug() << "SetDpms: " << dpmsArg;
+    connect(m_dpmsClient, &DpmsClient::ready, this, [=]() {
+        cout << "DPMS.ready()";
+        if (dpmsArg == QStringLiteral("off")) {
+            m_dpmsClient->off();
+        } else if (dpmsArg == QStringLiteral("on")) {
+            m_dpmsClient->on();
+        } else {
+            cout << "--dpms argument not understood (" << dpmsArg << ")";
+        }
+    });
+
+    m_dpmsClient->connect();
+
+
+}
+
 
 void Doctor::showDpms()
 {

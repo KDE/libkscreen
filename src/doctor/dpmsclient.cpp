@@ -1,5 +1,5 @@
 /*************************************************************************************
- *  Copyright 2014-2015 Sebastian Kügler <sebas@kde.org>                             *
+ *  Copyright 2016 Sebastian Kügler <sebas@kde.org>                                  *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -42,6 +42,7 @@ DpmsClient::DpmsClient(QObject *parent)
     : QObject(parent)
     , m_thread(nullptr)
     , m_connection(nullptr)
+    , m_dpmsManager(nullptr)
 {
 
 }
@@ -88,82 +89,11 @@ void DpmsClient::connected()
                 qDebug() << QStringLiteral("Compositor does not provid a DpmsManager");
             }
 
-            DpmsManager *dpmsManager = nullptr;
             if (hasDpms) {
                 const auto dpmsData = m_registry.interface(Registry::Interface::Dpms);
-                dpmsManager = m_registry.createDpmsManager(dpmsData.name, dpmsData.version);
+                m_dpmsManager = m_registry.createDpmsManager(dpmsData.name, dpmsData.version);
             }
 
-            // get all Outputs
-            const auto outputs = m_registry.interfaces(Registry::Interface::Output);
-            for (auto outputInterface : outputs) {
-
-                KWayland::Client::Output *output = m_registry.createOutput(outputInterface.name, outputInterface.version, &m_registry);
-                qDebug() << "OUTPUT!" << output->model() << output->manufacturer() << output->geometry();
-                //QLabel *label = new QLabel(output->model());
-//                 QObject::connect(output, &KWayland::Client::Output::changed, label,
-//                     [label, output] {
-//                         //label->setText(output->model());
-//                     }, Qt::QueuedConnection
-//                 );
-
-                Dpms *dpms = nullptr;
-                if (dpmsManager) {
-                    dpms = dpmsManager->getDpms(output, output);
-                }
-
-//                 QFormLayout *dpmsForm = new QFormLayout;
-                bool supported = dpms ? dpms->isSupported() : false;
-//                 QLabel *supportedLabel = new QLabel(supportedToString(supported));
-//                 qDebug() << "OUTPUT!";
-//                 dpmsForm->addRow(QStringLiteral("Supported:"), supportedLabel);
-// //                 QLabel *modeLabel = new QLabel(modeToString(dpms ? dpms->mode() : Dpms::Mode::On));
-//                 dpmsForm->addRow(QStringLiteral("Mode:"), modeLabel);
-
-//                 QPushButton *standbyButton = new QPushButton(QStringLiteral("Standby"));
-//                 QPushButton *suspendButton = new QPushButton(QStringLiteral("Suspend"));
-//                 QPushButton *offButton = new QPushButton(QStringLiteral("Off"));
-//                 standbyButton->setEnabled(supported);
-//                 suspendButton->setEnabled(supported);
-//                 offButton->setEnabled(supported);
-//                 QDialogButtonBox *bg = new QDialogButtonBox;
-//                 bg->addButton(standbyButton, QDialogButtonBox::ActionRole);
-//                 bg->addButton(suspendButton, QDialogButtonBox::ActionRole);
-//                 bg->addButton(offButton, QDialogButtonBox::ActionRole);
-
-                if (dpms) {
-                    QObject::connect(dpms, &Dpms::supportedChanged, this,
-                        [this, dpms] {
-                            const bool supported = dpms->isSupported();
-//                             supportedLabel->setText(supportedToString(supported));
-//                             standbyButton->setEnabled(supported);
-//                             suspendButton->setEnabled(supported);
-//                             offButton->setEnabled(supported);
-                        }, Qt::QueuedConnection
-                    );
-                    QObject::connect(dpms, &Dpms::modeChanged, this,
-                        [dpms] {
-//                             modeLabel->setText(modeToString(dpms->mode()));
-                        }, Qt::QueuedConnection
-                    );
-//                     QObject::connect(standbyButton, &QPushButton::clicked, dpms, [dpms] { dpms->requestMode(Dpms::Mode::Standby);});
-//                     QObject::connect(suspendButton, &QPushButton::clicked, dpms, [dpms] { dpms->requestMode(Dpms::Mode::Suspend);});
-//                     QObject::connect(offButton, &QPushButton::clicked, dpms, [dpms] { dpms->requestMode(Dpms::Mode::Off);});
-                    if (m_setOff) {
-                        qDebug() << "Switching off";
-                        dpms->requestMode(Dpms::Mode::Off);
-                    }
-                }
-
-
-
-
-
-                //                 layout->addLayout(setupOutput(o, &registry, dpmsManager));
-//                 QFrame *hline = new QFrame;
-//                 hline->setFrameShape(QFrame::HLine);
-//                 layout->addWidget(hline);
-            }
 
             emit this->ready();
         });
@@ -173,17 +103,57 @@ void DpmsClient::connected()
 
 }
 
+void KScreen::DpmsClient::changeMode(KWayland::Client::Dpms::Mode mode)
+{
+    const auto outputs = m_registry.interfaces(Registry::Interface::Output);
+    for (auto outputInterface : outputs) {
+
+        KWayland::Client::Output *output = m_registry.createOutput(outputInterface.name, outputInterface.version, &m_registry);
+        qDebug() << "OUTPUT!" << output->model() << output->manufacturer() << output->geometry();
+
+        Dpms *dpms = nullptr;
+        if (m_dpmsManager) {
+            dpms = m_dpmsManager->getDpms(output, output);
+        }
+
+        if (dpms) {
+            QObject::connect(dpms, &Dpms::supportedChanged, this,
+                [dpms, mode, this] {
+                    const bool supported = dpms->isSupported();
+                    if (dpms->isSupported()) {
+                        QObject::connect(dpms, &Dpms::modeChanged, this,
+                            &DpmsClient::modeChanged, Qt::QueuedConnection);
+                        qDebug() << "Switching " << (mode == Dpms::Mode::On ? "on" : "off");
+                        m_modeChanges++;
+                        dpms->requestMode(mode);
+                    }
+
+                }, Qt::QueuedConnection
+            );
+        }
+
+    qDebug() << "dpms->isSupported()" << dpms->isSupported();
+    }
+
+}
+
+void DpmsClient::modeChanged()
+{
+    m_modeChanges = m_modeChanges - 1;
+    if (m_modeChanges <= 0) {
+        emit finished();
+        m_modeChanges = 0;
+    }
+}
+
 void DpmsClient::on()
 {
-
+    changeMode(Dpms::Mode::On);
+    //emit finished();
 }
 
 void KScreen::DpmsClient::off()
 {
-
-}
-
-void KScreen::DpmsClient::setTimeout(int msec)
-{
-
+    changeMode(Dpms::Mode::Off);
+    //emit finished();
 }
