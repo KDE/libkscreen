@@ -56,8 +56,6 @@ XRandR::XRandR()
     , m_isValid(false)
     , m_configChangeCompressor(0)
 {
-    QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.xrandr.debug = true"));
-
     qRegisterMetaType<xcb_randr_output_t>("xcb_randr_output_t");
     qRegisterMetaType<xcb_randr_crtc_t>("xcb_randr_crtc_t");
     qRegisterMetaType<xcb_randr_mode_t>("xcb_randr_mode_t");

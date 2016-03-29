@@ -39,8 +39,6 @@ XRandR11::XRandR11()
  , m_currentConfig(new KScreen::Config)
  , m_currentTimestamp(0)
 {
-    QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.xrandr11.debug = true"));
-
     xcb_generic_error_t *error = 0;
     xcb_randr_query_version_reply_t* version;
     version = xcb_randr_query_version_reply(XCB::connection(),

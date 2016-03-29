@@ -22,11 +22,3 @@
 
 Q_LOGGING_CATEGORY(KSCREEN, "kscreen")
 Q_LOGGING_CATEGORY(KSCREEN_EDID, "kscreen.edid")
-
-static void enableAllDebug()
-{
-    QLoggingCategory::setFilterRules(QStringLiteral("kscreen.debug = true"));
-    QLoggingCategory::setFilterRules(QStringLiteral("kscreen.edid.debug = true"));
-}
-
-Q_COREAPP_STARTUP_FUNCTION(enableAllDebug)

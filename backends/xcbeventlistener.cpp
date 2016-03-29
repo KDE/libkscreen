@@ -36,8 +36,6 @@ XCBEventListener::XCBEventListener():
     m_versionMinor(0),
     m_window(0)
 {
-    QLoggingCategory::setFilterRules(QStringLiteral("kscreen.xcb.helper = true"));
-
     xcb_connection_t* c = QX11Info::connection();
     xcb_prefetch_extension_data(c, &xcb_randr_id);
     auto cookie = xcb_randr_query_version(c, XCB_RANDR_MAJOR_VERSION, XCB_RANDR_MINOR_VERSION);
