@@ -119,7 +119,6 @@ void KScreen::DpmsClient::changeMode(KWayland::Client::Dpms::Mode mode)
         if (dpms) {
             QObject::connect(dpms, &Dpms::supportedChanged, this,
                 [dpms, mode, this] {
-                    const bool supported = dpms->isSupported();
                     if (dpms->isSupported()) {
                         QObject::connect(dpms, &Dpms::modeChanged, this,
                             &DpmsClient::modeChanged, Qt::QueuedConnection);
@@ -134,7 +133,6 @@ void KScreen::DpmsClient::changeMode(KWayland::Client::Dpms::Mode mode)
 
     qDebug() << "dpms->isSupported()" << dpms->isSupported();
     }
-
 }
 
 void DpmsClient::modeChanged()
