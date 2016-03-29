@@ -32,8 +32,6 @@ QScreenBackend::QScreenBackend()
     : KScreen::AbstractBackend()
     , m_isValid(true)
 {
-    QLoggingCategory::setFilterRules(QLatin1Literal("kscreen.qscreen.debug = true"));
-
     if (s_internalConfig == 0) {
         s_internalConfig = new QScreenConfig();
         connect(s_internalConfig, &QScreenConfig::configChanged,
