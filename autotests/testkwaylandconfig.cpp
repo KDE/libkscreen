@@ -19,7 +19,6 @@
 #include <QCoreApplication>
 #include <QtTest>
 #include <QObject>
-#include <QScreen>
 #include <QSignalSpy>
 
 #include "backendmanager_p.h"
@@ -53,7 +52,6 @@ private Q_SLOTS:
     void testRotationChange();
     void testRotationChange_data();
     void testModeChange();
-    void testScreenName();
 
 private:
 
@@ -225,31 +223,7 @@ void TestKWaylandConfig::testModeChange()
     QCOMPARE(configSpy.count(), 1);
 }
 
-void TestKWaylandConfig::testScreenName()
-{
 
-    auto op = new GetConfigOperation();
-    QVERIFY(op->exec());
-    auto config = op->config();
-    QVERIFY(config);
-
-    QStringList outputNames;
-    foreach (const auto output, config->outputs()) {
-        outputNames << output->name();
-    }
-
-    foreach (QScreen *screen, QGuiApplication::screens()) {
-        //if (screen->name() == output->name()) {
-            //return screen;
-        //}
-        qDebug() << "screen name QScreen: " << screen->name() << outputNames;
-    }
-    qDebug() << "outputs: " << outputNames;
-
-
-}
-
-
-QTEST_MAIN(TestKWaylandConfig)
+QTEST_GUILESS_MAIN(TestKWaylandConfig)
 
 #include "testkwaylandconfig.moc"
