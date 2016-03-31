@@ -1,5 +1,5 @@
 /*************************************************************************************
- *  Copyright 2016 by Sebastian Kügler <sebas@kde.org>                           *
+ *  Copyright 2016 by Sebastian Kügler <sebas@kde.org>                               *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -50,11 +50,7 @@ private Q_SLOTS:
 
     void initTestCase();
     void cleanupTestCase();
-
-    void testDpmsSupported();
     void testDpmsConnect();
-
-    void testScreens();
 
 private:
     ConnectionThread *m_connection;
@@ -107,8 +103,6 @@ void TestDpmsClient::initTestCase()
     m_registry.setup();
 
     QVERIFY(dpmsSpy.wait(100));
-
-    qDebug() << "init";
 }
 
 void TestDpmsClient::cleanupTestCase()
@@ -119,21 +113,9 @@ void TestDpmsClient::cleanupTestCase()
     delete m_connection;
 }
 
-void TestDpmsClient::testDpmsSupported()
-{
-}
-
 void TestDpmsClient::testDpmsConnect()
 {
-
-
-}
-
-void TestDpmsClient::testScreens()
-{
-
-
-
+    QVERIFY(m_registry.isValid());
 }
 
 
