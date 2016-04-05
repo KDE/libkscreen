@@ -66,36 +66,6 @@ private Q_SLOTS:
         KScreen::BackendManager::instance()->shutdownBackend();
     }
 
-    void testChangeNotifyOutOfProcess()
-    {
-        //json file for the fake backend
-        qputenv("KSCREEN_BACKEND_ARGS", "TEST_DATA=" TEST_DATA "singleoutput.json");
-
-        // Prepare monitor
-        KScreen::ConfigMonitor *monitor = KScreen::ConfigMonitor::instance();
-        QSignalSpy spy(monitor, SIGNAL(configurationChanged()));
-
-        // Get config and let it monitored
-        KScreen::ConfigPtr config = getConfig();
-        monitor->addConfig(config);
-        QSignalSpy enabledSpy(config->output(1).data(), SIGNAL(isEnabledChanged()));
-
-
-        auto iface = new org::kde::kscreen::FakeBackend(QLatin1String("org.kde.KScreen"),
-                                                        QLatin1String("/fake"),
-                                                        QDBusConnection::sessionBus());
-        QVERIFY(iface->isValid());
-
-        iface->setEnabled(1, false).waitForFinished();
-
-        QTRY_VERIFY(!spy.isEmpty());
-
-        QCOMPARE(spy.size(), 1);
-        QCOMPARE(enabledSpy.size(), 1);
-        QCOMPARE(config->output(1)->isEnabled(), false);
-
-    }
-
     void testChangeNotifyInProcess()
     {
         qputenv("KSCREEN_BACKEND_INPROCESS", "1");
