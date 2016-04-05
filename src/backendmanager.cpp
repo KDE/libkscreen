@@ -131,10 +131,11 @@ BackendManager::~BackendManager()
     }
 }
 
-QFileInfo BackendManager::preferredBackend()
+QFileInfo BackendManager::preferredBackend(const QString &backend)
 {
     /** this is the logic to pick a backend, in order of priority
      *
+     * - backend argument is used if not empty
      * - env var KSCREEN_BACKEND is considered
      * - if platform is X11, the XRandR backend is picked
      * - if platform is wayland, KWayland backend is picked
@@ -144,7 +145,9 @@ QFileInfo BackendManager::preferredBackend()
      */
     QString backendFilter;
     const auto env_kscreen_backend = qgetenv("KSCREEN_BACKEND");
-    if (!env_kscreen_backend.isEmpty()) {
+    if (!backend.isEmpty()) {
+        backendFilter = backend;
+    } else if (!env_kscreen_backend.isEmpty()) {
         backendFilter = env_kscreen_backend;
     } else {
         if (QX11Info::isPlatformX11()) {
@@ -189,7 +192,7 @@ QFileInfoList BackendManager::listBackends()
 KScreen::AbstractBackend *BackendManager::loadBackendPlugin(QPluginLoader *loader, const QString &name,
                                                      const QVariantMap &arguments)
 {
-    const auto finfo = preferredBackend();
+    const auto finfo = preferredBackend(name);
     loader->setFileName(finfo.filePath());
     QObject *instance = loader->instance();
     if (!instance) {

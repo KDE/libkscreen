@@ -67,6 +67,8 @@ void TestBackendLoader::testPreferredBackend()
     QVERIFY(!backends.isEmpty());
     auto preferred = BackendManager::instance()->preferredBackend();
     QVERIFY(preferred.exists());
+    auto fake = BackendManager::instance()->preferredBackend(QStringLiteral("Fake"));
+    QVERIFY(fake.fileName().startsWith(QLatin1String("KSC_Fake")));
 }
 
 void TestBackendLoader::testEnv_data()

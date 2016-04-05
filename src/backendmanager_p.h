@@ -64,7 +64,8 @@ public:
     /** Choose which backend to use
      *
      * This method uses a couple of heuristics to pick the backend to be loaded:
-     *
+     * - If the @p backend argument is specified and not empty it's used to filter the
+     *   available backend list
      * - If specified, the KSCREEN_BACKEND env var is considered (case insensitive)
      * - Otherwise, the wayland backend is picked when the runtime platform is Wayland
      *   (we assume kwin in this case
@@ -75,7 +76,7 @@ public:
      * @return the backend plugin to load
      * @since 5.7
      */
-    static QFileInfo preferredBackend();
+    static QFileInfo preferredBackend(const QString &backend = QString());
 
     /** List installed backends
      * @return a list of installed backend plugins
