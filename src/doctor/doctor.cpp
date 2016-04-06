@@ -22,6 +22,7 @@
 #include <QCoreApplication>
 #include <QCommandLineParser>
 #include <QDateTime>
+#include <QGuiApplication>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -79,7 +80,6 @@ void Doctor::start(QCommandLineParser *parser)
     m_parser = parser;
     if (m_parser->isSet("backends")) {
         showBackends();
-
     }
     if (parser->isSet("json") || parser->isSet("outputs")) {
 
@@ -91,6 +91,13 @@ void Doctor::start(QCommandLineParser *parser)
         return;
     }
     if (m_parser->isSet("dpms")) {
+        if (!QGuiApplication::platformName().startsWith(QLatin1String("wayland"))) {
+            cerr << "DPMS is only supported on Wayland." << endl;
+            // We need to kick the event loop, otherwise .quit() hangs
+            QTimer::singleShot(0, qApp->quit);
+            return;
+
+        }
         m_dpmsClient = new DpmsClient(this);
         connect(m_dpmsClient, &DpmsClient::finished, qApp, &QCoreApplication::quit);
 
