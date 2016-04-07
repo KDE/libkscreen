@@ -119,7 +119,7 @@ void TestInProcess::testModeSwitching()
 
     qDebug() << "TT xrandr out-of-process";
     // Load the xrandr backend out-of-process
-    qputenv("KSCREEN_BACKEND", "XRandR");
+    qputenv("KSCREEN_BACKEND", "QScreen");
     qputenv("KSCREEN_BACKEND_INPROCESS", "0");
     BackendManager::instance()->setMethod(BackendManager::OutOfProcess);
     auto xp = new GetConfigOperation();
