@@ -185,12 +185,16 @@ void XRandR::crtcChanged(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode,
 void XRandR::screenChanged(xcb_randr_rotation_t rotation,
                            const QSize &sizePx, const QSize &sizeMm)
 {
-    Q_UNUSED(rotation);
     Q_UNUSED(sizeMm);
+
+    QSize newSizePx = sizePx;
+    if (rotation == XCB_RANDR_ROTATION_ROTATE_90 || rotation == XCB_RANDR_ROTATION_ROTATE_270) {
+        newSizePx.transpose();
+    }
 
     XRandRScreen *xScreen = s_internalConfig->screen();
     Q_ASSERT(xScreen);
-    xScreen->update(sizePx);
+    xScreen->update(newSizePx);
 
     m_configChangeCompressor->start();
 }
