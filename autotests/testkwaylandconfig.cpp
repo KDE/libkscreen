@@ -32,7 +32,7 @@
 
 #include "waylandtestserver.h"
 
-Q_LOGGING_CATEGORY(KSCREEN_WAYLAND, "kscreen.wayland");
+Q_LOGGING_CATEGORY(KSCREEN_WAYLAND, "kscreen.kwayland");
 
 using namespace KScreen;
 
