@@ -208,7 +208,7 @@ KScreen::AbstractBackend *BackendManager::loadBackendPlugin(QPluginLoader *loade
             delete backend;
             return nullptr;
         }
-        qCDebug(KSCREEN) << "Loading" << backend->name() << "backend";
+        //qCDebug(KSCREEN) << "Loaded" << backend->name() << "backend";
         return backend;
     } else {
         qCDebug(KSCREEN) << finfo.fileName() << "does not provide valid KScreen backend";
