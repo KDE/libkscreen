@@ -208,6 +208,7 @@ QList<KWayland::Server::OutputInterface *> KScreen::WaylandConfigReader::createO
         output->setDpmsMode(OutputInterface::DpmsMode::On);
         QObject::connect(output, &OutputInterface::dpmsModeRequested,
                 [] (KWayland::Server::OutputInterface::DpmsMode requestedMode) {
+                    Q_UNUSED(requestedMode);
                     // FIXME: make sure this happens in the scope of an object!
                     qDebug() << "DPMS Mode change requested";
 
