@@ -81,7 +81,7 @@ void Doctor::start(QCommandLineParser *parser)
     if (m_parser->isSet("backends")) {
         showBackends();
     }
-    if (parser->isSet("json") || parser->isSet("outputs")) {
+    if (parser->isSet("json") || parser->isSet("outputs") || !m_positionalArgs.isEmpty()) {
 
         KScreen::GetConfigOperation *op = new KScreen::GetConfigOperation();
         QObject::connect(op, &KScreen::GetConfigOperation::finished, this,
@@ -110,7 +110,7 @@ void Doctor::start(QCommandLineParser *parser)
         return;
     }
     // We need to kick the event loop, otherwise .quit() hangs
-    QTimer::singleShot(10, qApp->quit);
+    QTimer::singleShot(0, qApp->quit);
 }
 
 void KScreen::Doctor::setDpms(const QString& dpmsArg)
@@ -232,7 +232,6 @@ void Doctor::parsePositionalArgs()
             }
         }
     }
-    applyConfig();
 }
 
 int Doctor::parseInt(const QString &str, bool &ok) const
@@ -270,7 +269,7 @@ void Doctor::configReceived(KScreen::ConfigOperation *op)
 int Doctor::outputCount() const
 {
     if (!m_config) {
-        qWarning() << "Invalid config.";
+        qCWarning(KSCREEN_DOCTOR) << "Invalid config.";
         return 0;
     }
     return m_config->outputs().count();
@@ -279,7 +278,7 @@ int Doctor::outputCount() const
 void Doctor::showOutputs() const
 {
     if (!m_config) {
-        qWarning() << "Invalid config.";
+        qCWarning(KSCREEN_DOCTOR) << "Invalid config.";
         return;
     }
 
@@ -314,7 +313,7 @@ void Doctor::showJson() const
 bool Doctor::setEnabled(int id, bool enabled = true)
 {
     if (!m_config) {
-        qWarning() << "Invalid config.";
+        qCWarning(KSCREEN_DOCTOR) << "Invalid config.";
         return false;
     }
 
@@ -334,12 +333,13 @@ bool Doctor::setEnabled(int id, bool enabled = true)
 bool Doctor::setPosition(int id, const QPoint &pos)
 {
     if (!m_config) {
-        qWarning() << "Invalid config.";
+        qCWarning(KSCREEN_DOCTOR) << "Invalid config.";
         return false;
     }
 
     Q_FOREACH (const auto &output, m_config->outputs()) {
         if (output->id() == id) {
+            qCDebug(KSCREEN_DOCTOR) << "Set output position" << pos;
             output->setPos(pos);
             m_changed = true;
             return true;
@@ -352,7 +352,7 @@ bool Doctor::setPosition(int id, const QPoint &pos)
 bool Doctor::setMode(int id, const QString &mode_id)
 {
     if (!m_config) {
-        qWarning() << "Invalid config.";
+        qCWarning(KSCREEN_DOCTOR) << "Invalid config.";
         return false;
     }
 
@@ -380,6 +380,6 @@ void Doctor::applyConfig()
     }
     auto setop = new SetConfigOperation(m_config, this);
     setop->exec();
-
+    qCDebug(KSCREEN_DOCTOR) << "setop exec returned";
     qApp->exit(0);
 }
