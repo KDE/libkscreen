@@ -227,6 +227,9 @@ void testScreenConfig::configCanBeApplied()
     }
     QVERIFY(brokenConfig2->screen()->maxActiveOutputsCount() < enabledOutputsCount);
     QVERIFY(!Config::canBeApplied(brokenConfig2));
+
+    const ConfigPtr nulllConfig;
+    QVERIFY(!Config::canBeApplied(nulllConfig));
 }
 
 QTEST_MAIN(testScreenConfig)
