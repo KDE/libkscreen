@@ -100,6 +100,10 @@ bool Config::canBeApplied(const ConfigPtr &config)
 
 bool Config::canBeApplied(const ConfigPtr &config, ValidityFlags flags)
 {
+    if (!config) {
+        qCDebug(KSCREEN) << "canBeApplied: Config not available, returning false";
+        return false;
+    }
     ConfigPtr currentConfig = BackendManager::instance()->config();
     if (!currentConfig) {
         qCDebug(KSCREEN) << "canBeApplied: Current config not available, returning false";
