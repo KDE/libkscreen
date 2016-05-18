@@ -39,7 +39,7 @@
 #include "../edid.h"
 #include "../output.h"
 
-Q_LOGGING_CATEGORY(KSCREEN_DOCTOR, "kscreen.doctor");
+Q_LOGGING_CATEGORY(KSCREEN_DOCTOR, "kscreen.doctor")
 
 
 static QTextStream cout(stdout);

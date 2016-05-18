@@ -30,7 +30,7 @@
 #include "../src/mode.h"
 #include "../src/edid.h"
 
-Q_LOGGING_CATEGORY(KSCREEN, "kscreen");
+Q_LOGGING_CATEGORY(KSCREEN, "kscreen")
 
 using namespace KScreen;
 

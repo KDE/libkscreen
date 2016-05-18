@@ -28,7 +28,7 @@
 #include "../src/getconfigoperation.h"
 #include "../src/backendmanager_p.h"
 
-Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.qscreen");
+Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.qscreen")
 
 using namespace KScreen;
 

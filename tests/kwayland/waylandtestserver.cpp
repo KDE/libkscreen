@@ -30,7 +30,7 @@
 
 #include "../src/edid.h"
 
-Q_LOGGING_CATEGORY(KSCREEN_WAYLAND_TESTSERVER, "kscreen.kwayland.testserver");
+Q_LOGGING_CATEGORY(KSCREEN_WAYLAND_TESTSERVER, "kscreen.kwayland.testserver")
 
 using namespace KScreen;
 using namespace KWayland::Server;

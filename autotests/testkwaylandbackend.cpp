@@ -36,7 +36,7 @@
 
 #include "waylandtestserver.h"
 
-Q_LOGGING_CATEGORY(KSCREEN_WAYLAND, "kscreen.kwayland");
+Q_LOGGING_CATEGORY(KSCREEN_WAYLAND, "kscreen.kwayland")
 
 using namespace KScreen;
 

@@ -32,7 +32,7 @@
 //static const QString s_socketName = QStringLiteral("libkscreen-test-wayland-backend-0");
 static const QString s_socketName = QStringLiteral("wayland-0");
 
-Q_LOGGING_CATEGORY(KSCREEN_DPMS, "kscreen.dpms");
+Q_LOGGING_CATEGORY(KSCREEN_DPMS, "kscreen.dpms")
 
 using namespace KScreen;
 

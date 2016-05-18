@@ -64,7 +64,7 @@ protected Q_SLOTS:
 
 protected:
     ConfigOperationPrivate * const d_ptr;
-    Q_DECLARE_PRIVATE(ConfigOperation);
+    Q_DECLARE_PRIVATE(ConfigOperation)
 };
 }
 

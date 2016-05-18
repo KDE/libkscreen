@@ -48,7 +48,7 @@ bool XRandR::s_xorgCacheInitialized = false;
 
 using namespace KScreen;
 
-Q_LOGGING_CATEGORY(KSCREEN_XRANDR, "kscreen.xrandr");
+Q_LOGGING_CATEGORY(KSCREEN_XRANDR, "kscreen.xrandr")
 
 XRandR::XRandR()
     : KScreen::AbstractBackend()

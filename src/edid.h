@@ -73,7 +73,7 @@ class KSCREEN_EXPORT Edid: public QObject
     QQuaternion white() const;
 
   private:
-    Q_DISABLE_COPY(Edid);
+    Q_DISABLE_COPY(Edid)
 
     class Private;
     Private * const d;

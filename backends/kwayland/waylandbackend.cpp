@@ -30,7 +30,7 @@
 
 using namespace KScreen;
 
-Q_LOGGING_CATEGORY(KSCREEN_WAYLAND, "kscreen.kwayland");
+Q_LOGGING_CATEGORY(KSCREEN_WAYLAND, "kscreen.kwayland")
 
 
 WaylandBackend::WaylandBackend()
@@ -94,5 +94,3 @@ void WaylandBackend::updateConfig(ConfigPtr &config)
     Q_ASSERT(config != 0);
     m_internalConfig->updateKScreenConfig(config);
 }
-
-

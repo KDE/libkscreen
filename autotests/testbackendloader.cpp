@@ -23,7 +23,7 @@
 
 #include "../src/backendmanager_p.h"
 
-Q_LOGGING_CATEGORY(KSCREEN, "kscreen");
+Q_LOGGING_CATEGORY(KSCREEN, "kscreen")
 
 using namespace KScreen;
 

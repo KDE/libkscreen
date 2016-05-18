@@ -24,7 +24,7 @@
 
 using namespace KScreen;
 
-Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.qscreen");
+Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.qscreen")
 
 QScreenConfig *QScreenBackend::s_internalConfig = 0;
 
