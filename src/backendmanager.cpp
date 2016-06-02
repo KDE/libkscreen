@@ -353,14 +353,13 @@ void BackendManager::onBackendRequestDone(QDBusPendingCallWatcher *watcher)
     connect(new GetConfigOperation(GetConfigOperation::NoEDID), &GetConfigOperation::finished,
             [&](ConfigOperation *op) {
                 mConfig = qobject_cast<GetConfigOperation*>(op)->config();
+                emitBackendReady();
             });
     // And listen for its change.
     connect(mInterface, &org::kde::kscreen::Backend::configChanged,
             [&](const QVariantMap &newConfig) {
                 mConfig = KScreen::ConfigSerializer::deserializeConfig(newConfig);
             });
-
-    emitBackendReady();
 }
 
 void BackendManager::backendServiceUnregistered(const QString &serviceName)
