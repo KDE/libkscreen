@@ -45,7 +45,7 @@ public:
 
 private Q_SLOTS:
     void screenAdded(const QScreen *qscreen);
-    void screenDestroyed(QObject *qscreen = 0);
+    void screenRemoved(QScreen *qscreen);
 
 Q_SIGNALS:
     void configChanged(const KScreen::ConfigPtr &config);

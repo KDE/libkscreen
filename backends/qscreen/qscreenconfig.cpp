@@ -39,6 +39,7 @@ QScreenConfig::QScreenConfig(QObject *parent)
     }
     m_blockSignals = false;
     connect(qApp, &QGuiApplication::screenAdded, this, &QScreenConfig::screenAdded);
+    connect(qApp, &QGuiApplication::screenRemoved, this, &QScreenConfig::screenRemoved);
 }
 
 QScreenConfig::~QScreenConfig()
@@ -75,14 +76,12 @@ void QScreenConfig::screenAdded(const QScreen *qscreen)
     qscreenoutput->setId(outputId(qscreen));
     m_outputMap.insert(qscreenoutput->id(), qscreenoutput);
 
-    connect(qscreen, &QObject::destroyed, this, &QScreenConfig::screenDestroyed);
-
     if (!m_blockSignals) {
         Q_EMIT configChanged(toKScreenConfig());
     }
 }
 
-void QScreenConfig::screenDestroyed(QObject *qscreen)
+void QScreenConfig::screenRemoved(QScreen *qscreen)
 {
     qCDebug(KSCREEN_QSCREEN) << "Screen removed" << qscreen << QGuiApplication::screens().count();
     // Find output matching the QScreen object and remove it

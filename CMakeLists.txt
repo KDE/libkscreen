@@ -16,7 +16,7 @@ include(ECMQtDeclareLoggingCategory)
 include(FeatureSummary)
 include(CheckCXXCompilerFlag)
 
-set(REQUIRED_QT_VERSION 5.2.0)
+set(REQUIRED_QT_VERSION 5.4.0)
 find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Core DBus Gui Test X11Extras)
 
 # Wayland backend
