@@ -116,7 +116,7 @@ void Doctor::start(QCommandLineParser *parser)
 void KScreen::Doctor::setDpms(const QString& dpmsArg)
 {
     qDebug() << "SetDpms: " << dpmsArg;
-    connect(m_dpmsClient, &DpmsClient::ready, this, [=]() {
+    connect(m_dpmsClient, &DpmsClient::ready, this, [this, dpmsArg]() {
         cout << "DPMS.ready()";
         if (dpmsArg == QStringLiteral("off")) {
             m_dpmsClient->off();
@@ -128,8 +128,6 @@ void KScreen::Doctor::setDpms(const QString& dpmsArg)
     });
 
     m_dpmsClient->connect();
-
-
 }
 
 
@@ -137,7 +135,7 @@ void Doctor::showDpms()
 {
     m_dpmsClient = new DpmsClient(this);
 
-    connect(m_dpmsClient, &DpmsClient::ready, this, [=]() {
+    connect(m_dpmsClient, &DpmsClient::ready, this, [cout]() {
         cout << "DPMS.ready()";
     });
 
@@ -184,7 +182,7 @@ void Doctor::parsePositionalArgs()
                     qApp->exit(3);
                     return;
                 }
-                if (ops.count() == 3 &&  ops[2] == QStringLiteral("enable")) {
+                if (ops.count() == 3 && ops[2] == QStringLiteral("enable")) {
                     if (!setEnabled(output_id, true)) {
                         qApp->exit(1);
                         return;
