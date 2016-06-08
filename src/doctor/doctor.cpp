@@ -84,10 +84,10 @@ void Doctor::start(QCommandLineParser *parser)
     if (parser->isSet("json") || parser->isSet("outputs") || !m_positionalArgs.isEmpty()) {
 
         KScreen::GetConfigOperation *op = new KScreen::GetConfigOperation();
-        QObject::connect(op, &KScreen::GetConfigOperation::finished, this,
-                        [&](KScreen::ConfigOperation *op) {
-                            configReceived(op);
-                        });
+        connect(op, &KScreen::GetConfigOperation::finished, this,
+                [this](KScreen::ConfigOperation *op) {
+                    configReceived(op);
+                });
         return;
     }
     if (m_parser->isSet("dpms")) {
