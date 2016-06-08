@@ -1,5 +1,5 @@
 /*************************************************************************************
- *  Copyright 2014-2015 Sebastian Kügler <sebas@kde.org>                             *
+ *  Copyright 2014-2016 Sebastian Kügler <sebas@kde.org>                             *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -286,18 +286,9 @@ void Doctor::showOutputs() const
         cout << green << "Output: " << cr << output->id() << " " << output->name();
         cout << " " << (output->isEnabled() ? green + "enabled" : red + "disabled");
         cout << " " << (output->isPrimary() ? green + "primary" : QString());
-//         QVERIFY(!output->name().isEmpty());
-//         QVERIFY(output->id() > -1);
-//         QVERIFY(output->isConnected());
-//         QVERIFY(output->geometry() != QRectF(1,1,1,1));
-//         QVERIFY(output->geometry() != QRectF());
-//         QVERIFY(output->sizeMm() != QSize());
         cout << blue << " Modes: " << cr;
         Q_FOREACH (auto mode, output->modes()) {
             cout << mode->id() << ":" << mode->name() << " ";
-//             QVERIFY(!mode->name().isEmpty());
-//             QVERIFY(mode->refreshRate() > 0);
-//             QVERIFY(mode->size().isValid());
         }
         const auto g = output->geometry();
         cout << yellow << "Geometry: " << cr << g.x() << "," << g.y() << " " << g.width() << "x" << g.height();
