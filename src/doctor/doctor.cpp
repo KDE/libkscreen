@@ -153,7 +153,7 @@ void Doctor::showBackends() const
     cout << "  * KSCREEN_BACKEND_INPROCESS : " << env_kscreen_backend_inprocess << endl;
     auto backends = BackendManager::instance()->listBackends();
     auto preferred = BackendManager::instance()->preferredBackend();
-    cout << "Preferred KSCreen backend : " << green << preferred.fileName() << cr << endl;
+    cout << "Preferred KScreen backend : " << green << preferred.fileName() << cr << endl;
     cout << "Available KScreen backends:" << endl;
     Q_FOREACH(const QFileInfo f, backends) {
         auto c = blue;
