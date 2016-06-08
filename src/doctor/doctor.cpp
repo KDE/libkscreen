@@ -285,6 +285,7 @@ void Doctor::showOutputs() const
     Q_FOREACH (const auto &output, m_config->outputs()) {
         cout << green << "Output: " << cr << output->id() << " " << output->name();
         cout << " " << (output->isEnabled() ? green + "enabled" : red + "disabled");
+        cout << " " << (output->isPrimary() ? green + "primary" : QString());
 //         QVERIFY(!output->name().isEmpty());
 //         QVERIFY(output->id() > -1);
 //         QVERIFY(output->isConnected());
