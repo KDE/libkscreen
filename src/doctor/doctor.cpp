@@ -280,10 +280,29 @@ void Doctor::showOutputs() const
         return;
     }
 
+    QHash<KScreen::Output::Type, QString> typeString;
+    typeString[KScreen::Output::Unknown] = QStringLiteral("Unknown");
+    typeString[KScreen::Output::VGA] = QStringLiteral("VGA");
+    typeString[KScreen::Output::DVI] = QStringLiteral("DVI");
+    typeString[KScreen::Output::DVII] = QStringLiteral("DVII");
+    typeString[KScreen::Output::DVIA] = QStringLiteral("DVIA");
+    typeString[KScreen::Output::DVID] = QStringLiteral("DVID");
+    typeString[KScreen::Output::HDMI] = QStringLiteral("HDMI");
+    typeString[KScreen::Output::Panel] = QStringLiteral("Panel");
+    typeString[KScreen::Output::TV] = QStringLiteral("TV");
+    typeString[KScreen::Output::TVComposite] = QStringLiteral("TVComposite");
+    typeString[KScreen::Output::TVSVideo] = QStringLiteral("TVSVideo");
+    typeString[KScreen::Output::TVComponent] = QStringLiteral("TVComponent");
+    typeString[KScreen::Output::TVSCART] = QStringLiteral("TVSCART");
+    typeString[KScreen::Output::TVC4] = QStringLiteral("TVC4");
+    typeString[KScreen::Output::DisplayPort] = QStringLiteral("DisplayPort");
+
     Q_FOREACH (const auto &output, m_config->outputs()) {
         cout << green << "Output: " << cr << output->id() << " " << output->name();
         cout << " " << (output->isEnabled() ? green + "enabled" : red + "disabled");
         cout << " " << (output->isPrimary() ? green + "primary" : QString());
+        auto _type = typeString[output->type()];
+        cout << " " << yellow << (_type.isEmpty() ? "UnmappedOutputType" : _type);
         cout << blue << " Modes: " << cr;
         Q_FOREACH (auto mode, output->modes()) {
             cout << mode->id() << ":" << mode->name() << " ";
