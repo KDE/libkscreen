@@ -75,7 +75,6 @@ private:
     void updateModes(const XCB::OutputInfo &outputInfo);
 
     static KScreen::Output::Type fetchOutputType(xcb_randr_output_t outputId, const QString &name);
-    static KScreen::Output::Type typeFromName(const QString &name);
     static QByteArray typeFromProperty(xcb_randr_output_t outputId);
 
     XRandRConfig *m_config;

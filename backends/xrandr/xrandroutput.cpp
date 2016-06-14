@@ -245,9 +245,20 @@ void XRandROutput::updateModes(const XCB::OutputInfo &outputInfo)
 
 KScreen::Output::Type XRandROutput::fetchOutputType(xcb_randr_output_t outputId, const QString &name)
 {
-    const QByteArray type = typeFromProperty(outputId);
+    QByteArray type = typeFromProperty(outputId);
     if (type.isEmpty()) {
-        return typeFromName(name);
+        type = name.toLocal8Bit();
+    }
+
+    static const QStringList embedded = QStringList() << QLatin1String("LVDS")
+                                                      << QLatin1String("IDP")
+                                                      << QLatin1String("EDP")
+                                                      << QLatin1String("LCD");
+
+    Q_FOREACH(const QString &pre, embedded) {
+        if (name.toUpper().startsWith(pre)) {
+            return KScreen::Output::Panel;
+        }
     }
 
     if (type.contains("VGA")) {
@@ -264,8 +275,6 @@ KScreen::Output::Type XRandROutput::fetchOutputType(xcb_randr_output_t outputId,
         return KScreen::Output::HDMI;
     } else if (type.contains("Panel")) {
         return KScreen::Output::Panel;
-    } else if (type.contains("TV")) {
-        return KScreen::Output::TV;
     } else if (type.contains("TV-Composite")) {
         return KScreen::Output::TVComposite;
     } else if (type.contains("TV-SVideo")) {
@@ -276,7 +285,9 @@ KScreen::Output::Type XRandROutput::fetchOutputType(xcb_randr_output_t outputId,
         return KScreen::Output::TVSCART;
     } else if (type.contains("TV-C4")) {
         return KScreen::Output::TVC4;
-    } else if (type.contains("DisplayPort")) {
+    } else if (type.contains("TV")) {
+        return KScreen::Output::TV;
+    } else if (type.contains("DisplayPort") || type.startsWith("DP")) {
         return KScreen::Output::DisplayPort;
     } else if (type.contains("unknown")) {
         return KScreen::Output::Unknown;
@@ -286,22 +297,6 @@ KScreen::Output::Type XRandROutput::fetchOutputType(xcb_randr_output_t outputId,
 
     return KScreen::Output::Unknown;
 
-}
-
-KScreen::Output::Type XRandROutput::typeFromName(const QString &name)
-{
-    static const QStringList embedded = QStringList() << QLatin1String("LVDS")
-                                                      << QLatin1String("IDP")
-                                                      << QLatin1String("EDP")
-                                                      << QLatin1String("LCD");
-
-    Q_FOREACH(const QString &pre, embedded) {
-        if (name.toUpper().startsWith(pre)) {
-            return KScreen::Output::Panel;
-        }
-    }
-
-    return KScreen::Output::Unknown;
 }
 
 QByteArray XRandROutput::typeFromProperty(xcb_randr_output_t outputId)
