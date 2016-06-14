@@ -250,12 +250,12 @@ KScreen::Output::Type XRandROutput::fetchOutputType(xcb_randr_output_t outputId,
         type = name.toLocal8Bit();
     }
 
-    static const QStringList embedded = QStringList() << QLatin1String("LVDS")
-                                                      << QLatin1String("IDP")
-                                                      << QLatin1String("EDP")
-                                                      << QLatin1String("LCD");
+    static const QVector<QLatin1String> embedded{QLatin1String("LVDS"),
+                                                 QLatin1String("IDP"),
+                                                 QLatin1String("EDP"),
+                                                 QLatin1String("LCD")};
 
-    Q_FOREACH(const QString &pre, embedded) {
+    for (const QLatin1String &pre : embedded) {
         if (name.toUpper().startsWith(pre)) {
             return KScreen::Output::Panel;
         }
