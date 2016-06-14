@@ -135,7 +135,7 @@ void Doctor::showDpms()
 {
     m_dpmsClient = new DpmsClient(this);
 
-    connect(m_dpmsClient, &DpmsClient::ready, this, [cout]() {
+    connect(m_dpmsClient, &DpmsClient::ready, this, []() {
         cout << "DPMS.ready()";
     });
 
