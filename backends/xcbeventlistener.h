@@ -54,6 +54,7 @@ class XCBEventListener : public QObject,
                            xcb_randr_mode_t mode,
                            xcb_randr_connection_t connection);
         void outputPropertyChanged(xcb_randr_output_t output);
+        void resourceChanged();
 
     private:
         QString rotationToString(xcb_randr_rotation_t rotation);

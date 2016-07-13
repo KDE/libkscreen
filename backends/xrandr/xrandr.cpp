@@ -110,6 +110,13 @@ XRandR::XRandR()
         connect(m_x11Helper, &XCBEventListener::screenChanged,
                 this, &XRandR::screenChanged,
                 Qt::QueuedConnection);
+        connect(m_x11Helper, &XCBEventListener::resourceChanged, this,
+            [this] {
+                // ensure to re-read the resources
+                XRandR::s_xorgCacheInitialized = false;
+
+                m_configChangeCompressor->start();
+            }, Qt::QueuedConnection);
 
         m_configChangeCompressor = new QTimer(this);
         m_configChangeCompressor->setSingleShot(true);

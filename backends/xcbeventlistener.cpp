@@ -79,7 +79,8 @@ XCBEventListener::XCBEventListener():
             XCB_RANDR_NOTIFY_MASK_SCREEN_CHANGE |
             XCB_RANDR_NOTIFY_MASK_OUTPUT_CHANGE |
             XCB_RANDR_NOTIFY_MASK_CRTC_CHANGE |
-            XCB_RANDR_NOTIFY_MASK_OUTPUT_PROPERTY
+            XCB_RANDR_NOTIFY_MASK_OUTPUT_PROPERTY |
+            XCB_RANDR_NOTIFY_MASK_RESOURCE_CHANGE
     );
 
     qApp->installNativeEventFilter(this);
@@ -207,5 +208,7 @@ void XCBEventListener::handleXRandRNotify(xcb_generic_event_t* e)
         qCDebug(KSCREEN_XCB_HELPER) << "\tOutput: " << property.output;
         qCDebug(KSCREEN_XCB_HELPER) << "\tProperty: " << xcb_get_atom_name_name(reply.data());
         qCDebug(KSCREEN_XCB_HELPER) << "\tState (newValue, Deleted): " << property.status;
+    } else if (randrEvent->subCode == XCB_RANDR_NOTIFY_RESOURCE_CHANGE) {
+        Q_EMIT resourceChanged();
     }
 }
