@@ -19,7 +19,9 @@
 #include "log.h"
 
 #include <QDateTime>
+#include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QStandardPaths>
 
 namespace KScreen {
@@ -54,12 +56,12 @@ class Log::Private
 Log::Log() :
    d(new Private)
 {
-    const auto logging_env = "KSCREEN_LOGGING";
-    const auto logfile_env = "KSCREEN_LOGFILE";
+    const char* logging_env = "KSCREEN_LOGGING";
+    const char* logfile_env = "KSCREEN_LOGFILE";
 
     if (qEnvironmentVariableIsSet(logging_env)) {
-        const auto logging_env_value = qgetenv(logging_env).constData();
-        if (logging_env_value == QStringLiteral("0") || QString::fromLocal8Bit(logging_env_value).toLower() == QStringLiteral("false")) {
+        const QString logging_env_value = qgetenv(logging_env).constData();
+        if (logging_env_value == QStringLiteral("0") || logging_env_value.toLower() == QStringLiteral("false")) {
             d->enabled = false;
         }
     }
@@ -72,6 +74,11 @@ Log::Log() :
     }
     qDebug() << "Log: " << d->logFile;
     // todo : create path if necessary
+    QFileInfo fi(d->logFile);
+    if (!QDir().mkpath(fi.absolutePath())) {
+        qWarning() << "Failed to create logging dir" << fi.absolutePath();
+    }
+    qDebug() << "PATH: " << fi.absolutePath();
 }
 
 Log::Log(Log::Private *dd) :
@@ -82,6 +89,8 @@ Log::Log(Log::Private *dd) :
 Log::~Log()
 {
     delete d;
+    delete sInstance;
+    sInstance = nullptr;
 }
 
 QString Log::context() const
