@@ -16,6 +16,7 @@ set(libkscreen_SRCS
     edid.cpp
     mode.cpp
     debug_p.cpp
+    log.cpp
 )
 
 qt5_add_dbus_interface(libkscreen_SRCS ${CMAKE_SOURCE_DIR}/interfaces/org.kde.KScreen.Backend.xml backendinterface)
@@ -43,6 +44,7 @@ add_library(KF5::Screen ALIAS KF5Screen)
 
 ecm_generate_headers(KScreen_HEADERS
     HEADER_NAMES
+        Log
         Mode
         Output
         EDID

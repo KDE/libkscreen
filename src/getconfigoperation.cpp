@@ -21,6 +21,7 @@
 #include "configoperation_p.h"
 #include "config.h"
 #include "output.h"
+#include "log.h"
 #include "backendmanager_p.h"
 #include "configserializer_p.h"
 #include "backendinterface.h"
@@ -167,6 +168,8 @@ KScreen::ConfigPtr GetConfigOperation::config() const
 
 void GetConfigOperation::start()
 {
+    Log::log(QStringLiteral("config"));
+
     Q_D(GetConfigOperation);
     if (BackendManager::instance()->method() == BackendManager::InProcess) {
         auto backend = d->loadBackend();
