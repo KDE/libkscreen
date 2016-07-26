@@ -305,7 +305,16 @@ void Doctor::showOutputs() const
         cout << " " << yellow << (_type.isEmpty() ? "UnmappedOutputType" : _type);
         cout << blue << " Modes: " << cr;
         Q_FOREACH (auto mode, output->modes()) {
-            cout << mode->id() << ":" << mode->name() << " ";
+            auto name = QString("%1x%2@%3").arg(QString::number(mode->size().width()),
+                                                QString::number(mode->size().height()),
+                                                QString::number(qRound(mode->refreshRate())));
+            if (mode == output->currentMode()) {
+                name = green + name + "*" + cr;
+            }
+            if (mode == output->preferredMode()) {
+                name = name + "!";
+            }
+            cout << mode->id() << ":" << name << " ";
         }
         const auto g = output->geometry();
         cout << yellow << "Geometry: " << cr << g.x() << "," << g.y() << " " << g.width() << "x" << g.height();
