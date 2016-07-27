@@ -28,6 +28,7 @@
 #include "debug_p.h"
 #include "getconfigoperation.h"
 #include "configserializer_p.h"
+#include "log.h"
 
 #include <QDBusConnection>
 #include <QDBusPendingCall>
@@ -68,6 +69,7 @@ BackendManager::BackendManager()
     , mLoader(0)
     , mMethod(OutOfProcess)
 {
+    Log::instance();
     // Decide wether to run in, or out-of-process
 
     // if KSCREEN_BACKEND_INPROCESS is set explicitely, we respect that

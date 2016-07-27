@@ -168,8 +168,6 @@ KScreen::ConfigPtr GetConfigOperation::config() const
 
 void GetConfigOperation::start()
 {
-    Log::log(QStringLiteral("config"));
-
     Q_D(GetConfigOperation);
     if (BackendManager::instance()->method() == BackendManager::InProcess) {
         auto backend = d->loadBackend();

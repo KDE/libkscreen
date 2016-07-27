@@ -22,9 +22,11 @@
 
 #include "debug_p.h"
 #include "backendloader.h"
+#include "log.h"
 
 int main(int argc, char **argv)
 {
+    KScreen::Log::instance();
     QGuiApplication::setDesktopSettingsAware(false);
     QGuiApplication app(argc, argv);
 
