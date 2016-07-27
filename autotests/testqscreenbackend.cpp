@@ -54,6 +54,7 @@ private:
 
 void testQScreenBackend::initTestCase()
 {
+    qputenv("KSCREEN_LOGGING", "false");
     qputenv("KSCREEN_BACKEND", "qscreen");
     qputenv("KSCREEN_BACKEND_INPROCESS", "1");
     KScreen::BackendManager::instance()->shutdownBackend();

@@ -55,6 +55,7 @@ public:
 private Q_SLOTS:
     void initTestCase()
     {
+        qputenv("KSCREEN_LOGGING", "false");
         qputenv("KSCREEN_BACKEND", "Fake");
         // This particular test is only useful for out of process operation, so enforce that
         qputenv("KSCREEN_BACKEND_INPROCESS", "0");

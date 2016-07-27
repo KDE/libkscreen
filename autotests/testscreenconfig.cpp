@@ -64,6 +64,7 @@ ConfigPtr testScreenConfig::getConfig()
 
 void testScreenConfig::initTestCase()
 {
+    qputenv("KSCREEN_LOGGING", "false");
     qputenv("KSCREEN_BACKEND", "Fake");
 }
 

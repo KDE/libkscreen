@@ -68,6 +68,7 @@ TestInProcess::TestInProcess(QObject *parent)
 
 void TestInProcess::init()
 {
+    qputenv("KSCREEN_LOGGING", "false");
     // Make sure we do everything in-process
     qputenv("KSCREEN_BACKEND_INPROCESS", "1");
     // Use Fake backend with one of the json configs

@@ -74,6 +74,7 @@ testWaylandBackend::testWaylandBackend(QObject *parent)
     : QObject(parent)
     , m_config(nullptr)
 {
+    qputenv("KSCREEN_LOGGING", "false");
     m_server = new WaylandTestServer(this);
     m_server->setConfig(TEST_DATA + QStringLiteral("multipleoutput.json"));
 }

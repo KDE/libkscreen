@@ -63,6 +63,7 @@ TestKWaylandConfig::TestKWaylandConfig(QObject *parent)
     : QObject(parent)
     , m_server(nullptr)
 {
+    qputenv("KSCREEN_LOGGING", "false");
 }
 
 void TestKWaylandConfig::initTestCase()

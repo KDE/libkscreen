@@ -47,6 +47,7 @@ private Q_SLOTS:
 TestBackendLoader::TestBackendLoader(QObject *parent)
     : QObject(parent)
 {
+    qputenv("KSCREEN_LOGGING", "false");
     qputenv("KSCREEN_BACKEND_INPROCESS", QByteArray());
     qputenv("KSCREEN_BACKEND", QByteArray());
 }
