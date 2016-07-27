@@ -67,7 +67,7 @@ class KSCREEN_EXPORT Log
          *
          * @arg msg The log message to write.
          */
-        static void log(const QString &msg);
+        static void log(const QString &msg, const QString &category = QString());
 
         /** Context for the logs.
          *

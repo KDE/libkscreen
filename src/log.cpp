@@ -27,7 +27,18 @@
 namespace KScreen {
 
 Log* Log::sInstance = nullptr;
+QtMessageHandler sDefaultMessageHandler = nullptr;
 
+
+
+void kscreenLogOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    QByteArray localMsg = msg.toLocal8Bit();
+    if (QString::fromLocal8Bit(context.category).startsWith(QStringLiteral("kscreen"))) {
+        Log::log(localMsg.constData(), context.category);
+    }
+    sDefaultMessageHandler(type, context, msg);
+}
 
 void log(const QString& msg)
 {
@@ -72,13 +83,19 @@ Log::Log() :
     } else {
         d->logFile = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/kscreen/kscreen.log";
     }
-    qDebug() << "Log: " << d->logFile;
+    if (!d->enabled) {
+        return;
+    }
     // todo : create path if necessary
     QFileInfo fi(d->logFile);
     if (!QDir().mkpath(fi.absolutePath())) {
         qWarning() << "Failed to create logging dir" << fi.absolutePath();
     }
-    qDebug() << "PATH: " << fi.absolutePath();
+
+    if (!sDefaultMessageHandler) {
+        sDefaultMessageHandler = qInstallMessageHandler(kscreenLogOutput);
+        qDebug() << "installed message handler, logging to " << d->logFile;
+    }
 }
 
 Log::Log(Log::Private *dd) :
@@ -113,16 +130,17 @@ QString Log::logFile() const
     return d->logFile;
 }
 
-void Log::log(const QString &msg)
+void Log::log(const QString &msg, const QString &category)
 {
+    auto _cat = category;
+    _cat.remove("kscreen.");
     const QString timestamp = QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
-    QString logMessage = QString("\n[%1] (%2) %3").arg(timestamp, instance()->context(), msg);
+    QString logMessage = QString("\n%1 ; %2 ; %3 : %4").arg(timestamp, _cat, instance()->context(), msg);
     QFile file(instance()->logFile());
     if (!file.open(QIODevice::Append | QIODevice::Text)) {
         return;
     }
     file.write(logMessage.toUtf8());
-    qDebug() << logMessage;
 }
 
 } // ns
