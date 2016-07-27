@@ -29,8 +29,6 @@ namespace KScreen {
 Log* Log::sInstance = nullptr;
 QtMessageHandler sDefaultMessageHandler = nullptr;
 
-
-
 void kscreenLogOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     QByteArray localMsg = msg.toLocal8Bit();
