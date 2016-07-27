@@ -20,14 +20,19 @@
 
 #include <QtTest/QtTest>
 #include <QtCore/QObject>
+#include <QLoggingCategory>
 
 #include "../src/log.h"
 
+Q_DECLARE_LOGGING_CATEGORY(KSCREEN_TESTLOG)
+
+Q_LOGGING_CATEGORY(KSCREEN_TESTLOG, "kscreen.testlog")
 
 using namespace KScreen;
 
 auto KSCREEN_LOGGING = "KSCREEN_LOGGING";
 auto KSCREEN_LOGFILE = "KSCREEN_LOGFILE";
+
 
 
 class TestLog : public QObject
@@ -49,10 +54,9 @@ private:
 
 void TestLog::init()
 {
+    QLoggingCategory::setFilterRules(QStringLiteral("kscreen.*=true"));
     QStandardPaths::setTestModeEnabled(true);
     m_defaultLogFile = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/kscreen/kscreen.log";
-    qDebug() << "default log" << m_defaultLogFile;
-
 }
 
 void TestLog::initTestCase()
@@ -124,13 +128,12 @@ void TestLog::testLog()
     Log::log(logmsg);
 
     QVERIFY(lf.exists());
-
-    // TODO read log and match logmsg
-
     QVERIFY(lf.remove());
 
+    qCDebug(KSCREEN_TESTLOG) << "qCDebug message from testlog";
+    QVERIFY(lf.exists());
+    QVERIFY(lf.remove());
 }
-
 
 
 QTEST_MAIN(TestLog)
