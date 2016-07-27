@@ -38,6 +38,7 @@ private Q_SLOTS:
     void init();
     void initTestCase();
     void cleanupTestCase();
+    void testContext();
     void testEnabled();
     void testLogFile();
     void testLog();
@@ -63,7 +64,17 @@ void TestLog::cleanupTestCase()
 {
     qunsetenv(KSCREEN_LOGGING);
     qunsetenv(KSCREEN_LOGFILE);
+}
 
+void TestLog::testContext()
+{
+    auto log = new KScreen::Log;
+    QString ctx("context text");
+    QVERIFY(log != nullptr);
+    log->setContext(ctx);
+    QCOMPARE(log->context(), ctx);
+
+    delete log;
 }
 
 void TestLog::testEnabled()
@@ -113,6 +124,10 @@ void TestLog::testLog()
     Log::log(logmsg);
 
     QVERIFY(lf.exists());
+
+    // TODO read log and match logmsg
+
+    QVERIFY(lf.remove());
 
 }
 
