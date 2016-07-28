@@ -32,7 +32,7 @@ QtMessageHandler sDefaultMessageHandler = nullptr;
 void kscreenLogOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     QByteArray localMsg = msg.toLocal8Bit();
-    if (QString::fromLocal8Bit(context.category).startsWith(QStringLiteral("kscreen"))) {
+    if (QString::fromLocal8Bit(context.category).startsWith(QLatin1String("kscreen"))) {
         Log::log(localMsg.constData(), context.category);
     }
     sDefaultMessageHandler(type, context, msg);
@@ -84,6 +84,7 @@ Log::Log() :
     if (!d->enabled) {
         return;
     }
+    QLoggingCategory::setFilterRules("kscreen.*=true");
     // todo : create path if necessary
     QFileInfo fi(d->logFile);
     if (!QDir().mkpath(fi.absolutePath())) {
