@@ -56,7 +56,6 @@ void log(const QString& msg);
 class KSCREEN_EXPORT Log
 {
     public:
-        explicit Log();
         virtual ~Log();
 
         static Log* instance();
@@ -104,6 +103,7 @@ class KSCREEN_EXPORT Log
         QString logFile() const;
 
     private:
+        explicit Log();
         class Private;
         Private * const d;
 
