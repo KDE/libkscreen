@@ -290,7 +290,6 @@ void BackendManager::emitBackendReady()
 
 void BackendManager::startBackend(const QString &backend, const QVariantMap &arguments)
 {
-    qCDebug(KSCREEN) << "starting external backend launcher for" << backend;
     // This will autostart the launcher if it's not running already, calling
     // requestBackend(backend) will:
     //   a) if the launcher is started it will force it to load the correct backend,
