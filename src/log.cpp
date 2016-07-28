@@ -59,33 +59,23 @@ class Log::Private
       QString context;
       bool enabled = true;
       QString logFile;
-
 };
 
 Log::Log() :
    d(new Private)
 {
     const char* logging_env = "KSCREEN_LOGGING";
-    const char* logfile_env = "KSCREEN_LOGFILE";
 
     if (qEnvironmentVariableIsSet(logging_env)) {
         const QString logging_env_value = qgetenv(logging_env).constData();
         if (logging_env_value == QStringLiteral("0") || logging_env_value.toLower() == QStringLiteral("false")) {
             d->enabled = false;
+            return;
         }
     }
-    if (qEnvironmentVariableIsSet(logfile_env)) {
-        const auto logfile_env_value = qgetenv(logfile_env).constData();
-        // todo : checks path exists, writable
-        d->logFile = QString::fromLocal8Bit(logfile_env_value);
-    } else {
-        d->logFile = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/kscreen/kscreen.log";
-    }
-    if (!d->enabled) {
-        return;
-    }
+    d->logFile = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/kscreen/kscreen.log";
+
     QLoggingCategory::setFilterRules("kscreen.*=true");
-    // todo : create path if necessary
     QFileInfo fi(d->logFile);
     if (!QDir().mkpath(fi.absolutePath())) {
         qWarning() << "Failed to create logging dir" << fi.absolutePath();
@@ -93,7 +83,6 @@ Log::Log() :
 
     if (!sDefaultMessageHandler) {
         sDefaultMessageHandler = qInstallMessageHandler(kscreenLogOutput);
-        qDebug() << "installed message handler, logging to " << d->logFile;
     }
 }
 
@@ -105,7 +94,6 @@ Log::Log(Log::Private *dd) :
 Log::~Log()
 {
     delete d;
-    delete sInstance;
     sInstance = nullptr;
 }
 
@@ -131,6 +119,9 @@ QString Log::logFile() const
 
 void Log::log(const QString &msg, const QString &category)
 {
+    if (!instance()->enabled()) {
+        return;
+    }
     auto _cat = category;
     _cat.remove("kscreen.");
     const QString timestamp = QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());

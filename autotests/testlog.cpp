@@ -29,9 +29,6 @@ Q_LOGGING_CATEGORY(KSCREEN_TESTLOG, "kscreen.testlog")
 using namespace KScreen;
 
 auto KSCREEN_LOGGING = "KSCREEN_LOGGING";
-auto KSCREEN_LOGFILE = "KSCREEN_LOGFILE";
-
-
 
 class TestLog : public QObject
 {
@@ -43,7 +40,6 @@ private Q_SLOTS:
     void cleanupTestCase();
     void testContext();
     void testEnabled();
-    void testLogFile();
     void testLog();
 
 private:
@@ -52,7 +48,6 @@ private:
 
 void TestLog::init()
 {
-    QLoggingCategory::setFilterRules(QStringLiteral("kscreen.*=true"));
     QStandardPaths::setTestModeEnabled(true);
     m_defaultLogFile = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/kscreen/kscreen.log";
 }
@@ -65,12 +60,11 @@ void TestLog::initTestCase()
 void TestLog::cleanupTestCase()
 {
     qunsetenv(KSCREEN_LOGGING);
-    qunsetenv(KSCREEN_LOGFILE);
 }
 
 void TestLog::testContext()
 {
-    auto log = new KScreen::Log;
+    auto log = Log::instance();
     QString ctx("context text");
     QVERIFY(log != nullptr);
     log->setContext(ctx);
@@ -81,43 +75,26 @@ void TestLog::testContext()
 
 void TestLog::testEnabled()
 {
-    auto logfile = "/tmp/kscreenlogfile.log";
-    qputenv(KSCREEN_LOGFILE, logfile);
     qputenv(KSCREEN_LOGGING, QByteArray("faLSe"));
 
-    auto log = new KScreen::Log;
+    auto log = Log::instance();
     QCOMPARE(log->enabled(), false);
-    QCOMPARE(log->logFile(), QString::fromLocal8Bit(logfile));
+    QCOMPARE(log->logFile(), QString());
 
     delete log;
     qunsetenv(KSCREEN_LOGGING);
-    qunsetenv(KSCREEN_LOGFILE);
 
-    log = new KScreen::Log;
+    log = Log::instance();
     QCOMPARE(log->enabled(), true);
-
-    delete log;
-}
-
-void TestLog::testLogFile()
-{
-    auto logfile = "/tmp/kscreenlogfile.log";
-    qputenv(KSCREEN_LOGFILE, logfile);
-
-    auto log = new KScreen::Log;
-    QCOMPARE(log->enabled(), true);
-    QCOMPARE(log->logFile(), QString::fromLocal8Bit(logfile));
-
-    delete log;
-    qunsetenv(KSCREEN_LOGFILE);
-
-    log = new KScreen::Log;
     QCOMPARE(log->logFile(), m_defaultLogFile);
+
     delete log;
 }
 
 void TestLog::testLog()
 {
+    auto log = Log::instance();
+
     QFile lf(m_defaultLogFile);
     lf.remove();
     QVERIFY(!lf.exists());
@@ -131,8 +108,23 @@ void TestLog::testLog()
     qCDebug(KSCREEN_TESTLOG) << "qCDebug message from testlog";
     QVERIFY(lf.exists());
     QVERIFY(lf.remove());
-}
 
+    delete Log::instance();
+
+    // Make sure on log file gets written when disabled
+    qputenv(KSCREEN_LOGGING, "false");
+
+    qCDebug(KSCREEN_TESTLOG) << logmsg;
+    QCOMPARE(Log::instance()->enabled(), false);
+    QVERIFY(!lf.exists());
+
+    Log::log(logmsg);
+    QVERIFY(!lf.exists());
+
+    // Make sure we don't crash on cleanup
+    delete Log::instance();
+    delete Log::instance();
+}
 
 QTEST_MAIN(TestLog)
 
