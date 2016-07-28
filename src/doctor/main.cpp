@@ -78,8 +78,8 @@ int main(int argc, char **argv)
 
     KScreen::Doctor server;
 
-    QCommandLineOption backends = QCommandLineOption(QStringList() << QStringLiteral("b") << "backends",
-                                                  QStringLiteral("Show backend information"));
+    QCommandLineOption backends = QCommandLineOption(QStringList() << QStringLiteral("i") << "info",
+                                                  QStringLiteral("Show runtime information: backends, logging, etc."));
     QCommandLineOption outputs = QCommandLineOption(QStringList() << QStringLiteral("o") << "outputs",
                                                   QStringLiteral("Show outputs"));
     QCommandLineOption json = QCommandLineOption(QStringList() << QStringLiteral("j") << "json",

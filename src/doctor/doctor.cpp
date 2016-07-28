@@ -37,6 +37,7 @@
 #include "../getconfigoperation.h"
 #include "../setconfigoperation.h"
 #include "../edid.h"
+#include "../log.h"
 #include "../output.h"
 
 Q_LOGGING_CATEGORY(KSCREEN_DOCTOR, "kscreen.doctor")
@@ -78,7 +79,7 @@ Doctor::~Doctor()
 void Doctor::start(QCommandLineParser *parser)
 {
     m_parser = parser;
-    if (m_parser->isSet("backends")) {
+    if (m_parser->isSet("info")) {
         showBackends();
     }
     if (parser->isSet("json") || parser->isSet("outputs") || !m_positionalArgs.isEmpty()) {
@@ -146,9 +147,13 @@ void Doctor::showBackends() const
 {
     cout << "Environment: " << endl;
     auto env_kscreen_backend = (qgetenv("KSCREEN_BACKEND").isEmpty()) ? QStringLiteral("[not set]") : qgetenv("KSCREEN_BACKEND");
-    cout << "  * KSCREEN_BACKEND is        : " << env_kscreen_backend << endl;
+    cout << "  * KSCREEN_BACKEND           : " << env_kscreen_backend << endl;
     auto env_kscreen_backend_inprocess = (qgetenv("KSCREEN_BACKEND_INPROCESS").isEmpty()) ? QStringLiteral("[not set]") : qgetenv("KSCREEN_BACKEND_INPROCESS");
     cout << "  * KSCREEN_BACKEND_INPROCESS : " << env_kscreen_backend_inprocess << endl;
+    auto env_kscreen_logging = (qgetenv("KSCREEN_LOGGING").isEmpty()) ? QStringLiteral("[not set]") : qgetenv("KSCREEN_LOGGING");
+    cout << "  * KSCREEN_LOGGING           : " << env_kscreen_logging << endl;
+
+    cout << "Logging to                : " << (Log::instance()->enabled() ? Log::instance()->logFile() : "[logging disabled]") << endl;
     auto backends = BackendManager::instance()->listBackends();
     auto preferred = BackendManager::instance()->preferredBackend();
     cout << "Preferred KScreen backend : " << green << preferred.fileName() << cr << endl;
