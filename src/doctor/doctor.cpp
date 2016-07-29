@@ -110,6 +110,16 @@ void Doctor::start(QCommandLineParser *parser)
         }
         return;
     }
+
+    if (m_parser->isSet("log")) {
+
+        const QString logmsg = m_parser->value(QStringLiteral("log"));
+        if (!Log::instance()->enabled()) {
+            qCWarning(KSCREEN_DOCTOR) << "Logging is disabled, unset KSCREEN_LOGGING in your environment.";
+        } else {
+            Log::log(logmsg);
+        }
+    }
     // We need to kick the event loop, otherwise .quit() hangs
     QTimer::singleShot(0, qApp->quit);
 }
@@ -305,6 +315,7 @@ void Doctor::showOutputs() const
     Q_FOREACH (const auto &output, m_config->outputs()) {
         cout << green << "Output: " << cr << output->id() << " " << output->name();
         cout << " " << (output->isEnabled() ? green + "enabled" : red + "disabled");
+        cout << " " << (output->isConnected() ? green + "connected" : red + "disconnected");
         cout << " " << (output->isPrimary() ? green + "primary" : QString());
         auto _type = typeString[output->type()];
         cout << " " << yellow << (_type.isEmpty() ? "UnmappedOutputType" : _type);

@@ -78,7 +78,7 @@ int main(int argc, char **argv)
 
     KScreen::Doctor server;
 
-    QCommandLineOption backends = QCommandLineOption(QStringList() << QStringLiteral("i") << "info",
+    QCommandLineOption info = QCommandLineOption(QStringList() << QStringLiteral("i") << "info",
                                                   QStringLiteral("Show runtime information: backends, logging, etc."));
     QCommandLineOption outputs = QCommandLineOption(QStringList() << QStringLiteral("o") << "outputs",
                                                   QStringLiteral("Show outputs"));
@@ -86,15 +86,18 @@ int main(int argc, char **argv)
                                                  QStringLiteral("Show configuration in JSON format"));
     QCommandLineOption dpms = QCommandLineOption(QStringList() << QStringLiteral("d") << "dpms",
                                                   QStringLiteral("Display power management"), QStringLiteral("off"));
+    QCommandLineOption log = QCommandLineOption(QStringList() << QStringLiteral("l") << "log",
+                                                  QStringLiteral("Write a comment to the log file"), QStringLiteral("comment"));
 
     QCommandLineParser parser;
     parser.setApplicationDescription(desc);
     parser.addPositionalArgument("config", syntax, QStringLiteral("[output.<id>.<setting> output.<id>.setting [...]]"));
     parser.addHelpOption();
-    parser.addOption(backends);
+    parser.addOption(info);
     parser.addOption(json);
     parser.addOption(outputs);
     parser.addOption(dpms);
+    parser.addOption(log);
     parser.process(app);
 
     if (!parser.positionalArguments().isEmpty()) {
