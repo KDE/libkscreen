@@ -498,6 +498,7 @@ bool XRandRConfig::enableOutput(const OutputPtr &kscreenOutput) const
     XRandRCrtc *freeCrtc = Q_NULLPTR;
     qCDebug(KSCREEN_XRANDR) << m_crtcs;
     Q_FOREACH (XRandRCrtc *crtc, m_crtcs) {
+        crtc->update();
         qCDebug(KSCREEN_XRANDR) << "Testing CRTC" << crtc->crtc();
         qCDebug(KSCREEN_XRANDR) << "\tFree:" << crtc->isFree();
         qCDebug(KSCREEN_XRANDR) << "\tMode:" << crtc->mode();
