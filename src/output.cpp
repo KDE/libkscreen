@@ -286,7 +286,7 @@ QString Output::preferredModeId() const
         biggest = candidateMode;
     }
 
-    Q_ASSERT_X(biggest, "preferredModeId", "biggest mode must exists");
+    Q_ASSERT_X(biggest, "preferredModeId", "biggest mode must exist");
 
     d->preferredMode = biggest->id();
     return d->preferredMode;
