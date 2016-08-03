@@ -106,6 +106,8 @@ void XRandRCrtc::update()
     for (int i = 0; i < crtcInfo->num_possible_outputs; ++i) {
         m_possibleOutputs.append(possible[i]);
     }
+
+    m_outputs.clear();
     xcb_randr_output_t *outputs = xcb_randr_get_crtc_info_outputs(crtcInfo);
     for (int i = 0; i < crtcInfo->num_outputs; ++i) {
         m_outputs.append(outputs[i]);
