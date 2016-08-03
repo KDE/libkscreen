@@ -520,7 +520,13 @@ void Output::apply(const OutputPtr& other)
 QDebug operator<<(QDebug dbg, const KScreen::OutputPtr &output)
 {
     if(output) {
-        dbg << "KScreen::Output(Id:" << output->id() <<", Name:" << output->name() << ")";
+        dbg << "KScreen::Output(" << output->id() << " "
+                                  << output->name()
+                                  << (output->isConnected() ? "connected" : "disconnected")
+                                  << (output->isEnabled() ? "enabled" : "disabled")
+                                  << output->pos() << output->size()
+                                  << output->currentModeId()
+                                  << ")";
     } else {
         dbg << "KScreen::Output(NULL)";
     }
