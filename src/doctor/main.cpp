@@ -50,12 +50,12 @@ int main(int argc, char **argv)
     "Usage examples:\n\n"
     "   Show output information:\n"
     "   $ kscreen-doctor -o\n"
-    "   Output: 1 Samsung SyncMaster enabled Modes: 1:800x600@60 [...] Geometry: 0,0 1280x800\n"
-    "   Output: 2 DELL U2410 enabled Modes: 1:800x600@60 [...] Geometry: 1280,0 1920x1080\n"
-    "\n   Disable the second output, enable the first and set it to a specific mode\n"
-    "   $ kscreen-doctor output.2.disable output.1.mode.1 output.1.enable\n"
-    "\n   Position the second output on the right of the smaller output\n"
-    "   $ kscreen-doctor output.2.position.0,1280 output.1.position.0,0\n";
+    "   Output: 1 eDP-1 enabled connected Panel Modes: Modes: 1:800x600@60 [...] Geometry: 0,0 1280x800\n"
+    "   Output: 70 HDMI-2 enabled connected  HDMI Modes: 1:800x600@60 [...] Geometry: 1280,0 1920x1080\n"
+    "\n   Disable the hdmi output, enable the laptop panel and set it to a specific mode\n"
+    "   $ kscreen-doctor output.HDMI-2.disable output.eDP-1.mode.1 output.eDP-1.enable\n"
+    "\n   Position the hdmi monitor on the right of the laptop panel\n"
+    "   $ kscreen-doctor output.HDMI-2.position.0,1280 output.eDP-1.position.0,0\n";
 /*
     "\nError codes:\n"
     "   2 : general parse error\n"
@@ -67,11 +67,11 @@ int main(int argc, char **argv)
     "   9 : invalid mode id\n";
 */
     const QString syntax = "Specific output settings are separated by spaces, each setting is in the form of\n"
-                           "output.<id>.<setting>[.<value>]\n"
+                           "output.<name>.<setting>[.<value>]\n"
                            "For example:\n"
-                           "$ kscreen-doctor output.2.enable \\ \n"
-                           "                output.1.mode.4 \\ \n"
-                           "                output.1.position.1280,0\n"
+                           "$ kscreen-doctor output.HDMI-2.enable \\ \n"
+                           "                output.eDP-1.mode.4 \\ \n"
+                           "                output.eDP-1.position.1280,0\n"
                            "Multiple settings are passed in order to have kscreen-doctor apply these settings in one go.\n";
 
     QGuiApplication app(argc, argv);
@@ -85,13 +85,13 @@ int main(int argc, char **argv)
     QCommandLineOption json = QCommandLineOption(QStringList() << QStringLiteral("j") << "json",
                                                  QStringLiteral("Show configuration in JSON format"));
     QCommandLineOption dpms = QCommandLineOption(QStringList() << QStringLiteral("d") << "dpms",
-                                                  QStringLiteral("Display power management"), QStringLiteral("off"));
+                                                  QStringLiteral("Display power management (wayland only)"), QStringLiteral("off"));
     QCommandLineOption log = QCommandLineOption(QStringList() << QStringLiteral("l") << "log",
                                                   QStringLiteral("Write a comment to the log file"), QStringLiteral("comment"));
 
     QCommandLineParser parser;
     parser.setApplicationDescription(desc);
-    parser.addPositionalArgument("config", syntax, QStringLiteral("[output.<id>.<setting> output.<id>.setting [...]]"));
+    parser.addPositionalArgument("config", syntax, QStringLiteral("[output.<name>.<setting> output.<name>.setting [...]]"));
     parser.addHelpOption();
     parser.addOption(info);
     parser.addOption(json);

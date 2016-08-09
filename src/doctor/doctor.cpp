@@ -190,12 +190,20 @@ void Doctor::parsePositionalArgs()
         auto ops = op.split('.');
         if (ops.count() > 2) {
             bool ok;
+            int output_id = -1;
             if (ops[0] == QStringLiteral("output")) {
-                int output_id = parseInt(ops[1], ok);
-                if (!ok) {
-                    cerr << "Unable to parse output id" << ops[1] << endl;
-                    qApp->exit(3);
-                    return;
+                Q_FOREACH (const auto &output, m_config->outputs()) {
+                    if (output->name() == ops[1]) {
+                        output_id = output->id();
+                    }
+                }
+                if (output_id == -1) {
+                    output_id = parseInt(ops[1], ok);
+                    if (!ok) {
+                        cerr << "Unable to parse output id" << ops[1] << endl;
+                        qApp->exit(3);
+                        return;
+                    }
                 }
                 if (ops.count() == 3 && ops[2] == QStringLiteral("enable")) {
                     if (!setEnabled(output_id, true)) {
