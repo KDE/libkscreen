@@ -515,17 +515,19 @@ bool XRandRConfig::enableOutput(const OutputPtr &kscreenOutput) const
         return false;
     }
 
+    const int modeId = kscreenOutput->currentMode() ? kscreenOutput->currentModeId().toInt() : kscreenOutput->preferredModeId().toInt();
+
     qCDebug(KSCREEN_XRANDR) << "RRSetCrtcConfig (enable output)";
     qCDebug(KSCREEN_XRANDR) << "\tOutput:" << kscreenOutput->id() << "(" << kscreenOutput->name() << ")";
     qCDebug(KSCREEN_XRANDR) << "\tNew CRTC:" << freeCrtc->crtc();
     qCDebug(KSCREEN_XRANDR) << "\tPos:" << kscreenOutput->pos();
-    qCDebug(KSCREEN_XRANDR) << "\tMode:" << kscreenOutput->currentModeId() << "(" << kscreenOutput->currentMode()->size() << ")";
+    qCDebug(KSCREEN_XRANDR) << "\tMode:" << kscreenOutput->currentMode() << "Preferred:" << kscreenOutput->preferredModeId();
     qCDebug(KSCREEN_XRANDR) << "\tRotation:" << kscreenOutput->rotation();
 
     auto cookie = xcb_randr_set_crtc_config(XCB::connection(), freeCrtc->crtc(),
             XCB_CURRENT_TIME, XCB_CURRENT_TIME,
             kscreenOutput->pos().rx(), kscreenOutput->pos().ry(),
-            kscreenOutput->currentModeId().toInt(),
+            modeId,
             kscreenOutput->rotation(),
             1, outputs);
     XCB::ScopedPointer<xcb_randr_set_crtc_config_reply_t> reply(xcb_randr_set_crtc_config_reply(XCB::connection(), cookie, NULL));
@@ -537,7 +539,7 @@ bool XRandRConfig::enableOutput(const OutputPtr &kscreenOutput) const
 
     if (reply->status == XCB_RANDR_SET_CONFIG_SUCCESS) {
         XRandROutput *xOutput = output(kscreenOutput->id());
-        xOutput->update(freeCrtc->crtc(), kscreenOutput->currentModeId().toInt(),
+        xOutput->update(freeCrtc->crtc(), modeId,
                         XCB_RANDR_CONNECTION_CONNECTED, kscreenOutput->isPrimary());
     }
     return (reply->status == XCB_RANDR_SET_CONFIG_SUCCESS);
@@ -552,11 +554,18 @@ bool XRandRConfig::changeOutput(const OutputPtr &kscreenOutput) const
         return enableOutput(kscreenOutput);
     }
 
+    int modeId = 0;
+    if (!xOutput->currentModeId().isEmpty()) {
+        modeId = xOutput->currentModeId().toInt();
+    } else {
+        modeId = kscreenOutput->currentMode() ? kscreenOutput->currentModeId().toInt() : kscreenOutput->preferredModeId().toInt();
+    }
+
     qCDebug(KSCREEN_XRANDR) << "RRSetCrtcConfig (change output)";
     qCDebug(KSCREEN_XRANDR) << "\tOutput:" << kscreenOutput->id() << "(" << kscreenOutput->name() << ")";
     qCDebug(KSCREEN_XRANDR) << "\tCRTC:" << xOutput->crtc()->crtc();
     qCDebug(KSCREEN_XRANDR) << "\tPos:" << kscreenOutput->pos();
-    qCDebug(KSCREEN_XRANDR) << "\tMode:" << kscreenOutput->currentModeId() << "(" << kscreenOutput->currentMode()->size() << ")";
+    qCDebug(KSCREEN_XRANDR) << "\tMode:" << modeId  << kscreenOutput->currentMode();
     qCDebug(KSCREEN_XRANDR) << "\tRotation:" << kscreenOutput->rotation();
 
     xcb_randr_output_t outputs[1] { static_cast<xcb_randr_output_t>(kscreenOutput->id()) };
@@ -564,7 +573,7 @@ bool XRandRConfig::changeOutput(const OutputPtr &kscreenOutput) const
     auto cookie = xcb_randr_set_crtc_config(XCB::connection(), xOutput->crtc()->crtc(),
             XCB_CURRENT_TIME, XCB_CURRENT_TIME,
             kscreenOutput->pos().rx(), kscreenOutput->pos().ry(),
-            kscreenOutput->currentModeId().toInt(),
+            modeId,
             kscreenOutput->rotation(),
             1, outputs);
     XCB::ScopedPointer<xcb_randr_set_crtc_config_reply_t> reply(xcb_randr_set_crtc_config_reply(XCB::connection(), cookie, NULL));
@@ -575,7 +584,7 @@ bool XRandRConfig::changeOutput(const OutputPtr &kscreenOutput) const
     qCDebug(KSCREEN_XRANDR) << "\tResult: " << reply->status;
 
     if (reply->status == XCB_RANDR_SET_CONFIG_SUCCESS) {
-        xOutput->update(xOutput->crtc()->crtc(), kscreenOutput->currentModeId().toInt(),
+        xOutput->update(xOutput->crtc()->crtc(), modeId,
                         XCB_RANDR_CONNECTION_CONNECTED, kscreenOutput->isPrimary());
     }
     return (reply->status == XCB_RANDR_SET_CONFIG_SUCCESS);
