@@ -554,12 +554,7 @@ bool XRandRConfig::changeOutput(const OutputPtr &kscreenOutput) const
         return enableOutput(kscreenOutput);
     }
 
-    int modeId = 0;
-    if (!xOutput->currentModeId().isEmpty()) {
-        modeId = xOutput->currentModeId().toInt();
-    } else {
-        modeId = kscreenOutput->currentMode() ? kscreenOutput->currentModeId().toInt() : kscreenOutput->preferredModeId().toInt();
-    }
+    int modeId = kscreenOutput->currentMode() ? kscreenOutput->currentModeId().toInt() : kscreenOutput->preferredModeId().toInt();
 
     qCDebug(KSCREEN_XRANDR) << "RRSetCrtcConfig (change output)";
     qCDebug(KSCREEN_XRANDR) << "\tOutput:" << kscreenOutput->id() << "(" << kscreenOutput->name() << ")";
