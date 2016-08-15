@@ -43,6 +43,7 @@ private Q_SLOTS:
     void clonesOutput();
     void configCanBeApplied();
     void supportedFeatures();
+    void testInvalidMode();
     void cleanupTestCase();
 };
 
@@ -244,6 +245,19 @@ void testScreenConfig::supportedFeatures()
 
     QVERIFY(config->supportedFeatures().testFlag(KScreen::Config::Feature::Writable));
     QVERIFY(config->supportedFeatures().testFlag(KScreen::Config::Feature::PrimaryDisplay));
+}
+
+void testScreenConfig::testInvalidMode()
+{
+    ModeList modes;
+    ModePtr invalidMode = modes.value("99");
+    QVERIFY(invalidMode.isNull());
+
+    auto output = new KScreen::Output();
+    auto currentMode = output->currentMode();
+    QVERIFY(currentMode.isNull());
+    QVERIFY(!currentMode);
+    delete output;
 }
 
 QTEST_MAIN(testScreenConfig)
