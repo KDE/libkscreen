@@ -24,6 +24,8 @@
 #include "configoperation_p.h"
 #include "config.h"
 #include "configserializer_p.h"
+#include "debug_p.h"
+#include "output.h"
 
 #include <QDBusPendingCallWatcher>
 #include <QDBusPendingCall>
@@ -42,6 +44,7 @@ public:
 
     void backendReady(org::kde::kscreen::Backend* backend);
     void onConfigSet(QDBusPendingCallWatcher *watcher);
+    void normalizeOutputPositions();
 
     KScreen::ConfigPtr config;
 
@@ -120,12 +123,42 @@ ConfigPtr SetConfigOperation::config() const
 void SetConfigOperation::start()
 {
     Q_D(SetConfigOperation);
+    d->normalizeOutputPositions();
     if (BackendManager::instance()->method() == BackendManager::InProcess) {
         auto backend = d->loadBackend();
         backend->setConfig(d->config);
         emitResult();
     } else {
         d->requestBackend();
+    }
+}
+
+void SetConfigOperationPrivate::normalizeOutputPositions()
+{
+    if (!config) {
+        return;
+    }
+    int offsetX = INT_MAX;
+    int offsetY = INT_MAX;
+    Q_FOREACH (const KScreen::OutputPtr &output, config->outputs()) {
+        if (!output->isConnected() || !output->isEnabled()) {
+            continue;
+        }
+        offsetX = qMin(output->pos().x(), offsetX);
+        offsetY = qMin(output->pos().y(), offsetY);
+    }
+
+    if (!offsetX && !offsetY) {
+        return;
+    }
+    qCDebug(KSCREEN) << "Correcting output positions by:" << QPoint(offsetX, offsetY);
+    Q_FOREACH (const KScreen::OutputPtr &output, config->outputs()) {
+        if (!output->isConnected() || !output->isEnabled()) {
+            continue;
+        }
+        QPoint newPos = QPoint(output->pos().x() - offsetX, output->pos().y() - offsetY);
+        qCDebug(KSCREEN) << "Moved output from" << output->pos() << "to" << newPos;
+        output->setPos(newPos);
     }
 }
 

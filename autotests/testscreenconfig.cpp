@@ -24,6 +24,7 @@
 #include "../src/output.h"
 #include "../src/mode.h"
 #include "../src/getconfigoperation.h"
+#include "../src/setconfigoperation.h"
 #include "../src/backendmanager_p.h"
 
 using namespace KScreen;
@@ -45,6 +46,7 @@ private Q_SLOTS:
     void supportedFeatures();
     void testInvalidMode();
     void cleanupTestCase();
+    void testOutputPositionNormalization();
 };
 
 ConfigPtr testScreenConfig::getConfig()
@@ -259,6 +261,47 @@ void testScreenConfig::testInvalidMode()
     QVERIFY(!currentMode);
     delete output;
 }
+
+void testScreenConfig::testOutputPositionNormalization()
+{
+    qputenv("KSCREEN_BACKEND_ARGS", "TEST_DATA=" TEST_DATA "multipleoutput.json");
+
+    const ConfigPtr config = getConfig();
+    QVERIFY(!config.isNull());
+    auto left = config->outputs().first();
+    auto right = config->outputs().last();
+    QVERIFY(!left.isNull());
+    QVERIFY(!right.isNull());
+    left->setPos(QPoint(-5000, 700));
+    right->setPos(QPoint(-3720, 666));
+    QCOMPARE(left->pos(), QPoint(-5000, 700));
+    QCOMPARE(right->pos(), QPoint(-3720, 666));
+
+    // start a set operation to fix up the positions
+    {
+        auto setop = new SetConfigOperation(config);
+        setop->exec();
+    }
+    QCOMPARE(left->pos(), QPoint(0, 34));
+    QCOMPARE(right->pos(), QPoint(1280, 0));
+
+    // make sure it doesn't touch a valid config
+    {
+        auto setop = new SetConfigOperation(config);
+        setop->exec();
+    }
+    QCOMPARE(left->pos(), QPoint(0, 34));
+    QCOMPARE(right->pos(), QPoint(1280, 0));
+
+    // positions of single outputs should be at 0, 0
+    left->setEnabled(false);
+    {
+        auto setop = new SetConfigOperation(config);
+        setop->exec();
+    }
+    QCOMPARE(right->pos(), QPoint());
+}
+
 
 QTEST_MAIN(testScreenConfig)
 
