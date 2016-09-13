@@ -124,7 +124,7 @@ void Log::log(const QString &msg, const QString &category)
     }
     auto _cat = category;
     _cat.remove("kscreen.");
-    const QString timestamp = QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
+    const QString timestamp = QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss.zzz");
     QString logMessage = QString("\n%1 ; %2 ; %3 : %4").arg(timestamp, _cat, instance()->context(), msg);
     QFile file(instance()->logFile());
     if (!file.open(QIODevice::Append | QIODevice::Text)) {
