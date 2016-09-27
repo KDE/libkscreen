@@ -64,7 +64,8 @@ class KSCREEN_EXPORT Config : public QObject
     enum class Feature {
         None = 0, ///< None of the mentioned features are supported.
         PrimaryDisplay = 1, ///< The backend knows about the concept of a primary display, this is mostly limited to X11.
-        Writable = 1 << 1 ///< The backend supports setting the config, it's not read-only.
+        Writable = 1 << 1, ///< The backend supports setting the config, it's not read-only.
+        PerOutputScaling = 1 << 2 ///< The backend supports scaling each output individually.
     };
     Q_DECLARE_FLAGS(Features, Feature)
 
