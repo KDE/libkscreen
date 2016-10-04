@@ -86,12 +86,12 @@ void Parser::qvariant2qobject(const QVariantMap &variant, QObject *object)
     for (QVariantMap::const_iterator iter = variant.begin(); iter != variant.end(); ++iter) {
         const int propertyIndex = metaObject->indexOfProperty(qPrintable(iter.key()));
         if (propertyIndex == -1) {
-            qWarning() << "Skipping non-existent property" << iter.key();
+            //qWarning() << "Skipping non-existent property" << iter.key();
             continue;
         }
         const QMetaProperty metaProperty = metaObject->property(propertyIndex);
         if (!metaProperty.isWritable()) {
-            qWarning() << "Skipping read-only property" << iter.key();
+            //qWarning() << "Skipping read-only property" << iter.key();
             continue;
         }
 
@@ -142,7 +142,7 @@ OutputPtr Parser::outputFromJson(QMap< QString, QVariant > map)
     }
 
     const QString type = map["type"].toByteArray().toUpper();
-    if (type.contains("LVDS") || type.contains("EDP") || type.contains("IDP")) {
+    if (type.contains("LVDS") || type.contains("EDP") || type.contains("IDP") || type.contains("7")) {
         output->setType(Output::Panel);
     } else if (type.contains("VGA")) {
         output->setType(Output::VGA);
@@ -154,7 +154,7 @@ OutputPtr Parser::outputFromJson(QMap< QString, QVariant > map)
         output->setType(Output::DVIA);
     } else if (type.contains("DVI-D")) {
         output->setType(Output::DVID);
-    } else if (type.contains("HDMI")) {
+    } else if (type.contains("HDMI") || type.contains("6")) {
         output->setType(Output::HDMI);
     } else if (type.contains("Panel")) {
         output->setType(Output::Panel);
@@ -170,7 +170,7 @@ OutputPtr Parser::outputFromJson(QMap< QString, QVariant > map)
         output->setType(Output::TVSCART);
     } else if (type.contains("TV-C4")) {
         output->setType(Output::TVC4);
-    } else if (type.contains("DisplayPort")) {
+    } else if (type.contains("DisplayPort") || type.contains("14")) {
         output->setType(Output::DisplayPort);
     } else if (type.contains("Unknown")) {
         output->setType(Output::Unknown);
