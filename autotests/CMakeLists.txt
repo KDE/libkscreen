@@ -22,6 +22,7 @@ kscreen_add_test(testconfigmonitor)
 kscreen_add_test(testinprocess)
 kscreen_add_test(testbackendloader)
 kscreen_add_test(testlog)
+kscreen_add_test(testmodelistchange)
 
 set(KSCREEN_WAYLAND_LIBS
     KF5::WaylandServer KF5::WaylandClient
