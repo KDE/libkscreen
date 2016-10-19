@@ -1,5 +1,5 @@
 /*************************************************************************************
- *  Copyright (C) 2012 by Alejandro Fiestas Olivares <afiestas@kde.org>              *
+ *  Copyright 2016 by Sebastian Kügler <sebas@kde.org>                               *
  *                                                                                   *
  *  This library is free software; you can redistribute it and/or                    *
  *  modify it under the terms of the GNU Lesser General Public                       *
@@ -19,7 +19,6 @@
 #include <QtTest/QtTest>
 #include <QtCore/QObject>
 
-#include "../src/screen.h"
 #include "../src/config.h"
 #include "../src/configmonitor.h"
 #include "../src/output.h"
@@ -52,7 +51,6 @@ private Q_SLOTS:
     void cleanupTestCase();
 
     void modeListChange();
-    void configChange();
 };
 
 ConfigPtr TestModeListChange::getConfig()
@@ -118,7 +116,6 @@ void TestModeListChange::cleanupTestCase()
 
 void TestModeListChange::modeListChange()
 {
-    return;
     //json file for the fake backend
     qputenv("KSCREEN_BACKEND_ARGS", "TEST_DATA=" TEST_DATA "singleoutput.json");
 
@@ -129,22 +126,15 @@ void TestModeListChange::modeListChange()
     QVERIFY(!output.isNull());
     auto modelist = output->modes();
 
-    for (auto &mode : modelist) {
-        //qDebug() << " Mode: " << mode->id() << mode->size();
-    }
     auto mode = modelist.first();
     mode->setId(QStringLiteral("44"));
     mode->setSize(QSize(880, 440));
-    for (auto &mode : output->modes()) {
-        //qDebug() << "-Mode: " << mode->id() << mode->size();
-    }
     output->setModes(modelist);
 
     QCOMPARE(output->modes().first()->id(), QStringLiteral("44"));
     QCOMPARE(output->modes().first()->size(), QSize(880, 440));
     QVERIFY(!modelist.isEmpty());
 
-    QSignalSpy configChangedSpy(ConfigMonitor::instance(), &ConfigMonitor::configurationChanged);
     ConfigMonitor::instance()->addConfig(config);
     QSignalSpy outputChangedSpy(output.data(), &Output::outputChanged);
     QVERIFY(outputChangedSpy.isValid());
@@ -152,9 +142,6 @@ void TestModeListChange::modeListChange()
     QVERIFY(modesChangedSpy.isValid());
 
     auto before = createModeList();
-    qDebug() << "--------";
-    qDebug() << output->modes();
-    qDebug() << before;
     output->setModes(before);
     QCOMPARE(modesChangedSpy.count(), 1);
     output->setModes(before);
@@ -165,11 +152,8 @@ void TestModeListChange::modeListChange()
     QCOMPARE(output->modes().first()->id(), QStringLiteral("11"));
 
     auto after = createModeList();
-
-    //QVERIFY(compareModeList(before, after));
     auto firstmode = after.first();
     QVERIFY(!firstmode.isNull());
-
     QCOMPARE(firstmode->size(), s0);
     QCOMPARE(firstmode->id(), QStringLiteral("11"));
     firstmode->setSize(snew);
@@ -186,42 +170,9 @@ void TestModeListChange::modeListChange()
     before.insert(_id, kscreenMode);
     output->setModes(before);
     QCOMPARE(modesChangedSpy.count(), 3);
-
-    //QVERIFY(configChangedSpy.count() > 0);
+    QCOMPARE(outputChangedSpy.count(), modesChangedSpy.count());
 }
 
-
-void TestModeListChange::configChange()
-{
-    qputenv("KSCREEN_BACKEND_ARGS", "TEST_DATA=" TEST_DATA "singleoutput.json");
-    auto activeConfig = getConfig();
-
-    QSignalSpy configChangedSpy(ConfigMonitor::instance(), &ConfigMonitor::configurationChanged);
-    ConfigMonitor::instance()->addConfig(activeConfig);
-
-    auto changedConfig = getConfig();
-
-    auto output = changedConfig->outputs().first();
-    auto newmodes = createModeList();
-    output->setModes(newmodes);
-
-    // fixme: current mode id == -1?
-    // ...
-
-    output->setCurrentModeId(QStringLiteral("11"));
-
-    auto setop = new KScreen::SetConfigOperation(changedConfig);
-    QVERIFY(!setop->hasError());
-    setop->exec();
-    //activeConfig->apply(changedConfig);
-    QVERIFY(!setop->hasError());
-    qDebug() << "AC:" << activeConfig->outputs().first()->currentMode();
-
-    // we're not really using a backend, so does this make sense at all?
-//     QVERIFY(configChangedSpy.wait(200));
-//     QVERIFY(configChangedSpy.count() > 0);
-
-}
 
 QTEST_MAIN(TestModeListChange)
 

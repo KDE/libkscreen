@@ -251,7 +251,6 @@ void Output::setModes(const ModeList &modes)
     bool changed = !d->compareModeList(d->modeList, modes);
     d->modeList = modes;
     if (changed) {
-        qDebug() << "modelist changed!";
         emit modesChanged();
         emit outputChanged();
     }
@@ -528,7 +527,6 @@ void Output::apply(const OutputPtr& other)
         setClones(other->d->clones);;
     }
     if (!d->compareModeList(d->modeList, other->d->modeList)) {
-        qDebug() << "Queueing change signal for modelist!";
         changes << &Output::outputChanged;
     }
 
