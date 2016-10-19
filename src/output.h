@@ -46,7 +46,7 @@ class KSCREEN_EXPORT Output : public QObject
         Q_PROPERTY(QString name READ name WRITE setName NOTIFY outputChanged)
         Q_PROPERTY(Type type READ type WRITE setType NOTIFY outputChanged)
         Q_PROPERTY(QString icon READ icon WRITE setIcon NOTIFY outputChanged)
-        Q_PROPERTY(ModeList modes READ modes CONSTANT)
+        Q_PROPERTY(ModeList modes READ modes NOTIFY modesChanged)
         Q_PROPERTY(QPoint pos READ pos WRITE setPos NOTIFY posChanged)
         Q_PROPERTY(QSize size READ size WRITE setSize NOTIFY sizeChanged)
         Q_PROPERTY(Rotation rotation READ rotation WRITE setRotation NOTIFY rotationChanged)
@@ -203,6 +203,14 @@ class KSCREEN_EXPORT Output : public QObject
         void isEnabledChanged();
         void isPrimaryChanged();
         void clonesChanged();
+
+        /** The mode list changed.
+         *
+         * This may happen when a mode is added or changed.
+         *
+         * @since 5.8.3
+         */
+        void modesChanged();
 
     private:
         Q_DISABLE_COPY(Output)

@@ -69,6 +69,7 @@ class Output::Private
     }
 
     QString biggestMode(const ModeList& modes) const;
+    bool compareModeList(const ModeList& before, const ModeList& after);
 
     int id;
     QString name;
@@ -89,6 +90,32 @@ class Output::Private
 
     mutable QPointer<Edid> edid;
 };
+
+bool Output::Private::compareModeList(const ModeList& before, const ModeList &after)
+{
+    if (before.keys() != after.keys()) {
+        return false;
+    }
+    for (const QString &key : before.keys()) {
+        const auto mb = before.value(key);
+        const auto ma = after.value(key);
+        if (mb->id() != ma->id()) {
+            return false;
+        }
+        if (mb->size() != ma->size()) {
+            return false;
+        }
+        if (mb->refreshRate() != ma->refreshRate()) {
+            return false;
+        }
+        if (mb->name() != ma->name()) {
+            return false;
+        }
+    }
+    // They're the same
+    return true;
+}
+
 
 QString Output::Private::biggestMode(const ModeList& modes) const
 {
@@ -221,7 +248,12 @@ ModeList Output::modes() const
 
 void Output::setModes(const ModeList &modes)
 {
+    bool changed = !d->compareModeList(d->modeList, modes);
     d->modeList = modes;
+    if (changed) {
+        emit modesChanged();
+        emit outputChanged();
+    }
 }
 
 QString Output::currentModeId() const
@@ -494,8 +526,10 @@ void Output::apply(const OutputPtr& other)
         changes << &Output::clonesChanged;
         setClones(other->d->clones);;
     }
+    if (!d->compareModeList(d->modeList, other->d->modeList)) {
+        changes << &Output::outputChanged;
+    }
 
-    // Non-notifyable changes
     setPreferredModes(other->d->preferredModes);
     ModeList modes;
     Q_FOREACH (const ModePtr &otherMode, other->modes()) {
@@ -503,6 +537,7 @@ void Output::apply(const OutputPtr& other)
     }
     setModes(modes);
 
+    // Non-notifyable changes
     if (other->d->edid) {
         delete d->edid;
         d->edid = other->d->edid->clone();

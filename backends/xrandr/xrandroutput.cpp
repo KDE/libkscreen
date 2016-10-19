@@ -141,7 +141,7 @@ void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_rand
     if (isConnected() != (conn == XCB_RANDR_CONNECTION_CONNECTED)) {
         if (conn == XCB_RANDR_CONNECTION_CONNECTED) {
             // New monitor has been connected, refresh everything
-          init();
+            init();
         } else {
             // Disconnected
             m_connected = conn;
@@ -153,6 +153,14 @@ void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_rand
             m_modes.clear();
             m_preferredModes.clear();
         }
+    } else if (conn == XCB_RANDR_CONNECTION_CONNECTED) {
+        // the output changed in some way, let's update the internal
+        // list of modes, as it may have changed
+        XCB::OutputInfo outputInfo(m_id, XCB_TIME_CURRENT_TIME);
+        if (outputInfo) {
+            updateModes(outputInfo);
+        }
+
     }
 
     // A monitor has been enabled or disabled
