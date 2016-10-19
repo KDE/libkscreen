@@ -205,10 +205,21 @@ void TestModeListChange::configChange()
     auto newmodes = createModeList();
     output->setModes(newmodes);
 
-    activeConfig->apply(changedConfig);
+    // fixme: current mode id == -1?
+    // ...
 
-    //QVERIFY(configChangedSpy.wait(200));
-    QVERIFY(configChangedSpy.count() > 0);
+    output->setCurrentModeId(QStringLiteral("11"));
+
+    auto setop = new KScreen::SetConfigOperation(changedConfig);
+    QVERIFY(!setop->hasError());
+    setop->exec();
+    //activeConfig->apply(changedConfig);
+    QVERIFY(!setop->hasError());
+    qDebug() << "AC:" << activeConfig->outputs().first()->currentMode();
+
+    // we're not really using a backend, so does this make sense at all?
+//     QVERIFY(configChangedSpy.wait(200));
+//     QVERIFY(configChangedSpy.count() > 0);
 
 }
 
