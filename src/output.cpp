@@ -37,6 +37,7 @@ class Output::Private
         id(0),
         type(Unknown),
         rotation(None),
+        scale(1.0),
         connected(false),
         enabled(false),
         primary(false),
@@ -56,6 +57,7 @@ class Output::Private
         pos(other.pos),
         size(other.size),
         rotation(other.rotation),
+        scale(other.scale),
         connected(other.connected),
         enabled(other.enabled),
         primary(other.primary)
@@ -84,6 +86,7 @@ class Output::Private
     QPoint pos;
     QSize size;
     Rotation rotation;
+    qreal scale;
     bool connected;
     bool enabled;
     bool primary;
@@ -375,6 +378,20 @@ void Output::setRotation(Output::Rotation rotation)
     d->rotation = rotation;
 
     Q_EMIT rotationChanged();
+}
+
+qreal Output::scale() const
+{
+    return d->scale;
+}
+
+void Output::setScale(qreal factor)
+{
+    if (d->scale == factor) {
+        return;
+    }
+    d->scale = factor;
+    emit scaleChanged();
 }
 
 bool Output::isConnected() const

@@ -58,6 +58,8 @@ class KSCREEN_EXPORT Output : public QObject
         Q_PROPERTY(QList<int> clones READ clones WRITE setClones NOTIFY clonesChanged)
         Q_PROPERTY(KScreen::Edid* edid READ edid CONSTANT)
         Q_PROPERTY(QSize sizeMm READ sizeMm CONSTANT)
+        Q_PROPERTY(qreal scale READ scale WRITE setScale NOTIFY scaleChanged)
+
 
         enum Type {
             Unknown,
@@ -192,6 +194,23 @@ class KSCREEN_EXPORT Output : public QObject
          */
         QRect geometry() const;
 
+        /**
+         * returns the scaling factor to use for this output
+         *
+         * @since 5.9
+         */
+        qreal scale() const;
+
+        /**
+         * Set the scaling factor for this output.
+         *
+         * @arg factor Scale factor to use for this output, the backend may or may not
+         * be able to deal with non-integer values, in that case, the factor gets rounded.
+         *
+         * @since 5.9
+         */
+        void setScale(qreal factor);
+
         void apply(const OutputPtr &other);
     Q_SIGNALS:
         void outputChanged();
@@ -203,6 +222,7 @@ class KSCREEN_EXPORT Output : public QObject
         void isEnabledChanged();
         void isPrimaryChanged();
         void clonesChanged();
+        void scaleChanged();
 
         /** The mode list changed.
          *

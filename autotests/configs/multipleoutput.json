@@ -119,6 +119,7 @@
                 "width" : 1920,
                 "height" : 1080
             },
+            "scale" : 1.4,
             "currentModeId" : 4,
             "preferredModes" : [4],
             "rotation" : 1,
