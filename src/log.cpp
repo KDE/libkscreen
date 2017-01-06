@@ -57,7 +57,7 @@ class Log::Private
 {
   public:
       QString context;
-      bool enabled = true;
+      bool enabled = false;
       QString logFile;
 };
 
@@ -68,10 +68,12 @@ Log::Log() :
 
     if (qEnvironmentVariableIsSet(logging_env)) {
         const QString logging_env_value = qgetenv(logging_env).constData();
-        if (logging_env_value == QStringLiteral("0") || logging_env_value.toLower() == QStringLiteral("false")) {
-            d->enabled = false;
-            return;
+        if (logging_env_value != QStringLiteral("0") && logging_env_value.toLower() != QStringLiteral("false")) {
+            d->enabled = true;
         }
+    }
+    if (!d->enabled) {
+         return;
     }
     d->logFile = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/kscreen/kscreen.log";
 

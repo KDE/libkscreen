@@ -55,6 +55,7 @@ void TestLog::init()
 void TestLog::initTestCase()
 {
 
+    qputenv(KSCREEN_LOGGING, QByteArray("true"));
 }
 
 void TestLog::cleanupTestCase()
@@ -83,6 +84,13 @@ void TestLog::testEnabled()
 
     delete log;
     qunsetenv(KSCREEN_LOGGING);
+
+    log = Log::instance();
+    QCOMPARE(log->enabled(), false);
+    QCOMPARE(log->logFile(), QString());
+
+    delete log;
+    qputenv(KSCREEN_LOGGING, QByteArray("truE"));
 
     log = Log::instance();
     QCOMPARE(log->enabled(), true);
