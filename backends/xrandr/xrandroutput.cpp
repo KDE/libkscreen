@@ -318,7 +318,7 @@ QByteArray XRandROutput::typeFromProperty(xcb_randr_output_t outputId)
 
     char *connectorType;
 
-    auto cookie = xcb_randr_get_output_property(XCB::connection(), outputId, atomType,
+    auto cookie = xcb_randr_get_output_property(XCB::connection(), outputId, atomType->atom,
                                                 XCB_ATOM_ANY, 0, 100, false, false);
     XCB::ScopedPointer<xcb_randr_get_output_property_reply_t> reply(xcb_randr_get_output_property_reply(XCB::connection(), cookie, NULL));
     if (!reply) {
