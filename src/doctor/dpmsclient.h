@@ -69,7 +69,7 @@ private:
     bool m_setOn = false;
 
     bool m_supportedOututCount = 0;
-    bool m_modeChanges = 0;
+    int m_modeChanges = 0;
 };
 
 } // namespace
