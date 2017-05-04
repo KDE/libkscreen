@@ -163,6 +163,7 @@ void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output)
     output->setCurrentModeId(currentModeId);
 
     output->setModes(modeList);
+    output->setScale(m_output->scale());
 }
 
 QString WaylandOutput::modeName(const KWayland::Client::OutputDevice::Mode &m) const
