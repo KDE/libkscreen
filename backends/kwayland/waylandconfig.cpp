@@ -236,7 +236,7 @@ void WaylandConfig::removeOutput(quint32 name)
 
 void WaylandConfig::updateKScreenConfig(KScreen::ConfigPtr &config) const
 {
-    auto features = Config::Feature::Writable;
+    auto features = Config::Feature::Writable | Config::Feature::PerOutputScaling;
     config->setSupportedFeatures(features);
     config->setValid(m_connection->display());
     KScreen::ScreenPtr screen = config->screen();
@@ -297,6 +297,10 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
             wlOutputConfiguration->setPosition(o_old->outputDevice(), output->pos());
         }
 
+        if (device->scale() != output->scale()) {
+            wlOutputConfiguration->setScale(o_old->outputDevice(), output->scale());
+        }
+
         // rotation
         auto r_current = o_old->toKScreenRotation(device->transform());
         auto r_new = output->rotation();
@@ -311,8 +315,6 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
         if (w_newmodeid != w_currentmodeid) {
             wlOutputConfiguration->setMode(device, w_newmodeid);
         }
-
-        // FIXME: scale
     }
 
     // We now block changes in order to compress events while the compositor is doing its thing
