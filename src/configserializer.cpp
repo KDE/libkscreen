@@ -78,6 +78,7 @@ QJsonObject ConfigSerializer::serializeOutput(const OutputPtr &output)
     obj[QLatin1String("type")] = static_cast<int>(output->type());
     obj[QLatin1String("icon")] = output->icon();
     obj[QLatin1String("pos")] = serializePoint(output->pos());
+    obj[QLatin1String("scale")] = output->scale();
     obj[QLatin1String("size")] = serializeSize(output->size());
     obj[QLatin1String("rotation")] = static_cast<int>(output->rotation());
     obj[QLatin1String("currentModeId")] = output->currentModeId();
@@ -223,6 +224,8 @@ OutputPtr ConfigSerializer::deserializeOutput(const QDBusArgument &arg)
             output->setIcon(value.toString());
         } else if (key == QLatin1String("pos")) {
             output->setPos(deserializePoint(value.value<QDBusArgument>()));
+        } else if (key == QLatin1String("scale")) {
+            output->setScale(value.toDouble());
         } else if (key == QLatin1String("size")) {
             output->setSize(deserializeSize(value.value<QDBusArgument>()));
         } else if (key == QLatin1String("rotation")) {
