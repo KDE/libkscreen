@@ -55,7 +55,7 @@ private Q_SLOTS:
 private:
     ConnectionThread *m_connection;
     QThread *m_thread;
-    Registry m_registry;
+    Registry *m_registry;
 
     KScreen::WaylandTestServer *m_server;
 };
@@ -89,10 +89,11 @@ void TestDpmsClient::initTestCase()
     m_connection->initConnection();
     QVERIFY(connectedSpy.wait(100));
 
-    m_registry.create(m_connection);
-    QObject::connect(&m_registry, &Registry::interfacesAnnounced, this,
+    m_registry = new KWayland::Client::Registry;
+    m_registry->create(m_connection);
+    QObject::connect(m_registry, &Registry::interfacesAnnounced, this,
         [this] {
-            const bool hasDpms = m_registry.hasInterface(Registry::Interface::Dpms);
+            const bool hasDpms = m_registry->hasInterface(Registry::Interface::Dpms);
             if (hasDpms) {
                 qDebug() << QStringLiteral("Compositor provides a DpmsManager");
             } else {
@@ -100,7 +101,7 @@ void TestDpmsClient::initTestCase()
             }
             emit this->dpmsAnnounced();
         });
-    m_registry.setup();
+    m_registry->setup();
 
     QVERIFY(dpmsSpy.wait(100));
 }
@@ -109,13 +110,14 @@ void TestDpmsClient::cleanupTestCase()
 {
     m_thread->exit();
     m_thread->wait();
+    delete m_registry;
     delete m_thread;
     delete m_connection;
 }
 
 void TestDpmsClient::testDpmsConnect()
 {
-    QVERIFY(m_registry.isValid());
+    QVERIFY(m_registry->isValid());
 }
 
 
