@@ -43,7 +43,7 @@ public:
     virtual KScreen::ConfigPtr config() const Q_DECL_OVERRIDE;
 
 protected:
-    void start();
+    void start() Q_DECL_OVERRIDE;
 
 private:
     Q_DECLARE_PRIVATE(GetConfigOperation)

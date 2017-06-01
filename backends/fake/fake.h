@@ -35,12 +35,12 @@ public:
 
     void init(const QVariantMap &arguments) Q_DECL_OVERRIDE;
 
-    QString name() const;
-    QString serviceName() const;
-    KScreen::ConfigPtr config() const;
-    void setConfig(const KScreen::ConfigPtr &config);
-    QByteArray edid(int outputId) const;
-    bool isValid() const;
+    QString name() const Q_DECL_OVERRIDE;
+    QString serviceName() const Q_DECL_OVERRIDE;
+    KScreen::ConfigPtr config() const Q_DECL_OVERRIDE;
+    void setConfig(const KScreen::ConfigPtr &config) Q_DECL_OVERRIDE;
+    QByteArray edid(int outputId) const Q_DECL_OVERRIDE;
+    bool isValid() const Q_DECL_OVERRIDE;
 
     void setConnected(int outputId, bool connected);
     void setEnabled(int outputId, bool enabled);

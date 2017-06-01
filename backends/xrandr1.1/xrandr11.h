@@ -36,11 +36,11 @@ public:
     explicit XRandR11();
     virtual ~XRandR11();
 
-    virtual QString name() const;
-    virtual QString serviceName() const;
-    virtual KScreen::ConfigPtr config() const;
-    virtual void setConfig(const KScreen::ConfigPtr &config);
-    virtual bool isValid() const;
+    QString name() const Q_DECL_OVERRIDE;
+    QString serviceName() const Q_DECL_OVERRIDE;
+    KScreen::ConfigPtr config() const Q_DECL_OVERRIDE;
+    void setConfig(const KScreen::ConfigPtr &config) Q_DECL_OVERRIDE;
+    bool isValid() const Q_DECL_OVERRIDE;
 
 private Q_SLOTS:
     void updateConfig();

@@ -42,7 +42,7 @@ class SetConfigOperationPrivate : public ConfigOperationPrivate
 public:
     explicit SetConfigOperationPrivate(const KScreen::ConfigPtr &config, ConfigOperation* qq);
 
-    void backendReady(org::kde::kscreen::Backend* backend);
+    void backendReady(org::kde::kscreen::Backend* backend) Q_DECL_OVERRIDE;
     void onConfigSet(QDBusPendingCallWatcher *watcher);
     void normalizeOutputPositions();
 

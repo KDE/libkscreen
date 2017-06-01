@@ -45,12 +45,12 @@ class XRandR : public KScreen::AbstractBackend
         explicit XRandR();
         virtual ~XRandR();
 
-        virtual QString name() const;
-        virtual QString serviceName() const;
-        virtual KScreen::ConfigPtr config() const;
-        virtual void setConfig(const KScreen::ConfigPtr &config);
-        virtual bool isValid() const;
-        virtual QByteArray edid(int outputId) const;
+        QString name() const Q_DECL_OVERRIDE;
+        QString serviceName() const Q_DECL_OVERRIDE;
+        KScreen::ConfigPtr config() const Q_DECL_OVERRIDE;
+        void setConfig(const KScreen::ConfigPtr &config) Q_DECL_OVERRIDE;
+        bool isValid() const Q_DECL_OVERRIDE;
+        QByteArray edid(int outputId) const Q_DECL_OVERRIDE;
 
         static quint8 *outputEdid(xcb_randr_output_t outputId, size_t &len);
         static xcb_randr_get_screen_resources_reply_t* screenResources();
