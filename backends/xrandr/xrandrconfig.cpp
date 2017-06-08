@@ -200,7 +200,7 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
 //             qDebug() << kRealBacktrace(256);
             printConfig(config);
             printInternalCond();
-            return;
+            continue;
         }
 
         // If the output would not fit into new screen size, we need to disable
