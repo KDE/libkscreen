@@ -32,6 +32,10 @@ typedef QSharedPointer<KScreen::Screen> ScreenPtr;
 class Output;
 typedef QSharedPointer<KScreen::Output> OutputPtr;
 typedef QMap<int, KScreen::OutputPtr> OutputList;
+class XTouchscreen;
+typedef QSharedPointer<KScreen::XTouchscreen> XTouchscreenPtr;
+typedef QMap<int, KScreen::XTouchscreenPtr> XTouchscreenList;
+
 
 class Mode;
 typedef QSharedPointer<KScreen::Mode> ModePtr;

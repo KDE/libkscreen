@@ -2,3 +2,4 @@ add_executable(printconfig testplugandplay.cpp testpnp.cpp)
 target_link_libraries(printconfig Qt5::Gui KF5::Screen)
 
 add_subdirectory(kwayland)
+add_subdirectory(touchscreen)
