@@ -102,6 +102,7 @@ void TestLog::testEnabled()
 void TestLog::testLog()
 {
     auto log = Log::instance();
+    Q_UNUSED(log);
 
     QFile lf(m_defaultLogFile);
     lf.remove();
