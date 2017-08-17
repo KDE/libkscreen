@@ -23,6 +23,8 @@
 #include <QObject>
 //#include "../config.h"
 
+#include "xtouchscreen.h"
+
 namespace KScreen
 {
 
@@ -37,12 +39,16 @@ public:
     void setOptionList(const QStringList &positionalArgs);
     void start(QCommandLineParser *m_parser);
 
-    void listTouchscreens() const;
+    void listTouchscreens();
 
 
 private:
+    void rotateTouchscreen(int ts_id, const QString& rotation_string);
+    int parseInt(const QString &str, bool &ok) const;
     QCommandLineParser* m_parser;
     QStringList m_positionalArgs;
+
+    XTouchscreenList m_touchscreens;
 };
 
 } // namespace

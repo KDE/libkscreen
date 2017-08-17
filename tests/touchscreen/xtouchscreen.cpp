@@ -45,8 +45,8 @@ class XTouchscreen::Private
     Output::Rotation rotation;
 };
 
-XTouchscreen::XTouchscreen()
- : QObject(0)
+XTouchscreen::XTouchscreen(QObject* parent)
+ : QObject(parent)
  , d(new Private())
 {
 

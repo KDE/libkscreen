@@ -40,7 +40,7 @@ class KSCREEN_EXPORT XTouchscreen : public QObject
         Q_PROPERTY(Output::Rotation rotation READ rotation WRITE setRotation NOTIFY rotationChanged)
         //Q_PROPERTY(QString transformationMatrix READ transformationMatrix WRITE setTransformationMatrix NOTIFY transformationMatrixChanged)
 
-        explicit XTouchscreen();
+        explicit XTouchscreen(QObject* parent = nullptr);
         virtual ~XTouchscreen();
 
         XTouchscreenPtr clone() const;

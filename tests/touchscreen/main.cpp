@@ -35,12 +35,15 @@ int main(int argc, char **argv)
 
     QCommandLineOption list = QCommandLineOption(QStringList() << QStringLiteral("l") << "list",
                                                   QStringLiteral("List available touchscreen devices."));
+    QCommandLineOption rotate = QCommandLineOption(QStringList() << QStringLiteral("r") << "rotate",
+                                                  QStringLiteral("rotate touchscreen"), QStringLiteral("none"));
 
     QCommandLineParser parser;
     parser.setApplicationDescription(desc);
     parser.addPositionalArgument("config", syntax, QString());
     parser.addHelpOption();
     parser.addOption(list);
+    parser.addOption(rotate);
     parser.process(app);
 
     if (!parser.positionalArguments().isEmpty()) {
