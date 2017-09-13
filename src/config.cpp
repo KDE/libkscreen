@@ -216,7 +216,7 @@ ConfigPtr Config::clone() const
         newConfig->addOutput(ourOutput->clone());
     }
     newConfig->d->primaryOutput = newConfig->d->findPrimaryOutput();
-
+    newConfig->setSupportedFeatures(supportedFeatures());
     return newConfig;
 }
 
