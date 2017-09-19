@@ -223,17 +223,7 @@ void Doctor::parsePositionalArgs()
                         return;
                     }
                     qCDebug(KSCREEN_DOCTOR) << "Output" << output_id << "set mode" << mode_id;
-                } else if (ops.count() == 4 && ops[2] == QStringLiteral("scale")) {
-                    int scale = ops[3].toInt(&ok);
-                    if (!ok || scale < 1) {
-                        cerr << "Unable to parse scale" << ops[3] << endl;
-                        qApp->exit(5);
-                        return;
-                    }
-                    if (!setScale(output_id, scale)) {
-                        qApp->exit(1);
-                        return;
-                    }
+
                 } else if (ops.count() == 4 && ops[2] == QStringLiteral("position")) {
                     QStringList _pos = ops[3].split(',');
                     if (_pos.count() != 2) {
@@ -403,25 +393,6 @@ bool Doctor::setPosition(int id, const QPoint &pos)
     return false;
 }
 
-bool Doctor::setScale(int id, const int scale)
-{
-    if (!m_config) {
-        qCWarning(KSCREEN_DOCTOR) << "Invalid config.";
-        return false;
-    }
-
-    Q_FOREACH (const auto &output, m_config->outputs()) {
-        if (output->id() == id) {
-            qCDebug(KSCREEN_DOCTOR) << "Set scale position" << scale;
-            output->setScale(scale);
-            m_changed = true;
-            return true;
-        }
-    }
-    cout << "Output with id " << id << " not found." << endl;
-    return false;
-}
-
 bool Doctor::setMode(int id, const QString &mode_id)
 {
     if (!m_config) {
@@ -446,7 +417,7 @@ bool Doctor::setMode(int id, const QString &mode_id)
     return false;
 }
 
-bool Doctor::setScale(int id, int scale)
+bool Doctor::setScale(int id, qreal scale)
 {
     if (!m_config) {
         qCWarning(KSCREEN_DOCTOR) << "Invalid config.";
