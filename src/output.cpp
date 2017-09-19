@@ -527,6 +527,10 @@ void Output::apply(const OutputPtr& other)
         changes << &Output::rotationChanged;
         setRotation(other->d->rotation);
     }
+    if (d->scale != other->d->scale) {
+        changes << &Output::scaleChanged;
+        setScale(other->d->scale);
+    }
     if (d->currentMode != other->d->currentMode) {
         changes << &Output::currentModeIdChanged;
         setCurrentModeId(other->d->currentMode);
