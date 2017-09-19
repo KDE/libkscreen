@@ -51,6 +51,7 @@ private Q_SLOTS:
     void testPositionChange();
     void testRotationChange();
     void testRotationChange_data();
+    void testScaleChange();
     void testModeChange();
 
 private:
@@ -195,6 +196,41 @@ void TestKWaylandConfig::testRotationChange()
     auto newoutput = newconfig->outputs().first();
     QCOMPARE(newoutput->rotation(), rotation);
 
+}
+
+void TestKWaylandConfig::testScaleChange()
+{
+    auto op = new GetConfigOperation();
+    QVERIFY(op->exec());
+    auto config = op->config();
+    QVERIFY(config);
+
+    auto op2 = new GetConfigOperation();
+    QVERIFY(op2->exec());
+    auto config2 = op2->config();
+    QVERIFY(config2);
+
+    // Prepare monitor & spy
+    KScreen::ConfigMonitor *monitor = KScreen::ConfigMonitor::instance();
+    monitor->addConfig(config);
+    QSignalSpy configSpy(monitor, &KScreen::ConfigMonitor::configurationChanged);
+
+    auto output2 = config2->outputs()[2]; // is this id stable enough?
+    QCOMPARE(output2->scale(), 1.0);
+
+    auto output = config->outputs()[2]; // is this id stable enough?
+    output->setScale(2);
+
+    QSignalSpy serverSpy(m_server, &WaylandTestServer::configChanged);
+    auto sop = new SetConfigOperation(config, this);
+    sop->exec(); // fire and forget...
+
+    QVERIFY(configSpy.wait());
+    // check if the server changed
+    QCOMPARE(serverSpy.count(), 1);
+
+    QCOMPARE(configSpy.count(), 1);
+    QCOMPARE(output2->scale(), 2.0);
 }
 
 void TestKWaylandConfig::testModeChange()
