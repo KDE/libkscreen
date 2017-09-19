@@ -198,7 +198,7 @@ void Doctor::parsePositionalArgs()
                     }
                 }
                 if (output_id == -1) {
-                    output_id = parseInt(ops[1], ok);
+                    output_id = ops[1].toInt(&ok);
                     if (!ok) {
                         cerr << "Unable to parse output id" << ops[1] << endl;
                         qApp->exit(3);
@@ -231,8 +231,8 @@ void Doctor::parsePositionalArgs()
                         qApp->exit(5);
                         return;
                     }
-                    int x = parseInt(_pos[0], ok);
-                    int y = parseInt(_pos[1], ok);
+                    int x = _pos[0].toInt(&ok);
+                    int y = _pos[1].toInt(&ok);
                     if (!ok) {
                         cerr << "Unable to parse position" << ops[3] << endl;
                         qApp->exit(5);
@@ -266,17 +266,6 @@ void Doctor::parsePositionalArgs()
             }
         }
     }
-}
-
-int Doctor::parseInt(const QString &str, bool &ok) const
-{
-    int _id = str.toInt();
-    if (QString::number(_id) == str) {
-        ok = true;
-        return _id;
-    }
-    ok = false;
-    return 0;
 }
 
 void Doctor::configReceived(KScreen::ConfigOperation *op)
