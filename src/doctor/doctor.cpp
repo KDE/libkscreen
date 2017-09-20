@@ -198,7 +198,7 @@ void Doctor::parsePositionalArgs()
                     }
                 }
                 if (output_id == -1) {
-                    output_id = parseInt(ops[1], ok);
+                    output_id = ops[1].toInt(&ok);
                     if (!ok) {
                         cerr << "Unable to parse output id" << ops[1] << endl;
                         qApp->exit(3);
@@ -231,8 +231,8 @@ void Doctor::parsePositionalArgs()
                         qApp->exit(5);
                         return;
                     }
-                    int x = parseInt(_pos[0], ok);
-                    int y = parseInt(_pos[1], ok);
+                    int x = _pos[0].toInt(&ok);
+                    int y = _pos[1].toInt(&ok);
                     if (!ok) {
                         cerr << "Unable to parse position" << ops[3] << endl;
                         qApp->exit(5);
@@ -245,6 +245,19 @@ void Doctor::parsePositionalArgs()
                         qApp->exit(1);
                         return;
                     }
+                } else if ((ops.count() == 4 || ops.count() == 5) && ops[2] == QStringLiteral("scale")) {
+                    // be lenient about . vs. comma as separator
+                    qreal scale = ops[3].replace(QStringLiteral(","), QStringLiteral(".")).toDouble(&ok);
+                    if (ops.count() == 5) {
+                        const auto dbl = ops[3] + QStringLiteral(".") + ops[4];
+                        scale = dbl.toDouble(&ok);
+                    };
+                    // set scale
+                    if (!ok || scale == 0 || !setScale(output_id, scale)) {
+                        qCDebug(KSCREEN_DOCTOR) << "Could not set scale " << scale << " to output " << output_id;
+                        qApp->exit(9);
+                        return;
+                    }
                 } else {
                     cerr << "Unable to parse arguments" << op << endl;
                     qApp->exit(2);
@@ -253,17 +266,6 @@ void Doctor::parsePositionalArgs()
             }
         }
     }
-}
-
-int Doctor::parseInt(const QString &str, bool &ok) const
-{
-    int _id = str.toInt();
-    if (QString::number(_id) == str) {
-        ok = true;
-        return _id;
-    }
-    ok = false;
-    return 0;
 }
 
 void Doctor::configReceived(KScreen::ConfigOperation *op)
@@ -412,6 +414,24 @@ bool Doctor::setMode(int id, const QString &mode_id)
         }
     }
     cout << "Output mode " << id << " not found." << endl;
+    return false;
+}
+
+bool Doctor::setScale(int id, qreal scale)
+{
+    if (!m_config) {
+        qCWarning(KSCREEN_DOCTOR) << "Invalid config.";
+        return false;
+    }
+
+    Q_FOREACH (const auto &output, m_config->outputs()) {
+        if (output->id() == id) {
+            output->setScale(scale);
+            m_changed = true;
+            return true;
+        }
+    }
+    cout << "Output scale " << id << " invalid." << endl;
     return false;
 }
 

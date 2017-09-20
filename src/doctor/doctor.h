@@ -52,6 +52,7 @@ public:
     bool setEnabled(int id, bool enabled);
     bool setPosition(int id, const QPoint &pos);
     bool setMode(int id, const QString &mode_id);
+    bool setScale(int id, qreal scale);
 
 Q_SIGNALS:
     void outputsChanged();

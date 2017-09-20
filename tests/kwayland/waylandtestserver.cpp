@@ -130,7 +130,7 @@ void WaylandTestServer::configurationChangeRequested(KWayland::Server::OutputCon
             outputdevice->setGlobalPosition(c->position());
         }
         if (c->scaleChanged()) {
-            qCDebug(KSCREEN_WAYLAND_TESTSERVER) << "Setting enabled:";
+            qCDebug(KSCREEN_WAYLAND_TESTSERVER) << "Setting scale:" << c->scale();
             outputdevice->setScale(c->scale());
         }
     }
