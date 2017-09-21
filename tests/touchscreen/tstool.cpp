@@ -120,28 +120,23 @@ void TsTool::listTouchscreens()
 
 void TsTool::rotateTouchscreen(int ts_id, const QString& rotation_string)
 {
-        XTouchscreenPtr ts = m_touchscreens.value(ts_id);
+    XTouchscreenPtr ts = m_touchscreens.value(ts_id);
 
-        if (!ts) {
-            cerr << QStringLiteral("No touchscreen with this id found");
-            qApp->exit(2);
-            return;
-        }
-        if (rotation_string == QStringLiteral("left")) {
-            ts->setRotation(KScreen::Output::Left);
-            //rot = Output::Left;
-        } else if (rotation_string == QStringLiteral("right")) {
-            //rot = Output::Right;
-            ts->setRotation(KScreen::Output::Right);
-        } else if (rotation_string == QStringLiteral("inverted")) {
-            //rot = Output::Inverted;
-            ts->setRotation(KScreen::Output::Inverted);
-        } else {
-            //ts->setRotation(KScreen::Output::None); // FIXME:: None fails compilation, all other values work?!?!?
-            qWarning() << "KScreen::Output::None fails compilation -- WTF?";
-        }
-
-        //ts->setRotation(KScreen::Output::Left);
+    if (!ts) {
+        cerr << QStringLiteral("No touchscreen with this id found");
+        qApp->exit(2);
+        return;
+    }
+    if (rotation_string == QStringLiteral("left")) {
+        ts->setRotation(KScreen::Output::Left);
+    } else if (rotation_string == QStringLiteral("right")) {
+        ts->setRotation(KScreen::Output::Right);
+    } else if (rotation_string == QStringLiteral("inverted")) {
+        ts->setRotation(KScreen::Output::Inverted);
+    } else {
+        //ts->setRotation(KScreen::Output::None); // FIXME:: None fails compilation, all other values work?!?!?
+        qWarning() << "KScreen::Output::None fails compilation -- WTF?";
+    }
 
     QTimer::singleShot(0, qApp->quit);
 

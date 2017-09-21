@@ -21,7 +21,6 @@
 
 #include <QCommandLineParser>
 #include <QObject>
-//#include "../config.h"
 
 #include "xtouchscreen.h"
 

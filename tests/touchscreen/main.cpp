@@ -31,8 +31,6 @@ int main(int argc, char **argv)
 
     QGuiApplication app(argc, argv);
 
-    KScreen::TsTool tstool;
-
     QCommandLineOption list = QCommandLineOption(QStringList() << QStringLiteral("l") << "list",
                                                   QStringLiteral("List available touchscreen devices."));
     QCommandLineOption rotate = QCommandLineOption(QStringList() << QStringLiteral("r") << "rotate",
@@ -46,6 +44,7 @@ int main(int argc, char **argv)
     parser.addOption(rotate);
     parser.process(app);
 
+    KScreen::TsTool tstool;
     if (!parser.positionalArguments().isEmpty()) {
         tstool.setOptionList(parser.positionalArguments());
     }
