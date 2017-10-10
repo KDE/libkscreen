@@ -404,16 +404,19 @@ bool Doctor::setMode(int id, const QString &mode_id)
         if (output->id() == id) {
             // find mode
             Q_FOREACH (const KScreen::ModePtr mode, output->modes()) {
-               if (mode->id() == mode_id) {
-                    qCDebug(KSCREEN_DOCTOR) << "Taddaaa! Found mode" << mode->id() << mode->name();
+                auto name = QString("%1x%2@%3").arg(QString::number(mode->size().width()),
+                                    QString::number(mode->size().height()),
+                                    QString::number(qRound(mode->refreshRate())));
+                if (mode->id() == mode_id || name == mode_id) {
+                    qCDebug(KSCREEN_DOCTOR) << "Taddaaa! Found mode" << mode->id() << name;
                     output->setCurrentModeId(mode->id());
                     m_changed = true;
                     return true;
-               }
+                }
             }
         }
     }
-    cout << "Output mode " << id << " not found." << endl;
+    cout << "Output mode " << mode_id << " not found." << endl;
     return false;
 }
 
