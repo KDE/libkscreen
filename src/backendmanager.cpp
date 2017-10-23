@@ -49,7 +49,7 @@ Q_DECLARE_METATYPE(org::kde::kscreen::Backend*)
 
 const int BackendManager::sMaxCrashCount = 4;
 
-BackendManager *BackendManager::sInstance = 0;
+BackendManager *BackendManager::sInstance = nullptr;
 
 BackendManager *BackendManager::instance()
 {
@@ -216,7 +216,7 @@ KScreen::AbstractBackend *BackendManager::loadBackendPlugin(QPluginLoader *loade
         qCDebug(KSCREEN) << finfo.fileName() << "does not provide valid KScreen backend";
     }
 
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 KScreen::AbstractBackend *BackendManager::loadBackendInProcess(const QString &name)

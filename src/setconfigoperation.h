@@ -32,7 +32,7 @@ class KSCREEN_EXPORT SetConfigOperation : public KScreen::ConfigOperation
 {
     Q_OBJECT
 public:
-    explicit SetConfigOperation(const KScreen::ConfigPtr &config, QObject* parent = 0);
+    explicit SetConfigOperation(const KScreen::ConfigPtr &config, QObject* parent = nullptr);
     ~SetConfigOperation();
 
     KScreen::ConfigPtr config() const Q_DECL_OVERRIDE;

@@ -47,8 +47,8 @@ void pluginDeleter(QPluginLoader *p)
 BackendLoader::BackendLoader()
     : QObject()
     , QDBusContext()
-    , mLoader(Q_NULLPTR)
-    , mBackend(Q_NULLPTR)
+    , mLoader(nullptr)
+    , mBackend(nullptr)
 {
 }
 
@@ -104,9 +104,9 @@ bool BackendLoader::requestBackend(const QString &backendName, const QVariantMap
     mBackend = new BackendDBusWrapper(backend);
     if (!mBackend->init()) {
         delete mBackend;
-        mBackend = Q_NULLPTR;
+        mBackend = nullptr;
         pluginDeleter(mLoader);
-        mLoader = Q_NULLPTR;
+        mLoader = nullptr;
         return false;
     }
     return true;
@@ -115,7 +115,7 @@ bool BackendLoader::requestBackend(const QString &backendName, const QVariantMap
 KScreen::AbstractBackend *BackendLoader::loadBackend(const QString &name,
                                                      const QVariantMap &arguments)
 {
-    if (mLoader == Q_NULLPTR) {
+    if (mLoader == nullptr) {
         std::unique_ptr<QPluginLoader, void(*)(QPluginLoader *)> loader(new QPluginLoader(), pluginDeleter);
         mLoader = loader.release();
     }

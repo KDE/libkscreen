@@ -37,7 +37,7 @@ using namespace KScreen;
 
 XRandRConfig::XRandRConfig()
     : QObject()
-    , m_screen(Q_NULLPTR)
+    , m_screen(nullptr)
 {
     m_screen = new XRandRScreen(this);
 
@@ -495,7 +495,7 @@ bool XRandRConfig::enableOutput(const OutputPtr &kscreenOutput) const
 {
     xcb_randr_output_t outputs[1] { static_cast<xcb_randr_output_t>(kscreenOutput->id()) };
 
-    XRandRCrtc *freeCrtc = Q_NULLPTR;
+    XRandRCrtc *freeCrtc = nullptr;
     qCDebug(KSCREEN_XRANDR) << m_crtcs;
     Q_FOREACH (XRandRCrtc *crtc, m_crtcs) {
         crtc->update();

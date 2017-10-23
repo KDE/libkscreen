@@ -51,7 +51,7 @@ xcb_screen_t* XCB::screenOfDisplay(xcb_connection_t* c, int screen)
         }
     }
 
-    return Q_NULLPTR;
+    return nullptr;
 }
 
 

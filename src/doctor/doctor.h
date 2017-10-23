@@ -34,7 +34,7 @@ class Doctor : public QObject
     Q_OBJECT
 
 public:
-    explicit Doctor(QObject *parent = 0);
+    explicit Doctor(QObject *parent = nullptr);
     virtual ~Doctor();
 
     void setOptionList(const QStringList &positionalArgs);

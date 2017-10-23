@@ -198,7 +198,7 @@ bool Config::canBeApplied(const ConfigPtr &config, ValidityFlags flags)
 }
 
 Config::Config()
- : QObject(0)
+ : QObject(nullptr)
  , d(new Private(this))
 {
 }

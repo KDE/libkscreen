@@ -55,7 +55,7 @@ bool XRandROutput::isConnected() const
 
 bool XRandROutput::isEnabled() const
 {
-    return m_crtc != Q_NULLPTR && m_crtc->mode() != XCB_NONE;
+    return m_crtc != nullptr && m_crtc->mode() != XCB_NONE;
 }
 
 bool XRandROutput::isPrimary() const
@@ -86,7 +86,7 @@ QString XRandROutput::currentModeId() const
 XRandRMode* XRandROutput::currentMode() const
 {
     if (!m_crtc) {
-        return Q_NULLPTR;
+        return nullptr;
     }
     int modeId = m_crtc->mode();
     if (!m_modes.contains(modeId)) {
@@ -168,7 +168,7 @@ void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_rand
     // crtc->mode may already be unset due to xcb_randr_crtc_tChangeNotify coming before
     // xcb_randr_output_tChangeNotify and reseting the CRTC mode
 
-    if ((m_crtc == Q_NULLPTR) != (crtc == XCB_NONE)) {
+    if ((m_crtc == nullptr) != (crtc == XCB_NONE)) {
         if (crtc == XCB_NONE && mode == XCB_NONE) {
             // Monitor has been disabled
             m_crtc->disconectOutput(m_id);

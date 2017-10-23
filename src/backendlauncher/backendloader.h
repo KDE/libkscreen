@@ -51,8 +51,8 @@ private:
     KScreen::AbstractBackend *loadBackend(const QString &name, const QVariantMap &arguments);
 
 private:
-    QPluginLoader *mLoader;
-    BackendDBusWrapper *mBackend;
+    QPluginLoader *mLoader = nullptr;
+    BackendDBusWrapper *mBackend = nullptr;
 };
 
 #endif // BACKENDLAUNCHER_H

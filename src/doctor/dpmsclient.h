@@ -44,7 +44,7 @@ class DpmsClient : public QObject
     Q_OBJECT
 
 public:
-    explicit DpmsClient(QObject *parent = 0);
+    explicit DpmsClient(QObject *parent = nullptr);
     virtual ~DpmsClient();
 
     void connect();
@@ -62,8 +62,8 @@ private Q_SLOTS:
 private:
     void changeMode(KWayland::Client::Dpms::Mode mode);
     QThread *m_thread;
-    KWayland::Client::ConnectionThread *m_connection;
-    KWayland::Client::DpmsManager *m_dpmsManager;
+    KWayland::Client::ConnectionThread *m_connection = nullptr;
+    KWayland::Client::DpmsManager *m_dpmsManager = nullptr;
     KWayland::Client::Registry m_registry;
     bool m_setOff = true;
     bool m_setOn = false;

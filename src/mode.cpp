@@ -42,7 +42,7 @@ class Mode::Private
 };
 
 Mode::Mode()
-  : QObject(0)
+  : QObject(nullptr)
   , d(new Private())
 {
 

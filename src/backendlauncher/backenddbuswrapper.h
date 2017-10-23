@@ -56,7 +56,7 @@ private Q_SLOTS:
 
 
 private:
-    KScreen::AbstractBackend *mBackend;
+    KScreen::AbstractBackend *mBackend = nullptr;
     QTimer mChangeCollector;
     KScreen::ConfigPtr mCurrentConfig;
 
