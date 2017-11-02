@@ -168,4 +168,8 @@ class KSCREEN_EXPORT Config : public QObject
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(KScreen::Config::Features)
 
+KSCREEN_EXPORT QDebug operator<<(QDebug dbg, const KScreen::ConfigPtr &config);
+
+
+
 #endif //KSCREEN_CONFIG_H

@@ -363,4 +363,22 @@ void Config::apply(const ConfigPtr& other)
     setValid(other->isValid());
 }
 
+
+QDebug operator<<(QDebug dbg, const KScreen::ConfigPtr &config)
+{
+    if (config) {
+        dbg << "KScreen::Config(";
+        for (const auto output : config->outputs()) {
+            if (output->isConnected()) {
+                dbg << endl << output;
+            }
+        }
+        dbg << ")";
+    } else {
+        dbg << "KScreen::Config(NULL)";
+    }
+    return dbg;
+}
+
+
 #include "config.moc"
