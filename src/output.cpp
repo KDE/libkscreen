@@ -584,8 +584,9 @@ QDebug operator<<(QDebug dbg, const KScreen::OutputPtr &output)
                                   << output->name()
                                   << (output->isConnected() ? "connected" : "disconnected")
                                   << (output->isEnabled() ? "enabled" : "disabled")
-                                  << output->pos() << output->size()
-                                  << output->currentModeId()
+                                  << "pos:" << output->pos() << "res:" << output->size()
+                                  << "modeId:" << output->currentModeId()
+                                  << "scale:" << output->scale()
                                   << ")";
     } else {
         dbg << "KScreen::Output(NULL)";
