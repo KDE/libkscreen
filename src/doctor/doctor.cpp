@@ -445,6 +445,6 @@ void Doctor::applyConfig()
     }
     auto setop = new SetConfigOperation(m_config, this);
     setop->exec();
-    qCDebug(KSCREEN_DOCTOR) << "setop exec returned";
+    qCDebug(KSCREEN_DOCTOR) << "setop exec returned" << m_config;
     qApp->exit(0);
 }
