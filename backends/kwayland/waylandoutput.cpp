@@ -131,6 +131,7 @@ void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output)
     output->setPos(m_output->globalPosition());
     output->setRotation(m_rotationMap[m_output->transform()]);
     KScreen::ModeList modeList;
+    QStringList preferredModeIds;
     m_modeIdMap.clear();
     QString currentModeId = QStringLiteral("-1");
     Q_FOREACH (const KWayland::Client::OutputDevice::Mode &m, m_output->modes()) {
@@ -152,6 +153,9 @@ void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output)
         if (m.flags.testFlag(KWayland::Client::OutputDevice::Mode::Flag::Current)) {
             currentModeId = modeid;
         }
+        if (m.flags.testFlag(KWayland::Client::OutputDevice::Mode::Flag::Preferred)) {
+            preferredModeIds << modeid;
+        }
         // Update the kscreen => kwayland mode id translation map
         m_modeIdMap.insert(modeid, m.id);
         // Add to the modelist which gets set on the output
@@ -162,6 +166,7 @@ void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output)
     }
     output->setCurrentModeId(currentModeId);
 
+    output->setPreferredModes(preferredModeIds);
     output->setModes(modeList);
     output->setScale(m_output->scale());
 }
