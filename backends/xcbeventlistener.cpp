@@ -187,7 +187,7 @@ void XCBEventListener::handleXRandRNotify(xcb_generic_event_t* e)
 
     } else if(randrEvent->subCode == XCB_RANDR_NOTIFY_OUTPUT_CHANGE) {
         xcb_randr_output_change_t output = randrEvent->u.oc;
-        qCDebug(KSCREEN_XCB_HELPER) << "RRotify_OutputChange";
+        qCDebug(KSCREEN_XCB_HELPER) << "RRNotify_OutputChange";
         qCDebug(KSCREEN_XCB_HELPER) << "\tOutput: " << output.output;
         qCDebug(KSCREEN_XCB_HELPER) << "\tCRTC: " << output.crtc;
         qCDebug(KSCREEN_XCB_HELPER) << "\tMode: " << output.mode;
