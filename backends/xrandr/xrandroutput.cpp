@@ -152,6 +152,7 @@ void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_rand
             qDeleteAll(m_modes);
             m_modes.clear();
             m_preferredModes.clear();
+            m_edid.clear();
         }
     } else if (conn == XCB_RANDR_CONNECTION_CONNECTED) {
         // the output changed in some way, let's update the internal
