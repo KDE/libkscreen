@@ -57,6 +57,8 @@ QJsonObject ConfigSerializer::serializeConfig(const ConfigPtr &config)
         return obj;
     }
 
+    obj[QLatin1String("features")] = static_cast<int>(config->supportedFeatures());
+
     QJsonArray outputs;
     Q_FOREACH (const OutputPtr &output, config->outputs()) {
         outputs.append(serializeOutput(output));
@@ -174,6 +176,10 @@ QSize ConfigSerializer::deserializeSize(const QDBusArgument &arg)
 ConfigPtr ConfigSerializer::deserializeConfig(const QVariantMap &map)
 {
     ConfigPtr config(new Config);
+
+    if (map.contains(QLatin1String("features"))) {
+        config->setSupportedFeatures(static_cast<Config::Features>(map[QLatin1String("features")].toInt()));
+    }
 
     if (map.contains(QLatin1String("outputs"))) {
         const QDBusArgument &outputsArg = map[QLatin1String("outputs")].value<QDBusArgument>();
