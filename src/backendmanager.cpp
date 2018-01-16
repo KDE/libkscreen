@@ -226,7 +226,7 @@ KScreen::AbstractBackend *BackendManager::loadBackendInProcess(const QString &na
         qCWarning(KSCREEN) << "You are trying to load a backend in process, while the BackendManager is set to use OutOfProcess communication. Use loadBackendPlugin() instead.";
         return nullptr;
     }
-    if (m_inProcessBackend.first != nullptr && m_inProcessBackend.first->name() == name) {
+    if (m_inProcessBackend.first != nullptr && (name.isEmpty() || m_inProcessBackend.first->name() == name)) {
         return m_inProcessBackend.first;
     } else if (m_inProcessBackend.first != nullptr && m_inProcessBackend.first->name() != name) {
         shutdownBackend();
@@ -244,6 +244,7 @@ KScreen::AbstractBackend *BackendManager::loadBackendInProcess(const QString &na
     //qCDebug(KSCREEN) << "Connecting ConfigMonitor to backend.";
     ConfigMonitor::instance()->connectInProcessBackend(backend);
     m_inProcessBackend = qMakePair<KScreen::AbstractBackend*, QVariantMap>(backend, arguments);
+    setConfig(backend->config());
     return backend;
 }
 

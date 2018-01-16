@@ -19,6 +19,7 @@
 #include "waylandoutput.h"
 #include "waylandbackend.h"
 #include "waylandconfig.h"
+#include "../utils.h"
 
 #include <mode.h>
 #include <edid.h>
@@ -169,6 +170,7 @@ void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output)
     output->setPreferredModes(preferredModeIds);
     output->setModes(modeList);
     output->setScale(m_output->scale());
+    output->setType(Utils::guessOutputType(m_output->model(), m_output->model()));
 }
 
 QString WaylandOutput::modeName(const KWayland::Client::OutputDevice::Mode &m) const

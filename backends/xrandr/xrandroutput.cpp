@@ -23,6 +23,7 @@
 #include "xrandr.h"
 #include "output.h"
 #include "config.h"
+#include "../utils.h"
 
 #include <QRect>
 
@@ -259,53 +260,7 @@ KScreen::Output::Type XRandROutput::fetchOutputType(xcb_randr_output_t outputId,
         type = name.toLocal8Bit();
     }
 
-    static const QVector<QLatin1String> embedded{QLatin1String("LVDS"),
-                                                 QLatin1String("IDP"),
-                                                 QLatin1String("EDP"),
-                                                 QLatin1String("LCD")};
-
-    for (const QLatin1String &pre : embedded) {
-        if (name.toUpper().startsWith(pre)) {
-            return KScreen::Output::Panel;
-        }
-    }
-
-    if (type.contains("VGA")) {
-        return KScreen::Output::VGA;
-    } else if (type.contains("DVI")) {
-        return KScreen::Output::DVI;
-    } else if (type.contains("DVI-I")) {
-        return KScreen::Output::DVII;
-    } else if (type.contains("DVI-A")) {
-        return KScreen::Output::DVIA;
-    } else if (type.contains("DVI-D")) {
-        return KScreen::Output::DVID;
-    } else if (type.contains("HDMI")) {
-        return KScreen::Output::HDMI;
-    } else if (type.contains("Panel")) {
-        return KScreen::Output::Panel;
-    } else if (type.contains("TV-Composite")) {
-        return KScreen::Output::TVComposite;
-    } else if (type.contains("TV-SVideo")) {
-        return KScreen::Output::TVSVideo;
-    } else if (type.contains("TV-Component")) {
-        return KScreen::Output::TVComponent;
-    } else if (type.contains("TV-SCART")) {
-        return KScreen::Output::TVSCART;
-    } else if (type.contains("TV-C4")) {
-        return KScreen::Output::TVC4;
-    } else if (type.contains("TV")) {
-        return KScreen::Output::TV;
-    } else if (type.contains("DisplayPort") || type.startsWith("DP")) {
-        return KScreen::Output::DisplayPort;
-    } else if (type.contains("unknown")) {
-        return KScreen::Output::Unknown;
-    } else {
-//         qCDebug(KSCREEN_XRANDR) << "Output Type not translated:" << type;
-    }
-
-    return KScreen::Output::Unknown;
-
+    return Utils::guessOutputType(type, name);
 }
 
 QByteArray XRandROutput::typeFromProperty(xcb_randr_output_t outputId)

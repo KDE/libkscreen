@@ -4,6 +4,7 @@ set(wayland_SRCS
     waylandconfig.cpp
     waylandoutput.cpp
     waylandscreen.cpp
+    ../utils.cpp
 )
 
 add_library(KSC_KWayland MODULE ${wayland_SRCS})

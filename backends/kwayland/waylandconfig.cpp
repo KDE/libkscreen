@@ -279,6 +279,7 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
     using namespace KWayland::Client;
     // Create a new configuration object
     auto wlOutputConfiguration = m_outputManagement->createConfiguration();
+    bool changed = false;
 
     Q_FOREACH (auto output, newConfig->outputs()) {
         auto o_old = m_outputMap[output->id()];
@@ -288,16 +289,19 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
         // enabled?
         bool old_enabled = (o_old->outputDevice()->enabled() == OutputDevice::Enablement::Enabled);
         if (old_enabled != output->isEnabled()) {
+            changed = true;
             auto _enablement = output->isEnabled() ? OutputDevice::Enablement::Enabled : OutputDevice::Enablement::Disabled;
             wlOutputConfiguration->setEnabled(o_old->outputDevice(), _enablement);
         }
 
         // position
         if (device->globalPosition() != output->pos()) {
+            changed = true;
             wlOutputConfiguration->setPosition(o_old->outputDevice(), output->pos());
         }
 
         if (device->scale() != output->scale()) {
+            changed = true;
             wlOutputConfiguration->setScale(o_old->outputDevice(), output->scale());
         }
 
@@ -305,6 +309,7 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
         auto r_current = o_old->toKScreenRotation(device->transform());
         auto r_new = output->rotation();
         if (r_current != r_new) {
+            changed = true;
             wlOutputConfiguration->setTransform(device, o_old->toKWaylandTransform(r_new));
         }
 
@@ -313,8 +318,13 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
         QString l_newmodeid = output->currentModeId();
         int w_newmodeid = o_old->toKWaylandModeId(l_newmodeid);
         if (w_newmodeid != w_currentmodeid) {
+            changed = true;
             wlOutputConfiguration->setMode(device, w_newmodeid);
         }
+    }
+
+    if (!changed) {
+        return;
     }
 
     // We now block changes in order to compress events while the compositor is doing its thing
