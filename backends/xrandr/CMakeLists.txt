@@ -11,6 +11,7 @@ set(xrandr_SRCS
     xrandrscreen.cpp
     ../xcbwrapper.cpp
     ../xcbeventlistener.cpp
+    ../utils.cpp
 )
 
 add_library(KSC_XRandR MODULE ${xrandr_SRCS})
