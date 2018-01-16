@@ -167,7 +167,6 @@ void ConfigMonitor::Private::edidReady(QDBusPendingCallWatcher* watcher)
 
 void ConfigMonitor::Private::updateConfigs(const KScreen::ConfigPtr &newConfig)
 {
-    Q_ASSERT(BackendManager::instance()->method() == BackendManager::OutOfProcess);
     QMutableListIterator<QWeakPointer<Config>> iter(watchedConfigs);
     while (iter.hasNext()) {
         KScreen::ConfigPtr config = iter.next().toStrongRef();
@@ -247,10 +246,8 @@ void ConfigMonitor::connectInProcessBackend(KScreen::AbstractBackend* backend)
         if (config.isNull()) {
             return;
         }
-        const QWeakPointer<Config> weakConfig = config.toWeakRef();
-        if (d->watchedConfigs.contains(weakConfig)) {
-            emit configurationChanged();
-        }
+        qCDebug(KSCREEN) << "Backend change!" << config;
+        d->updateConfigs(config);
     });
 }
 

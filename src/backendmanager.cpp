@@ -244,6 +244,7 @@ KScreen::AbstractBackend *BackendManager::loadBackendInProcess(const QString &na
     //qCDebug(KSCREEN) << "Connecting ConfigMonitor to backend.";
     ConfigMonitor::instance()->connectInProcessBackend(backend);
     m_inProcessBackend = qMakePair<KScreen::AbstractBackend*, QVariantMap>(backend, arguments);
+    setConfig(backend->config());
     return backend;
 }
 
