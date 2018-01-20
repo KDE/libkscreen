@@ -51,8 +51,10 @@ endif (_HAVE_VISIBILITY AND NOT WIN32)
 
 add_subdirectory(src)
 add_subdirectory(backends)
-add_subdirectory(autotests)
-add_subdirectory(tests)
+if(BUILD_TESTING)
+   add_subdirectory(autotests)
+   add_subdirectory(tests)
+endif()
 
 set(CMAKECONFIG_INSTALL_DIR "${CMAKECONFIG_INSTALL_PREFIX}/KF5Screen")
 ecm_configure_package_config_file("${CMAKE_CURRENT_SOURCE_DIR}/KF5ScreenConfig.cmake.in"
