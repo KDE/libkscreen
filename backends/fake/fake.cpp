@@ -94,7 +94,7 @@ ConfigPtr Fake::config() const
 void Fake::setConfig(const ConfigPtr &config)
 {
     qCDebug(KSCREEN_FAKE) << "set config" << config->outputs();
-    mConfig = config;
+    mConfig = config->clone();
     emit configChanged(mConfig);
 }
 
