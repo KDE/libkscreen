@@ -213,6 +213,7 @@ void TestKWaylandConfig::testScaleChange()
     // Prepare monitor & spy
     KScreen::ConfigMonitor *monitor = KScreen::ConfigMonitor::instance();
     monitor->addConfig(config);
+    monitor->addConfig(config2);
     QSignalSpy configSpy(monitor, &KScreen::ConfigMonitor::configurationChanged);
     QSignalSpy configSpy2(monitor, &KScreen::ConfigMonitor::configurationChanged);
 
