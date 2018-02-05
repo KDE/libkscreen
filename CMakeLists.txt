@@ -12,12 +12,12 @@ include(KDEInstallDirs)
 include(KDECompilerSettings NO_POLICY_SCOPE)
 include(KDECMakeSettings)
 include(ECMSetupVersion)
-include(ECMPackageConfigHelpers)
 include(ECMMarkAsTest)
 include(ECMGenerateHeaders)
 include(ECMQtDeclareLoggingCategory)
 include(FeatureSummary)
 include(CheckCXXCompilerFlag)
+include(CMakePackageConfigHelpers)
 
 find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Core DBus Gui Test X11Extras)
 
@@ -59,7 +59,7 @@ if(BUILD_TESTING)
 endif()
 
 set(CMAKECONFIG_INSTALL_DIR "${CMAKECONFIG_INSTALL_PREFIX}/KF5Screen")
-ecm_configure_package_config_file("${CMAKE_CURRENT_SOURCE_DIR}/KF5ScreenConfig.cmake.in"
+configure_package_config_file("${CMAKE_CURRENT_SOURCE_DIR}/KF5ScreenConfig.cmake.in"
                               "${CMAKE_CURRENT_BINARY_DIR}/KF5ScreenConfig.cmake"
                               INSTALL_DESTINATION ${CMAKECONFIG_INSTALL_DIR}
 )
