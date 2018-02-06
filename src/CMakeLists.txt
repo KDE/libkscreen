@@ -40,7 +40,7 @@ set_target_properties(KF5Screen PROPERTIES
 
 target_include_directories(KF5Screen PUBLIC "$<INSTALL_INTERFACE:${KF5_INCLUDE_INSTALL_DIR}/KScreen>")
 
-install(TARGETS KF5Screen EXPORT KF5ScreenTargets ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS KF5Screen EXPORT KF5ScreenTargets ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 add_library(KF5::Screen ALIAS KF5Screen)
 
 ecm_generate_headers(KScreen_HEADERS
@@ -70,7 +70,7 @@ install(FILES kscreen_export.h
 
 if(NOT WIN32)
    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/kscreen2.pc.in ${CMAKE_CURRENT_BINARY_DIR}/kscreen2.pc @ONLY)
-   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/kscreen2.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
+   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/kscreen2.pc DESTINATION ${KDE_INSTALL_LIBDIR}/pkgconfig)
 endif(NOT WIN32)
 
 include(ECMGeneratePriFile)

@@ -1,5 +1,5 @@
 prefix=@CMAKE_INSTALL_PREFIX@
-libdir=@LIB_INSTALL_DIR@
+libdir=@KDE_INSTALL_LIBDIR@
 includedir=@CMAKE_INSTALL_PREFIX@/include
 
 Name: kscreen2

@@ -24,4 +24,4 @@ target_link_libraries(KSC_XRandR Qt5::Core
                                  KF5::Screen
 )
 
-install(TARGETS KSC_XRandR DESTINATION ${PLUGIN_INSTALL_DIR}/kf5/kscreen/)
+install(TARGETS KSC_XRandR DESTINATION ${KDE_INSTALL_PLUGINDIR}/kf5/kscreen/)

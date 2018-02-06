@@ -21,6 +21,6 @@ target_link_libraries(KSC_Fake
     KF5::Screen
 )
 
-install(TARGETS KSC_Fake DESTINATION ${PLUGIN_INSTALL_DIR}/kf5/kscreen/)
+install(TARGETS KSC_Fake DESTINATION ${KDE_INSTALL_PLUGINDIR}/kf5/kscreen/)
 
 

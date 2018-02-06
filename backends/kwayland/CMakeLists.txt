@@ -16,4 +16,4 @@ target_link_libraries(KSC_KWayland Qt5::Core
                                   KF5::WaylandClient
 )
 
-install(TARGETS KSC_KWayland DESTINATION ${PLUGIN_INSTALL_DIR}/kf5/kscreen/)
+install(TARGETS KSC_KWayland DESTINATION ${KDE_INSTALL_PLUGINDIR}/kf5/kscreen/)
