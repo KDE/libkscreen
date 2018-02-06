@@ -87,26 +87,3 @@ install(FILES
 )
 
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
-
-############################################ apidox ############################################
-
-option(LIBKSCREEN_BUILD_API_DOCS "Build libkscreen API documentation")
-
-if(LIBKSCREEN_BUILD_API_DOCS)
-  find_package(Doxygen)
-
-  if(DOXYGEN_EXECUTABLE)
-    configure_file(${libkscreen_SOURCE_DIR}/.Doxyfile.cmake ${libkscreen_BINARY_DIR}/Doxyfile)
-
-    if(EXISTS ${QT_DOC_DIR}/html)
-      set(QTDOCS "${QT_DOC_DIR}/html")
-    else(EXISTS ${QT_DOC_DIR}/html)
-      set(QTDOCS "http://doc.qt.nokia.com/latest/")
-    endif(EXISTS ${QT_DOC_DIR}/html)
-
-    add_custom_target(
-      apidox ALL
-      COMMAND ${DOXYGEN_EXECUTABLE} Doxyfile
-      COMMAND doc/html/installdox -l qt4.tag@${QTDOCS} doc/html/*.html)
-  endif(DOXYGEN_EXECUTABLE)
-endif(LIBKSCREEN_BUILD_API_DOCS)
