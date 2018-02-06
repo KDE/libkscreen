@@ -77,3 +77,26 @@ endif(NOT WIN32)
 include(ECMGeneratePriFile)
 ecm_generate_pri_file(BASE_NAME KScreen LIB_NAME KF5Screen DEPS "core" FILENAME_VAR PRI_FILENAME)
 install(FILES ${PRI_FILENAME} DESTINATION ${ECM_MKSPECS_INSTALL_DIR})
+
+if(BUILD_QCH)
+    ecm_add_qch(
+        KF5Screen_QCH
+        NAME KScreen
+        BASE_NAME KF5Screen
+        VERSION ${KF5_VERSION}
+        ORG_DOMAIN org.kde
+        SOURCES # using only public headers, to cover only public API
+            ${KScreen_REQ_HEADERS}
+        # MD_MAINPAGE "${CMAKE_SOURCE_DIR}/README.md"
+        LINK_QCHS
+            Qt5Core_QCH
+            Qt5Gui_QCH
+        BLANK_MACROS
+            KSCREEN_EXPORT
+            KSCREEN_DEPRECATED
+            KSCREEN_DEPRECATED_EXPORT
+        TAGFILE_INSTALL_DESTINATION ${KDE_INSTALL_QTQCHDIR}
+        QCH_INSTALL_DESTINATION ${KDE_INSTALL_QTQCHDIR}
+        COMPONENT Devel
+    )
+endif()

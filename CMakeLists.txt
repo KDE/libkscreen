@@ -15,6 +15,7 @@ include(ECMSetupVersion)
 include(ECMMarkAsTest)
 include(ECMGenerateHeaders)
 include(ECMQtDeclareLoggingCategory)
+include(ECMAddQch)
 include(FeatureSummary)
 include(CheckCXXCompilerFlag)
 include(CMakePackageConfigHelpers)
@@ -33,6 +34,9 @@ set_package_properties(XCB PROPERTIES
                        TYPE OPTIONAL
                        PURPOSE "Required for building XRandR backends"
 )
+
+option(BUILD_QCH "Build API documentation in QCH format (for e.g. Qt Assistant, Qt Creator & KDevelop)" OFF)
+add_feature_info(QCH ${BUILD_QCH} "API documentation in QCH format (for e.g. Qt Assistant, Qt Creator & KDevelop)")
 
 # library setup
 
@@ -60,6 +64,17 @@ if(BUILD_TESTING)
 endif()
 
 set(CMAKECONFIG_INSTALL_DIR "${CMAKECONFIG_INSTALL_PREFIX}/KF5Screen")
+
+if (BUILD_QCH)
+    ecm_install_qch_export(
+        TARGETS KF5Screen_QCH
+        FILE KF5ScreenQchTargets.cmake
+        DESTINATION "${CMAKECONFIG_INSTALL_DIR}"
+        COMPONENT Devel
+    )
+    set(PACKAGE_INCLUDE_QCHTARGETS "include(\"\${CMAKE_CURRENT_LIST_DIR}/KF5ScreenQchTargets.cmake\")")
+endif()
+
 configure_package_config_file("${CMAKE_CURRENT_SOURCE_DIR}/KF5ScreenConfig.cmake.in"
                               "${CMAKE_CURRENT_BINARY_DIR}/KF5ScreenConfig.cmake"
                               INSTALL_DESTINATION ${CMAKECONFIG_INSTALL_DIR}
