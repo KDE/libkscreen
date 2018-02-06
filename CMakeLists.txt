@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 2.8.12)
 project(libkscreen)
 set(PROJECT_VERSION "5.12.80")
 
+set(REQUIRED_QT_VERSION "5.9.0")
+set(KF5_MIN_VERSION "5.42.0")
+
 find_package(ECM 5.14.0 REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ECM_MODULE_PATH} ${ECM_KDE_MODULE_DIR})
 include(KDEInstallDirs)
@@ -16,11 +19,10 @@ include(ECMQtDeclareLoggingCategory)
 include(FeatureSummary)
 include(CheckCXXCompilerFlag)
 
-set(REQUIRED_QT_VERSION 5.4.0)
 find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Core DBus Gui Test X11Extras)
 
 # Wayland backend
-find_package(KF5Wayland CONFIG REQUIRED)
+find_package(KF5Wayland ${KF5_MIN_VERSION} CONFIG REQUIRED)
 add_feature_info("KF5Wayland" KF5Wayland_FOUND "Required for building libkscreen's KWayland backend")
 
 # xrandr backend

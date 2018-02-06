@@ -26,6 +26,7 @@ add_library(KF5Screen SHARED ${libkscreen_SRCS})
 target_link_libraries(KF5Screen
     PUBLIC
     Qt5::Core
+    Qt5::Gui
     PRIVATE
     Qt5::DBus
     Qt5::X11Extras
