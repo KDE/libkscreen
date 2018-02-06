@@ -23,7 +23,7 @@
 #include "screen.h"
 
 #include <QScreen>
-#include <QtCore/QSize>
+#include <QSize>
 #include <QLoggingCategory>
 
 namespace KScreen

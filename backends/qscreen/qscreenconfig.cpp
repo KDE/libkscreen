@@ -23,7 +23,7 @@
 
 #include <mode.h>
 
-#include <QtCore/QRect>
+#include <QRect>
 #include <QGuiApplication>
 #include <QScreen>
 

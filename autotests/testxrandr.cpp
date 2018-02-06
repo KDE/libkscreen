@@ -18,8 +18,8 @@
 
 #define QT_GUI_LIB
 
-#include <QtTest/QtTest>
-#include <QtCore/QObject>
+#include <QtTest>
+#include <QObject>
 
 #include "../src/config.h"
 #include "../src/output.h"

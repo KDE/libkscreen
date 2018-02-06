@@ -24,9 +24,9 @@
 #include "types.h"
 #include "kscreen_export.h"
 
-#include <QtCore/QHash>
-#include <QtCore/QObject>
-#include <QtCore/QMetaType>
+#include <QHash>
+#include <QObject>
+#include <QMetaType>
 
 
 namespace KScreen {

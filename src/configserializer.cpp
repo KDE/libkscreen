@@ -26,7 +26,7 @@
 #include "edid.h"
 #include "debug_p.h"
 
-#include <QtDBus/QDBusArgument>
+#include <QDBusArgument>
 #include <QJsonDocument>
 #include <QFile>
 #include <QRect>

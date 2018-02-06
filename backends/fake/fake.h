@@ -21,7 +21,7 @@
 
 #include "abstractbackend.h"
 
-#include <QtCore/QObject>
+#include <QObject>
 #include <QLoggingCategory>
 
 class Fake : public KScreen::AbstractBackend

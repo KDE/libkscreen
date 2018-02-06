@@ -27,9 +27,8 @@
 #include "output.h"
 #include "edid.h"
 
-#include <QtCore/QFile>
-#include <QtCore/qplugin.h>
-#include <QtCore/QRect>
+#include <QFile>
+#include <QRect>
 #include <QAbstractEventDispatcher>
 #include <QTimer>
 #include <QTime>

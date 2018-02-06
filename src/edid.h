@@ -23,9 +23,9 @@
 
 #include "kscreen_export.h"
 
-#include <QtCore/QObject>
-#include <QtCore/QtGlobal>
-#include <QtGui/QQuaternion>
+#include <QObject>
+#include <QtGlobal>
+#include <QQuaternion>
 
 namespace KScreen
 {

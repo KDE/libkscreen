@@ -22,7 +22,7 @@
 #include "abstractbackend.h"
 #include "../xcbwrapper.h"
 
-#include <QtCore/QObject>
+#include <QObject>
 #include <QLoggingCategory>
 
 class XCBEventListener;

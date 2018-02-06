@@ -22,7 +22,7 @@
 
 #include "abstractbackend.h"
 
-#include <QtCore/QSize>
+#include <QSize>
 #include <QLoggingCategory>
 
 #include "../xcbwrapper.h"

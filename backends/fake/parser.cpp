@@ -22,7 +22,7 @@
 #include "config.h"
 #include "output.h"
 
-#include <QtCore/QFile>
+#include <QFile>
 #include <QMetaObject>
 #include <QMetaProperty>
 #include <QLoggingCategory>

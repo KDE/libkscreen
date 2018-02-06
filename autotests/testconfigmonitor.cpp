@@ -29,7 +29,7 @@
 #include "../src/getconfigoperation.h"
 #include "../src/setconfigoperation.h"
 #include "../src/backendmanager_p.h"
-#include <QtTest/qsignalspy.h>
+#include <QSignalSpy>
 
 #include "fakebackendinterface.h"
 

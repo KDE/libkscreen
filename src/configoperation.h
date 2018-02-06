@@ -21,7 +21,7 @@
 #ifndef KSCREEN_CONFIGOPERATION_H
 #define KSCREEN_CONFIGOPERATION_H
 
-#include <QtCore/QObject>
+#include <QObject>
 
 #include "kscreen_export.h"
 #include "types.h"

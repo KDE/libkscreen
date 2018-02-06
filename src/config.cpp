@@ -23,8 +23,8 @@
 #include "abstractbackend.h"
 #include "debug_p.h"
 
-#include <QtCore/QDebug>
-#include <QtCore/QRect>
+#include <QDebug>
+#include <QRect>
 
 using namespace KScreen;
 

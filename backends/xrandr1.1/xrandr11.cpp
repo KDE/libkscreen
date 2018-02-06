@@ -26,9 +26,8 @@
 #include <xcb/xcb.h>
 #include <xcb/randr.h>
 
-#include <QtCore/QString>
-#include <QtCore/QDebug>
-#include <QtCore/qplugin.h>
+#include <QString>
+#include <QDebug>
 
 Q_LOGGING_CATEGORY(KSCREEN_XRANDR11, "kscreen.xrandr11")
 

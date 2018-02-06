@@ -19,8 +19,8 @@
 #ifndef KSCREEN_CONFIGMONITOR_H
 #define KSCREEN_CONFIGMONITOR_H
 
-#include <QtCore/QObject>
-#include <QtCore/QPointer>
+#include <QObject>
+#include <QPointer>
 
 #include "config.h"
 #include "kscreen_export.h"

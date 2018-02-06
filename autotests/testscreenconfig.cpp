@@ -16,8 +16,8 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
-#include <QtTest/QtTest>
-#include <QtCore/QObject>
+#include <QtTest>
+#include <QObject>
 
 #include "../src/screen.h"
 #include "../src/config.h"
