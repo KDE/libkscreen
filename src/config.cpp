@@ -28,7 +28,7 @@
 
 using namespace KScreen;
 
-class Config::Private : public QObject
+class Q_DECL_HIDDEN Config::Private : public QObject
 {
     Q_OBJECT
 public:

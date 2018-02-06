@@ -45,7 +45,7 @@
 
 using namespace KScreen;
 
-class Edid::Private
+class Q_DECL_HIDDEN Edid::Private
 {
   public:
     Private():

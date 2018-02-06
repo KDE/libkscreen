@@ -30,7 +30,7 @@
 
 using namespace KScreen;
 
-class Output::Private
+class Q_DECL_HIDDEN Output::Private
 {
   public:
     Private():

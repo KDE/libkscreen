@@ -20,7 +20,7 @@
 #include "mode.h"
 
 using namespace KScreen;
-class Mode::Private
+class Q_DECL_HIDDEN Mode::Private
 {
   public:
     Private():

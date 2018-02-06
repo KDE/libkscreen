@@ -53,7 +53,7 @@ Log* Log::instance()
 }
 
 using namespace KScreen;
-class Log::Private
+class Q_DECL_HIDDEN Log::Private
 {
   public:
       QString context;

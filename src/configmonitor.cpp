@@ -30,7 +30,7 @@
 using namespace KScreen;
 
 
-class ConfigMonitor::Private : public QObject
+class Q_DECL_HIDDEN ConfigMonitor::Private : public QObject
 {
       Q_OBJECT
 

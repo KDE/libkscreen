@@ -21,7 +21,7 @@
 
 using namespace KScreen;
 
-class Screen::Private
+class Q_DECL_HIDDEN Screen::Private
 {
   public:
     Private():
