@@ -18,6 +18,7 @@ include(ECMQtDeclareLoggingCategory)
 include(FeatureSummary)
 include(CheckCXXCompilerFlag)
 include(CMakePackageConfigHelpers)
+include(GenerateExportHeader)
 
 find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Core DBus Gui Test X11Extras)
 

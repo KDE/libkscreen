@@ -22,6 +22,7 @@ set(libkscreen_SRCS
 qt5_add_dbus_interface(libkscreen_SRCS ${CMAKE_SOURCE_DIR}/interfaces/org.kde.KScreen.Backend.xml backendinterface)
 
 add_library(KF5Screen SHARED ${libkscreen_SRCS})
+generate_export_header(KF5Screen BASE_NAME KScreen)
 
 target_link_libraries(KF5Screen
     PUBLIC
@@ -63,7 +64,7 @@ ecm_generate_headers(KScreen_HEADERS
 install(FILES ${KScreen_HEADERS}
         DESTINATION ${KF5_INCLUDE_INSTALL_DIR}/KScreen/KScreen
         COMPONENT Devel)
-install(FILES kscreen_export.h
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/kscreen_export.h
               backendmanager_p.h # needed for unit-tests in KScreen
               ${KScreen_REQ_HEADERS}
         DESTINATION ${KF5_INCLUDE_INSTALL_DIR}/KScreen/kscreen)
