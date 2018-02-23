@@ -58,6 +58,8 @@ int main(int argc, char **argv)
     "   $ kscreen-doctor output.HDMI-2.position.0,1280 output.eDP-1.position.0,0\n"
     "\n   Set resolution mode\n"
     "   $ kscreen-doctor output.HDMI-2.mode.1920x1080@60 \n"
+    "\n   Set scale (note: fractional scaling is only supported on wayland)\n"
+    "   $ kscreen-doctor output.HDMI-2.scale.2 \n";
     "\n   Set rotation (possible values: none, left, right, inverted)\n"
     "   $ kscreen-doctor output.HDMI-2.rotation.left \n";
 /*
