@@ -156,6 +156,7 @@ void XRandR::outputChanged(xcb_randr_output_t output, xcb_randr_crtc_t crtc,
                 break;
             }
             // info is valid: fall-through
+            Q_FALLTHROUGH();
         }
         case false: {
             xOutput->update(crtc, mode, connection, (primary->output == output));
