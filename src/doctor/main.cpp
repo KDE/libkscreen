@@ -57,7 +57,9 @@ int main(int argc, char **argv)
     "\n   Position the hdmi monitor on the right of the laptop panel\n"
     "   $ kscreen-doctor output.HDMI-2.position.0,1280 output.eDP-1.position.0,0\n"
     "\n   Set resolution mode\n"
-    "   $ kscreen-doctor output.HDMI-2.mode.1920x1080@60 \n";
+    "   $ kscreen-doctor output.HDMI-2.mode.1920x1080@60 \n"
+    "\n   Set rotation (possible values: none, left, right, inverted)\n"
+    "   $ kscreen-doctor output.HDMI-2.rotation.left \n";
 /*
     "\nError codes:\n"
     "   2 : general parse error\n"

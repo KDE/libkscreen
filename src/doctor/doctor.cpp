@@ -258,6 +258,27 @@ void Doctor::parsePositionalArgs()
                         qApp->exit(9);
                         return;
                     }
+                } else if ((ops.count() == 4) && (ops[2] == QStringLiteral("orientation") || ops[2] == QStringLiteral("rotation"))) {
+                    const QString _rotation = ops[3].toLower();
+                    bool ok = false;
+                    const QHash<QString, KScreen::Output::Rotation> rotationMap({
+                                                                            {QStringLiteral("none"), KScreen::Output::None},
+                                                                            {QStringLiteral("normal"), KScreen::Output::None},
+                                                                            {QStringLiteral("left"), KScreen::Output::Left},
+                                                                            {QStringLiteral("right"), KScreen::Output::Right},
+                                                                            {QStringLiteral("inverted"), KScreen::Output::Inverted}
+                                                                        });
+                    KScreen::Output::Rotation rot = KScreen::Output::None;
+                    // set orientation
+                    if (rotationMap.contains(_rotation)) {
+                        ok = true;
+                        rot = rotationMap[_rotation];
+                    }
+                    if (!ok || !setRotation(output_id, rot)) {
+                        qCDebug(KSCREEN_DOCTOR) << "Could not set orientation " << _rotation << " to output " << output_id;
+                        qApp->exit(9);
+                        return;
+                    }
                 } else {
                     cerr << "Unable to parse arguments" << op << endl;
                     qApp->exit(2);
@@ -435,6 +456,24 @@ bool Doctor::setScale(int id, qreal scale)
         }
     }
     cout << "Output scale " << id << " invalid." << endl;
+    return false;
+}
+
+bool Doctor::setRotation(int id, KScreen::Output::Rotation rot)
+{
+    if (!m_config) {
+        qCWarning(KSCREEN_DOCTOR) << "Invalid config.";
+        return false;
+    }
+
+    Q_FOREACH (const auto &output, m_config->outputs()) {
+        if (output->id() == id) {
+            output->setRotation(rot);
+            m_changed = true;
+            return true;
+        }
+    }
+    cout << "Output rotation " << id << " invalid." << endl;
     return false;
 }
 

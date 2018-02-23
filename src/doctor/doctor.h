@@ -23,11 +23,12 @@
 #include <QObject>
 #include "../config.h"
 
+#include <KScreen/Output>
+
 namespace KScreen
 {
 class ConfigOperation;
 class DpmsClient;
-//static const QString s_socketName = QStringLiteral("libkscreen-test-wayland-backend-0");
 
 class Doctor : public QObject
 {
@@ -53,6 +54,7 @@ public:
     bool setPosition(int id, const QPoint &pos);
     bool setMode(int id, const QString &mode_id);
     bool setScale(int id, qreal scale);
+    bool setRotation(int id, KScreen::Output::Rotation rot);
 
 Q_SIGNALS:
     void outputsChanged();
