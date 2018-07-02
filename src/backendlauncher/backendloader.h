@@ -39,7 +39,7 @@ class BackendLoader : public QObject
 
 public:
     explicit BackendLoader();
-    ~BackendLoader();
+    ~BackendLoader() override;
 
     bool init();
 

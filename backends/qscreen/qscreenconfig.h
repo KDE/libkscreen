@@ -35,7 +35,7 @@ class QScreenConfig : public QObject
 
 public:
     explicit QScreenConfig(QObject *parent = nullptr);
-    virtual ~QScreenConfig();
+    ~QScreenConfig() override;
 
     KScreen::ConfigPtr toKScreenConfig() const;
     void updateKScreenConfig(KScreen::ConfigPtr &config) const;

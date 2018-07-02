@@ -36,7 +36,7 @@ class XRandRConfig : public QObject
 
 public:
     explicit XRandRConfig();
-    virtual ~XRandRConfig();
+    ~XRandRConfig() override;
 
     XRandROutput::Map outputs() const;
     XRandROutput *output(xcb_randr_output_t output) const;

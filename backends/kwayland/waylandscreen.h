@@ -37,7 +37,7 @@ class WaylandScreen : public QObject
 
 public:
     explicit WaylandScreen(WaylandConfig *config);
-    virtual ~WaylandScreen();
+    ~WaylandScreen() override;
 
     KScreen::ScreenPtr toKScreenScreen(KScreen::ConfigPtr &parent) const;
     void updateKScreenScreen(KScreen::ScreenPtr &screen) const;

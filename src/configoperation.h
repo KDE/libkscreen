@@ -41,7 +41,7 @@ public:
     };
     Q_DECLARE_FLAGS(Options, Option)
 
-    virtual ~ConfigOperation();
+    ~ConfigOperation() override;
 
     bool hasError() const;
     QString errorString() const;

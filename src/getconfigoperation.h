@@ -38,12 +38,12 @@ class KSCREEN_EXPORT GetConfigOperation : public KScreen::ConfigOperation
 public:
 
     explicit GetConfigOperation(Options options = NoOptions, QObject* parent = nullptr);
-    virtual ~GetConfigOperation();
+    ~GetConfigOperation() override;
 
-    virtual KScreen::ConfigPtr config() const Q_DECL_OVERRIDE;
+    KScreen::ConfigPtr config() const override;
 
 protected:
-    void start() Q_DECL_OVERRIDE;
+    void start() override;
 
 private:
     Q_DECLARE_PRIVATE(GetConfigOperation)

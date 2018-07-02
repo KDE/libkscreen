@@ -34,13 +34,13 @@ class XRandR11 : public KScreen::AbstractBackend
 
 public:
     explicit XRandR11();
-    virtual ~XRandR11();
+    ~XRandR11() override;
 
-    QString name() const Q_DECL_OVERRIDE;
-    QString serviceName() const Q_DECL_OVERRIDE;
-    KScreen::ConfigPtr config() const Q_DECL_OVERRIDE;
-    void setConfig(const KScreen::ConfigPtr &config) Q_DECL_OVERRIDE;
-    bool isValid() const Q_DECL_OVERRIDE;
+    QString name() const override;
+    QString serviceName() const override;
+    KScreen::ConfigPtr config() const override;
+    void setConfig(const KScreen::ConfigPtr &config) override;
+    bool isValid() const override;
 
 private Q_SLOTS:
     void updateConfig();

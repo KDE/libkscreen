@@ -39,7 +39,7 @@ class KSCREEN_EXPORT Screen : public QObject
         Q_PROPERTY(int maxActiveOutputsCount READ maxActiveOutputsCount CONSTANT)
 
         explicit Screen();
-        virtual ~Screen();
+        ~Screen() override;
 
         ScreenPtr clone() const;
 

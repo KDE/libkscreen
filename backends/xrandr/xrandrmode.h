@@ -42,7 +42,7 @@ public:
     typedef QMap<xcb_randr_mode_t, XRandRMode*> Map;
 
     explicit XRandRMode(const xcb_randr_mode_info_t &modeInfo, XRandROutput *output);
-    virtual ~XRandRMode();
+    ~XRandRMode() override;
 
     KScreen::ModePtr toKScreenMode();
 

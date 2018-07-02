@@ -44,7 +44,7 @@ public:
     typedef QMap<xcb_randr_output_t, XRandROutput*> Map;
 
     explicit XRandROutput(xcb_randr_output_t id, XRandRConfig *config);
-    virtual ~XRandROutput();
+    ~XRandROutput() override;
 
     void disabled();
     void disconnected();

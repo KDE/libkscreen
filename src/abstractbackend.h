@@ -38,7 +38,7 @@ class KSCREEN_EXPORT AbstractBackend : public QObject
     Q_OBJECT
 
 public:
-    virtual ~AbstractBackend() {}
+    ~AbstractBackend() override {}
 
     /**
      * This is where the backend should perform all initialization. This method

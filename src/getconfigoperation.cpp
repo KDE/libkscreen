@@ -38,7 +38,7 @@ class GetConfigOperationPrivate : public ConfigOperationPrivate
 public:
     GetConfigOperationPrivate(GetConfigOperation::Options options, GetConfigOperation *qq);
 
-    void backendReady(org::kde::kscreen::Backend* backend) Q_DECL_OVERRIDE;
+    void backendReady(org::kde::kscreen::Backend* backend) override;
     void onConfigReceived(QDBusPendingCallWatcher *watcher);
     void onEDIDReceived(QDBusPendingCallWatcher *watcher);
 

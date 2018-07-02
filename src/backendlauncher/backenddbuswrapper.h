@@ -37,7 +37,7 @@ class BackendDBusWrapper : public QObject
 
 public:
     explicit BackendDBusWrapper(KScreen::AbstractBackend *backend);
-    virtual ~BackendDBusWrapper();
+    ~BackendDBusWrapper() override;
 
     bool init();
 

@@ -46,7 +46,7 @@ class WaylandTestServer : public QObject
 
 public:
     explicit WaylandTestServer(QObject *parent = nullptr);
-    virtual ~WaylandTestServer();
+    ~WaylandTestServer() override;
 
     void setConfig(const QString &configfile);
     void start();

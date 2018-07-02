@@ -33,9 +33,9 @@ class XCBEventListener : public QObject,
 
     public:
         XCBEventListener();
-        ~XCBEventListener();
+        ~XCBEventListener() override;
 
-        bool nativeEventFilter(const QByteArray& eventType, void* message, long int* result) Q_DECL_OVERRIDE;
+        bool nativeEventFilter(const QByteArray& eventType, void* message, long int* result) override;
 
     Q_SIGNALS:
         /* Emitted when only XRandR 1.1 or older is available */

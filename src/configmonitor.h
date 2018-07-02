@@ -46,7 +46,7 @@ Q_SIGNALS:
 
 private:
     explicit ConfigMonitor();
-    virtual ~ConfigMonitor();
+    ~ConfigMonitor() override;
 
     Q_DISABLE_COPY(ConfigMonitor)
 

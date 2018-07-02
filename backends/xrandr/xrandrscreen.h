@@ -37,7 +37,7 @@ class XRandRScreen : public QObject
 
 public:
     explicit XRandRScreen(XRandRConfig *config = nullptr);
-    virtual ~XRandRScreen();
+    ~XRandRScreen() override;
 
     KScreen::ScreenPtr toKScreenScreen() const;
     void updateKScreenScreen(KScreen::ScreenPtr &screen) const;

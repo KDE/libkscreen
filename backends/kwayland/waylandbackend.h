@@ -36,14 +36,14 @@ class WaylandBackend : public KScreen::AbstractBackend
 
 public:
     explicit WaylandBackend();
-    virtual ~WaylandBackend() = default;
+    ~WaylandBackend() override = default;
 
-    QString name() const Q_DECL_OVERRIDE;
-    QString serviceName() const Q_DECL_OVERRIDE;
-    KScreen::ConfigPtr config() const Q_DECL_OVERRIDE;
-    void setConfig(const KScreen::ConfigPtr &config) Q_DECL_OVERRIDE;
-    bool isValid() const Q_DECL_OVERRIDE;
-    QByteArray edid(int outputId) const Q_DECL_OVERRIDE;
+    QString name() const override;
+    QString serviceName() const override;
+    KScreen::ConfigPtr config() const override;
+    void setConfig(const KScreen::ConfigPtr &config) override;
+    bool isValid() const override;
+    QByteArray edid(int outputId) const override;
 
     void updateConfig(KScreen::ConfigPtr &config);
 

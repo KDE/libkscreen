@@ -40,7 +40,7 @@ class KSCREEN_EXPORT Mode : public QObject
 
     public:
         explicit Mode();
-        virtual ~Mode();
+        ~Mode() override;
 
         ModePtr clone() const;
 

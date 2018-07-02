@@ -56,7 +56,7 @@ public:
     };
 
     static BackendManager *instance();
-    ~BackendManager();
+    ~BackendManager() override;
 
     KScreen::ConfigPtr config() const;
     void setConfig(KScreen::ConfigPtr c);

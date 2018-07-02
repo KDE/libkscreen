@@ -106,7 +106,7 @@ class KSCREEN_EXPORT Config : public QObject
      * whatever you need.
      */
     explicit Config();
-    virtual ~Config();
+    ~Config() override;
 
     /**
      * Duplicates the config

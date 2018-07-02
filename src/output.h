@@ -87,7 +87,7 @@ class KSCREEN_EXPORT Output : public QObject
         };
 
         explicit Output();
-        virtual ~Output();
+        ~Output() override;
 
         OutputPtr clone() const;
 

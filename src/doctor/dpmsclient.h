@@ -45,7 +45,7 @@ class DpmsClient : public QObject
 
 public:
     explicit DpmsClient(QObject *parent = nullptr);
-    virtual ~DpmsClient();
+    ~DpmsClient() override;
 
     void connect();
     void off();

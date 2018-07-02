@@ -36,7 +36,7 @@ class Doctor : public QObject
 
 public:
     explicit Doctor(QObject *parent = nullptr);
-    virtual ~Doctor();
+    ~Doctor() override;
 
     void setOptionList(const QStringList &positionalArgs);
     void start(QCommandLineParser *m_parser);

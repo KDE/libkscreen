@@ -32,7 +32,7 @@ class ConfigOperationPrivate : public QObject
 
 public:
     ConfigOperationPrivate(ConfigOperation *qq);
-    virtual ~ConfigOperationPrivate();
+    ~ConfigOperationPrivate() override;
 
     // For out-of-process
     void requestBackend();

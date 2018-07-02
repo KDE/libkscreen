@@ -37,7 +37,7 @@ class QScreenOutput : public QObject
 
 public:
     explicit QScreenOutput(const QScreen *qscreen, QObject *parent = nullptr);
-    virtual ~QScreenOutput();
+    ~QScreenOutput() override;
 
     KScreen::OutputPtr toKScreenOutput() const;
     void updateKScreenOutput(KScreen::OutputPtr &output) const;

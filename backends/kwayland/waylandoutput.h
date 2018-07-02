@@ -42,7 +42,7 @@ class WaylandOutput : public QObject
     Q_OBJECT
 
 public:
-    virtual ~WaylandOutput();
+    ~WaylandOutput() override;
 
     KScreen::OutputPtr toKScreenOutput();
     void updateKScreenOutput(KScreen::OutputPtr &output);
