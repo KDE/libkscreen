@@ -31,7 +31,7 @@ class ConfigOperationPrivate : public QObject
     Q_OBJECT
 
 public:
-    ConfigOperationPrivate(ConfigOperation *qq);
+    explicit ConfigOperationPrivate(ConfigOperation *qq);
     ~ConfigOperationPrivate() override;
 
     // For out-of-process

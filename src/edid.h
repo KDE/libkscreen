@@ -78,7 +78,7 @@ class KSCREEN_EXPORT Edid: public QObject
     class Private;
     Private * const d;
 
-    Edid(Private *dd);
+    explicit Edid(Private *dd);
 };
 
 }

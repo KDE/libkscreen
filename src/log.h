@@ -108,7 +108,7 @@ class KSCREEN_EXPORT Log
         Private * const d;
 
         static Log* sInstance;
-        Log(Private *dd);
+        explicit Log(Private *dd);
 };
 
 } //KSCreen namespace
