@@ -38,7 +38,7 @@ namespace KScreen {
  * the static methods current() to get the systems config and
  * setConfig() to apply a config to the system.
  *
- * Also, you can instance an empty Config, this is usualy done
+ * Also, you can instance an empty Config, this is usually done
  * to create a config (with the objective of setting it) from scratch
  * and for example unserialize a saved config to it.
  *

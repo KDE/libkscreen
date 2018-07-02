@@ -71,7 +71,7 @@ public:
      *   (we assume kwin in this case
      * - Otherwise, if the runtime platform is X11, the XRandR backend is picked
      * - If neither is the case, we fall back to the QScreen backend, since that is the
-     *   most generally applicable and may work on platforms not explicitely supported
+     *   most generally applicable and may work on platforms not explicitly supported
      *
      * @return the backend plugin to load
      * @since 5.7

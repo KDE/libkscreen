@@ -114,7 +114,7 @@ class KSCREEN_EXPORT Output : public QObject
         void setPreferredModes(const QStringList &modes);
         QStringList preferredModes() const;
         /**
-         * Returns the preferred mode with higer resolution and refresh
+         * Returns the preferred mode with higher resolution and refresh
          */
         Q_INVOKABLE QString preferredModeId() const;
         /**

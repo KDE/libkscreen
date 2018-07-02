@@ -70,9 +70,9 @@ BackendManager::BackendManager()
     , mMethod(OutOfProcess)
 {
     Log::instance();
-    // Decide wether to run in, or out-of-process
+    // Decide whether to run in, or out-of-process
 
-    // if KSCREEN_BACKEND_INPROCESS is set explicitely, we respect that
+    // if KSCREEN_BACKEND_INPROCESS is set explicitly, we respect that
     const auto _inprocess = qgetenv("KSCREEN_BACKEND_INPROCESS");
     if (!_inprocess.isEmpty()) {
 
