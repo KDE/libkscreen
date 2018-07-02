@@ -46,7 +46,7 @@ class Q_DECL_HIDDEN Screen::Private
 };
 
 Screen::Screen()
- : QObject(0)
+ : QObject(nullptr)
  , d(new Private())
 {
 }

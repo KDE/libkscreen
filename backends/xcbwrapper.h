@@ -60,7 +60,7 @@ public:
     Wrapper()
     : m_retrieved(false)
     , m_window(XCB_WINDOW_NONE)
-    , m_reply(Q_NULLPTR)
+    , m_reply(nullptr)
     {
         m_cookie.sequence = 0;
     }
@@ -68,14 +68,14 @@ public:
     : m_retrieved(false)
     , m_cookie(requestFunc(connection(), args ...))
     , m_window(requestWindow<RequestFuncArgs ...>(args ...))
-    , m_reply(Q_NULLPTR)
+    , m_reply(nullptr)
     {
     }
     explicit Wrapper(const Wrapper &other)
     : m_retrieved(other.m_retrieved)
     , m_cookie(other.m_cookie)
     , m_window(other.m_window)
-    , m_reply(Q_NULLPTR)
+    , m_reply(nullptr)
     {
         takeFromOther(const_cast<Wrapper&>(other));
     }
@@ -107,7 +107,7 @@ public:
     }
     inline bool isNull() const {
         getReply();
-        return m_reply == NULL;
+        return m_reply == nullptr;
     }
     inline operator bool() const {
         return !isNull();
@@ -132,7 +132,7 @@ public:
     inline Reply *take() {
         getReply();
         Reply *ret = m_reply;
-        m_reply = Q_NULLPTR;
+        m_reply = nullptr;
         m_window = XCB_WINDOW_NONE;
         return ret;
     }
@@ -142,7 +142,7 @@ protected:
         if (m_retrieved || !m_cookie.sequence) {
             return;
         }
-        m_reply = replyFunc(connection(), m_cookie, NULL);
+        m_reply = replyFunc(connection(), m_cookie, nullptr);
         m_retrieved = true;
     }
 

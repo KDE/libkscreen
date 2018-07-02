@@ -54,7 +54,7 @@ XCBEventListener::XCBEventListener():
     m_randrErrorBase = queryExtension->first_error;
     m_majorOpcode = queryExtension->major_opcode;
 
-    xcb_generic_error_t *error = NULL;
+    xcb_generic_error_t *error = nullptr;
     auto* versionReply = xcb_randr_query_version_reply(c, cookie, &error);
     Q_ASSERT_X(versionReply, "xrandrxcbhelper", "Query to fetch xrandr version failed");
     if (error) {
@@ -73,7 +73,7 @@ XCBEventListener::XCBEventListener():
     xcb_create_window(c, XCB_COPY_FROM_PARENT, m_window,
                       rWindow,
                       0, 0, 1, 1, 0, XCB_COPY_FROM_PARENT,
-                      XCB_COPY_FROM_PARENT, 0, NULL);
+                      XCB_COPY_FROM_PARENT, 0, nullptr);
 
     xcb_randr_select_input(c, m_window,
             XCB_RANDR_NOTIFY_MASK_SCREEN_CHANGE |
@@ -201,7 +201,7 @@ void XCBEventListener::handleXRandRNotify(xcb_generic_event_t* e)
         xcb_randr_output_property_t property = randrEvent->u.op;
 
         XCB::ScopedPointer<xcb_get_atom_name_reply_t> reply(xcb_get_atom_name_reply(QX11Info::connection(),
-                xcb_get_atom_name(QX11Info::connection(), property.atom), NULL));
+                xcb_get_atom_name(QX11Info::connection(), property.atom), nullptr));
 
         qCDebug(KSCREEN_XCB_HELPER) << "RRNotify_OutputProperty (ignored)";
         qCDebug(KSCREEN_XCB_HELPER) << "\tOutput: " << property.output;

@@ -150,7 +150,7 @@ void testWaylandBackend::verifyOutputs()
         QVERIFY(output->geometry() != QRectF(1,1,1,1));
         QVERIFY(output->geometry() != QRectF());
         QVERIFY(output->sizeMm() != QSize());
-        QVERIFY(output->edid() != 0);
+        QVERIFY(output->edid() != nullptr);
         QVERIFY(output->preferredModes().size() == 1);
         QCOMPARE(output->rotation(), Output::None);
         QVERIFY(!ids.contains(output->id()));

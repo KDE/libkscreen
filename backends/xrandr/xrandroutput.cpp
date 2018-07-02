@@ -35,7 +35,7 @@ XRandROutput::XRandROutput(xcb_randr_output_t id, XRandRConfig *config)
     , m_id(id)
     , m_type(KScreen::Output::Unknown)
     , m_primary(0)
-    , m_crtc(0)
+    , m_crtc(nullptr)
 {
     init();
 }
@@ -91,7 +91,7 @@ XRandRMode* XRandROutput::currentMode() const
     }
     int modeId = m_crtc->mode();
     if (!m_modes.contains(modeId)) {
-        return 0;
+        return nullptr;
     }
 
     return m_modes[modeId];
@@ -174,7 +174,7 @@ void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_rand
         if (crtc == XCB_NONE && mode == XCB_NONE) {
             // Monitor has been disabled
             m_crtc->disconectOutput(m_id);
-            m_crtc = 0;
+            m_crtc = nullptr;
         } else {
             m_crtc = m_config->crtc(crtc);
             m_crtc->connectOutput(m_id);
@@ -276,7 +276,7 @@ QByteArray XRandROutput::typeFromProperty(xcb_randr_output_t outputId)
 
     auto cookie = xcb_randr_get_output_property(XCB::connection(), outputId, atomType->atom,
                                                 XCB_ATOM_ANY, 0, 100, false, false);
-    XCB::ScopedPointer<xcb_randr_get_output_property_reply_t> reply(xcb_randr_get_output_property_reply(XCB::connection(), cookie, NULL));
+    XCB::ScopedPointer<xcb_randr_get_output_property_reply_t> reply(xcb_randr_get_output_property_reply(XCB::connection(), cookie, nullptr));
     if (!reply) {
         return type;
     }

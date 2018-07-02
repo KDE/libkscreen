@@ -41,7 +41,7 @@ class Q_DECL_HIDDEN Output::Private
         connected(false),
         enabled(false),
         primary(false),
-        edid(0)
+        edid(nullptr)
     {}
 
     Private(const Private &other):
@@ -142,14 +142,14 @@ QString Output::Private::biggestMode(const ModeList& modes) const
     }
 
     if (!biggest) {
-        return 0;
+        return nullptr;
     }
 
     return biggest->id();
 }
 
 Output::Output()
- : QObject(0)
+ : QObject(nullptr)
  , d(new Private())
 {
 
@@ -460,7 +460,7 @@ void Output::setClones(QList<int> outputlist)
 
 void Output::setEdid(const QByteArray& rawData)
 {
-    Q_ASSERT(d->edid == 0);
+    Q_ASSERT(d->edid == nullptr);
     d->edid = new Edid(rawData);
 }
 

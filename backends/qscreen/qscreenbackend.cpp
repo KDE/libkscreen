@@ -26,13 +26,13 @@ using namespace KScreen;
 
 Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.qscreen")
 
-QScreenConfig *QScreenBackend::s_internalConfig = 0;
+QScreenConfig *QScreenBackend::s_internalConfig = nullptr;
 
 QScreenBackend::QScreenBackend()
     : KScreen::AbstractBackend()
     , m_isValid(true)
 {
-    if (s_internalConfig == 0) {
+    if (s_internalConfig == nullptr) {
         s_internalConfig = new QScreenConfig();
         connect(s_internalConfig, &QScreenConfig::configChanged,
                 this, &QScreenBackend::configChanged);

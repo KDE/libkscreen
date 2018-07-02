@@ -62,11 +62,11 @@ BackendManager *BackendManager::instance()
 
 BackendManager::BackendManager()
     : QObject()
-    , mInterface(0)
+    , mInterface(nullptr)
     , mCrashCount(0)
     , mShuttingDown(false)
     , mRequestsCounter(0)
-    , mLoader(0)
+    , mLoader(nullptr)
     , mMethod(OutOfProcess)
 {
     Log::instance();
@@ -377,7 +377,7 @@ void BackendManager::invalidateInterface()
 {
     Q_ASSERT(mMethod == OutOfProcess);
     delete mInterface;
-    mInterface = 0;
+    mInterface = nullptr;
     mBackendService.clear();
 }
 

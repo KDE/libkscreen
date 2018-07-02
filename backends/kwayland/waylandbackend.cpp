@@ -91,6 +91,6 @@ bool WaylandBackend::isValid() const
 
 void WaylandBackend::updateConfig(ConfigPtr &config)
 {
-    Q_ASSERT(config != 0);
+    Q_ASSERT(config != nullptr);
     m_internalConfig->updateKScreenConfig(config);
 }

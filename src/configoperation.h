@@ -54,7 +54,7 @@ Q_SIGNALS:
     void finished(ConfigOperation *operation);
 
 protected:
-    explicit ConfigOperation(ConfigOperationPrivate *dd, QObject *parent = 0);
+    explicit ConfigOperation(ConfigOperationPrivate *dd, QObject *parent = nullptr);
 
     void setError(const QString &error);
     void emitResult();

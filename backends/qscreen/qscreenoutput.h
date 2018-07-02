@@ -36,7 +36,7 @@ class QScreenOutput : public QObject
     Q_OBJECT
 
 public:
-    explicit QScreenOutput(const QScreen *qscreen, QObject *parent = 0);
+    explicit QScreenOutput(const QScreen *qscreen, QObject *parent = nullptr);
     virtual ~QScreenOutput();
 
     KScreen::OutputPtr toKScreenOutput() const;

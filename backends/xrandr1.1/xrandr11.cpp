@@ -34,11 +34,11 @@ Q_LOGGING_CATEGORY(KSCREEN_XRANDR11, "kscreen.xrandr11")
 XRandR11::XRandR11()
  : KScreen::AbstractBackend()
  , m_valid(false)
- , m_x11Helper(0)
+ , m_x11Helper(nullptr)
  , m_currentConfig(new KScreen::Config)
  , m_currentTimestamp(0)
 {
-    xcb_generic_error_t *error = 0;
+    xcb_generic_error_t *error = nullptr;
     xcb_randr_query_version_reply_t* version;
     version = xcb_randr_query_version_reply(XCB::connection(),
         xcb_randr_query_version(XCB::connection(), XCB_RANDR_MAJOR_VERSION, XCB_RANDR_MINOR_VERSION), &error);

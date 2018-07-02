@@ -474,8 +474,8 @@ bool XRandRConfig::disableOutput(const OutputPtr &kscreenOutput) const
             0, 0,
             XCB_NONE,
             XCB_RANDR_ROTATION_ROTATE_0,
-            0, NULL);
-    XCB::ScopedPointer<xcb_randr_set_crtc_config_reply_t> reply(xcb_randr_set_crtc_config_reply(XCB::connection(), cookie, NULL));
+            0, nullptr);
+    XCB::ScopedPointer<xcb_randr_set_crtc_config_reply_t> reply(xcb_randr_set_crtc_config_reply(XCB::connection(), cookie, nullptr));
     if (!reply) {
         qCDebug(KSCREEN_XRANDR) << "\tResult: unknown (error)";
         return false;
@@ -530,7 +530,7 @@ bool XRandRConfig::enableOutput(const OutputPtr &kscreenOutput) const
             modeId,
             kscreenOutput->rotation(),
             1, outputs);
-    XCB::ScopedPointer<xcb_randr_set_crtc_config_reply_t> reply(xcb_randr_set_crtc_config_reply(XCB::connection(), cookie, NULL));
+    XCB::ScopedPointer<xcb_randr_set_crtc_config_reply_t> reply(xcb_randr_set_crtc_config_reply(XCB::connection(), cookie, nullptr));
     if (!reply) {
         qCDebug(KSCREEN_XRANDR) << "Result: unknown (error)";
         return false;
@@ -571,7 +571,7 @@ bool XRandRConfig::changeOutput(const OutputPtr &kscreenOutput) const
             modeId,
             kscreenOutput->rotation(),
             1, outputs);
-    XCB::ScopedPointer<xcb_randr_set_crtc_config_reply_t> reply(xcb_randr_set_crtc_config_reply(XCB::connection(), cookie, NULL));
+    XCB::ScopedPointer<xcb_randr_set_crtc_config_reply_t> reply(xcb_randr_set_crtc_config_reply(XCB::connection(), cookie, nullptr));
     if (!reply) {
         qCDebug(KSCREEN_XRANDR) << "\tResult: unknown (error)";
         return false;

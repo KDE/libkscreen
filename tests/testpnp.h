@@ -35,7 +35,7 @@ class TestPnp : public QObject
     Q_OBJECT
 
 public:
-    explicit TestPnp(bool monitor, QObject *parent = 0);
+    explicit TestPnp(bool monitor, QObject *parent = nullptr);
     virtual ~TestPnp();
 
 private Q_SLOTS:

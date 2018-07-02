@@ -135,7 +135,7 @@ void testQScreenBackend::verifyOutputs()
             QEXPECT_FAIL("", "The X server doesn't return a sensible physical output size", Continue);
             QVERIFY(output->sizeMm() != QSize());
         }
-        QVERIFY(output->edid() != 0);
+        QVERIFY(output->edid() != nullptr);
         QCOMPARE(output->rotation(), Output::None);
         QVERIFY(!ids.contains(output->id()));
         ids << output->id();

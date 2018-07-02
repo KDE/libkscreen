@@ -21,14 +21,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "xcbwrapper.h"
 
-static xcb_connection_t *sXRandR11XCBConnection = 0;
+static xcb_connection_t *sXRandR11XCBConnection = nullptr;
 
 xcb_connection_t* XCB::connection()
 {
     // Use our own connection to make sure that we won't mess up Qt's connection
     // if something goes wrong on our side.
-    if (sXRandR11XCBConnection == 0) {
-        sXRandR11XCBConnection = xcb_connect(0, 0);
+    if (sXRandR11XCBConnection == nullptr) {
+        sXRandR11XCBConnection = xcb_connect(nullptr, nullptr);
     }
     return sXRandR11XCBConnection;
 }
@@ -37,7 +37,7 @@ void XCB::closeConnection()
 {
     if (sXRandR11XCBConnection) {
         xcb_disconnect(sXRandR11XCBConnection);
-        sXRandR11XCBConnection = 0;
+        sXRandR11XCBConnection = nullptr;
     }
 }
 
