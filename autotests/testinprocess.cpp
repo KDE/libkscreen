@@ -20,6 +20,7 @@
 #include <QtTest>
 #include <QObject>
 #include <QSignalSpy>
+#include <QDBusConnectionInterface>
 
 #include "../src/backendmanager_p.h"
 #include "../src/getconfigoperation.h"
@@ -42,6 +43,8 @@ public:
     explicit TestInProcess(QObject *parent = nullptr);
 
 private Q_SLOTS:
+    void initTestCase();
+
     void init();
     void cleanup();
 
@@ -57,6 +60,7 @@ private Q_SLOTS:
 private:
 
     ConfigPtr m_config;
+    bool m_backendServiceInstalled = false;
 
 };
 
@@ -64,6 +68,21 @@ TestInProcess::TestInProcess(QObject *parent)
     : QObject(parent)
     , m_config(nullptr)
 {
+}
+
+void TestInProcess::initTestCase()
+{
+    m_backendServiceInstalled = true;
+
+    const QString kscreenServiceName = QStringLiteral("org.kde.KScreen");
+    QDBusConnectionInterface *bus = QDBusConnection::sessionBus().interface();
+    if (!bus->isServiceRegistered(kscreenServiceName)) {
+        auto reply = bus->startService(kscreenServiceName);
+        if (!reply.isValid()) {
+            qDebug() << "D-Bus service org.kde.KScreen could not be started, skipping out-of-process tests";
+            m_backendServiceInstalled = false;
+        }
+    }
 }
 
 void TestInProcess::init()
@@ -118,18 +137,22 @@ void TestInProcess::testModeSwitching()
     QVERIFY(ic->isValid());
     QVERIFY(ic->outputs().count());
 
-    qDebug() << "TT xrandr out-of-process";
-    // Load the xrandr backend out-of-process
-    qputenv("KSCREEN_BACKEND", "QScreen");
-    qputenv("KSCREEN_BACKEND_INPROCESS", "0");
-    BackendManager::instance()->setMethod(BackendManager::OutOfProcess);
-    auto xp = new GetConfigOperation();
-    QCOMPARE(BackendManager::instance()->method(), BackendManager::OutOfProcess);
-    QVERIFY(xp->exec());
-    auto xc = xp->config();
-    QVERIFY(xc != nullptr);
-    QVERIFY(xc->isValid());
-    QVERIFY(xc->outputs().count());
+    KScreen::ConfigPtr xc(nullptr);
+    if (m_backendServiceInstalled) {
+        qDebug() << "TT xrandr out-of-process";
+        // Load the xrandr backend out-of-process
+        qputenv("KSCREEN_BACKEND", "QScreen");
+        qputenv("KSCREEN_BACKEND_INPROCESS", "0");
+        BackendManager::instance()->setMethod(BackendManager::OutOfProcess);
+        auto xp = new GetConfigOperation();
+        QCOMPARE(BackendManager::instance()->method(), BackendManager::OutOfProcess);
+        QVERIFY(xp->exec());
+        xc = xp->config();
+        QVERIFY(xc != nullptr);
+        QVERIFY(xc->isValid());
+        QVERIFY(xc->outputs().count());
+    }
+
     qDebug() << "TT fake in-process";
 
     qputenv("KSCREEN_BACKEND_INPROCESS", "1");
@@ -146,7 +169,9 @@ void TestInProcess::testModeSwitching()
 
     QVERIFY(oc->isValid());
     QVERIFY(ic->isValid());
-    QVERIFY(xc->isValid());
+    if (xc) {
+        QVERIFY(xc->isValid());
+    }
     QVERIFY(fc->isValid());
 }
 
@@ -194,39 +219,41 @@ void TestInProcess::testBackendCaching()
     // Check if all our configs are still valid after the backend is gone
     KScreen::BackendManager::instance()->shutdownBackend();
 
-    //qputenv("KSCREEN_BACKEND", "QScreen");
-    qputenv("KSCREEN_BACKEND_INPROCESS", "0");
-    BackendManager::instance()->setMethod(BackendManager::OutOfProcess);
-    QCOMPARE(BackendManager::instance()->method(), BackendManager::OutOfProcess);
-    int t_x_cold;
+    if (m_backendServiceInstalled) {
+        //qputenv("KSCREEN_BACKEND", "QScreen");
+        qputenv("KSCREEN_BACKEND_INPROCESS", "0");
+        BackendManager::instance()->setMethod(BackendManager::OutOfProcess);
+        QCOMPARE(BackendManager::instance()->method(), BackendManager::OutOfProcess);
+        int t_x_cold;
 
-    {
+        {
+            t.start();
+            auto xp = new GetConfigOperation();
+            xp->exec();
+            t_x_cold = t.nsecsElapsed();
+            auto xc = xp->config();
+            QVERIFY(xc != nullptr);
+        }
         t.start();
         auto xp = new GetConfigOperation();
         xp->exec();
-        t_x_cold = t.nsecsElapsed();
+        int t_x_warm = t.nsecsElapsed();
         auto xc = xp->config();
         QVERIFY(xc != nullptr);
-    }
-    t.start();
-    auto xp = new GetConfigOperation();
-    xp->exec();
-    int t_x_warm = t.nsecsElapsed();
-    auto xc = xp->config();
-    QVERIFY(xc != nullptr);
 
-    // Make sure in-process is faster
-    QVERIFY(t_cold > t_warm);
-    QVERIFY(t_x_cold > t_x_warm);
-    QVERIFY(t_x_cold > t_cold);
-    return;
-    qDebug() << "ip  speedup for cached access:" << (qreal)((qreal)t_cold / (qreal)t_warm);
-    qDebug() << "oop speedup for cached access:" << (qreal)((qreal)t_x_cold / (qreal)t_x_warm);
-    qDebug() << "out-of vs. in-process speedup:" << (qreal)((qreal)t_x_warm / (qreal)t_warm);
-    qDebug() << "cold oop:   " << ((qreal)t_x_cold / 1000000);
-    qDebug() << "cached oop: " << ((qreal)t_x_warm / 1000000);
-    qDebug() << "cold in process:   " << ((qreal)t_cold / 1000000);
-    qDebug() << "cached in process: " << ((qreal)t_warm / 1000000);
+        // Make sure in-process is faster
+        QVERIFY(t_cold > t_warm);
+        QVERIFY(t_x_cold > t_x_warm);
+        QVERIFY(t_x_cold > t_cold);
+        return;
+        qDebug() << "ip  speedup for cached access:" << (qreal)((qreal)t_cold / (qreal)t_warm);
+        qDebug() << "oop speedup for cached access:" << (qreal)((qreal)t_x_cold / (qreal)t_x_warm);
+        qDebug() << "out-of vs. in-process speedup:" << (qreal)((qreal)t_x_warm / (qreal)t_warm);
+        qDebug() << "cold oop:   " << ((qreal)t_x_cold / 1000000);
+        qDebug() << "cached oop: " << ((qreal)t_x_warm / 1000000);
+        qDebug() << "cold in process:   " << ((qreal)t_cold / 1000000);
+        qDebug() << "cached in process: " << ((qreal)t_warm / 1000000);
+    }
 }
 
 void TestInProcess::testCreateJob()
@@ -243,7 +270,7 @@ void TestInProcess::testCreateJob()
         QVERIFY(cc != nullptr);
         QVERIFY(cc->isValid());
     }
-    {
+    if (m_backendServiceInstalled) {
         BackendManager::instance()->setMethod(BackendManager::OutOfProcess);
         auto op = new GetConfigOperation();
         auto _op = qobject_cast<GetConfigOperation*>(op);
