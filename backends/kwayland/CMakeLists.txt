@@ -9,7 +9,6 @@ set(wayland_SRCS
 
 add_library(KSC_KWayland MODULE ${wayland_SRCS})
 
-set_target_properties(KSC_KWayland PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/kf5/kscreen")
 set_target_properties(KSC_KWayland PROPERTIES PREFIX "")
 target_link_libraries(KSC_KWayland Qt5::Core
                                   Qt5::Gui
