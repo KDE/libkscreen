@@ -11,6 +11,7 @@ set(qscreen_SRCS
 
 add_library(KSC_QScreen MODULE ${qscreen_SRCS})
 
+set_target_properties(KSC_QScreen PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/kf5/kscreen")
 set_target_properties(KSC_QScreen PROPERTIES PREFIX "")
 target_link_libraries(KSC_QScreen Qt5::Core
                                  Qt5::Gui
