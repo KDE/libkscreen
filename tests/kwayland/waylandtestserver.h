@@ -59,11 +59,14 @@ public:
 
     int outputCount() const;
 
+    void suspendChanges(bool suspend);
+
 Q_SIGNALS:
     void outputsChanged();
 
     void started();
 
+    void configReceived();
     void configChanged();
 
 private Q_SLOTS:
@@ -76,6 +79,8 @@ private:
     QList<KWayland::Server::OutputDeviceInterface*> m_outputs;
     KWayland::Server::OutputManagementInterface *m_outputManagement;
     KWayland::Server::DpmsManagerInterface *m_dpmsManager;
+    bool m_suspendChanges;
+    KWayland::Server::OutputConfigurationInterface *m_waiting;
 };
 
 } // namespace

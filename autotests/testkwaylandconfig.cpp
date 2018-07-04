@@ -53,6 +53,7 @@ private Q_SLOTS:
     void testRotationChange_data();
     void testScaleChange();
     void testModeChange();
+    void testApplyOnPending();
 
 private:
 
@@ -263,6 +264,60 @@ void TestKWaylandConfig::testModeChange()
     QCOMPARE(serverSpy.count(), 1);
 
     QCOMPARE(configSpy.count(), 1);
+}
+
+void TestKWaylandConfig::testApplyOnPending()
+{
+    auto op = new GetConfigOperation();
+    QVERIFY(op->exec());
+    auto config = op->config();
+    QVERIFY(config);
+
+    auto op2 = new GetConfigOperation();
+    QVERIFY(op2->exec());
+    auto config2 = op2->config();
+    QVERIFY(config2);
+
+    KScreen::ConfigMonitor *monitor = KScreen::ConfigMonitor::instance();
+    monitor->addConfig(config);
+    QSignalSpy configSpy(monitor, &KScreen::ConfigMonitor::configurationChanged);
+
+    auto output = config->outputs()[1]; // is this id stable enough?
+
+    QCOMPARE(output->scale(), 1.0);
+    output->setScale(2);
+
+    QSignalSpy serverSpy(m_server, &WaylandTestServer::configChanged);
+    QSignalSpy serverReceivedSpy(m_server, &WaylandTestServer::configReceived);
+
+    m_server->suspendChanges(true);
+
+    new SetConfigOperation(config, this);
+
+    /* Apply next config */
+
+    auto output2 = config2->outputs()[2]; // is this id stable enough?
+    QCOMPARE(output2->scale(), 2.0);
+    output2->setScale(3);
+
+    new SetConfigOperation(config2, this);
+
+    QVERIFY(serverReceivedSpy.wait());
+    QCOMPARE(serverReceivedSpy.count(), 1);
+    m_server->suspendChanges(false);
+
+    QVERIFY(configSpy.wait());
+    // check if the server changed
+    QCOMPARE(serverSpy.count(), 1);
+    QCOMPARE(configSpy.count(), 1);
+    QCOMPARE(output->scale(), 2);
+    QCOMPARE(output2->scale(), 3);
+
+    QVERIFY(configSpy.wait());
+    // check if the server changed
+    QCOMPARE(serverSpy.count(), 2);
+    QCOMPARE(configSpy.count(), 2);
+    QCOMPARE(output2->scale(), 3);
 }
 
 

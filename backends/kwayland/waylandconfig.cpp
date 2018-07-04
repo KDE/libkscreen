@@ -48,6 +48,7 @@ WaylandConfig::WaylandConfig(QObject *parent)
     , m_blockSignals(true)
     , m_newOutputId(0)
     , m_kscreenConfig(nullptr)
+    , m_kscreenPendingConfig(nullptr)
     , m_screen(new WaylandScreen(this))
 {
     connect(this, &WaylandConfig::initialized, &m_syncLoop, &QEventLoop::quit);
@@ -274,12 +275,27 @@ QMap<int, WaylandOutput*> WaylandConfig::outputMap() const
     return m_outputMap;
 }
 
+void WaylandConfig::tryPendingConfig()
+{
+    if (!m_kscreenPendingConfig) {
+        return;
+    }
+    applyConfig(m_kscreenPendingConfig);
+    m_kscreenPendingConfig = nullptr;
+}
+
 void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
 {
     using namespace KWayland::Client;
     // Create a new configuration object
     auto wlOutputConfiguration = m_outputManagement->createConfiguration();
     bool changed = false;
+
+    if (m_blockSignals) {
+        /* Last apply still pending, remember new changes and apply afterwards */
+        m_kscreenPendingConfig = newConfig;
+        return;
+    }
 
     Q_FOREACH (auto output, newConfig->outputs()) {
         auto o_old = m_outputMap[output->id()];
@@ -334,11 +350,13 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
         wlOutputConfiguration->deleteLater();
         unblockSignals();
         Q_EMIT configChanged(toKScreenConfig());
+        tryPendingConfig();
     });
     connect(wlOutputConfiguration, &OutputConfiguration::failed, this, [this, wlOutputConfiguration] {
         wlOutputConfiguration->deleteLater();
         unblockSignals();
         Q_EMIT configChanged(toKScreenConfig());
+        tryPendingConfig();
     });
     blockSignals();
     // Now ask the compositor to apply the changes

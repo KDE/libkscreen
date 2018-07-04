@@ -19,7 +19,6 @@
 #include "waylandtestserver.h"
 
 #include "waylandconfigreader.h"
-#include <QDebug>
 
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -41,6 +40,8 @@ WaylandTestServer::WaylandTestServer(QObject *parent)
     , m_display(nullptr)
     , m_outputManagement(nullptr)
     , m_dpmsManager(nullptr)
+    , m_suspendChanges(false)
+    , m_waiting(nullptr)
 {
 }
 
@@ -106,9 +107,23 @@ QList<KWayland::Server::OutputDeviceInterface*> WaylandTestServer::outputs() con
     return m_outputs;
 }
 
+void WaylandTestServer::suspendChanges(bool suspend)
+{
+    if (m_suspendChanges == suspend) {
+        return;
+    }
+    m_suspendChanges = suspend;
+    if (!suspend && m_waiting) {
+        m_waiting->setApplied();
+        m_waiting = nullptr;
+        Q_EMIT configChanged();
+    }
+}
+
 void WaylandTestServer::configurationChangeRequested(KWayland::Server::OutputConfigurationInterface* configurationInterface)
 {
     qCDebug(KSCREEN_WAYLAND_TESTSERVER) << "Server received change request, changes:" << configurationInterface->changes().count();
+    Q_EMIT configReceived();
 
     auto changes = configurationInterface->changes();
     Q_FOREACH (const auto &outputdevice, changes.keys()) {
@@ -133,6 +148,12 @@ void WaylandTestServer::configurationChangeRequested(KWayland::Server::OutputCon
             qCDebug(KSCREEN_WAYLAND_TESTSERVER) << "Setting scale:" << c->scale();
             outputdevice->setScale(c->scale());
         }
+    }
+
+    if (m_suspendChanges) {
+        Q_ASSERT(!m_waiting);
+        m_waiting = configurationInterface;
+        return;
     }
 
     configurationInterface->setApplied();

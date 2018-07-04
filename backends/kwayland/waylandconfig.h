@@ -92,6 +92,7 @@ private:
     void initConnection();
     void blockSignals();
     void unblockSignals();
+    void tryPendingConfig();
 
     KWayland::Client::ConnectionThread *m_connection;
     KWayland::Client::EventQueue *m_queue;
@@ -111,6 +112,7 @@ private:
     QEventLoop m_syncLoop;
     int m_newOutputId;
     KScreen::ConfigPtr m_kscreenConfig;
+    KScreen::ConfigPtr m_kscreenPendingConfig;
     WaylandScreen *m_screen;
 
 };
