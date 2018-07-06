@@ -310,14 +310,14 @@ void TestKWaylandConfig::testApplyOnPending()
     // check if the server changed
     QCOMPARE(serverSpy.count(), 1);
     QCOMPARE(configSpy.count(), 1);
-    QCOMPARE(output->scale(), 2);
-    QCOMPARE(output2->scale(), 3);
+    QCOMPARE(output->scale(), 2.0);
+    QCOMPARE(output2->scale(), 3.0);
 
     QVERIFY(configSpy.wait());
     // check if the server changed
     QCOMPARE(serverSpy.count(), 2);
     QCOMPARE(configSpy.count(), 2);
-    QCOMPARE(output2->scale(), 3);
+    QCOMPARE(output2->scale(), 3.0);
 }
 
 
