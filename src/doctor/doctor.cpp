@@ -253,7 +253,7 @@ void Doctor::parsePositionalArgs()
                         scale = dbl.toDouble(&ok);
                     };
                     // set scale
-                    if (!ok || scale == 0 || !setScale(output_id, scale)) {
+                    if (!ok || qFuzzyCompare(scale, 0.0) || !setScale(output_id, scale)) {
                         qCDebug(KSCREEN_DOCTOR) << "Could not set scale " << scale << " to output " << output_id;
                         qApp->exit(9);
                         return;
