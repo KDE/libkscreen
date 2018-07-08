@@ -364,7 +364,9 @@ void Doctor::showOutputs() const
             cout << mode->id() << ":" << name << " ";
         }
         const auto g = output->geometry();
-        cout << yellow << "Geometry: " << cr << g.x() << "," << g.y() << " " << g.width() << "x" << g.height();
+        cout << yellow << "Geometry: " << cr << g.x() << "," << g.y() << " " << g.width() << "x" << g.height() << " ";
+        cout << yellow << "Scale: " << cr << output->scale() << " ";
+        cout << yellow << "Rotation: " << cr << output->rotation() << " ";
         cout << endl;
     }
 }
