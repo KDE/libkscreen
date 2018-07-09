@@ -38,7 +38,7 @@ namespace KScreen {
  * the static methods current() to get the systems config and
  * setConfig() to apply a config to the system.
  *
- * Also, you can instance an empty Config, this is usually done
+ * Also, you can instantiate an empty Config, this is usually done
  * to create a config (with the objective of setting it) from scratch
  * and for example unserialize a saved config to it.
  *
@@ -96,9 +96,9 @@ class KSCREEN_EXPORT Config : public QObject
     static bool canBeApplied(const ConfigPtr &config);
 
     /**
-     * Instance an empty config
+     * Instantiate an empty config
      *
-     * Usually you never want to use this constructor since there are some
+     * Usually you do not want to use this constructor since there are some
      * values that make no sense to set (for example you want the Screen of
      * the current systme).
      *
