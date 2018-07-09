@@ -367,6 +367,9 @@ void Doctor::showOutputs() const
         cout << yellow << "Geometry: " << cr << g.x() << "," << g.y() << " " << g.width() << "x" << g.height() << " ";
         cout << yellow << "Scale: " << cr << output->scale() << " ";
         cout << yellow << "Rotation: " << cr << output->rotation() << " ";
+        if (output->isPrimary()) {
+            cout << blue << "primary";
+        }
         cout << endl;
     }
 }
