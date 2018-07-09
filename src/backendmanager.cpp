@@ -61,8 +61,7 @@ BackendManager *BackendManager::instance()
 }
 
 BackendManager::BackendManager()
-    : QObject()
-    , mInterface(nullptr)
+    : mInterface(nullptr)
     , mCrashCount(0)
     , mShuttingDown(false)
     , mRequestsCounter(0)
