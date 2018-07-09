@@ -34,7 +34,7 @@ XRandROutput::XRandROutput(xcb_randr_output_t id, XRandRConfig *config)
     , m_config(config)
     , m_id(id)
     , m_type(KScreen::Output::Unknown)
-    , m_primary(0)
+    , m_primary(false)
     , m_crtc(nullptr)
 {
     init();
@@ -89,7 +89,7 @@ XRandRMode* XRandROutput::currentMode() const
     if (!m_crtc) {
         return nullptr;
     }
-    int modeId = m_crtc->mode();
+    unsigned int modeId = m_crtc->mode();
     if (!m_modes.contains(modeId)) {
         return nullptr;
     }

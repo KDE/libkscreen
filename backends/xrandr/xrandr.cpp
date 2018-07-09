@@ -130,12 +130,12 @@ XRandR::~XRandR()
 
 QString XRandR::name() const
 {
-    return QString("XRandR");
+    return QStringLiteral("XRandR");
 }
 
 QString XRandR::serviceName() const
 {
-    return QLatin1Literal("org.kde.KScreen.Backend.XRandR");
+    return QStringLiteral("org.kde.KScreen.Backend.XRandR");
 }
 
 
