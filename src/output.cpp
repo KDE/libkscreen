@@ -460,7 +460,7 @@ void Output::setClones(QList<int> outputlist)
 
 void Output::setEdid(const QByteArray& rawData)
 {
-    Q_ASSERT(d->edid == nullptr);
+    Q_ASSERT(d->edid.isNull());
     d->edid = new Edid(rawData);
 }
 
