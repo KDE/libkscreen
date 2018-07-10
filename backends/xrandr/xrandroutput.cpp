@@ -105,16 +105,8 @@ KScreen::Output::Rotation XRandROutput::rotation() const
 QByteArray XRandROutput::edid() const
 {
     if (m_edid.isNull()) {
-        size_t len;
-        quint8 *data = XRandR::outputEdid(m_id, len);
-        if (data) {
-            m_edid = QByteArray((char *) data, len);
-            delete[] data;
-        } else {
-            m_edid = QByteArray();
-        }
+        m_edid = XRandR::outputEdid(m_id);
     }
-
     return m_edid;
 }
 

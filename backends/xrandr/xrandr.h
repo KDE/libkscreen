@@ -52,7 +52,7 @@ class XRandR : public KScreen::AbstractBackend
         bool isValid() const override;
         QByteArray edid(int outputId) const override;
 
-        static quint8 *outputEdid(xcb_randr_output_t outputId, size_t &len);
+        static QByteArray outputEdid(xcb_randr_output_t outputId);
         static xcb_randr_get_screen_resources_reply_t* screenResources();
         static xcb_screen_t* screen();
         static xcb_window_t rootWindow();

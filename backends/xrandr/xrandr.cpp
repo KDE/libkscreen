@@ -251,8 +251,9 @@ quint8* XRandR::getXProperty(xcb_randr_output_t output, xcb_atom_t atom, size_t 
     return result;
 }
 
-quint8 *XRandR::outputEdid(xcb_randr_output_t outputId, size_t &len)
+QByteArray XRandR::outputEdid(xcb_randr_output_t outputId)
 {
+    size_t len = 0;
     quint8 *result;
 
     auto edid_atom = XCB::InternAtom(false, 4, "EDID")->atom;
@@ -266,16 +267,14 @@ quint8 *XRandR::outputEdid(xcb_randr_output_t outputId, size_t &len)
         result = XRandR::getXProperty(outputId, edid_atom, len);
     }
 
-    if (result) {
+    QByteArray edid;
+    if (result != nullptr) {
         if (len % 128 == 0) {
-            return result;
-        } else {
-            len = 0;
-            delete[] result;
+            edid = QByteArray((char *) result, len);
         }
+        delete[] result;
     }
-
-    return nullptr;
+    return edid;
 }
 
 xcb_randr_get_screen_resources_reply_t* XRandR::screenResources()
