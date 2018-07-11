@@ -192,7 +192,7 @@ OutputPtr Parser::outputFromJson(QMap< QString, QVariant > map)
     if (map.contains("scale")) {
         qDebug() << "Scale found:" << map["scale"].toReal();
         output->setScale(map["scale"].toReal());
-        map.remove(QLatin1Literal("size"));
+        map.remove(QLatin1Literal("scale"));
     }
 
     //Remove some extra properties that we do not want or need special treatment
