@@ -116,7 +116,7 @@ bool ConfigOperation::exec()
     Q_D(ConfigOperation);
 
     QEventLoop loop;
-    connect(this, &ConfigOperation::finished,
+    connect(this, &ConfigOperation::finished, this,
             [&](ConfigOperation *op) {
                 Q_UNUSED(op);
                 loop.quit();
