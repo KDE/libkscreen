@@ -39,7 +39,7 @@ public:
 
     void updateConfigs();
     void onBackendReady(org::kde::kscreen::Backend *backend);
-    void backendConfigChanged(const QVariantMap &config);
+    void backendConfigChanged(const QVariantMap &configMap);
     void configDestroyed(QObject* removedConfig);
     void getConfigFinished(ConfigOperation *op);
     void updateConfigs(const KScreen::ConfigPtr &newConfig);
