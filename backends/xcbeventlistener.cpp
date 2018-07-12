@@ -106,7 +106,7 @@ QString XCBEventListener::rotationToString(xcb_randr_rotation_t rotation)
     case XCB_RANDR_ROTATION_REFLECT_X:
         return QStringLiteral("Reflect_X");
     case XCB_RANDR_ROTATION_REFLECT_Y:
-        return QStringLiteral("REflect_Y");
+        return QStringLiteral("Reflect_Y");
     }
 
     return QStringLiteral("invalid value (%1)").arg(rotation);
