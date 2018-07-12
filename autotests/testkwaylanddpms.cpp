@@ -64,7 +64,7 @@ TestDpmsClient::TestDpmsClient(QObject *parent)
     : QObject(parent)
     , m_server(nullptr)
 {
-    setenv("WAYLAND_DISPLAY", s_socketName.toLocal8Bit(), 1);
+    setenv("WAYLAND_DISPLAY", s_socketName.toLocal8Bit().constData(), true);
     m_server = new KScreen::WaylandTestServer(this);
     m_server->start();
 }

@@ -31,9 +31,9 @@ QtMessageHandler sDefaultMessageHandler = nullptr;
 
 void kscreenLogOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
-    QByteArray localMsg = msg.toLocal8Bit();
-    if (QString::fromLocal8Bit(context.category).startsWith(QLatin1String("kscreen"))) {
-        Log::log(localMsg.constData(), context.category);
+    auto category = QString::fromLocal8Bit(context.category);
+    if (category.startsWith(QLatin1String("kscreen"))) {
+        Log::log(msg, category);
     }
     sDefaultMessageHandler(type, context, msg);
 }
@@ -67,17 +67,17 @@ Log::Log() :
     const char* logging_env = "KSCREEN_LOGGING";
 
     if (qEnvironmentVariableIsSet(logging_env)) {
-        const QString logging_env_value = qgetenv(logging_env).constData();
-        if (logging_env_value != QStringLiteral("0") && logging_env_value.toLower() != QStringLiteral("false")) {
+        const QString logging_env_value = QString::fromUtf8(qgetenv(logging_env));
+        if (logging_env_value != QLatin1Char('0') && logging_env_value.toLower() != QStringLiteral("false")) {
             d->enabled = true;
         }
     }
     if (!d->enabled) {
          return;
     }
-    d->logFile = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/kscreen/kscreen.log";
+    d->logFile = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + QLatin1String("/kscreen/kscreen.log");
 
-    QLoggingCategory::setFilterRules("kscreen.*=true");
+    QLoggingCategory::setFilterRules(QStringLiteral("kscreen.*=true"));
     QFileInfo fi(d->logFile);
     if (!QDir().mkpath(fi.absolutePath())) {
         qWarning() << "Failed to create logging dir" << fi.absolutePath();
@@ -125,9 +125,9 @@ void Log::log(const QString &msg, const QString &category)
         return;
     }
     auto _cat = category;
-    _cat.remove("kscreen.");
-    const QString timestamp = QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss.zzz");
-    QString logMessage = QString("\n%1 ; %2 ; %3 : %4").arg(timestamp, _cat, instance()->context(), msg);
+    _cat.remove(QStringLiteral("kscreen."));
+    const QString timestamp = QDateTime::currentDateTime().toString(QStringLiteral("dd.MM.yyyy hh:mm:ss.zzz"));
+    QString logMessage = QStringLiteral("\n%1 ; %2 ; %3 : %4").arg(timestamp, _cat, instance()->context(), msg);
     QFile file(instance()->logFile());
     if (!file.open(QIODevice::Append | QIODevice::Text)) {
         return;

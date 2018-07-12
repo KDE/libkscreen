@@ -76,7 +76,7 @@ testWaylandBackend::testWaylandBackend(QObject *parent)
 {
     qputenv("KSCREEN_LOGGING", "false");
     m_server = new WaylandTestServer(this);
-    m_server->setConfig(TEST_DATA + QStringLiteral("multipleoutput.json"));
+    m_server->setConfig(QLatin1String(TEST_DATA) + QLatin1String("multipleoutput.json"));
 }
 
 void testWaylandBackend::initTestCase()
@@ -85,7 +85,7 @@ void testWaylandBackend::initTestCase()
     KScreen::BackendManager::instance()->shutdownBackend();
     // This is how KWayland will pick up the right socket,
     // and thus connect to our internal test server.
-    setenv("WAYLAND_DISPLAY", s_socketName.toLocal8Bit(), 1);
+    setenv("WAYLAND_DISPLAY", s_socketName.toLocal8Bit().constData(), 1);
     m_server->start();
 
     GetConfigOperation *op = new GetConfigOperation();

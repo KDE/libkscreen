@@ -101,7 +101,7 @@ void testScreenConfig::singleOutput()
     const OutputPtr output = config->outputs().take(1);
     QVERIFY(!output.isNull());
 
-    QCOMPARE(output->name(), QString("LVDS1"));
+    QCOMPARE(output->name(), QLatin1String("LVDS1"));
     QCOMPARE(output->type(), Output::Panel);
     QCOMPARE(output->modes().count(), 3);
     QCOMPARE(output->pos(), QPoint(0, 0));
@@ -152,7 +152,7 @@ void testScreenConfig::multiOutput()
     const OutputPtr output = config->outputs().take(2);
     QVERIFY(!output.isNull());
 
-    QCOMPARE(output->name(), QString("HDMI1"));
+    QCOMPARE(output->name(), QStringLiteral("HDMI1"));
     QCOMPARE(output->type(), Output::HDMI);
     QCOMPARE(output->modes().count(), 4);
     QCOMPARE(output->pos(), QPoint(1280, 0));
@@ -216,9 +216,9 @@ void testScreenConfig::configCanBeApplied()
     QVERIFY(!Config::canBeApplied(brokenConfig));
     primaryBroken->setCurrentModeId(currentPrimary->currentModeId());
     QVERIFY(!Config::canBeApplied(brokenConfig));
-    qDebug() << "brokenConfig.modes" << primaryBroken->mode("3");
+    qDebug() << "brokenConfig.modes" << primaryBroken->mode(QStringLiteral("3"));
     primaryBroken->mode(QLatin1String("3"))->setSize(QSize(1280, 800));
-    qDebug() << "brokenConfig.modes" << primaryBroken->mode("3");
+    qDebug() << "brokenConfig.modes" << primaryBroken->mode(QStringLiteral("3"));
     QVERIFY(Config::canBeApplied(brokenConfig));
 
 
@@ -270,7 +270,7 @@ void testScreenConfig::supportedFeatures()
 void testScreenConfig::testInvalidMode()
 {
     ModeList modes;
-    ModePtr invalidMode = modes.value("99");
+    ModePtr invalidMode = modes.value(QStringLiteral("99"));
     QVERIFY(invalidMode.isNull());
 
     auto output = new KScreen::Output();

@@ -101,8 +101,8 @@ void QScreenOutput::updateKScreenOutput(OutputPtr &output) const
     mode->setRefreshRate(m_qscreen->refreshRate());
     mode->setSize(m_qscreen->size());
 
-    const QString modename = QString::number(m_qscreen->size().width()) + QStringLiteral("x") + QString::number(m_qscreen->size().height()) \
-                             + QStringLiteral("@") + QString::number(m_qscreen->refreshRate());
+    const QString modename = QString::number(m_qscreen->size().width()) + QLatin1String("x") + QString::number(m_qscreen->size().height()) \
+                             + QLatin1String("@") + QString::number(m_qscreen->refreshRate());
     mode->setName(modename);
 
     ModeList modes;

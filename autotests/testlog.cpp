@@ -49,7 +49,7 @@ private:
 void TestLog::init()
 {
     QStandardPaths::setTestModeEnabled(true);
-    m_defaultLogFile = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/kscreen/kscreen.log";
+    m_defaultLogFile = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + QLatin1String("/kscreen/kscreen.log");
 }
 
 void TestLog::initTestCase()
@@ -66,7 +66,7 @@ void TestLog::cleanupTestCase()
 void TestLog::testContext()
 {
     auto log = Log::instance();
-    QString ctx("context text");
+    QString ctx = QStringLiteral("context text");
     QVERIFY(log != nullptr);
     log->setContext(ctx);
     QCOMPARE(log->context(), ctx);
@@ -108,7 +108,7 @@ void TestLog::testLog()
     lf.remove();
     QVERIFY(!lf.exists());
 
-    QString logmsg("This is a log message. ♥");
+    QString logmsg = QStringLiteral("This is a log message. ♥");
     Log::log(logmsg);
 
     QVERIFY(lf.exists());

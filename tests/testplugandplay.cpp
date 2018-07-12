@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 {
     QGuiApplication app(argc, argv);
 
-    QCommandLineOption input = QCommandLineOption(QStringList() << QStringLiteral("m") << "monitor",
+    QCommandLineOption input = QCommandLineOption(QStringList() << QStringLiteral("m") << QStringLiteral("monitor"),
                                                   QStringLiteral("Keep running monitoring for changes"));
     QCommandLineParser parser;
     parser.addHelpOption();

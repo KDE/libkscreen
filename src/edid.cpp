@@ -270,10 +270,10 @@ bool Edid::Private::parse(const QByteArray &rawData)
 
     // load the PNP_IDS file and load the vendor name
     if (!pnpId.isEmpty()) {
-        QFile pnpIds(PNP_IDS);
+        QFile pnpIds(QStringLiteral(PNP_IDS));
         if (pnpIds.open(QIODevice::ReadOnly)) {
             while (!pnpIds.atEnd()) {
-                QString line = pnpIds.readLine();
+                QString line = QString::fromUtf8(pnpIds.readLine());
                 if (line.startsWith(pnpId)) {
                     QStringList parts = line.split(QLatin1Char('\t'));
                     if (parts.size() == 2) {
@@ -374,7 +374,7 @@ bool Edid::Private::parse(const QByteArray &rawData)
     // calculate checksum
     QCryptographicHash hash(QCryptographicHash::Md5);
     hash.addData(reinterpret_cast<const char *>(data), length);
-    checksum = hash.result().toHex();
+    checksum = QString::fromLatin1(hash.result().toHex());
 
     valid = true;
     return valid;

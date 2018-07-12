@@ -101,7 +101,7 @@ void TestBackendLoader::testFallback()
 {
     qputenv("KSCREEN_BACKEND", "nonsense");
     auto preferred = BackendManager::instance()->preferredBackend();
-    QVERIFY(preferred.fileName().startsWith("KSC_QScreen"));
+    QVERIFY(preferred.fileName().startsWith(QLatin1String("KSC_QScreen")));
 }
 
 QTEST_GUILESS_MAIN(TestBackendLoader)

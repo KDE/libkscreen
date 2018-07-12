@@ -39,7 +39,7 @@
 
 int main(int argc, char **argv)
 {
-    const QString desc = "kscreen-doctor allows to change the screen setup from the command-line.\n"
+    const QString desc = QStringLiteral("kscreen-doctor allows to change the screen setup from the command-line.\n"
     "\n"
     "Setting the output configuration is done in an atomic fashion, all settings\n"
     "are applied in a single command.\n"
@@ -61,7 +61,7 @@ int main(int argc, char **argv)
     "\n   Set scale (note: fractional scaling is only supported on wayland)\n"
     "   $ kscreen-doctor output.HDMI-2.scale.2 \n"
     "\n   Set rotation (possible values: none, left, right, inverted)\n"
-    "   $ kscreen-doctor output.HDMI-2.rotation.left \n";
+    "   $ kscreen-doctor output.HDMI-2.rotation.left \n");
 /*
     "\nError codes:\n"
     "   2 : general parse error\n"
@@ -72,32 +72,32 @@ int main(int argc, char **argv)
     "   8 : invalid output id\n"
     "   9 : invalid mode id\n";
 */
-    const QString syntax = "Specific output settings are separated by spaces, each setting is in the form of\n"
+    const QString syntax = QStringLiteral("Specific output settings are separated by spaces, each setting is in the form of\n"
                            "output.<name>.<setting>[.<value>]\n"
                            "For example:\n"
                            "$ kscreen-doctor output.HDMI-2.enable \\ \n"
                            "                output.eDP-1.mode.4 \\ \n"
                            "                output.eDP-1.position.1280,0\n"
-                           "Multiple settings are passed in order to have kscreen-doctor apply these settings in one go.\n";
+                           "Multiple settings are passed in order to have kscreen-doctor apply these settings in one go.\n");
 
     QGuiApplication app(argc, argv);
 
     KScreen::Doctor server;
 
-    QCommandLineOption info = QCommandLineOption(QStringList() << QStringLiteral("i") << "info",
+    QCommandLineOption info = QCommandLineOption(QStringList() << QStringLiteral("i") << QStringLiteral("info"),
                                                   QStringLiteral("Show runtime information: backends, logging, etc."));
-    QCommandLineOption outputs = QCommandLineOption(QStringList() << QStringLiteral("o") << "outputs",
+    QCommandLineOption outputs = QCommandLineOption(QStringList() << QStringLiteral("o") << QStringLiteral("outputs"),
                                                   QStringLiteral("Show outputs"));
-    QCommandLineOption json = QCommandLineOption(QStringList() << QStringLiteral("j") << "json",
+    QCommandLineOption json = QCommandLineOption(QStringList() << QStringLiteral("j") << QStringLiteral("json"),
                                                  QStringLiteral("Show configuration in JSON format"));
-    QCommandLineOption dpms = QCommandLineOption(QStringList() << QStringLiteral("d") << "dpms",
+    QCommandLineOption dpms = QCommandLineOption(QStringList() << QStringLiteral("d") << QStringLiteral("dpms"),
                                                   QStringLiteral("Display power management (wayland only)"), QStringLiteral("off"));
-    QCommandLineOption log = QCommandLineOption(QStringList() << QStringLiteral("l") << "log",
+    QCommandLineOption log = QCommandLineOption(QStringList() << QStringLiteral("l") << QStringLiteral("log"),
                                                   QStringLiteral("Write a comment to the log file"), QStringLiteral("comment"));
 
     QCommandLineParser parser;
     parser.setApplicationDescription(desc);
-    parser.addPositionalArgument("config", syntax, QStringLiteral("[output.<name>.<setting> output.<name>.setting [...]]"));
+    parser.addPositionalArgument(QStringLiteral("config"), syntax, QStringLiteral("[output.<name>.<setting> output.<name>.setting [...]]"));
     parser.addHelpOption();
     parser.addOption(info);
     parser.addOption(json);

@@ -247,9 +247,9 @@ void XRandROutput::updateModes(const XCB::OutputInfo &outputInfo)
 
 KScreen::Output::Type XRandROutput::fetchOutputType(xcb_randr_output_t outputId, const QString &name)
 {
-    QByteArray type = typeFromProperty(outputId);
+    QString type = QString::fromUtf8(typeFromProperty(outputId));
     if (type.isEmpty()) {
-        type = name.toLocal8Bit();
+        type = name;
     }
 
     return Utils::guessOutputType(type, name);

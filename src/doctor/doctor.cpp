@@ -79,10 +79,10 @@ Doctor::~Doctor()
 void Doctor::start(QCommandLineParser *parser)
 {
     m_parser = parser;
-    if (m_parser->isSet("info")) {
+    if (m_parser->isSet(QStringLiteral("info"))) {
         showBackends();
     }
-    if (parser->isSet("json") || parser->isSet("outputs") || !m_positionalArgs.isEmpty()) {
+    if (parser->isSet(QStringLiteral("json")) || parser->isSet(QStringLiteral("outputs")) || !m_positionalArgs.isEmpty()) {
 
         KScreen::GetConfigOperation *op = new KScreen::GetConfigOperation();
         connect(op, &KScreen::GetConfigOperation::finished, this,
@@ -91,7 +91,7 @@ void Doctor::start(QCommandLineParser *parser)
                 });
         return;
     }
-    if (m_parser->isSet("dpms")) {
+    if (m_parser->isSet(QStringLiteral("dpms"))) {
         if (!QGuiApplication::platformName().startsWith(QLatin1String("wayland"))) {
             cerr << "DPMS is only supported on Wayland." << endl;
             // We need to kick the event loop, otherwise .quit() hangs
@@ -111,7 +111,7 @@ void Doctor::start(QCommandLineParser *parser)
         return;
     }
 
-    if (m_parser->isSet("log")) {
+    if (m_parser->isSet(QStringLiteral("log"))) {
 
         const QString logmsg = m_parser->value(QStringLiteral("log"));
         if (!Log::instance()->enabled()) {
@@ -156,14 +156,14 @@ void Doctor::showDpms()
 void Doctor::showBackends() const
 {
     cout << "Environment: " << endl;
-    auto env_kscreen_backend = (qgetenv("KSCREEN_BACKEND").isEmpty()) ? QStringLiteral("[not set]") : qgetenv("KSCREEN_BACKEND");
+    auto env_kscreen_backend = (qgetenv("KSCREEN_BACKEND").isEmpty()) ? QStringLiteral("[not set]") : QString::fromUtf8(qgetenv("KSCREEN_BACKEND"));
     cout << "  * KSCREEN_BACKEND           : " << env_kscreen_backend << endl;
-    auto env_kscreen_backend_inprocess = (qgetenv("KSCREEN_BACKEND_INPROCESS").isEmpty()) ? QStringLiteral("[not set]") : qgetenv("KSCREEN_BACKEND_INPROCESS");
+    auto env_kscreen_backend_inprocess = (qgetenv("KSCREEN_BACKEND_INPROCESS").isEmpty()) ? QStringLiteral("[not set]") : QString::fromUtf8(qgetenv("KSCREEN_BACKEND_INPROCESS"));
     cout << "  * KSCREEN_BACKEND_INPROCESS : " << env_kscreen_backend_inprocess << endl;
-    auto env_kscreen_logging = (qgetenv("KSCREEN_LOGGING").isEmpty()) ? QStringLiteral("[not set]") : qgetenv("KSCREEN_LOGGING");
+    auto env_kscreen_logging = (qgetenv("KSCREEN_LOGGING").isEmpty()) ? QStringLiteral("[not set]") : QString::fromUtf8(qgetenv("KSCREEN_LOGGING"));
     cout << "  * KSCREEN_LOGGING           : " << env_kscreen_logging << endl;
 
-    cout << "Logging to                : " << (Log::instance()->enabled() ? Log::instance()->logFile() : "[logging disabled]") << endl;
+    cout << "Logging to                : " << (Log::instance()->enabled() ? Log::instance()->logFile() : QStringLiteral("[logging disabled]")) << endl;
     auto backends = BackendManager::instance()->listBackends();
     auto preferred = BackendManager::instance()->preferredBackend();
     cout << "Preferred KScreen backend : " << green << preferred.fileName() << cr << endl;
@@ -187,7 +187,7 @@ void Doctor::parsePositionalArgs()
 {
     //qCDebug(KSCREEN_DOCTOR) << "POSARGS" << m_positionalArgs;
     Q_FOREACH(const QString &op, m_positionalArgs) {
-        auto ops = op.split('.');
+        auto ops = op.split(QLatin1Char('.'));
         if (ops.count() > 2) {
             bool ok;
             int output_id = -1;
@@ -225,7 +225,7 @@ void Doctor::parsePositionalArgs()
                     qCDebug(KSCREEN_DOCTOR) << "Output" << output_id << "set mode" << mode_id;
 
                 } else if (ops.count() == 4 && ops[2] == QStringLiteral("position")) {
-                    QStringList _pos = ops[3].split(',');
+                    QStringList _pos = ops[3].split(QLatin1Char(','));
                     if (_pos.count() != 2) {
                         qCWarning(KSCREEN_DOCTOR) << "Invalid position:" << ops[3];
                         qApp->exit(5);
@@ -247,9 +247,9 @@ void Doctor::parsePositionalArgs()
                     }
                 } else if ((ops.count() == 4 || ops.count() == 5) && ops[2] == QStringLiteral("scale")) {
                     // be lenient about . vs. comma as separator
-                    qreal scale = ops[3].replace(QStringLiteral(","), QStringLiteral(".")).toDouble(&ok);
+                    qreal scale = ops[3].replace(QLatin1Char(','), QLatin1Char('.')).toDouble(&ok);
                     if (ops.count() == 5) {
-                        const auto dbl = ops[3] + QStringLiteral(".") + ops[4];
+                        const QString dbl = ops[3] + QLatin1String(".") + ops[4];
                         scale = dbl.toDouble(&ok);
                     };
                     // set scale
@@ -293,11 +293,11 @@ void Doctor::configReceived(KScreen::ConfigOperation *op)
 {
     m_config = op->config();
 
-    if (m_parser->isSet("json")) {
+    if (m_parser->isSet(QStringLiteral("json"))) {
         showJson();
         qApp->quit();
     }
-    if (m_parser->isSet("outputs")) {
+    if (m_parser->isSet(QStringLiteral("outputs"))) {
         showOutputs();
         qApp->quit();
     }
@@ -345,21 +345,21 @@ void Doctor::showOutputs() const
 
     Q_FOREACH (const auto &output, m_config->outputs()) {
         cout << green << "Output: " << cr << output->id() << " " << output->name();
-        cout << " " << (output->isEnabled() ? green + "enabled" : red + "disabled");
-        cout << " " << (output->isConnected() ? green + "connected" : red + "disconnected");
-        cout << " " << (output->isPrimary() ? green + "primary" : QString());
+        cout << " " << (output->isEnabled() ? green + QLatin1String("enabled") : red + QLatin1String("disabled"));
+        cout << " " << (output->isConnected() ? green + QLatin1String("connected") : red + QLatin1String("disconnected"));
+        cout << " " << (output->isPrimary() ? green + QLatin1String("primary") : QString());
         auto _type = typeString[output->type()];
-        cout << " " << yellow << (_type.isEmpty() ? "UnmappedOutputType" : _type);
+        cout << " " << yellow << (_type.isEmpty() ? QStringLiteral("UnmappedOutputType") : _type);
         cout << blue << " Modes: " << cr;
         Q_FOREACH (auto mode, output->modes()) {
-            auto name = QString("%1x%2@%3").arg(QString::number(mode->size().width()),
+            auto name = QStringLiteral("%1x%2@%3").arg(QString::number(mode->size().width()),
                                                 QString::number(mode->size().height()),
                                                 QString::number(qRound(mode->refreshRate())));
             if (mode == output->currentMode()) {
-                name = green + name + "*" + cr;
+                name = green + name + QLatin1Char('*') + cr;
             }
             if (mode == output->preferredMode()) {
-                name = name + "!";
+                name = name + QLatin1Char('!');
             }
             cout << mode->id() << ":" << name << " ";
         }
@@ -430,7 +430,7 @@ bool Doctor::setMode(int id, const QString &mode_id)
         if (output->id() == id) {
             // find mode
             Q_FOREACH (const KScreen::ModePtr mode, output->modes()) {
-                auto name = QString("%1x%2@%3").arg(QString::number(mode->size().width()),
+                auto name = QStringLiteral("%1x%2@%3").arg(QString::number(mode->size().width()),
                                     QString::number(mode->size().height()),
                                     QString::number(qRound(mode->refreshRate())));
                 if (mode->id() == mode_id || name == mode_id) {

@@ -42,10 +42,10 @@ void WaylandConfigReader::outputsFromConfig(const QString& configfile, KWayland:
     QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
     QJsonObject json = jsonDoc.object();
 
-    QJsonArray omap = json["outputs"].toArray();
+    QJsonArray omap = json[QStringLiteral("outputs")].toArray();
     Q_FOREACH(const QJsonValue &value, omap) {
         const QVariantMap &output = value.toObject().toVariantMap();
-        if (output["connected"].toBool()) {
+        if (output[QStringLiteral("connected")].toBool()) {
             outputs << createOutputDevice(output, display);
             //qDebug() << "new Output created: " << output["name"].toString();
         } else {
@@ -60,7 +60,7 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
 {
     KWayland::Server::OutputDeviceInterface *outputdevice = display->createOutputDevice(display);
 
-    QByteArray data = QByteArray::fromBase64(outputConfig["edid"].toByteArray());
+    QByteArray data = QByteArray::fromBase64(outputConfig[QStringLiteral("edid")].toByteArray());
     outputdevice->setEdid(data);
     Edid edid(data, display);
 
@@ -83,12 +83,12 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
         outputdevice->setManufacturer(edid.vendor());
         outputdevice->setModel(edid.name());
     } else {
-        outputdevice->setPhysicalSize(sizeFromJson(outputConfig["sizeMM"]));
-        outputdevice->setManufacturer(outputConfig["manufacturer"].toString());
-        outputdevice->setModel(outputConfig["model"].toString());
+        outputdevice->setPhysicalSize(sizeFromJson(outputConfig[QStringLiteral("sizeMM")]));
+        outputdevice->setManufacturer(outputConfig[QStringLiteral("manufacturer")].toString());
+        outputdevice->setModel(outputConfig[QStringLiteral("model")].toString());
     }
     auto uuid = QUuid::createUuid().toByteArray();
-    auto _id = outputConfig["id"].toInt();
+    auto _id = outputConfig[QStringLiteral("id")].toInt();
     if (_id) {
         uuid = QString::number(_id).toLocal8Bit();
     }
@@ -102,22 +102,22 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
         {4, KWayland::Server::OutputDeviceInterface::Transform::Rotated90}
     };
 
-    outputdevice->setTransform(transformMap[outputConfig["rotation"].toInt()]);
-    int currentModeId = outputConfig["currentModeId"].toInt();
-    QVariantList preferredModes = outputConfig["preferredModes"].toList();
+    outputdevice->setTransform(transformMap[outputConfig[QStringLiteral("rotation")].toInt()]);
+    int currentModeId = outputConfig[QStringLiteral("currentModeId")].toInt();
+    QVariantList preferredModes = outputConfig[QStringLiteral("preferredModes")].toList();
 
     int mode_id = 0;
-    Q_FOREACH (const QVariant &_mode, outputConfig["modes"].toList()) {
+    Q_FOREACH (const QVariant &_mode, outputConfig[QStringLiteral("modes")].toList()) {
         mode_id++;
         const QVariantMap &mode = _mode.toMap();
         OutputDeviceInterface::Mode m0;
-        const QSize _size = sizeFromJson(mode["size"]);
+        const QSize _size = sizeFromJson(mode[QStringLiteral("size")]);
 
-        if (mode.keys().contains("refreshRate")) {
-            m0.refreshRate = qRound(mode["refreshRate"].toReal() * 1000); // config has it in Hz
+        if (mode.keys().contains(QStringLiteral("refreshRate"))) {
+            m0.refreshRate = qRound(mode[QStringLiteral("refreshRate")].toReal() * 1000); // config has it in Hz
         }
-        bool isCurrent = currentModeId == mode["id"].toInt();
-        bool isPreferred = preferredModes.contains(mode["id"]);
+        bool isCurrent = currentModeId == mode[QStringLiteral("id")].toInt();
+        bool isPreferred = preferredModes.contains(mode[QStringLiteral("id")]);
 
         OutputDeviceInterface::ModeFlags flags;
         if (isCurrent && isPreferred) {
@@ -128,8 +128,8 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
             flags = OutputDeviceInterface::ModeFlags(OutputDeviceInterface::ModeFlag::Preferred);
         }
 
-        if (mode.keys().contains("id")) {
-            m0.id = mode["id"].toInt();
+        if (mode.keys().contains(QLatin1String("id"))) {
+            m0.id = mode[QStringLiteral("id")].toInt();
         } else {
             m0.id = mode_id;
         }
@@ -142,8 +142,8 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
         }
     }
 
-    outputdevice->setGlobalPosition(pointFromJson(outputConfig["pos"]));
-    outputdevice->setEnabled(outputConfig["enabled"].toBool() ? OutputDeviceInterface::Enablement::Enabled : OutputDeviceInterface::Enablement::Disabled);
+    outputdevice->setGlobalPosition(pointFromJson(outputConfig[QStringLiteral("pos")]));
+    outputdevice->setEnabled(outputConfig[QStringLiteral("enabled")].toBool() ? OutputDeviceInterface::Enablement::Enabled : OutputDeviceInterface::Enablement::Disabled);
     outputdevice->create();
 
     return outputdevice;
@@ -225,8 +225,8 @@ QSize WaylandConfigReader::sizeFromJson(const QVariant& data)
     QVariantMap map = data.toMap();
 
     QSize size;
-    size.setWidth(map["width"].toInt());
-    size.setHeight(map["height"].toInt());
+    size.setWidth(map[QStringLiteral("width")].toInt());
+    size.setHeight(map[QStringLiteral("height")].toInt());
 
     return size;
 }
@@ -236,8 +236,8 @@ QPoint WaylandConfigReader::pointFromJson(const QVariant& data)
     QVariantMap map = data.toMap();
 
     QPoint point;
-    point.setX(map["x"].toInt());
-    point.setY(map["y"].toInt());
+    point.setX(map[QStringLiteral("x")].toInt());
+    point.setY(map[QStringLiteral("y")].toInt());
 
     return point;
 }

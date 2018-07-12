@@ -75,7 +75,7 @@ void TestKWaylandConfig::initTestCase()
 
     // This is how KWayland will pick up the right socket,
     // and thus connect to our internal test server.
-    setenv("WAYLAND_DISPLAY", s_socketName.toLocal8Bit(), 1);
+    setenv("WAYLAND_DISPLAY", s_socketName.toLocal8Bit().constData(), 1);
 
     m_server = new WaylandTestServer(this);
     m_server->start();
@@ -105,7 +105,7 @@ void TestKWaylandConfig::changeConfig()
     auto output = config->outputs().first();
     QVERIFY(output->isEnabled() == false);
     output->setEnabled(true);
-    output->setCurrentModeId("76");
+    output->setCurrentModeId(QStringLiteral("76"));
 
     auto output2 = config->outputs()[2]; // is this id stable enough?
     output2->setPos(QPoint(4000, 1080));

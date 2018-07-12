@@ -142,7 +142,7 @@ QString Output::Private::biggestMode(const ModeList& modes) const
     }
 
     if (!biggest) {
-        return nullptr;
+        return QString();
     }
 
     return biggest->id();

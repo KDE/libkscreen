@@ -36,7 +36,7 @@ using namespace KWayland::Server;
 
 WaylandTestServer::WaylandTestServer(QObject *parent)
     : QObject(parent)
-    , m_configFile(TEST_DATA + QStringLiteral("default.json"))
+    , m_configFile(QLatin1String(TEST_DATA) + QLatin1String("default.json"))
     , m_display(nullptr)
     , m_outputManagement(nullptr)
     , m_dpmsManager(nullptr)
@@ -59,7 +59,7 @@ void WaylandTestServer::start()
     if (qgetenv("WAYLAND_DISPLAY").isEmpty()) {
         m_display->setSocketName(s_socketName);
     } else {
-        m_display->setSocketName(qgetenv("WAYLAND_DISPLAY").constData());
+        m_display->setSocketName(QString::fromLatin1(qgetenv("WAYLAND_DISPLAY")));
     }
     m_display->start();
 
@@ -71,8 +71,8 @@ void WaylandTestServer::start()
     connect(m_outputManagement, &OutputManagementInterface::configurationChangeRequested, this, &WaylandTestServer::configurationChangeRequested);
 
     KScreen::WaylandConfigReader::outputsFromConfig(m_configFile, m_display, m_outputs);
-    qCDebug(KSCREEN_WAYLAND_TESTSERVER) << QString("export WAYLAND_DISPLAY="+m_display->socketName());
-    qCDebug(KSCREEN_WAYLAND_TESTSERVER) << QString("You can specify the WAYLAND_DISPLAY for this server by exporting it in the environment");
+    qCDebug(KSCREEN_WAYLAND_TESTSERVER) << QStringLiteral("export WAYLAND_DISPLAY=") + m_display->socketName();
+    qCDebug(KSCREEN_WAYLAND_TESTSERVER) << QStringLiteral("You can specify the WAYLAND_DISPLAY for this server by exporting it in the environment");
     //showOutputs();
 }
 
@@ -168,7 +168,7 @@ void WaylandTestServer::showOutputs()
         bool enabled = (o->enabled() == KWayland::Server::OutputDeviceInterface::Enablement::Enabled);
         qCDebug(KSCREEN_WAYLAND_TESTSERVER) << "  * Output id: " << o->uuid();
         qCDebug(KSCREEN_WAYLAND_TESTSERVER) << "      Enabled: " << (enabled ? "enabled" : "disabled");
-        qCDebug(KSCREEN_WAYLAND_TESTSERVER) << "         Name: " << QString("%2-%3").arg(o->manufacturer(), o->model());
+        qCDebug(KSCREEN_WAYLAND_TESTSERVER) << "         Name: " << QStringLiteral("%2-%3").arg(o->manufacturer(), o->model());
         qCDebug(KSCREEN_WAYLAND_TESTSERVER) << "         Mode: " << modeString(o, o->currentModeId());
         qCDebug(KSCREEN_WAYLAND_TESTSERVER) << "          Pos: " << o->globalPosition();
         qCDebug(KSCREEN_WAYLAND_TESTSERVER) << "         Edid: " << o->edid();
@@ -186,15 +186,15 @@ QString WaylandTestServer::modeString(KWayland::Server::OutputDeviceInterface* o
     Q_FOREACH (const auto &_m, outputdevice->modes()) {
         _i++;
         if (_i < 6) {
-            ids.append(QString::number(_m.id) + ", ");
+            ids.append(QString::number(_m.id) + QLatin1String(", "));
         } else {
-            ids.append(".");
+            ids.append(QLatin1Char('.'));
         }
         if (_m.id == mid) {
-            s = QString("%1x%2 @%3").arg(QString::number(_m.size.width()), \
+            s = QStringLiteral("%1x%2 @%3").arg(QString::number(_m.size.width()), \
             QString::number(_m.size.height()), QString::number(_m.refreshRate));
         }
     }
-    return QString("[%1] %2 (%4 modes: %3)").arg(QString::number(mid), s, ids, QString::number(outputdevice->modes().count()));
+    return QStringLiteral("[%1] %2 (%4 modes: %3)").arg(QString::number(mid), s, ids, QString::number(outputdevice->modes().count()));
 
 }

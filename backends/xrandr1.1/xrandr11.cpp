@@ -171,7 +171,7 @@ void XRandR11::setConfig(const KScreen::ConfigPtr &config)
 
     const XCB::ScreenInfo info(xcbScreen->root);
     xcb_generic_error_t *err;
-    const int sizeId = mode->id().split("-").first().toInt();
+    const int sizeId = mode->id().split(QLatin1Char('-')).first().toInt();
     auto cookie = xcb_randr_set_screen_config(XCB::connection(), xcbScreen->root,
                                          XCB_CURRENT_TIME, info->config_timestamp, sizeId,
                                          (short) output->rotation(), mode->refreshRate());

@@ -145,7 +145,7 @@ QFileInfo BackendManager::preferredBackend(const QString &backend)
      *
      */
     QString backendFilter;
-    const auto env_kscreen_backend = qgetenv("KSCREEN_BACKEND");
+    const auto env_kscreen_backend = QString::fromUtf8(qgetenv("KSCREEN_BACKEND"));
     if (!backend.isEmpty()) {
         backendFilter = backend;
     } else if (!env_kscreen_backend.isEmpty()) {
@@ -234,10 +234,11 @@ KScreen::AbstractBackend *BackendManager::loadBackendInProcess(const QString &na
     if (mLoader == nullptr) {
         mLoader = new QPluginLoader(this);
     }
+    auto test_data_equals = QStringLiteral("TEST_DATA=");
     QVariantMap arguments;
     auto beargs = QString::fromLocal8Bit(qgetenv("KSCREEN_BACKEND_ARGS"));
-    if (beargs.startsWith("TEST_DATA=")) {
-        arguments["TEST_DATA"] = beargs.remove("TEST_DATA=");
+    if (beargs.startsWith(test_data_equals)) {
+        arguments[QStringLiteral("TEST_DATA")] = beargs.remove(test_data_equals);
     }
     auto backend = BackendManager::loadBackendPlugin(mLoader, name, arguments);
     //qCDebug(KSCREEN) << "Connecting ConfigMonitor to backend.";
@@ -271,7 +272,7 @@ void BackendManager::requestBackend()
             if (pos == -1) {
                 continue;
             }
-            arguments.insert(arg.left(pos), arg.mid(pos + 1));
+            arguments.insert(QString::fromUtf8(arg.left(pos)), arg.mid(pos + 1));
         }
     }
 

@@ -59,7 +59,7 @@ void testQScreenBackend::initTestCase()
     qputenv("KSCREEN_BACKEND_INPROCESS", "1");
     KScreen::BackendManager::instance()->shutdownBackend();
 
-    m_backend = qgetenv("KSCREEN_BACKEND").constData();
+    m_backend = QString::fromLocal8Bit(qgetenv("KSCREEN_BACKEND"));
 
     QElapsedTimer t;
     t.start();
@@ -172,16 +172,15 @@ void testQScreenBackend::commonUsagePattern()
         }
 
         QVariantMap info;
-
-        info["id"] = output->id();
-        info["primary"] = output->isPrimary();
-        info["enabled"] = output->isEnabled();
-        info["rotation"] = output->rotation();
+        info[QStringLiteral("id")] = output->id();
+        info[QStringLiteral("primary")] = output->isPrimary();
+        info[QStringLiteral("enabled")] = output->isEnabled();
+        info[QStringLiteral("rotation")] = output->rotation();
 
         QVariantMap pos;
-        pos["x"] = output->pos().x();
-        pos["y"] = output->pos().y();
-        info["pos"] = pos;
+        pos[QStringLiteral("x")] = output->pos().x();
+        pos[QStringLiteral("y")] = output->pos().y();
+        info[QStringLiteral("pos")] = pos;
 
         if (output->isEnabled()) {
             const KScreen::ModePtr mode = output->currentMode();
@@ -191,14 +190,14 @@ void testQScreenBackend::commonUsagePattern()
             }
 
             QVariantMap modeInfo;
-            modeInfo["refresh"] = mode->refreshRate();
+            modeInfo[QStringLiteral("refresh")] = mode->refreshRate();
 
             QVariantMap modeSize;
-            modeSize["width"] = mode->size().width();
-            modeSize["height"] = mode->size().height();
-            modeInfo["size"] = modeSize;
+            modeSize[QStringLiteral("width")] = mode->size().width();
+            modeSize[QStringLiteral("height")] = mode->size().height();
+            modeInfo[QStringLiteral("size")] = modeSize;
 
-            info["mode"] = modeInfo;
+            info[QStringLiteral("mode")] = modeInfo;
         }
 
         outputList.append(info);

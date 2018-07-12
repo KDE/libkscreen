@@ -74,7 +74,7 @@ Fake::~Fake()
 
 QString Fake::name() const
 {
-    return QString("Fake");
+    return QStringLiteral("Fake");
 }
 
 QString Fake::serviceName() const
@@ -112,14 +112,14 @@ QByteArray Fake::edid(int outputId) const
     const QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
     const QJsonObject json = jsonDoc.object();
 
-    const QJsonArray outputs = json["outputs"].toArray();
+    const QJsonArray outputs = json[QStringLiteral("outputs")].toArray();
     Q_FOREACH(const QJsonValue &value, outputs) {
         const QVariantMap output = value.toObject().toVariantMap();
-        if (output["id"].toInt() != outputId) {
+        if (output[QStringLiteral("id")].toInt() != outputId) {
             continue;
         }
 
-        return QByteArray::fromBase64(output["edid"].toByteArray());
+        return QByteArray::fromBase64(output[QStringLiteral("edid")].toByteArray());
     }
     return QByteArray();
 }

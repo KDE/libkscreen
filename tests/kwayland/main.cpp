@@ -27,8 +27,8 @@ int main(int argc, char **argv)
 
     KScreen::WaylandTestServer server;
 
-    QCommandLineOption config = QCommandLineOption(QStringList() << QStringLiteral("c") << "config",
-                                                  QStringLiteral("Config file"), "config");
+    QCommandLineOption config = QCommandLineOption(QStringList() << QStringLiteral("c") << QLatin1String("config"),
+                                                  QStringLiteral("Config file"), QLatin1String("config"));
     QCommandLineParser parser;
     parser.addHelpOption();
     parser.addOption(config);
@@ -37,7 +37,7 @@ int main(int argc, char **argv)
     if (parser.isSet(config)) {
         server.setConfig(parser.value(config));
     } else {
-        server.setConfig(QString::fromLocal8Bit(TEST_DATA)+"/multipleoutput.json");
+        server.setConfig(QString::fromLocal8Bit(TEST_DATA) + QLatin1String("/multipleoutput.json"));
     }
     server.start();
     return app.exec();

@@ -134,7 +134,7 @@ KScreen::AbstractBackend* ConfigOperationPrivate::loadBackend()
 {
     Q_ASSERT(BackendManager::instance()->method() == BackendManager::InProcess);
     Q_Q(ConfigOperation);
-    const QString &name = qgetenv("KSCREEN_BACKEND").constData();
+    const QString &name = QString::fromUtf8(qgetenv("KSCREEN_BACKEND"));
     auto backend = KScreen::BackendManager::instance()->loadBackendInProcess(name);
     if (backend == nullptr) {
         const QString &e = QStringLiteral("Plugin does not provide valid KScreen backend");

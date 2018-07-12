@@ -96,34 +96,34 @@ QString XCBEventListener::rotationToString(xcb_randr_rotation_t rotation)
 {
     switch (rotation) {
     case XCB_RANDR_ROTATION_ROTATE_0:
-        return "Rotate_0";
+        return QStringLiteral("Rotate_0");
     case XCB_RANDR_ROTATION_ROTATE_90:
-        return "Rotate_90";
+        return QStringLiteral("Rotate_90");
     case XCB_RANDR_ROTATION_ROTATE_180:
-        return "Rotate_180";
+        return QStringLiteral("Rotate_180");
     case XCB_RANDR_ROTATION_ROTATE_270:
-        return "Rotate_270";
+        return QStringLiteral("Rotate_270");
     case XCB_RANDR_ROTATION_REFLECT_X:
-        return "Reflect_X";
+        return QStringLiteral("Reflect_X");
     case XCB_RANDR_ROTATION_REFLECT_Y:
-        return "REflect_Y";
+        return QStringLiteral("REflect_Y");
     }
 
-    return QString("invalid value (%1)").arg(rotation);
+    return QStringLiteral("invalid value (%1)").arg(rotation);
 }
 
 QString XCBEventListener::connectionToString(xcb_randr_connection_t connection)
 {
     switch (connection) {
     case XCB_RANDR_CONNECTION_CONNECTED:
-        return "Connected";
+        return QStringLiteral("Connected");
     case XCB_RANDR_CONNECTION_DISCONNECTED:
-        return "Disconnected";
+        return QStringLiteral("Disconnected");
     case XCB_RANDR_CONNECTION_UNKNOWN:
-        return "UnknownConnection";
+        return QStringLiteral("UnknownConnection");
     }
 
-    return QString("invalid value (%1)").arg(connection);
+    return QStringLiteral("invalid value (%1)").arg(connection);
 }
 
 bool XCBEventListener::nativeEventFilter(const QByteArray& eventType, void* message, long int* result)

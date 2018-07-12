@@ -45,12 +45,12 @@ QScreenBackend::~QScreenBackend()
 
 QString QScreenBackend::name() const
 {
-    return QString("QScreen");
+    return QStringLiteral("QScreen");
 }
 
 QString QScreenBackend::serviceName() const
 {
-    return QLatin1Literal("org.kde.KScreen.Backend.QScreen");
+    return QStringLiteral("org.kde.KScreen.Backend.QScreen");
 }
 
 

@@ -189,7 +189,7 @@ QString WaylandOutput::name() const
 QDebug operator<<(QDebug dbg, const WaylandOutput *output)
 {
     dbg << "WaylandOutput(Id:" << output->id() <<", Name:" << \
-        QString(output->outputDevice()->manufacturer() + QStringLiteral(" ") + \
+        QString(output->outputDevice()->manufacturer() + QLatin1Char(' ') + \
         output->outputDevice()->model())  << ")";
     return dbg;
 }
