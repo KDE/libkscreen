@@ -102,7 +102,7 @@ void Parser::qvariant2qobject(const QVariantMap &variant, QObject *object)
             if (value.canConvert(property.type())) {
                 value.convert(property.type());
                 object->setProperty(iter.key().toLatin1().constData(), value);
-            } else if (QString(QLatin1String("QVariant")).compare(QLatin1String(property.typeName())) == 0) {
+            } else if (QLatin1String("QVariant") == QLatin1String(property.typeName())) {
                 object->setProperty(iter.key().toLatin1().constData(), value);
             }
         }
