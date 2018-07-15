@@ -26,17 +26,15 @@
 Q_LOGGING_CATEGORY(KSCREEN_XCB_HELPER, "kscreen.xcb.helper")
 
 XCBEventListener::XCBEventListener():
-    QObject(),
     m_isRandrPresent(false),
     m_randrBase(0),
     m_randrErrorBase(0),
     m_majorOpcode(0),
-    m_eventType(0),
     m_versionMajor(0),
     m_versionMinor(0),
     m_window(0)
 {
-    xcb_connection_t* c = QX11Info::connection();
+    xcb_connection_t *c = QX11Info::connection();
     xcb_prefetch_extension_data(c, &xcb_randr_id);
     auto cookie = xcb_randr_query_version(c, XCB_RANDR_MAJOR_VERSION, XCB_RANDR_MINOR_VERSION);
     const auto *queryExtension = xcb_get_extension_data(c, &xcb_randr_id);
@@ -55,7 +53,7 @@ XCBEventListener::XCBEventListener():
     m_majorOpcode = queryExtension->major_opcode;
 
     xcb_generic_error_t *error = nullptr;
-    auto* versionReply = xcb_randr_query_version_reply(c, cookie, &error);
+    auto *versionReply = xcb_randr_query_version_reply(c, cookie, &error);
     Q_ASSERT_X(versionReply, "xrandrxcbhelper", "Query to fetch xrandr version failed");
     if (error) {
         qFatal("Error while querying for xrandr version: %d", error->error_code);
@@ -134,7 +132,7 @@ bool XCBEventListener::nativeEventFilter(const QByteArray& eventType, void* mess
         return false;
     }
 
-    xcb_generic_event_t* e = static_cast<xcb_generic_event_t *>(message);
+    auto *e = static_cast<xcb_generic_event_t *>(message);
     const uint8_t xEventType = e->response_type & ~0x80;
 
     //If this event is not xcb_randr_notify, we don't want it
@@ -150,8 +148,7 @@ bool XCBEventListener::nativeEventFilter(const QByteArray& eventType, void* mess
 
 void XCBEventListener::handleScreenChange(xcb_generic_event_t* e)
 {
-    xcb_randr_screen_change_notify_event_t *e2 =
-        (xcb_randr_screen_change_notify_event_t *) e;
+    auto *e2 = reinterpret_cast<xcb_randr_screen_change_notify_event_t*>(e);
 
     // Only accept notifications for our window
     if (e2->request_window != m_window) {
@@ -172,8 +169,7 @@ void XCBEventListener::handleScreenChange(xcb_generic_event_t* e)
 
 void XCBEventListener::handleXRandRNotify(xcb_generic_event_t* e)
 {
-    xcb_randr_notify_event_t*
-    randrEvent = reinterpret_cast<xcb_randr_notify_event_t*>(e);
+    auto *randrEvent = reinterpret_cast<xcb_randr_notify_event_t*>(e);
 
     if (randrEvent->subCode == XCB_RANDR_NOTIFY_CRTC_CHANGE) {
         xcb_randr_crtc_change_t crtc = randrEvent->u.cc;

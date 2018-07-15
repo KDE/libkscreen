@@ -64,12 +64,11 @@ class XCBEventListener : public QObject,
     protected:
         bool m_isRandrPresent;
         bool m_event11;
-        int m_randrBase;
-        int m_randrErrorBase;
-        int m_majorOpcode;
-        int m_eventType;
-        int m_versionMajor;
-        int m_versionMinor;
+        uint8_t m_randrBase;
+        uint8_t m_randrErrorBase;
+        uint8_t m_majorOpcode;
+        uint32_t m_versionMajor;
+        uint32_t m_versionMinor;
 
         uint32_t m_window;
 };
