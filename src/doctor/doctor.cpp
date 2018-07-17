@@ -200,7 +200,7 @@ void Doctor::parsePositionalArgs()
                 if (output_id == -1) {
                     output_id = ops[1].toInt(&ok);
                     if (!ok) {
-                        cerr << "Unable to parse output id" << ops[1] << endl;
+                        cerr << "Unable to parse output id: " << ops[1] << endl;
                         qApp->exit(3);
                         return;
                     }
@@ -234,7 +234,7 @@ void Doctor::parsePositionalArgs()
                     int x = _pos[0].toInt(&ok);
                     int y = _pos[1].toInt(&ok);
                     if (!ok) {
-                        cerr << "Unable to parse position" << ops[3] << endl;
+                        cerr << "Unable to parse position: " << ops[3] << endl;
                         qApp->exit(5);
                         return;
                     }
@@ -280,7 +280,7 @@ void Doctor::parsePositionalArgs()
                         return;
                     }
                 } else {
-                    cerr << "Unable to parse arguments" << op << endl;
+                    cerr << "Unable to parse arguments: " << op << endl;
                     qApp->exit(2);
                     return;
                 }
