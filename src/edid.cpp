@@ -242,8 +242,8 @@ QQuaternion Edid::white() const
 bool Edid::Private::parse(const QByteArray &rawData)
 {
     quint32 serial;
-    const quint8 *data = (quint8*) rawData.constData();
-    size_t length = rawData.length();
+    const quint8 *data = reinterpret_cast<const quint8*>(rawData.constData());
+    int length = rawData.length();
 
     /* check header */
     if (length < 128) {
@@ -306,7 +306,7 @@ bool Edid::Private::parse(const QByteArray &rawData)
 
     /* get gamma */
     if (data[GCM_EDID_OFFSET_GAMMA] == 0xff) {
-        gamma = 1.0f;
+        gamma = 1.0;
     } else {
         gamma = (static_cast<float>(data[GCM_EDID_OFFSET_GAMMA] / 100) + 1);
     }
@@ -361,12 +361,12 @@ bool Edid::Private::parse(const QByteArray &rawData)
             if (data[i+3+9] != 0xff) {
                 /* extended EDID block(1) which contains
                                      * a better gamma value */
-                gamma = ((float) data[i+3+9] / 100) + 1;
+                gamma = (data[i+3+9] / 100.0) + 1;
             }
             if (data[i+3+14] != 0xff) {
                 /* extended EDID block(2) which contains
                                      * a better gamma value */
-                gamma = ((float) data[i+3+9] / 100) + 1;
+                gamma = (data[i+3+9] / 100.0) + 1;
             }
         }
     }
@@ -410,7 +410,7 @@ QString Edid::Private::edidParseString(const quint8 *data) const
 
         /* this is always 12 bytes, but we can't guarantee it's null
          * terminated or not junk. */
-        text = QString::fromLocal8Bit((const char*) data, 12);
+        text = QString::fromLocal8Bit(reinterpret_cast<const char*>(data), 12);
 
         // Remove newlines, extra spaces and stuff
         text = text.simplified();
