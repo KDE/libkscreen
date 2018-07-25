@@ -148,7 +148,8 @@ void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output)
         }
 
         mode->setId(modeid);
-        mode->setRefreshRate(m.refreshRate);
+        // KWayland gives the refresh rate as int in mHz
+        mode->setRefreshRate(m.refreshRate / 1000.0);
         mode->setSize(m.size);
         mode->setName(modename);
         if (m.flags.testFlag(KWayland::Client::OutputDevice::Mode::Flag::Current)) {
