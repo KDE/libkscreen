@@ -182,7 +182,6 @@ void GetConfigOperation::start()
 void GetConfigOperationPrivate::loadEdid(KScreen::AbstractBackend* backend)
 {
     Q_ASSERT(BackendManager::instance()->method() == BackendManager::InProcess);
-    Q_Q(GetConfigOperation);
     if (options & KScreen::ConfigOperation::NoEDID) {
         return;
     }

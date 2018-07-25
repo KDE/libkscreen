@@ -111,7 +111,6 @@ bool Config::canBeApplied(const ConfigPtr &config, ValidityFlags flags)
     }
 
     QRect rect;
-    QSize outputSize;
     OutputPtr currentOutput;
     const OutputList outputs = config->outputs();
     int enabledOutputsCount = 0;
