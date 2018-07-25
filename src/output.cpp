@@ -108,7 +108,7 @@ bool Output::Private::compareModeList(const ModeList& before, const ModeList &af
         if (mb->size() != ma->size()) {
             return false;
         }
-        if (mb->refreshRate() != ma->refreshRate()) {
+        if (!qFuzzyCompare(mb->refreshRate(), ma->refreshRate())) {
             return false;
         }
         if (mb->name() != ma->name()) {
@@ -387,7 +387,7 @@ qreal Output::scale() const
 
 void Output::setScale(qreal factor)
 {
-    if (d->scale == factor) {
+    if (qFuzzyCompare(d->scale, factor)) {
         return;
     }
     d->scale = factor;
@@ -527,7 +527,7 @@ void Output::apply(const OutputPtr& other)
         changes << &Output::rotationChanged;
         setRotation(other->d->rotation);
     }
-    if (d->scale != other->d->scale) {
+    if (!qFuzzyCompare(d->scale, other->d->scale)) {
         changes << &Output::scaleChanged;
         setScale(other->d->scale);
     }

@@ -316,7 +316,7 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
             wlOutputConfiguration->setPosition(o_old->outputDevice(), output->pos());
         }
 
-        if (device->scale() != output->scale()) {
+        if (!qFuzzyCompare(device->scale(), output->scale())) {
             changed = true;
             wlOutputConfiguration->setScale(o_old->outputDevice(), output->scale());
         }

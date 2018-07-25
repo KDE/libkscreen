@@ -120,7 +120,7 @@ float Mode::refreshRate() const
 
 void Mode::setRefreshRate(float refresh)
 {
-    if (d->rate == refresh) {
+    if (qFuzzyCompare(d->rate, refresh)) {
         return;
     }
 
