@@ -406,14 +406,10 @@ double Edid::Private::edidDecodeFraction(int high, int low) const
 
 QString Edid::Private::edidParseString(const quint8 *data) const
 {
-        QString text;
-
         /* this is always 12 bytes, but we can't guarantee it's null
          * terminated or not junk. */
-        text = QString::fromLocal8Bit(reinterpret_cast<const char*>(data), 12);
+        auto text = QString::fromLocal8Bit(reinterpret_cast<const char*>(data), 12);
 
         // Remove newlines, extra spaces and stuff
-        text = text.simplified();
-
-        return text;
+        return text.simplified();
 }
