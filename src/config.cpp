@@ -367,7 +367,8 @@ QDebug operator<<(QDebug dbg, const KScreen::ConfigPtr &config)
 {
     if (config) {
         dbg << "KScreen::Config(";
-        for (const auto output : config->outputs()) {
+        const auto outputs = config->outputs();
+        for (const auto &output : outputs) {
             if (output->isConnected()) {
                 dbg << endl << output;
             }
