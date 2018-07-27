@@ -308,7 +308,7 @@ bool Edid::Private::parse(const QByteArray &rawData)
     if (data[GCM_EDID_OFFSET_GAMMA] == 0xff) {
         gamma = 1.0;
     } else {
-        gamma = (static_cast<float>(data[GCM_EDID_OFFSET_GAMMA] / 100) + 1);
+        gamma = data[GCM_EDID_OFFSET_GAMMA] / 100.0 + 1.0;
     }
 
     /* get color red */
