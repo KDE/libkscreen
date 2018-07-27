@@ -76,7 +76,7 @@ class Q_DECL_HIDDEN Edid::Private
     bool parse(const QByteArray &data);
     int edidGetBit(int in, int bit) const;
     int edidGetBits(int in, int begin, int end) const;
-    double edidDecodeFraction(int high, int low) const;
+    float edidDecodeFraction(int high, int low) const;
     QString edidParseString(const quint8 *data) const;
 
     bool valid;
@@ -392,13 +392,12 @@ int Edid::Private::edidGetBits(int in, int begin, int end) const
         return (in >> begin) & mask;
 }
 
-double Edid::Private::edidDecodeFraction(int high, int low) const
+float Edid::Private::edidDecodeFraction(int high, int low) const
 {
-        double result = 0.0;
-        int i;
+        float result = 0.0;
 
         high = (high << 2) | low;
-        for (i = 0; i < 10; ++i) {
+        for (int i = 0; i < 10; ++i) {
             result += edidGetBit(high, i) * pow(2, i - 10);
         }
         return result;
