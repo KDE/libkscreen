@@ -61,8 +61,8 @@ void TestEdid::testEdidParser_data()
     QTest::addColumn<QString>("serial");
     QTest::addColumn<QString>("eisaId");
     QTest::addColumn<QString>("hash");
-    QTest::addColumn<int>("width");
-    QTest::addColumn<int>("height");
+    QTest::addColumn<uint>("width");
+    QTest::addColumn<uint>("height");
     QTest::addColumn<qreal>("gamma");
 
     QTest::addColumn<QQuaternion>("red");
@@ -79,7 +79,7 @@ void TestEdid::testEdidParser_data()
         << QStringLiteral("")
         << QStringLiteral("B133XW03 V4")
         << QStringLiteral("82266089b3f9da3a8c48de1ec81b09e1")
-        << 29 << 16 << 2.2
+        << 29U << 16U << 2.2
         << QQuaternion(1, QVector3D(0.580078, 0.339844, 0))
         << QQuaternion(1, QVector3D(0.320313, 0.549805, 0))
         << QQuaternion(1, QVector3D(0.155273, 0.110352, 0))
@@ -94,7 +94,7 @@ void TestEdid::testEdidParser_data()
         << QStringLiteral("F525M245AKLL")
         << QStringLiteral("")
         << QStringLiteral("be55eeb5fcc1e775f321c1ae3aa02ef0")
-        << 52 << 32 << 2.2
+        << 52U << 32U << 2.2
         << QQuaternion(1, QVector3D(0.679688, 0.308594, 0))
         << QQuaternion(1, QVector3D(0.206055, 0.693359, 0))
         << QQuaternion(1, QVector3D(0.151367, 0.0546875, 0))
@@ -108,7 +108,7 @@ void TestEdid::testEdidParser_data()
         << QStringLiteral("H9MZ302196")
         << QStringLiteral("")
         << QStringLiteral("9384061b2b87ad193f841e07d60e9e1a")
-        << 51 << 29 << 2.2
+        << 51U << 29U << 2.2
         << QQuaternion(1, QVector3D(0.639648, 0.328125, 0))
         << QQuaternion(1, QVector3D(0.299805, 0.599609, 0))
         << QQuaternion(1, QVector3D(0.150391, 0.0595703, 0))
@@ -123,7 +123,7 @@ void TestEdid::testEdidParser_data()
         << QStringLiteral("")
         << QStringLiteral("RXN49\uFFFDLQ133Z1")
         << QStringLiteral("3627c3534e4c82871967b57237bf5b83")
-        << 29 << 17 << 2.2
+        << 29U << 17U << 2.2
         << QQuaternion(1, QVector3D(0.639648, 0.328125, 0))
         << QQuaternion(1, QVector3D(0.299805, 0.599609, 0))
         << QQuaternion(1, QVector3D(0.149414, 0.0595703, 0))
@@ -140,8 +140,8 @@ void TestEdid::testEdidParser()
     QFETCH(QString, serial);
     QFETCH(QString, eisaId);
     QFETCH(QString, hash);
-    QFETCH(int, width);
-    QFETCH(int, height);
+    QFETCH(uint, width);
+    QFETCH(uint, height);
     QFETCH(qreal, gamma);
     QFETCH(QQuaternion, red);
     QFETCH(QQuaternion, green);
