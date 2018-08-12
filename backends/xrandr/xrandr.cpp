@@ -270,7 +270,7 @@ QByteArray XRandR::outputEdid(xcb_randr_output_t outputId)
     QByteArray edid;
     if (result != nullptr) {
         if (len % 128 == 0) {
-            edid = QByteArray((char *) result, len);
+            edid = QByteArray(reinterpret_cast<const char *>(result), len);
         }
         delete[] result;
     }
