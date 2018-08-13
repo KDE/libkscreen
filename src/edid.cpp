@@ -407,8 +407,12 @@ QString Edid::Private::edidParseString(const quint8 *data) const
 {
         /* this is always 13 bytes, but we can't guarantee it's null
          * terminated or not junk. */
-        auto text = QString::fromLocal8Bit(reinterpret_cast<const char*>(data), 13);
+        auto text = QString::fromLatin1(reinterpret_cast<const char*>(data), 13).simplified();
 
-        // Remove newlines, extra spaces and stuff
-        return text.simplified();
+        for (int i = 0; i < text.length(); ++i) {
+            if (!text.at(i).isPrint()) {
+                text[i] = '-';
+            }
+        }
+        return text;
 }

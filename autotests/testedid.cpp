@@ -121,7 +121,7 @@ void TestEdid::testEdidParser_data()
         << QStringLiteral("SHP")
         << QStringList({QStringLiteral("SHP"), QStringLiteral("Sharp Corporation")})
         << QStringLiteral("")
-        << QStringLiteral("RXN49\uFFFDLQ133Z1")
+        << QStringLiteral("RXN49-LQ133Z1")
         << QStringLiteral("3627c3534e4c82871967b57237bf5b83")
         << 29U << 17U << 2.2
         << QQuaternion(1, QVector3D(0.639648, 0.328125, 0))
