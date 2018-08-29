@@ -316,9 +316,9 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
             wlOutputConfiguration->setPosition(o_old->outputDevice(), output->pos());
         }
 
-        if (!qFuzzyCompare(device->scale(), output->scale())) {
+        if (!qFuzzyCompare(device->scaleF(), output->scale())) {
             changed = true;
-            wlOutputConfiguration->setScale(o_old->outputDevice(), output->scale());
+            wlOutputConfiguration->setScaleF(o_old->outputDevice(), output->scale());
         }
 
         // rotation
