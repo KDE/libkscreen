@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.0)
 project(libkscreen)
 set(PROJECT_VERSION "5.13.80")
 
-set(REQUIRED_QT_VERSION "5.9.0")
+set(QT_MIN_VERSION "5.11.0")
 set(KF5_MIN_VERSION "5.42.0")
 
 find_package(ECM ${KF5_MIN_VERSION} REQUIRED NO_MODULE)
@@ -21,7 +21,7 @@ include(CheckCXXCompilerFlag)
 include(CMakePackageConfigHelpers)
 include(GenerateExportHeader)
 
-find_package(Qt5 ${REQUIRED_QT_VERSION} CONFIG REQUIRED Core DBus Gui Test X11Extras)
+find_package(Qt5 ${QT_MIN_VERSION} CONFIG REQUIRED Core DBus Gui Test X11Extras)
 
 # Wayland backend
 find_package(KF5Wayland ${KF5_MIN_VERSION} CONFIG REQUIRED)
