@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
 project(libkscreen)
-set(PROJECT_VERSION "5.13.4")
+set(PROJECT_VERSION "5.13.5")
 
 set(REQUIRED_QT_VERSION "5.9.0")
 set(KF5_MIN_VERSION "5.42.0")
