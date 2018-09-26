@@ -60,7 +60,8 @@ class Q_DECL_HIDDEN Output::Private
         scale(other.scale),
         connected(other.connected),
         enabled(other.enabled),
-        primary(other.primary)
+        primary(other.primary),
+        followPreferredMode(other.followPreferredMode)
     {
         Q_FOREACH (const ModePtr &otherMode, other.modeList) {
             modeList.insert(otherMode->id(), otherMode->clone());
@@ -90,6 +91,7 @@ class Q_DECL_HIDDEN Output::Private
     bool connected;
     bool enabled;
     bool primary;
+    bool followPreferredMode = false;
 
     mutable QPointer<Edid> edid;
 };
@@ -479,6 +481,19 @@ void Output::setSizeMm(const QSize &size)
     d->sizeMm = size;
 }
 
+bool KScreen::Output::followPreferredMode() const
+{
+    return d->followPreferredMode;
+}
+
+void KScreen::Output::setFollowPreferredMode(bool follow)
+{
+    if (follow != d->followPreferredMode) {
+        d->followPreferredMode = follow;
+        Q_EMIT followPreferredModeChanged(follow);
+    }
+}
+
 QRect Output::geometry() const
 {
     if (!currentMode()) {
@@ -588,6 +603,7 @@ QDebug operator<<(QDebug dbg, const KScreen::OutputPtr &output)
                                   << "pos:" << output->pos() << "res:" << output->size()
                                   << "modeId:" << output->currentModeId()
                                   << "scale:" << output->scale()
+                                  << "followPreferredMode:" << output->followPreferredMode()
                                   << ")";
     } else {
         dbg << "KScreen::Output(NULL)";

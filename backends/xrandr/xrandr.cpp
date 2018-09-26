@@ -277,6 +277,19 @@ QByteArray XRandR::outputEdid(xcb_randr_output_t outputId)
     return edid;
 }
 
+bool XRandR::hasProperty(xcb_randr_output_t outputId, const QByteArray& name)
+{
+    size_t len = 0;
+    auto edid_atom = XCB::InternAtom(false, 4, "EDID")->atom;
+    auto result = XRandR::getXProperty(outputId, edid_atom, len);
+    if (result == nullptr) {
+        auto edid_atom = XCB::InternAtom(false, 9, "EDID_DATA")->atom;
+        result = XRandR::getXProperty(outputId, edid_atom, len);
+    }
+    delete[] result;
+    return result;
+}
+
 xcb_randr_get_screen_resources_reply_t* XRandR::screenResources()
 {
     if (XRandR::s_has_1_3) {

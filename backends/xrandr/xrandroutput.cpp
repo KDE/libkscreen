@@ -304,6 +304,10 @@ KScreen::OutputPtr XRandROutput::toKScreenOutput() const
     kscreenOutput->setName(m_name);
     kscreenOutput->setIcon(m_icon);
 
+    //See https://bugzilla.redhat.com/show_bug.cgi?id=1290586
+    //QXL will be creating a new mode we need to jump to every time the display is resized
+    kscreenOutput->setFollowPreferredMode(XRandR::hasProperty(m_id, "hotplug_mode_update"));
+
     kscreenOutput->setConnected(isConnected());
     if (isConnected()) {
         KScreen::ModeList kscreenModes;
