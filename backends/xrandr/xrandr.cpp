@@ -277,17 +277,18 @@ QByteArray XRandR::outputEdid(xcb_randr_output_t outputId)
     return edid;
 }
 
-bool XRandR::hasProperty(xcb_randr_output_t outputId, const QByteArray& name)
+bool XRandR::hasProperty(xcb_randr_output_t output, const QByteArray& name)
 {
-    size_t len = 0;
-    auto edid_atom = XCB::InternAtom(false, 4, "EDID")->atom;
-    auto result = XRandR::getXProperty(outputId, edid_atom, len);
-    if (result == nullptr) {
-        auto edid_atom = XCB::InternAtom(false, 9, "EDID_DATA")->atom;
-        result = XRandR::getXProperty(outputId, edid_atom, len);
-    }
-    delete[] result;
-    return result;
+    xcb_generic_error_t *error = nullptr;
+    auto atom = XCB::InternAtom(false, 4, name.constData())->atom;
+    auto cookie = xcb_randr_get_output_property(XCB::connection(), output, atom, XCB_ATOM_ANY, 0, 1, false, false);
+    auto prop_reply = xcb_randr_get_output_property_reply (XCB::connection(), cookie, &error);
+
+    const bool ret = error == nullptr;
+    qDebug() << "has" << name << ret << error;
+
+    free(prop_reply);
+    return cookie.sequence;
 }
 
 xcb_randr_get_screen_resources_reply_t* XRandR::screenResources()
