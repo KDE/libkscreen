@@ -86,6 +86,7 @@ QJsonObject ConfigSerializer::serializeOutput(const OutputPtr &output)
     obj[QLatin1String("currentModeId")] = output->currentModeId();
     obj[QLatin1String("preferredModes")] = serializeList(output->preferredModes());
     obj[QLatin1String("connected")] = output->isConnected();
+    obj[QLatin1String("followPreferredMode")] = output->followPreferredMode();
     obj[QLatin1String("enabled")] = output->isEnabled();
     obj[QLatin1String("primary")] = output->isPrimary();
     obj[QLatin1String("clones")] = serializeList(output->clones());
@@ -242,6 +243,8 @@ OutputPtr ConfigSerializer::deserializeOutput(const QDBusArgument &arg)
             output->setPreferredModes(deserializeList<QString>(value.value<QDBusArgument>()));
         } else if (key == QLatin1String("connected")) {
             output->setConnected(value.toBool());
+        } else if (key == QLatin1String("followPreferredMode")) {
+            output->setFollowPreferredMode(value.toBool());
         } else if (key == QLatin1String("enabled")) {
             output->setEnabled(value.toBool());
         } else if (key == QLatin1String("primary")) {
