@@ -175,6 +175,7 @@ void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_rand
 
     // Primary has changed
     m_primary = primary;
+    m_hotplugModeUpdate = XRandR::hasProperty(m_id, "hotplug_mode_update");
 }
 
 void XRandROutput::setIsPrimary(bool primary)
@@ -208,6 +209,7 @@ void XRandROutput::init()
     if (m_crtc) {
         m_crtc->connectOutput(m_id);
     }
+    m_hotplugModeUpdate = XRandR::hasProperty(m_id, "hotplug_mode_update");
 
     updateModes(outputInfo);
 }
@@ -306,7 +308,7 @@ KScreen::OutputPtr XRandROutput::toKScreenOutput() const
 
     //See https://bugzilla.redhat.com/show_bug.cgi?id=1290586
     //QXL will be creating a new mode we need to jump to every time the display is resized
-    kscreenOutput->setFollowPreferredMode(XRandR::hasProperty(m_id, "hotplug_mode_update"));
+    kscreenOutput->setFollowPreferredMode(m_hotplugModeUpdate);
 
     kscreenOutput->setConnected(isConnected());
     if (isConnected()) {

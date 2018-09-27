@@ -90,6 +90,7 @@ private:
     mutable QByteArray m_edid;
     unsigned int m_widthMm;
     unsigned int m_heightMm;
+    bool m_hotplugModeUpdate = false;
     XRandRCrtc *m_crtc;
 };
 

@@ -284,11 +284,9 @@ bool XRandR::hasProperty(xcb_randr_output_t output, const QByteArray& name)
     auto cookie = xcb_randr_get_output_property(XCB::connection(), output, atom, XCB_ATOM_ANY, 0, 1, false, false);
     auto prop_reply = xcb_randr_get_output_property_reply (XCB::connection(), cookie, &error);
 
-    const bool ret = error == nullptr;
-    qDebug() << "has" << name << ret << error;
-
+    const bool ret = prop_reply->num_items == 1;
     free(prop_reply);
-    return cookie.sequence;
+    return ret;
 }
 
 xcb_randr_get_screen_resources_reply_t* XRandR::screenResources()
