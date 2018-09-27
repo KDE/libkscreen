@@ -279,16 +279,11 @@ QByteArray XRandR::outputEdid(xcb_randr_output_t outputId)
 
 bool XRandR::hasProperty(xcb_randr_output_t output, const QByteArray& name)
 {
-    xcb_generic_error_t *error = nullptr;
-    auto atom = XCB::InternAtom(false, 4, name.constData())->atom;
-    auto cookie = xcb_randr_get_output_property(XCB::connection(), output, atom, XCB_ATOM_ANY, 0, 1, false, false);
-    auto prop_reply = xcb_randr_get_output_property_reply (XCB::connection(), cookie, &error);
+    XCB::InternAtom x(false, name.length(), name.constData());
 
-    const bool ret = error == nullptr;
-    qDebug() << "has" << name << ret << error;
-
-    free(prop_reply);
-    return cookie.sequence;
+    qDebug() << "has" << x->length << x->response_type << x->atom;
+    const bool ret = x->length;
+    return ret;
 }
 
 xcb_randr_get_screen_resources_reply_t* XRandR::screenResources()
