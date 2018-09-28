@@ -155,6 +155,7 @@ void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_rand
             updateModes(outputInfo);
         }
 
+        m_hotplugModeUpdate = XRandR::hasProperty(m_id, "hotplug_mode_update");
     }
 
     // A monitor has been enabled or disabled
@@ -208,6 +209,7 @@ void XRandROutput::init()
     if (m_crtc) {
         m_crtc->connectOutput(m_id);
     }
+    m_hotplugModeUpdate = XRandR::hasProperty(m_id, "hotplug_mode_update");
 
     updateModes(outputInfo);
 }
@@ -303,6 +305,10 @@ KScreen::OutputPtr XRandROutput::toKScreenOutput() const
     kscreenOutput->setSizeMm(QSize(m_widthMm, m_heightMm));
     kscreenOutput->setName(m_name);
     kscreenOutput->setIcon(m_icon);
+
+    //See https://bugzilla.redhat.com/show_bug.cgi?id=1290586
+    //QXL will be creating a new mode we need to jump to every time the display is resized
+    kscreenOutput->setFollowPreferredMode(m_hotplugModeUpdate);
 
     kscreenOutput->setConnected(isConnected());
     if (isConnected()) {

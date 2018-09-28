@@ -59,6 +59,7 @@ class KSCREEN_EXPORT Output : public QObject
         Q_PROPERTY(KScreen::Edid* edid READ edid CONSTANT)
         Q_PROPERTY(QSize sizeMm READ sizeMm CONSTANT)
         Q_PROPERTY(qreal scale READ scale WRITE setScale NOTIFY scaleChanged)
+        Q_PROPERTY(bool followPreferredMode READ followPreferredMode WRITE setFollowPreferredMode NOTIFY followPreferredModeChanged)
 
 
         enum Type {
@@ -211,6 +212,21 @@ class KSCREEN_EXPORT Output : public QObject
          */
         void setScale(qreal factor);
 
+        /**
+         * @returns whether the mode should be changed to the new preferred mode
+         * once it changes
+         *
+         * @since 5.15
+         */
+        bool followPreferredMode() const;
+
+        /**
+         * Set whether the preferred mode should be followed through @arg follow
+         *
+         * @since 5.15
+         */
+        void setFollowPreferredMode(bool follow);
+
         void apply(const OutputPtr &other);
     Q_SIGNALS:
         void outputChanged();
@@ -223,6 +239,7 @@ class KSCREEN_EXPORT Output : public QObject
         void isPrimaryChanged();
         void clonesChanged();
         void scaleChanged();
+        void followPreferredModeChanged(bool followPreferredMode);
 
         /** The mode list changed.
          *

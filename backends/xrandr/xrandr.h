@@ -57,6 +57,8 @@ class XRandR : public KScreen::AbstractBackend
         static xcb_screen_t* screen();
         static xcb_window_t rootWindow();
 
+        static bool hasProperty(xcb_randr_output_t outputId, const QByteArray &name);
+
     private Q_SLOTS:
         void outputChanged(xcb_randr_output_t output,
                            xcb_randr_crtc_t crtc,

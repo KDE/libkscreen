@@ -277,6 +277,18 @@ QByteArray XRandR::outputEdid(xcb_randr_output_t outputId)
     return edid;
 }
 
+bool XRandR::hasProperty(xcb_randr_output_t output, const QByteArray& name)
+{
+    xcb_generic_error_t *error = nullptr;
+    auto atom = XCB::InternAtom(false, name.length(), name.constData())->atom;
+    auto cookie = xcb_randr_get_output_property(XCB::connection(), output, atom, XCB_ATOM_ANY, 0, 1, false, false);
+    auto prop_reply = xcb_randr_get_output_property_reply (XCB::connection(), cookie, &error);
+
+    const bool ret = prop_reply->num_items == 1;
+    free(prop_reply);
+    return ret;
+}
+
 xcb_randr_get_screen_resources_reply_t* XRandR::screenResources()
 {
     if (XRandR::s_has_1_3) {
