@@ -26,7 +26,6 @@
 #include "edid.h"
 
 #include <QScreen>
-#include <QPointer>
 
 namespace KScreen
 {

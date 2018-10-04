@@ -22,7 +22,6 @@
 #include <QObject>
 #include <QMap>
 #include <QVariant>
-#include <QPointer>
 
 #include "xrandrmode.h"
 #include "output.h"
