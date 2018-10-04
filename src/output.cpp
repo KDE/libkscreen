@@ -25,7 +25,7 @@
 #include "debug_p.h"
 
 #include <QStringList>
-#include <QPointer>
+#include <QScopedPointer>
 #include <QRect>
 
 using namespace KScreen;
@@ -67,7 +67,7 @@ class Q_DECL_HIDDEN Output::Private
             modeList.insert(otherMode->id(), otherMode->clone());
         }
         if (other.edid) {
-            edid = other.edid->clone();
+            edid.reset(other.edid->clone());
         }
     }
 
@@ -93,7 +93,7 @@ class Q_DECL_HIDDEN Output::Private
     bool primary;
     bool followPreferredMode = false;
 
-    mutable QPointer<Edid> edid;
+    mutable QScopedPointer<Edid> edid;
 };
 
 bool Output::Private::compareModeList(const ModeList& before, const ModeList &after)
@@ -463,12 +463,12 @@ void Output::setClones(QList<int> outputlist)
 void Output::setEdid(const QByteArray& rawData)
 {
     Q_ASSERT(d->edid.isNull());
-    d->edid = new Edid(rawData);
+    d->edid.reset(new Edid(rawData));
 }
 
 Edid *Output::edid() const
 {
-    return d->edid;
+    return d->edid.data();
 }
 
 QSize Output::sizeMm() const
@@ -579,8 +579,7 @@ void Output::apply(const OutputPtr& other)
 
     // Non-notifyable changes
     if (other->d->edid) {
-        delete d->edid;
-        d->edid = other->d->edid->clone();
+        d->edid.reset(other->d->edid->clone());
     }
 
     blockSignals(keepBlocked);
