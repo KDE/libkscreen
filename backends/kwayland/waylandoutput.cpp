@@ -60,10 +60,12 @@ KWayland::Client::OutputDevice::Transform WaylandOutput::toKWaylandTransform(con
 
 QString WaylandOutput::toKScreenModeId(int kwaylandmodeid) const
 {
-    if (!m_modeIdMap.values().contains(kwaylandmodeid)) {
+    auto it = std::find(m_modeIdMap.constBegin(), m_modeIdMap.constEnd(), kwaylandmodeid);
+    if (it == m_modeIdMap.constEnd()) {
         qCWarning(KSCREEN_WAYLAND) << "Invalid kwayland mode id:" << kwaylandmodeid << m_modeIdMap;
+        return QStringLiteral("invalid_mode_id");
     }
-    return m_modeIdMap.key(kwaylandmodeid, QStringLiteral("invalid_mode_id"));
+    return it.key();
 }
 
 int WaylandOutput::toKWaylandModeId(const QString &kscreenmodeid) const
@@ -143,7 +145,7 @@ void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output)
             qCDebug(KSCREEN_WAYLAND) << "Could not create mode id from" << m.id << ", using" << modename << "instead.";
             modeid = modename;
         }
-        if (m_modeIdMap.keys().contains(modeid)) {
+        if (m_modeIdMap.contains(modeid)) {
             qCWarning(KSCREEN_WAYLAND) << "Mode id already in use:" << modeid;
         }
 

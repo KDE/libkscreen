@@ -98,12 +98,17 @@ class Q_DECL_HIDDEN Output::Private
 
 bool Output::Private::compareModeList(const ModeList& before, const ModeList &after)
 {
-    if (before.keys() != after.keys()) {
+    if (before.count() != after.count()) {
         return false;
     }
-    for (const QString &key : before.keys()) {
-        const auto mb = before.value(key);
-        const auto ma = after.value(key);
+
+    for (auto itb = before.constBegin(); itb != before.constEnd(); ++itb) {
+        auto ita = after.constFind(itb.key());
+        if (ita == after.constEnd()) {
+            return false;
+        }
+        const auto &mb = itb.value();
+        const auto &ma = ita.value();
         if (mb->id() != ma->id()) {
             return false;
         }

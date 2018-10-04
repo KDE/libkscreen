@@ -126,8 +126,9 @@ void WaylandTestServer::configurationChangeRequested(KWayland::Server::OutputCon
     Q_EMIT configReceived();
 
     auto changes = configurationInterface->changes();
-    Q_FOREACH (const auto &outputdevice, changes.keys()) {
-        auto c = changes[outputdevice];
+    for (auto it = changes.constBegin(); it != changes.constEnd(); ++it) {
+        auto outputdevice = it.key();
+        auto c = it.value();
         if (c->enabledChanged()) {
             qCDebug(KSCREEN_WAYLAND_TESTSERVER) << "Setting enabled:";
             outputdevice->setEnabled(c->enabled());

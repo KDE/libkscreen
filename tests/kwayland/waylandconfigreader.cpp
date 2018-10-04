@@ -113,8 +113,9 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
         OutputDeviceInterface::Mode m0;
         const QSize _size = sizeFromJson(mode[QStringLiteral("size")]);
 
-        if (mode.keys().contains(QStringLiteral("refreshRate"))) {
-            m0.refreshRate = qRound(mode[QStringLiteral("refreshRate")].toReal() * 1000); // config has it in Hz
+        auto refreshRateIt = mode.constFind(QStringLiteral("refreshRate"));
+        if (refreshRateIt != mode.constEnd()) {
+            m0.refreshRate = qRound(refreshRateIt->toReal() * 1000); // config has it in Hz
         }
         bool isCurrent = currentModeId == mode[QStringLiteral("id")].toInt();
         bool isPreferred = preferredModes.contains(mode[QStringLiteral("id")]);
@@ -128,8 +129,9 @@ OutputDeviceInterface* WaylandConfigReader::createOutputDevice(const QVariantMap
             flags = OutputDeviceInterface::ModeFlags(OutputDeviceInterface::ModeFlag::Preferred);
         }
 
-        if (mode.keys().contains(QLatin1String("id"))) {
-            m0.id = mode[QStringLiteral("id")].toInt();
+        auto idIt = mode.constFind(QStringLiteral("id"));
+        if (idIt != mode.constEnd()) {
+            m0.id = idIt->toInt();
         } else {
             m0.id = mode_id;
         }
