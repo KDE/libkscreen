@@ -28,7 +28,7 @@ KScreen::Output::Type Utils::guessOutputType(const QString &type, const QString 
                                    QLatin1String("LCD") };
 
     for (const QLatin1String &pre : embedded) {
-        if (name.toUpper().startsWith(pre)) {
+        if (name.startsWith(pre, Qt::CaseInsensitive)) {
             return KScreen::Output::Panel;
         }
     }
