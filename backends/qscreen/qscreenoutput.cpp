@@ -30,7 +30,6 @@ using namespace KScreen;
 QScreenOutput::QScreenOutput(const QScreen *qscreen, QObject *parent)
     : QObject(parent)
     , m_qscreen(qscreen)
-    , m_edid(nullptr)
     , m_id(-1)
 {
 }

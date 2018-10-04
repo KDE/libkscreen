@@ -50,7 +50,6 @@ public:
 private:
     void updateFromQScreen(const QScreen *qscreen);
     const QScreen *m_qscreen;
-    mutable QPointer<KScreen::Edid> m_edid;
     int m_id;
 };
 
