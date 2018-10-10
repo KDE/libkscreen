@@ -20,7 +20,7 @@
 #include "backenddbuswrapper.h"
 #include "backendloader.h"
 #include "backendadaptor.h"
-#include "debug_p.h"
+#include "kscreen_backendLauncher_debug.h"
 
 #include "src/configserializer_p.h"
 #include "src/config.h"

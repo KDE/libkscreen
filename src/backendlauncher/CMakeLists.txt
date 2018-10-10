@@ -10,9 +10,9 @@ set(backendlauncher_SRCS
 )
 
 ecm_qt_declare_logging_category(backendlauncher_SRCS
-                                HEADER debug_p.h
+                                HEADER kscreen_backendLauncher_debug.h
                                 IDENTIFIER KSCREEN_BACKEND_LAUNCHER
-                                CATEGORY_NAME kscreen.backendLauncher
+                                CATEGORY_NAME org.kde.kscreen.backendLauncher
 )
 
 qt5_add_dbus_adaptor(backendlauncher_SRCS ${CMAKE_SOURCE_DIR}/interfaces/org.kde.KScreen.Backend.xml

@@ -1,0 +1,3 @@
+org.kde.kscreen kscreen IDENTIFIER [KSCREEN]
+org.kde.kscreen.edid kscreen (edid) IDENTIFIER [KSCREEN_EDID]
+org.kde.kscreen.backendLauncher kscreen (backendlauncher) IDENTIFIER [KSCREEN_BACKEND_LAUNCHER]

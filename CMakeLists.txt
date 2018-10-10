@@ -38,16 +38,6 @@ set_package_properties(XCB PROPERTIES
 option(BUILD_QCH "Build API documentation in QCH format (for e.g. Qt Assistant, Qt Creator & KDevelop)" OFF)
 add_feature_info(QCH ${BUILD_QCH} "API documentation in QCH format (for e.g. Qt Assistant, Qt Creator & KDevelop)")
 
-# library setup
-
-add_definitions(
-  -DQT_USE_QSTRINGBUILDER
-  -DQT_NO_CAST_TO_ASCII
-  -DQT_NO_CAST_FROM_ASCII
-  -DQT_STRICT_ITERATORS
-  -DQT_NO_URL_CAST_FROM_STRING
-  -DQT_NO_CAST_FROM_BYTEARRAY
-)
 
 set(KF5_VERSION ${PROJECT_VERSION}) #When we are happy with the api, we can sync with frameworks
 ecm_setup_version(${KF5_VERSION} VARIABLE_PREFIX KSCREEN
@@ -109,5 +99,7 @@ install(FILES
   DESTINATION "${KF5_INCLUDE_INSTALL_DIR}"
   COMPONENT Devel
 )
+install( FILES kscreen.categories DESTINATION ${KDE_INSTALL_CONFDIR} )
+
 
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)

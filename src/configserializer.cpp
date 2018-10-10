@@ -24,7 +24,7 @@
 #include "output.h"
 #include "screen.h"
 #include "edid.h"
-#include "debug_p.h"
+#include "kscreen_debug.h"
 
 #include <QDBusArgument>
 #include <QJsonDocument>

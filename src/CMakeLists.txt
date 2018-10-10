@@ -15,11 +15,23 @@ set(libkscreen_SRCS
     output.cpp
     edid.cpp
     mode.cpp
-    debug_p.cpp
     log.cpp
 )
 
 qt5_add_dbus_interface(libkscreen_SRCS ${CMAKE_SOURCE_DIR}/interfaces/org.kde.KScreen.Backend.xml backendinterface)
+
+ecm_qt_declare_logging_category(libkscreen_SRCS
+                                HEADER kscreen_debug.h
+                                IDENTIFIER KSCREEN 
+                                CATEGORY_NAME org.kde.kscreen
+)
+
+ecm_qt_declare_logging_category(libkscreen_SRCS
+                                HEADER kscreen_debug_edid.h
+                                IDENTIFIER KSCREEN_EDID
+                                CATEGORY_NAME org.kde.kscreen.edid
+)
+
 
 add_library(KF5Screen SHARED ${libkscreen_SRCS})
 generate_export_header(KF5Screen BASE_NAME KScreen)

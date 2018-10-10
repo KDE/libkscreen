@@ -20,7 +20,7 @@
 #include <QGuiApplication>
 #include <QDBusConnection>
 
-#include "debug_p.h"
+#include "kscreen_backendLauncher_debug.h"
 #include "backendloader.h"
 #include "log.h"
 

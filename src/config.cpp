@@ -21,7 +21,7 @@
 #include "output.h"
 #include "backendmanager_p.h"
 #include "abstractbackend.h"
-#include "debug_p.h"
+#include "kscreen_debug.h"
 
 #include <QDebug>
 #include <QRect>

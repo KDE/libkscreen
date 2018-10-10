@@ -22,7 +22,7 @@
 #include "abstractbackend.h"
 #include "configserializer_p.h"
 #include "getconfigoperation.h"
-#include "debug_p.h"
+#include "kscreen_debug.h"
 #include "output.h"
 
 #include <QDBusPendingCallWatcher>

@@ -22,7 +22,7 @@
 #include "configoperation_p.h"
 #include "backendmanager_p.h"
 
-#include "debug_p.h"
+#include "kscreen_debug.h"
 
 using namespace KScreen;
 

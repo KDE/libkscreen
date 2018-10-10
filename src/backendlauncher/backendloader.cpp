@@ -20,7 +20,7 @@
 #include "backendloader.h"
 #include "backendloaderadaptor.h"
 #include "backenddbuswrapper.h"
-#include "debug_p.h"
+#include "kscreen_backendLauncher_debug.h"
 #include "src/abstractbackend.h"
 #include "src/backendmanager_p.h"
 

@@ -18,7 +18,7 @@
  *************************************************************************************/
 
 #include "edid.h"
-#include "debug_p.h"
+#include "kscreen_debug_edid.h"
 
 #include <math.h>
 

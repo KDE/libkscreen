@@ -22,7 +22,7 @@
 #include "edid.h"
 #include "abstractbackend.h"
 #include "backendmanager_p.h"
-#include "debug_p.h"
+#include "kscreen_debug.h"
 
 #include <QStringList>
 #include <QScopedPointer>

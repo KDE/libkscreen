@@ -25,7 +25,7 @@
 #include "config.h"
 #include "configmonitor.h"
 #include "backendinterface.h"
-#include "debug_p.h"
+#include "kscreen_debug.h"
 #include "getconfigoperation.h"
 #include "configserializer_p.h"
 #include "log.h"
