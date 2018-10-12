@@ -99,7 +99,7 @@ install(FILES
   DESTINATION "${KF5_INCLUDE_INSTALL_DIR}"
   COMPONENT Devel
 )
-install( FILES kscreen.categories DESTINATION ${KDE_INSTALL_CONFDIR} )
+install( FILES libkscreen.categories DESTINATION ${KDE_INSTALL_CONFDIR} )
 
 
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
