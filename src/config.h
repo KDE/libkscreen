@@ -115,6 +115,18 @@ class KSCREEN_EXPORT Config : public QObject
      */
     ConfigPtr clone() const;
 
+    /**
+     * Returns an identifying hash for this config in regards to its
+     * connected outputs.
+     *
+     * The hash is calculated with a sorted combination of all
+     * connected output hashes.
+     *
+     * @return sorted hash combination of all connected outputs
+     * @since 5.15
+     */
+    QString connectedOutputsHash() const;
+
     ScreenPtr screen() const;
     void setScreen(const ScreenPtr &screen);
 

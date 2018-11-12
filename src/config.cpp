@@ -25,6 +25,8 @@
 
 #include <QDebug>
 #include <QRect>
+#include <QStringList>
+#include <QCryptographicHash>
 
 using namespace KScreen;
 
@@ -219,6 +221,19 @@ ConfigPtr Config::clone() const
     return newConfig;
 }
 
+QString Config::connectedOutputsHash() const
+{
+    QStringList hashedOutputs;
+
+    const auto outputs = connectedOutputs();
+    for (const OutputPtr &output : outputs) {
+        hashedOutputs << output->hash();
+    }
+    std::sort(hashedOutputs.begin(), hashedOutputs.end());
+    const auto hash = QCryptographicHash::hash(hashedOutputs.join(QString()).toLatin1(),
+                                               QCryptographicHash::Md5);
+    return QString::fromLatin1(hash.toHex());
+}
 
 ScreenPtr Config::screen() const
 {

@@ -98,6 +98,17 @@ class KSCREEN_EXPORT Output : public QObject
         QString name() const;
         void setName(const QString& name);
 
+        /**
+         * Returns an identifying hash for this output.
+         *
+         * The hash is calculated either via the edid hash or if no
+         * edid is available by the output name.
+         *
+         * @return identifying hash of this output
+         * @since 5.15
+         */
+        QString hash() const;
+
         Type type() const;
         void setType(Type type);
 

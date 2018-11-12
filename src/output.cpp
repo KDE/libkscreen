@@ -210,6 +210,14 @@ void Output::setName(const QString& name)
     Q_EMIT outputChanged();
 }
 
+QString Output::hash() const
+{
+    if (edid() && edid()->isValid()) {
+        return edid()->hash();
+    }
+    return name();
+}
+
 Output::Type Output::type() const
 {
     return d->type;
