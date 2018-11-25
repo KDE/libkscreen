@@ -93,7 +93,7 @@ class Q_DECL_HIDDEN Output::Private
     bool primary;
     bool followPreferredMode = false;
 
-    mutable QScopedPointer<Edid> edid;
+    QScopedPointer<Edid> edid;
 };
 
 bool Output::Private::compareModeList(const ModeList& before, const ModeList &after)

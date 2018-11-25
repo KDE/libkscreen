@@ -181,6 +181,13 @@ class KSCREEN_EXPORT Output : public QObject
         void setClones(QList<int> outputlist);
 
         void setEdid(const QByteArray &rawData);
+
+        /**
+         * edid returns the output's EDID information if available.
+         *
+         * The output maintains ownership of the returned Edid, so the caller should not delete it.
+         * Note that the edid is only valid as long as the output is alive.
+         */
         Edid* edid() const;
 
         /**
