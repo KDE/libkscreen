@@ -553,6 +553,7 @@ void Output::apply(const OutputPtr& other)
     }
     if (!d->compareModeList(d->modeList, other->d->modeList)) {
         changes << &Output::outputChanged;
+        changes << &Output::modesChanged;
     }
 
     setPreferredModes(other->d->preferredModes);
