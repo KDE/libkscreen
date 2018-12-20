@@ -95,7 +95,7 @@ if(BUILD_QCH)
         KF5Screen_QCH
         NAME KScreen
         BASE_NAME KF5Screen
-        VERSION ${KF5_VERSION}
+        VERSION ${KF5_MIN_VERSION}
         ORG_DOMAIN org.kde
         SOURCES # using only public headers, to cover only public API
             ${KScreen_REQ_HEADERS}

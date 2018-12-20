@@ -39,8 +39,8 @@ option(BUILD_QCH "Build API documentation in QCH format (for e.g. Qt Assistant, 
 add_feature_info(QCH ${BUILD_QCH} "API documentation in QCH format (for e.g. Qt Assistant, Qt Creator & KDevelop)")
 
 
-set(KF5_VERSION ${PROJECT_VERSION}) #When we are happy with the api, we can sync with frameworks
-ecm_setup_version(${KF5_VERSION} VARIABLE_PREFIX KSCREEN
+set(KF5_MIN_VERSION ${PROJECT_VERSION}) #When we are happy with the api, we can sync with frameworks
+ecm_setup_version(${KF5_MIN_VERSION} VARIABLE_PREFIX KSCREEN
                         VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/kscreen_version.h"
                         PACKAGE_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/KF5ScreenConfigVersion.cmake"
                         SOVERSION 7)
