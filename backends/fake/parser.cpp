@@ -131,7 +131,7 @@ OutputPtr Parser::outputFromJson(QMap< QString, QVariant > map)
     output->setModes(modelist);
     map.remove(QStringLiteral("modes"));
 
-    if(map.contains(QLatin1String("clones"))) {
+    if(map.contains(QStringLiteral("clones"))) {
         QList<int> clones;
         Q_FOREACH(const QVariant &id, map[QStringLiteral("clones")].toList()) {
             clones.append(id.toInt());

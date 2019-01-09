@@ -71,12 +71,12 @@ XRandR11::~XRandR11()
 
 QString XRandR11::name() const
 {
-    return QLatin1Literal("XRandR 1.1");
+    return QStringLiteral("XRandR 1.1");
 }
 
 QString XRandR11::serviceName() const
 {
-    return QLatin1Literal("org.kde.KScreen.Backend.XRandR11");
+    return QStringLiteral("org.kde.KScreen.Backend.XRandR11");
 }
 
 
@@ -120,7 +120,7 @@ KScreen::ConfigPtr XRandR11::config() const
 
     output->setConnected(true);
     output->setEnabled(true);
-    output->setName(QLatin1String("Default"));
+    output->setName(QStringLiteral("Default"));
     output->setPos(QPoint(0,0));
     output->setPrimary(true);
     output->setRotation((KScreen::Output::Rotation) info->rotation);
@@ -142,10 +142,10 @@ KScreen::ConfigPtr XRandR11::config() const
         for (int j = 0; j < nrates; j++) {
             float rate = rates[j];
             mode = KScreen::ModePtr(new KScreen::Mode);
-            mode->setId(QString::fromLatin1("%1-%2").arg(x).arg(j));
+            mode->setId(QStringLiteral("%1-%2").arg(x).arg(j));
             mode->setSize(QSize(size.width, size.height));
             mode->setRefreshRate(rate);
-            mode->setName(QString::fromLatin1("%1x%2").arg(size.width).arg(size.height));
+            mode->setName(QStringLiteral("%1x%2").arg(size.width).arg(size.height));
 
             if (x == info->sizeID && rate == info->rate) {
                 output->setCurrentModeId(mode->id());

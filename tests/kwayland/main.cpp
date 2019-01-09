@@ -27,8 +27,8 @@ int main(int argc, char **argv)
 
     KScreen::WaylandTestServer server;
 
-    QCommandLineOption config = QCommandLineOption(QStringList() << QStringLiteral("c") << QLatin1String("config"),
-                                                  QStringLiteral("Config file"), QLatin1String("config"));
+    QCommandLineOption config = QCommandLineOption(QStringList() << QStringLiteral("c") << QStringLiteral("config"),
+                                                  QStringLiteral("Config file"), QStringLiteral("config"));
     QCommandLineParser parser;
     parser.addHelpOption();
     parser.addOption(config);

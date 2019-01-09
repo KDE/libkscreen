@@ -47,7 +47,7 @@ Fake::Fake()
 
 
     if (qgetenv("KSCREEN_BACKEND_INPROCESS") != QByteArray("1")) {
-        QTimer::singleShot(0, this, SLOT(delayedInit()));
+        QTimer::singleShot(0, this, &Fake::delayedInit);
     }
 }
 
@@ -65,7 +65,7 @@ void Fake::init(const QVariantMap &arguments)
 void Fake::delayedInit()
 {
     new FakeBackendAdaptor(this);
-    QDBusConnection::sessionBus().registerObject(QLatin1String("/fake"), this);
+    QDBusConnection::sessionBus().registerObject(QStringLiteral("/fake"), this);
 }
 
 Fake::~Fake()
@@ -79,7 +79,7 @@ QString Fake::name() const
 
 QString Fake::serviceName() const
 {
-    return QLatin1Literal("org.kde.KScreen.Backend.Fake");
+    return QStringLiteral("org.kde.KScreen.Backend.Fake");
 }
 
 ConfigPtr Fake::config() const

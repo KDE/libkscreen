@@ -62,10 +62,10 @@ private Q_SLOTS:
     void testSerializeList()
     {
         QStringList stringList;
-        stringList << QLatin1String("Item 1")
-                   << QLatin1String("Item 2")
-                   << QLatin1String("Item 3")
-                   << QLatin1String("Item 4");
+        stringList << QStringLiteral("Item 1")
+                   << QStringLiteral("Item 2")
+                   << QStringLiteral("Item 3")
+                   << QStringLiteral("Item 4");
 
         QJsonArray arr = KScreen::ConfigSerializer::serializeList<QString>(stringList);
         QCOMPARE(arr.size(), stringList.size());
@@ -115,8 +115,8 @@ private Q_SLOTS:
     void testSerializeMode()
     {
         KScreen::ModePtr mode(new KScreen::Mode);
-        mode->setId(QLatin1String("755"));
-        mode->setName(QLatin1String("1280x1024"));
+        mode->setId(QStringLiteral("755"));
+        mode->setName(QStringLiteral("1280x1024"));
         mode->setRefreshRate(50.666);
         mode->setSize(QSize(1280, 1024));
 
@@ -135,23 +135,23 @@ private Q_SLOTS:
     {
         KScreen::ModeList modes;
         KScreen::ModePtr mode(new KScreen::Mode);
-        mode->setId(QLatin1String("1"));
-        mode->setName(QLatin1String("800x600"));
+        mode->setId(QStringLiteral("1"));
+        mode->setName(QStringLiteral("800x600"));
         mode->setSize(QSize(800, 600));
         mode->setRefreshRate(50.4);
         modes.insert(mode->id(), mode);
 
         KScreen::OutputPtr output(new KScreen::Output);
         output->setId(60);
-        output->setName(QLatin1String("LVDS-0"));
+        output->setName(QStringLiteral("LVDS-0"));
         output->setType(KScreen::Output::Panel);
         output->setIcon(QString());
         output->setModes(modes);
         output->setPos(QPoint(1280, 0));
         output->setSize(mode->size());
         output->setRotation(KScreen::Output::None);
-        output->setCurrentModeId(QLatin1String("1"));
-        output->setPreferredModes(QStringList() << QLatin1String("1"));
+        output->setCurrentModeId(QStringLiteral("1"));
+        output->setPreferredModes(QStringList() << QStringLiteral("1"));
         output->setConnected(true);
         output->setEnabled(true);
         output->setPrimary(true);

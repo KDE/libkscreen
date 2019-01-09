@@ -53,7 +53,7 @@ QString WaylandBackend::name() const
 
 QString WaylandBackend::serviceName() const
 {
-    return QLatin1Literal("org.kde.KScreen.Backend.KWayland");
+    return QStringLiteral("org.kde.KScreen.Backend.KWayland");
 }
 
 ConfigPtr WaylandBackend::config() const

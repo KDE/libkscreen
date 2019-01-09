@@ -178,12 +178,12 @@ ConfigPtr ConfigSerializer::deserializeConfig(const QVariantMap &map)
 {
     ConfigPtr config(new Config);
 
-    if (map.contains(QLatin1String("features"))) {
-        config->setSupportedFeatures(static_cast<Config::Features>(map[QLatin1String("features")].toInt()));
+    if (map.contains(QStringLiteral("features"))) {
+        config->setSupportedFeatures(static_cast<Config::Features>(map[QStringLiteral("features")].toInt()));
     }
 
-    if (map.contains(QLatin1String("outputs"))) {
-        const QDBusArgument &outputsArg = map[QLatin1String("outputs")].value<QDBusArgument>();
+    if (map.contains(QStringLiteral("outputs"))) {
+        const QDBusArgument &outputsArg = map[QStringLiteral("outputs")].value<QDBusArgument>();
         outputsArg.beginArray();
         OutputList outputs;
         while (!outputsArg.atEnd()) {
@@ -199,8 +199,8 @@ ConfigPtr ConfigSerializer::deserializeConfig(const QVariantMap &map)
         config->setOutputs(outputs);
     }
 
-    if (map.contains(QLatin1String("screen"))) {
-        const QDBusArgument &screenArg = map[QLatin1String("screen")].value<QDBusArgument>();
+    if (map.contains(QStringLiteral("screen"))) {
+        const QDBusArgument &screenArg = map[QStringLiteral("screen")].value<QDBusArgument>();
         const KScreen::ScreenPtr screen = deserializeScreen(screenArg);
         if (!screen) {
             return ConfigPtr();

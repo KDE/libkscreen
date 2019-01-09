@@ -164,7 +164,7 @@ private:
         }
     }
     template<typename ... Args>
-    constexpr xcb_window_t requestWindow(const Args & ... args) {
+    constexpr xcb_window_t requestWindow(const Args & ... args) const {
         return std::is_same<typename std::tuple_element<0, std::tuple<Args ...>>::type, xcb_window_t>::value
                     ? std::get<0>(std::tuple<Args ...>(args ...))
                     : static_cast<xcb_window_t>(XCB_WINDOW_NONE);

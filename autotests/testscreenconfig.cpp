@@ -212,12 +212,12 @@ void testScreenConfig::configCanBeApplied()
     QVERIFY(!Config::canBeApplied(brokenConfig));
     primaryBroken->setConnected(currentPrimary->isConnected());
     QVERIFY(!Config::canBeApplied(brokenConfig));
-    primaryBroken->setCurrentModeId(QLatin1String("42"));
+    primaryBroken->setCurrentModeId(QStringLiteral("42"));
     QVERIFY(!Config::canBeApplied(brokenConfig));
     primaryBroken->setCurrentModeId(currentPrimary->currentModeId());
     QVERIFY(!Config::canBeApplied(brokenConfig));
     qDebug() << "brokenConfig.modes" << primaryBroken->mode(QStringLiteral("3"));
-    primaryBroken->mode(QLatin1String("3"))->setSize(QSize(1280, 800));
+    primaryBroken->mode(QStringLiteral("3"))->setSize(QSize(1280, 800));
     qDebug() << "brokenConfig.modes" << primaryBroken->mode(QStringLiteral("3"));
     QVERIFY(Config::canBeApplied(brokenConfig));
 

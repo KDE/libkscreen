@@ -63,7 +63,7 @@ bool BackendLoader::init()
 {
     QDBusConnection dbus = QDBusConnection::sessionBus();
     new BackendLoaderAdaptor(this);
-    if (!dbus.registerObject(QLatin1String("/"), this, QDBusConnection::ExportAdaptors)) {
+    if (!dbus.registerObject(QStringLiteral("/"), this, QDBusConnection::ExportAdaptors)) {
         qCWarning(KSCREEN_BACKEND_LAUNCHER) << "Failed to export backend to DBus: another launcher already running?";
         qCWarning(KSCREEN_BACKEND_LAUNCHER) << dbus.lastError().message();
         return false;

@@ -132,7 +132,7 @@ bool Edid::isValid() const
 
 QString Edid::deviceId(const QString &fallbackName) const
 {
-    QString id = QLatin1String("xrandr");
+    QString id = QStringLiteral("xrandr");
     // if no info was added check if the fallbacName is provided
     if (vendor().isNull() && name().isNull() && serial().isNull()) {
         if (!fallbackName.isEmpty()) {
