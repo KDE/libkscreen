@@ -178,7 +178,7 @@ class KSCREEN_EXPORT Output : public QObject
         void setPrimary(bool primary);
 
         QList<int> clones() const;
-        void setClones(QList<int> outputlist);
+        void setClones(const QList<int> &outputlist);
 
         void setEdid(const QByteArray &rawData);
 

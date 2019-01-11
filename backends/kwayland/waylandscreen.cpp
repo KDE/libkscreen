@@ -43,7 +43,7 @@ ScreenPtr WaylandScreen::toKScreenScreen(KScreen::ConfigPtr &parent) const
     return kscreenScreen;
 }
 
-void WaylandScreen::setOutputs(const QList<WaylandOutput*> outputs)
+void WaylandScreen::setOutputs(const QList<WaylandOutput*> &outputs)
 {
     m_outputCount = outputs.count();
     QRect r;

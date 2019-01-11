@@ -462,7 +462,7 @@ QList<int> Output::clones() const
     return d->clones;
 }
 
-void Output::setClones(QList<int> outputlist)
+void Output::setClones(const QList<int> &outputlist)
 {
     if (d->clones == outputlist) {
         return;

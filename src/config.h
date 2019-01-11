@@ -137,7 +137,7 @@ class KSCREEN_EXPORT Config : public QObject
     void setPrimaryOutput(const OutputPtr &output);
     void addOutput(const OutputPtr &output);
     void removeOutput(int outputId);
-    void setOutputs(OutputList outputs);
+    void setOutputs(const OutputList &outputs);
 
     bool isValid() const;
     void setValid(bool valid);

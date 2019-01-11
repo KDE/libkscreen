@@ -330,7 +330,7 @@ void Config::removeOutput(int outputId)
     d->removeOutput(d->outputs.find(outputId));
 }
 
-void Config::setOutputs(OutputList outputs)
+void Config::setOutputs(const OutputList &outputs)
 {
     for (auto iter = d->outputs.begin(), end = d->outputs.end(); iter != end; ) {
         iter = d->removeOutput(iter);
