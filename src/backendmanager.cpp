@@ -241,6 +241,9 @@ KScreen::AbstractBackend *BackendManager::loadBackendInProcess(const QString &na
         arguments[QStringLiteral("TEST_DATA")] = beargs.remove(test_data_equals);
     }
     auto backend = BackendManager::loadBackendPlugin(mLoader, name, arguments);
+    if (!backend) {
+        return nullptr;
+    }
     //qCDebug(KSCREEN) << "Connecting ConfigMonitor to backend.";
     ConfigMonitor::instance()->connectInProcessBackend(backend);
     m_inProcessBackend = qMakePair<KScreen::AbstractBackend*, QVariantMap>(backend, arguments);
