@@ -27,6 +27,7 @@
 #include <QStringList>
 #include <QScopedPointer>
 #include <QRect>
+#include <QCryptographicHash>
 
 using namespace KScreen;
 
@@ -216,6 +217,16 @@ QString Output::hash() const
         return edid()->hash();
     }
     return name();
+}
+
+QString Output::hashMd5() const
+{
+    if (edid() && edid()->isValid()) {
+        return edid()->hash();
+    }
+    const auto hash = QCryptographicHash::hash(name().toLatin1(),
+                                               QCryptographicHash::Md5);
+    return QString::fromLatin1(hash.toHex());
 }
 
 Output::Type Output::type() const

@@ -106,8 +106,21 @@ class KSCREEN_EXPORT Output : public QObject
          *
          * @return identifying hash of this output
          * @since 5.15
+         * @deprecated
+         * @see hashMd5
          */
         QString hash() const;
+
+        /**
+         * Returns an identifying hex encoded MD5-hash for this output.
+         *
+         * The hash is calculated either via the edid hash or if no
+         * edid is available by the output name, which is hashed as well.
+         *
+         * @return identifying hash of this output
+         * @since 5.17
+         */
+        QString hashMd5() const;
 
         Type type() const;
         void setType(Type type);
