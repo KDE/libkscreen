@@ -37,7 +37,6 @@ namespace KWayland
 
 namespace KScreen
 {
-class ConfigOperation;
 
 class DpmsClient : public QObject
 {

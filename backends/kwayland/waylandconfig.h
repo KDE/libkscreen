@@ -35,7 +35,6 @@ namespace KWayland {
     namespace Client {
         class ConnectionThread;
         class EventQueue;
-        class OutputDevice;
         class Registry;
         class OutputManagement;
     }

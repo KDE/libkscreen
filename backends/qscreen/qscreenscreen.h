@@ -29,7 +29,6 @@
 namespace KScreen
 {
 class Output;
-class QScreenOutput;
 
 class QScreenScreen : public QObject
 {

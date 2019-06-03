@@ -33,7 +33,6 @@ class QTimer;
 class XCBEventListener;
 class XRandRConfig;
 namespace KScreen {
-    class Output;
 }
 
 class XRandR : public KScreen::AbstractBackend

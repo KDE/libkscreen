@@ -33,8 +33,6 @@
 
 namespace KScreen
 {
-class WaylandConfig;
-class WaylandOutput;
 
 static const QString s_socketName = QStringLiteral("libkscreen-test-wayland-backend-0");
 

@@ -27,7 +27,6 @@
 
 namespace KScreen
 {
-class Output;
 class QScreenConfig;
 
 class QScreenBackend : public KScreen::AbstractBackend

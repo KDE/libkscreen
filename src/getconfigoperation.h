@@ -24,8 +24,6 @@
 #include "types.h"
 #include "kscreen_export.h"
 
-class QDBusPendingCallWatcher;
-class OrgKdeKscreenBackend;
 
 namespace KScreen {
 

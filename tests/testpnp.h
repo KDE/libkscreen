@@ -27,7 +27,6 @@
 namespace KScreen
 {
 class Output;
-class QScreenOutput;
 class ConfigOperation;
 
 class TestPnp : public QObject
