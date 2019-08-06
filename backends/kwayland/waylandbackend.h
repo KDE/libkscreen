@@ -46,9 +46,7 @@ public:
 
 private:
     bool m_isValid;
-    KScreen::ConfigPtr m_config;
     WaylandConfig *m_internalConfig;
-    void emitConfigChanged(const KScreen::ConfigPtr &cfg);
 };
 
 }

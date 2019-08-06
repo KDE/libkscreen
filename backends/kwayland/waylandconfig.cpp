@@ -42,7 +42,7 @@ WaylandConfig::WaylandConfig(QObject *parent)
     , m_registryInitialized(false)
     , m_blockSignals(true)
     , m_newOutputId(0)
-    , m_kscreenConfig(nullptr)
+    , m_kscreenConfig(new Config)
     , m_kscreenPendingConfig(nullptr)
     , m_screen(new WaylandScreen(this))
 {
@@ -131,8 +131,7 @@ void WaylandConfig::disconnected()
         m_thread = nullptr;
     }
 
-    Q_EMIT configChanged(toKScreenConfig());
-    Q_EMIT gone();
+    Q_EMIT configChanged();
 }
 
 void WaylandConfig::setupRegistry()
@@ -195,35 +194,15 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
 
         if (!m_blockSignals && m_initializingOutputs.empty()) {
             m_screen->setOutputs(m_outputMap.values());
-            Q_EMIT configChanged(toKScreenConfig());
+            Q_EMIT configChanged();
         }
 
         connect(waylandoutput, &WaylandOutput::changed, this, [this]() {
             if (!m_blockSignals) {
-                Q_EMIT configChanged(toKScreenConfig());
+                Q_EMIT configChanged();
             }
         });
     });
-}
-
-void WaylandConfig::checkInitialized()
-{
-    if (!m_blockSignals && m_registryInitialized &&
-        m_initializingOutputs.isEmpty() && m_outputMap.count() && m_outputManagement != nullptr) {
-        m_screen->setOutputs(m_outputMap.values());
-        Q_EMIT initialized();
-    }
-}
-
-KScreen::ConfigPtr WaylandConfig::toKScreenConfig()
-{
-    if (m_kscreenConfig == nullptr) {
-        m_kscreenConfig = KScreen::ConfigPtr(new Config);
-    }
-    m_kscreenConfig->setScreen(m_screen->toKScreenScreen(m_kscreenConfig));
-
-    updateKScreenConfig(m_kscreenConfig);
-    return m_kscreenConfig;
 }
 
 void WaylandConfig::removeOutput(quint32 name)
@@ -235,28 +214,41 @@ void WaylandConfig::removeOutput(quint32 name)
     delete output;
 
     if (!m_blockSignals) {
-        Q_EMIT configChanged(toKScreenConfig());
+        Q_EMIT configChanged();
     }
 }
 
-void WaylandConfig::updateKScreenConfig(KScreen::ConfigPtr &config) const
+void WaylandConfig::checkInitialized()
 {
+    if (!m_blockSignals && m_registryInitialized &&
+        m_initializingOutputs.isEmpty() && m_outputMap.count() && m_outputManagement != nullptr) {
+        m_screen->setOutputs(m_outputMap.values());
+        Q_EMIT initialized();
+    }
+}
+
+KScreen::ConfigPtr WaylandConfig::currentConfig()
+{
+    // TODO: do this setScreen call less clunky
+    m_kscreenConfig->setScreen(m_screen->toKScreenScreen(m_kscreenConfig));
+
     auto features = Config::Feature::Writable | Config::Feature::PerOutputScaling;
-    config->setSupportedFeatures(features);
-    config->setValid(m_connection->display());
-    KScreen::ScreenPtr screen = config->screen();
+    m_kscreenConfig->setSupportedFeatures(features);
+    m_kscreenConfig->setValid(m_connection->display());
+
+    KScreen::ScreenPtr screen = m_kscreenConfig->screen();
     m_screen->updateKScreenScreen(screen);
 
     //Removing removed outputs
-    const KScreen::OutputList outputs = config->outputs();
+    const KScreen::OutputList outputs = m_kscreenConfig->outputs();
     for (const auto &output : outputs) {
         if (!m_outputMap.contains(output->id())) {
-            config->removeOutput(output->id());
+            m_kscreenConfig->removeOutput(output->id());
         }
     }
 
     // Add KScreen::Outputs that aren't in the list yet, handle primaryOutput
-    KScreen::OutputList kscreenOutputs = config->outputs();
+    KScreen::OutputList kscreenOutputs = m_kscreenConfig->outputs();
     for (const auto &output : m_outputMap) {
         KScreen::OutputPtr kscreenOutput = kscreenOutputs[output->id()];
         if (!kscreenOutput) {
@@ -270,7 +262,9 @@ void WaylandConfig::updateKScreenConfig(KScreen::ConfigPtr &config) const
         }
         output->updateKScreenOutput(kscreenOutput);
     }
-    config->setOutputs(kscreenOutputs);
+    m_kscreenConfig->setOutputs(kscreenOutputs);
+
+    return m_kscreenConfig;
 }
 
 QMap<int, WaylandOutput*> WaylandConfig::outputMap() const
@@ -354,13 +348,13 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
     connect(wlConfig, &OutputConfiguration::applied, this, [this, wlConfig] {
         wlConfig->deleteLater();
         unblockSignals();
-        Q_EMIT configChanged(toKScreenConfig());
+        Q_EMIT configChanged();
         tryPendingConfig();
     });
     connect(wlConfig, &OutputConfiguration::failed, this, [this, wlConfig] {
         wlConfig->deleteLater();
         unblockSignals();
-        Q_EMIT configChanged(toKScreenConfig());
+        Q_EMIT configChanged();
         tryPendingConfig();
     });
 

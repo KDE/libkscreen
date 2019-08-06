@@ -36,16 +36,16 @@ Q_LOGGING_CATEGORY(KSCREEN_WAYLAND, "kscreen.kwayland")
 WaylandBackend::WaylandBackend()
     : KScreen::AbstractBackend()
     , m_isValid(true)
-    , m_config(nullptr)
     , m_internalConfig(new WaylandConfig(this))
 {
     qCDebug(KSCREEN_WAYLAND) << "Loading Wayland backend.";
 
     m_internalConfig = new WaylandConfig(this);
-    m_config = m_internalConfig->toKScreenConfig();
 
     connect(m_internalConfig, &WaylandConfig::configChanged,
-            this, &WaylandBackend::emitConfigChanged);
+            this, [this]() {
+        Q_EMIT configChanged(m_internalConfig->currentConfig());
+    });
 }
 
 QString WaylandBackend::name() const
@@ -61,7 +61,7 @@ QString WaylandBackend::serviceName() const
 ConfigPtr WaylandBackend::config() const
 {
     // Note: This should ONLY be called from GetConfigOperation!
-    return m_internalConfig->toKScreenConfig();
+    return m_internalConfig->currentConfig();
 }
 
 void WaylandBackend::setConfig(const KScreen::ConfigPtr &newconfig)
@@ -70,11 +70,6 @@ void WaylandBackend::setConfig(const KScreen::ConfigPtr &newconfig)
         return;
     }
     m_internalConfig->applyConfig(newconfig);
-}
-
-void WaylandBackend::emitConfigChanged(const KScreen::ConfigPtr &cfg)
-{
-    Q_EMIT configChanged(cfg);
 }
 
 QByteArray WaylandBackend::edid(int outputId) const

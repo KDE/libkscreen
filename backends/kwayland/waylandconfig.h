@@ -66,8 +66,7 @@ public:
     explicit WaylandConfig(QObject *parent = nullptr);
     ~WaylandConfig() override;
 
-    KScreen::ConfigPtr toKScreenConfig();
-
+    KScreen::ConfigPtr currentConfig();
     QMap<int, WaylandOutput*> outputMap() const;
 
     void addOutput(quint32 name, quint32 version);
@@ -76,16 +75,14 @@ public:
     void applyConfig(const KScreen::ConfigPtr &newConfig);
 
 Q_SIGNALS:
-    void configChanged(const KScreen::ConfigPtr &config);
+    void configChanged();
     void initialized();
-    void gone();
 
 private:
     void setupRegistry();
     void checkInitialized();
     void disconnected();
 
-    void updateKScreenConfig(KScreen::ConfigPtr &config) const;
     void initConnection();
     void blockSignals();
     void unblockSignals();
