@@ -16,13 +16,15 @@
  *  License along with this library; if not, write to the Free Software              *
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
-
 #include "waylandconfig.h"
+
+#include "waylandbackend.h"
 #include "waylandoutput.h"
 #include "waylandscreen.h"
-#include "waylandbackend.h"
 
-// KWayland
+#include <configmonitor.h>
+#include <mode.h>
+
 #include <KWayland/Client/connection_thread.h>
 #include <KWayland/Client/event_queue.h>
 #include <KWayland/Client/registry.h>
@@ -30,16 +32,9 @@
 #include <KWayland/Client/outputdevice.h>
 #include <KWayland/Client/outputmanagement.h>
 
-
-// Qt
 #include <QTimer>
 
-#include <configmonitor.h>
-#include <mode.h>
-
-
 using namespace KScreen;
-
 
 WaylandConfig::WaylandConfig(QObject *parent)
     : QObject(parent)
@@ -52,14 +47,17 @@ WaylandConfig::WaylandConfig(QObject *parent)
     , m_screen(new WaylandScreen(this))
 {
     connect(this, &WaylandConfig::initialized, &m_syncLoop, &QEventLoop::quit);
+
     QTimer::singleShot(1000, this, [this] {
         if (m_syncLoop.isRunning()) {
-            qCWarning(KSCREEN_WAYLAND) << "Connection to Wayland server at socket:" << m_connection->socketName() << "timed out.";
+            qCWarning(KSCREEN_WAYLAND) << "Connection to Wayland server at socket:"
+                                       << m_connection->socketName() << "timed out.";
             m_syncLoop.quit();
             m_thread->quit();
             m_thread->wait();
         }
     });
+
     initConnection();
     m_syncLoop.exec();
 }
@@ -74,7 +72,6 @@ WaylandConfig::~WaylandConfig()
 void WaylandConfig::initConnection()
 {
     m_thread = new QThread(this);
-    //m_queue = new KWayland::Client::EventQueue(this);
     m_connection = new KWayland::Client::ConnectionThread;
 
     connect(m_connection, &KWayland::Client::ConnectionThread::connected,
@@ -82,8 +79,10 @@ void WaylandConfig::initConnection()
 
     connect(m_connection, &KWayland::Client::ConnectionThread::connectionDied,
             this, &WaylandConfig::disconnected, Qt::QueuedConnection);
+
     connect(m_connection, &KWayland::Client::ConnectionThread::failed, this, [this] {
-        qCWarning(KSCREEN_WAYLAND) << "Failed to connect to Wayland server at socket:" << m_connection->socketName();
+        qCWarning(KSCREEN_WAYLAND) << "Failed to connect to Wayland server at socket:"
+                                   << m_connection->socketName();
         m_syncLoop.quit();
         m_thread->quit();
         m_thread->wait();
@@ -172,22 +171,24 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
 {
     ++m_newOutputId;
     quint32 new_id = m_newOutputId;
+
     m_outputIds[name] = new_id;
     if (m_outputMap.contains(new_id)) {
         return;
     }
+
     if (!m_initializingOutputs.contains(name)) {
         m_initializingOutputs << name;
     }
 
     auto op = new KWayland::Client::OutputDevice(this);
+
     WaylandOutput *waylandoutput = new WaylandOutput(new_id, this);
     waylandoutput->bindOutputDevice(m_registry, op, name, version);
 
     // finalize: when the output is done, we put it in the known outputs map,
     // remove if from the list of initializing outputs, and emit configChanged()
     connect(waylandoutput, &WaylandOutput::complete, this, [this, waylandoutput, name]{
-
         m_outputMap.insert(waylandoutput->id(), waylandoutput);
         m_initializingOutputs.removeAll(name);
         checkInitialized();
@@ -196,6 +197,7 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
             m_screen->setOutputs(m_outputMap.values());
             Q_EMIT configChanged(toKScreenConfig());
         }
+
         connect(waylandoutput, &WaylandOutput::changed, this, [this]() {
             if (!m_blockSignals) {
                 Q_EMIT configChanged(toKScreenConfig());
@@ -227,9 +229,11 @@ KScreen::ConfigPtr WaylandConfig::toKScreenConfig()
 void WaylandConfig::removeOutput(quint32 name)
 {
     const int kscreen_id = m_outputIds[name];
+
     auto output = m_outputMap.take(kscreen_id);
     m_screen->setOutputs(m_outputMap.values());
     delete output;
+
     if (!m_blockSignals) {
         Q_EMIT configChanged(toKScreenConfig());
     }
@@ -245,7 +249,7 @@ void WaylandConfig::updateKScreenConfig(KScreen::ConfigPtr &config) const
 
     //Removing removed outputs
     const KScreen::OutputList outputs = config->outputs();
-    Q_FOREACH (const KScreen::OutputPtr &output, outputs) {
+    for (const auto &output : outputs) {
         if (!m_outputMap.contains(output->id())) {
             config->removeOutput(output->id());
         }
@@ -253,7 +257,7 @@ void WaylandConfig::updateKScreenConfig(KScreen::ConfigPtr &config) const
 
     // Add KScreen::Outputs that aren't in the list yet, handle primaryOutput
     KScreen::OutputList kscreenOutputs = config->outputs();
-    Q_FOREACH (const auto &output, m_outputMap) {
+    for (const auto &output : m_outputMap) {
         KScreen::OutputPtr kscreenOutput = kscreenOutputs[output->id()];
         if (!kscreenOutput) {
             kscreenOutput = output->toKScreenOutput();
@@ -263,7 +267,6 @@ void WaylandConfig::updateKScreenConfig(KScreen::ConfigPtr &config) const
             kscreenOutput->setPrimary(true);
         } else if (m_outputMap.count() > 1) {
             // primaryScreen concept doesn't exist in kwayland, so we don't set one
-            //qCWarning(KSCREEN_WAYLAND) << "Multiple outputs, but no way to figure out the primary one. :/";
         }
         output->updateKScreenOutput(kscreenOutput);
     }
@@ -288,7 +291,7 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
 {
     using namespace KWayland::Client;
     // Create a new configuration object
-    auto wlOutputConfiguration = m_outputManagement->createConfiguration();
+    auto wlConfig = m_outputManagement->createConfiguration();
     bool changed = false;
 
     if (m_blockSignals) {
@@ -297,7 +300,7 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
         return;
     }
 
-    Q_FOREACH (auto output, newConfig->outputs()) {
+    for (const auto &output : newConfig->outputs()) {
         auto o_old = m_outputMap[output->id()];
         auto device = o_old->outputDevice();
         Q_ASSERT(o_old != nullptr);
@@ -307,18 +310,19 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
         if (old_enabled != output->isEnabled()) {
             changed = true;
             auto _enablement = output->isEnabled() ? OutputDevice::Enablement::Enabled : OutputDevice::Enablement::Disabled;
-            wlOutputConfiguration->setEnabled(o_old->outputDevice(), _enablement);
+            wlConfig->setEnabled(o_old->outputDevice(), _enablement);
         }
 
         // position
         if (device->globalPosition() != output->pos()) {
             changed = true;
-            wlOutputConfiguration->setPosition(o_old->outputDevice(), output->pos());
+            wlConfig->setPosition(o_old->outputDevice(), output->pos());
         }
 
+        // scale
         if (!qFuzzyCompare(device->scaleF(), output->scale())) {
             changed = true;
-            wlOutputConfiguration->setScaleF(o_old->outputDevice(), output->scale());
+            wlConfig->setScaleF(o_old->outputDevice(), output->scale());
         }
 
         // rotation
@@ -326,16 +330,17 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
         auto r_new = output->rotation();
         if (r_current != r_new) {
             changed = true;
-            wlOutputConfiguration->setTransform(device, o_old->toKWaylandTransform(r_new));
+            wlConfig->setTransform(device, o_old->toKWaylandTransform(r_new));
         }
 
         // mode
         int w_currentmodeid = device->currentMode().id;
         QString l_newmodeid = output->currentModeId();
+
         int w_newmodeid = o_old->toKWaylandModeId(l_newmodeid);
         if (w_newmodeid != w_currentmodeid) {
             changed = true;
-            wlOutputConfiguration->setMode(device, w_newmodeid);
+            wlConfig->setMode(device, w_newmodeid);
         }
     }
 
@@ -346,19 +351,20 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
     // We now block changes in order to compress events while the compositor is doing its thing
     // once it's done or failed, we'll trigger configChanged() only once, and not per individual
     // property change.
-    connect(wlOutputConfiguration, &OutputConfiguration::applied, this, [this, wlOutputConfiguration] {
-        wlOutputConfiguration->deleteLater();
+    connect(wlConfig, &OutputConfiguration::applied, this, [this, wlConfig] {
+        wlConfig->deleteLater();
         unblockSignals();
         Q_EMIT configChanged(toKScreenConfig());
         tryPendingConfig();
     });
-    connect(wlOutputConfiguration, &OutputConfiguration::failed, this, [this, wlOutputConfiguration] {
-        wlOutputConfiguration->deleteLater();
+    connect(wlConfig, &OutputConfiguration::failed, this, [this, wlConfig] {
+        wlConfig->deleteLater();
         unblockSignals();
         Q_EMIT configChanged(toKScreenConfig());
         tryPendingConfig();
     });
+
+    // Now block signals and ask the compositor to apply the changes.
     blockSignals();
-    // Now ask the compositor to apply the changes
-    wlOutputConfiguration->apply();
+    wlConfig->apply();
 }

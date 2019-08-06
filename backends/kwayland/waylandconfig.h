@@ -15,29 +15,28 @@
  *  License along with this library; if not, write to the Free Software              *
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
-
-#ifndef KSCREEN_WAYLAND_CONFIG_H
-#define KSCREEN_WAYLAND_CONFIG_H
+#pragma once
 
 #include "abstractbackend.h"
 #include "config.h"
 
 #include <QDir>
 #include <QEventLoop>
-#include <QScreen>
-#include <QSize>
-#include <QThread>
 #include <QLoggingCategory>
+#include <QSize>
+#include <QScreen>
 #include <QSocketNotifier>
+#include <QThread>
 
-
-namespace KWayland {
-    namespace Client {
-        class ConnectionThread;
-        class EventQueue;
-        class Registry;
-        class OutputManagement;
-    }
+namespace KWayland
+{
+namespace Client
+{
+class ConnectionThread;
+class EventQueue;
+class Registry;
+class OutputManagement;
+}
 }
 
 namespace KScreen
@@ -68,9 +67,8 @@ public:
     ~WaylandConfig() override;
 
     KScreen::ConfigPtr toKScreenConfig();
-    void updateKScreenConfig(KScreen::ConfigPtr &config) const;
 
-    QMap<int, WaylandOutput *> outputMap() const;
+    QMap<int, WaylandOutput*> outputMap() const;
 
     void addOutput(quint32 name, quint32 version);
     void removeOutput(quint32 name);
@@ -82,12 +80,12 @@ Q_SIGNALS:
     void initialized();
     void gone();
 
-private Q_SLOTS:
+private:
     void setupRegistry();
     void checkInitialized();
     void disconnected();
 
-private:
+    void updateKScreenConfig(KScreen::ConfigPtr &config) const;
     void initConnection();
     void blockSignals();
     void unblockSignals();
@@ -113,9 +111,6 @@ private:
     KScreen::ConfigPtr m_kscreenConfig;
     KScreen::ConfigPtr m_kscreenPendingConfig;
     WaylandScreen *m_screen;
-
 };
 
-} // namespace
-
-#endif // KSCREEN_WAYLAND_CONFIG_H
+}

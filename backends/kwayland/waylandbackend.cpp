@@ -17,8 +17,8 @@
  *  License along with this library; if not, write to the Free Software              *
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
-
 #include "waylandbackend.h"
+
 #include "waylandconfig.h"
 #include "waylandoutput.h"
 
@@ -40,8 +40,10 @@ WaylandBackend::WaylandBackend()
     , m_internalConfig(new WaylandConfig(this))
 {
     qCDebug(KSCREEN_WAYLAND) << "Loading Wayland backend.";
+
     m_internalConfig = new WaylandConfig(this);
     m_config = m_internalConfig->toKScreenConfig();
+
     connect(m_internalConfig, &WaylandConfig::configChanged,
             this, &WaylandBackend::emitConfigChanged);
 }
@@ -87,10 +89,4 @@ QByteArray WaylandBackend::edid(int outputId) const
 bool WaylandBackend::isValid() const
 {
     return m_isValid;
-}
-
-void WaylandBackend::updateConfig(ConfigPtr &config)
-{
-    Q_ASSERT(config != nullptr);
-    m_internalConfig->updateKScreenConfig(config);
 }

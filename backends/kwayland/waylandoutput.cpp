@@ -15,7 +15,6 @@
  *  License along with this library; if not, write to the Free Software              *
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
-
 #include "waylandoutput.h"
 #include "waylandbackend.h"
 #include "waylandconfig.h"
@@ -24,38 +23,39 @@
 #include <mode.h>
 #include <edid.h>
 
-#include <QRect>
-#include <QGuiApplication>
-
-
 using namespace KScreen;
+namespace Wl = KWayland::Client;
+
+const QMap<Wl::OutputDevice::Transform, Output::Rotation>
+s_rotationMap = {
+    {Wl::OutputDevice::Transform::Normal, Output::None},
+    {Wl::OutputDevice::Transform::Rotated90, Output::Right},
+    {Wl::OutputDevice::Transform::Rotated180, Output::Inverted},
+    {Wl::OutputDevice::Transform::Rotated270, Output::Left},
+    {Wl::OutputDevice::Transform::Flipped, Output::None},
+    {Wl::OutputDevice::Transform::Flipped90, Output::Right},
+    {Wl::OutputDevice::Transform::Flipped180, Output::Inverted},
+    {Wl::OutputDevice::Transform::Flipped270, Output::Left}
+};
 
 WaylandOutput::WaylandOutput(quint32 id, WaylandConfig *parent)
     : QObject(parent)
     , m_id(id)
     , m_output(nullptr)
 {
-    m_rotationMap = {
-        {KWayland::Client::OutputDevice::Transform::Normal, KScreen::Output::None},
-        {KWayland::Client::OutputDevice::Transform::Rotated90, KScreen::Output::Right},
-        {KWayland::Client::OutputDevice::Transform::Rotated180, KScreen::Output::Inverted},
-        {KWayland::Client::OutputDevice::Transform::Rotated270, KScreen::Output::Left},
-        {KWayland::Client::OutputDevice::Transform::Flipped, KScreen::Output::None},
-        {KWayland::Client::OutputDevice::Transform::Flipped90, KScreen::Output::Right},
-        {KWayland::Client::OutputDevice::Transform::Flipped180, KScreen::Output::Inverted},
-        {KWayland::Client::OutputDevice::Transform::Flipped270, KScreen::Output::Left}
-    };
 }
 
-KScreen::Output::Rotation WaylandOutput::toKScreenRotation(const KWayland::Client::OutputDevice::Transform  transform) const
+Output::Rotation
+WaylandOutput::toKScreenRotation(const Wl::OutputDevice::Transform transform) const
 {
-    auto it = m_rotationMap.constFind(transform);
+    auto it = s_rotationMap.constFind(transform);
     return it.value();
 }
 
-KWayland::Client::OutputDevice::Transform WaylandOutput::toKWaylandTransform(const KScreen::Output::Rotation rotation) const
+Wl::OutputDevice::Transform
+WaylandOutput::toKWaylandTransform(const Output::Rotation rotation) const
 {
-    return m_rotationMap.key(rotation);
+    return s_rotationMap.key(rotation);
 }
 
 QString WaylandOutput::toKScreenModeId(int kwaylandmodeid) const
@@ -76,10 +76,6 @@ int WaylandOutput::toKWaylandModeId(const QString &kscreenmodeid) const
     return m_modeIdMap.value(kscreenmodeid, -1);
 }
 
-WaylandOutput::~WaylandOutput()
-{
-}
-
 quint32 WaylandOutput::id() const
 {
     Q_ASSERT(m_output);
@@ -91,92 +87,98 @@ bool WaylandOutput::enabled() const
     return m_output != nullptr;
 }
 
-KWayland::Client::OutputDevice* WaylandOutput::outputDevice() const
+Wl::OutputDevice* WaylandOutput::outputDevice() const
 {
     return m_output;
 }
 
-void WaylandOutput::bindOutputDevice(KWayland::Client::Registry* registry, KWayland::Client::OutputDevice* op, quint32 name, quint32 version)
+void WaylandOutput::bindOutputDevice(Wl::Registry* registry, Wl::OutputDevice* op,
+                                     quint32 name, quint32 version)
 {
     if (m_output == op) {
         return;
     }
     m_output = op;
 
-    connect(m_output, &KWayland::Client::OutputDevice::done, this, [this]() {
+    connect(m_output, &Wl::OutputDevice::done, this, [this]() {
                 Q_EMIT complete();
-                connect(m_output, &KWayland::Client::OutputDevice::changed,
-                        this, &WaylandOutput::changed);
-
+                connect(m_output, &Wl::OutputDevice::changed, this, &WaylandOutput::changed);
     });
 
     m_output->setup(registry->bindOutputDevice(name, version));
 }
 
-KScreen::OutputPtr WaylandOutput::toKScreenOutput()
+OutputPtr WaylandOutput::toKScreenOutput()
 {
-    KScreen::OutputPtr output(new KScreen::Output());
+    OutputPtr output(new Output());
     output->setId(m_id);
     updateKScreenOutput(output);
     return output;
 }
 
-void WaylandOutput::updateKScreenOutput(KScreen::OutputPtr &output)
+void WaylandOutput::updateKScreenOutput(OutputPtr &output)
 {
     // Initialize primary output
     output->setId(m_id);
-    output->setEnabled(m_output->enabled() == KWayland::Client::OutputDevice::Enablement::Enabled);
+    output->setEnabled(m_output->enabled() == Wl::OutputDevice::Enablement::Enabled);
     output->setConnected(true);
     output->setPrimary(true); // FIXME: wayland doesn't have the concept of a primary display
     output->setName(name());
-    // Physical size
     output->setSizeMm(m_output->physicalSize());
     output->setPos(m_output->globalPosition());
-    output->setRotation(m_rotationMap[m_output->transform()]);
-    KScreen::ModeList modeList;
+    output->setRotation(s_rotationMap[m_output->transform()]);
+
+    ModeList modeList;
     QStringList preferredModeIds;
     m_modeIdMap.clear();
     QString currentModeId = QStringLiteral("-1");
-    Q_FOREACH (const KWayland::Client::OutputDevice::Mode &m, m_output->modes()) {
-        KScreen::ModePtr mode(new KScreen::Mode());
-        const QString modename = modeName(m);
-        QString modeid = QString::number(m.id);
-        if (modeid.isEmpty()) {
-            qCDebug(KSCREEN_WAYLAND) << "Could not create mode id from" << m.id << ", using" << modename << "instead.";
-            modeid = modename;
-        }
-        if (m_modeIdMap.contains(modeid)) {
-            qCWarning(KSCREEN_WAYLAND) << "Mode id already in use:" << modeid;
+
+    for (const Wl::OutputDevice::Mode &wlMode : m_output->modes()) {
+        ModePtr mode(new Mode());
+        const QString name = modeName(wlMode);
+
+        QString modeId = QString::number(wlMode.id);
+        if (modeId.isEmpty()) {
+            qCDebug(KSCREEN_WAYLAND) << "Could not create mode id from"
+                                     << wlMode.id << ", using" << name << "instead.";
+            modeId = name;
         }
 
-        mode->setId(modeid);
+        if (m_modeIdMap.contains(modeId)) {
+            qCWarning(KSCREEN_WAYLAND) << "Mode id already in use:" << modeId;
+        }
+        mode->setId(modeId);
+
         // KWayland gives the refresh rate as int in mHz
-        mode->setRefreshRate(m.refreshRate / 1000.0);
-        mode->setSize(m.size);
-        mode->setName(modename);
-        if (m.flags.testFlag(KWayland::Client::OutputDevice::Mode::Flag::Current)) {
-            currentModeId = modeid;
+        mode->setRefreshRate(wlMode.refreshRate / 1000.0);
+        mode->setSize(wlMode.size);
+        mode->setName(name);
+
+        if (wlMode.flags.testFlag(Wl::OutputDevice::Mode::Flag::Current)) {
+            currentModeId = modeId;
         }
-        if (m.flags.testFlag(KWayland::Client::OutputDevice::Mode::Flag::Preferred)) {
-            preferredModeIds << modeid;
+        if (wlMode.flags.testFlag(Wl::OutputDevice::Mode::Flag::Preferred)) {
+            preferredModeIds << modeId;
         }
+
         // Update the kscreen => kwayland mode id translation map
-        m_modeIdMap.insert(modeid, m.id);
+        m_modeIdMap.insert(modeId, wlMode.id);
         // Add to the modelist which gets set on the output
-        modeList[modeid] = mode;
+        modeList[modeId] = mode;
     }
+
     if (currentModeId == QLatin1String("-1")) {
         qCWarning(KSCREEN_WAYLAND) << "Could not find the current mode id" << modeList;
     }
-    output->setCurrentModeId(currentModeId);
 
+    output->setCurrentModeId(currentModeId);
     output->setPreferredModes(preferredModeIds);
     output->setModes(modeList);
     output->setScale(m_output->scale());
     output->setType(Utils::guessOutputType(m_output->model(), m_output->model()));
 }
 
-QString WaylandOutput::modeName(const KWayland::Client::OutputDevice::Mode &m) const
+QString WaylandOutput::modeName(const Wl::OutputDevice::Mode &m) const
 {
     return QString::number(m.size.width()) + QLatin1Char('x') +
            QString::number(m.size.height()) + QLatin1Char('@') +

@@ -17,9 +17,7 @@
  *  License along with this library; if not, write to the Free Software              *
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
-
-#ifndef KWAYLAND_BACKEND_H
-#define KWAYLAND_BACKEND_H
+#pragma once
 
 #include "abstractbackend.h"
 
@@ -27,6 +25,7 @@
 
 namespace KScreen
 {
+
 class WaylandConfig;
 
 class WaylandBackend : public KScreen::AbstractBackend
@@ -45,8 +44,6 @@ public:
     bool isValid() const override;
     QByteArray edid(int outputId) const override;
 
-    void updateConfig(KScreen::ConfigPtr &config);
-
 private:
     bool m_isValid;
     KScreen::ConfigPtr m_config;
@@ -54,8 +51,6 @@ private:
     void emitConfigChanged(const KScreen::ConfigPtr &cfg);
 };
 
-} // namespace
+}
 
 Q_DECLARE_LOGGING_CATEGORY(KSCREEN_WAYLAND)
-
-#endif //KWAYLAND_BACKEND_H
