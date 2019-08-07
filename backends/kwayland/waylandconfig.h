@@ -69,9 +69,6 @@ public:
     KScreen::ConfigPtr currentConfig();
     QMap<int, WaylandOutput*> outputMap() const;
 
-    void addOutput(quint32 name, quint32 version);
-    void removeOutput(quint32 name);
-
     void applyConfig(const KScreen::ConfigPtr &newConfig);
 
 Q_SIGNALS:
@@ -84,6 +81,10 @@ private:
     void disconnected();
 
     void initConnection();
+
+    void addOutput(quint32 name, quint32 version);
+    void removeOutput(WaylandOutput *output);
+
     void blockSignals();
     void unblockSignals();
     void tryPendingConfig();
@@ -95,16 +96,16 @@ private:
     KWayland::Client::Registry *m_registry;
     KWayland::Client::OutputManagement *m_outputManagement;
 
+    // KWayland names as keys
     QMap<int, WaylandOutput*> m_outputMap;
-    // Map between kwayland's outputdevice names and kscreen output ids
-    // key: wayland's name, value: kscreen id
-    QMap<int, int> m_outputIds;
+
+    // KWayland names
     QList<int> m_initializingOutputs;
-    bool m_registryInitialized;
     int m_lastOutputId = -1;
+
+    bool m_registryInitialized;
     bool m_blockSignals;
     QEventLoop m_syncLoop;
-    int m_newOutputId;
     KScreen::ConfigPtr m_kscreenConfig;
     KScreen::ConfigPtr m_kscreenPendingConfig;
     WaylandScreen *m_screen;

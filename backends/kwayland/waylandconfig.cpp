@@ -41,7 +41,6 @@ WaylandConfig::WaylandConfig(QObject *parent)
     , m_outputManagement(nullptr)
     , m_registryInitialized(false)
     , m_blockSignals(true)
-    , m_newOutputId(0)
     , m_kscreenConfig(new Config)
     , m_kscreenPendingConfig(nullptr)
     , m_screen(new WaylandScreen(this))
@@ -143,8 +142,6 @@ void WaylandConfig::setupRegistry()
 
     connect(m_registry, &KWayland::Client::Registry::outputDeviceAnnounced,
             this, &WaylandConfig::addOutput);
-    connect(m_registry, &KWayland::Client::Registry::outputDeviceRemoved,
-            this, &WaylandConfig::removeOutput);
 
     connect(m_registry, &KWayland::Client::Registry::outputManagementAnnounced,
             this, [this](quint32 name, quint32 version) {
@@ -166,24 +163,19 @@ void WaylandConfig::setupRegistry()
     m_registry->setup();
 }
 
+int s_outputId = 0;
+
 void WaylandConfig::addOutput(quint32 name, quint32 version)
 {
-    ++m_newOutputId;
-    quint32 new_id = m_newOutputId;
+    // KWayland should only add this output once before removing again
+    Q_ASSERT(!m_initializingOutputs.contains(name));
+    m_initializingOutputs << name;
 
-    m_outputIds[name] = new_id;
-    if (m_outputMap.contains(new_id)) {
-        return;
-    }
-
-    if (!m_initializingOutputs.contains(name)) {
-        m_initializingOutputs << name;
-    }
-
-    auto op = new KWayland::Client::OutputDevice(this);
-
-    WaylandOutput *waylandoutput = new WaylandOutput(new_id, this);
-    waylandoutput->bindOutputDevice(m_registry, op, name, version);
+    WaylandOutput *waylandoutput = new WaylandOutput(++s_outputId, name, this);
+    connect(waylandoutput, &WaylandOutput::deviceRemoved, this, [this, waylandoutput]() {
+        removeOutput(waylandoutput);
+    });
+    waylandoutput->createOutputDevice(m_registry, version);
 
     // finalize: when the output is done, we put it in the known outputs map,
     // remove if from the list of initializing outputs, and emit configChanged()
@@ -205,11 +197,16 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
     });
 }
 
-void WaylandConfig::removeOutput(quint32 name)
+void WaylandConfig::removeOutput(WaylandOutput *output)
 {
-    const int kscreen_id = m_outputIds[name];
+    if (m_initializingOutputs.removeOne(output->wlName())) {
+        // output was not yet fully initialized, just remove here and return
+        delete output;
+        return;
+    }
 
-    auto output = m_outputMap.take(kscreen_id);
+    // remove the output from output mapping
+    Q_ASSERT(m_outputMap.take(output->id()) == output);
     m_screen->setOutputs(m_outputMap.values());
     delete output;
 

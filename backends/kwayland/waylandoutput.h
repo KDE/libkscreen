@@ -43,12 +43,12 @@ public:
     void updateKScreenOutput(KScreen::OutputPtr &output);
 
     quint32 id() const;
+    quint32 wlName() const;
+
     QString name() const;
     bool enabled() const;
 
     KWayland::Client::OutputDevice* outputDevice() const;
-    void bindOutputDevice(KWayland::Client::Registry *registry,
-                          KWayland::Client::OutputDevice *op, quint32 name, quint32 version);
 
     // translation methods
     KScreen::Output::Rotation toKScreenRotation(
@@ -61,18 +61,21 @@ public:
 
 Q_SIGNALS:
     void complete();
+    void deviceRemoved();
 
     // only emitted after complete()
     void changed();
 
 private:
     friend WaylandConfig;
-    explicit WaylandOutput(quint32 id, WaylandConfig *parent = nullptr);
+    explicit WaylandOutput(quint32 id, quint32 wlName, WaylandConfig *parent = nullptr);
 
+    void createOutputDevice(KWayland::Client::Registry *registry, quint32 version);
     void showOutput();
     QString modeName(const KWayland::Client::OutputDevice::Mode &m) const;
 
     quint32 m_id;
+    quint32 m_wlName;
     KWayland::Client::OutputDevice *m_output;
     KWayland::Client::Registry *m_registry;
 
