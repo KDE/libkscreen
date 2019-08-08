@@ -29,7 +29,6 @@
 #include <KWayland/Client/event_queue.h>
 #include <KWayland/Client/registry.h>
 #include <KWayland/Client/outputconfiguration.h>
-#include <KWayland/Client/outputdevice.h>
 #include <KWayland/Client/outputmanagement.h>
 
 #include <QTimer>
@@ -290,47 +289,7 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
     }
 
     for (const auto &output : newConfig->outputs()) {
-        auto o_old = m_outputMap[output->id()];
-        auto device = o_old->outputDevice();
-        Q_ASSERT(o_old != nullptr);
-
-        // enabled?
-        bool old_enabled = (o_old->outputDevice()->enabled() == OutputDevice::Enablement::Enabled);
-        if (old_enabled != output->isEnabled()) {
-            changed = true;
-            auto _enablement = output->isEnabled() ? OutputDevice::Enablement::Enabled : OutputDevice::Enablement::Disabled;
-            wlConfig->setEnabled(o_old->outputDevice(), _enablement);
-        }
-
-        // position
-        if (device->globalPosition() != output->pos()) {
-            changed = true;
-            wlConfig->setPosition(o_old->outputDevice(), output->pos());
-        }
-
-        // scale
-        if (!qFuzzyCompare(device->scaleF(), output->scale())) {
-            changed = true;
-            wlConfig->setScaleF(o_old->outputDevice(), output->scale());
-        }
-
-        // rotation
-        auto r_current = o_old->toKScreenRotation(device->transform());
-        auto r_new = output->rotation();
-        if (r_current != r_new) {
-            changed = true;
-            wlConfig->setTransform(device, o_old->toKWaylandTransform(r_new));
-        }
-
-        // mode
-        int w_currentmodeid = device->currentMode().id;
-        QString l_newmodeid = output->currentModeId();
-
-        int w_newmodeid = o_old->toKWaylandModeId(l_newmodeid);
-        if (w_newmodeid != w_currentmodeid) {
-            changed = true;
-            wlConfig->setMode(device, w_newmodeid);
-        }
+        changed |= m_outputMap[output->id()]->setWlConfig(wlConfig, output);
     }
 
     if (!changed) {

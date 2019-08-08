@@ -29,6 +29,14 @@
 #include <QScreen>
 #include <QSize>
 
+namespace KWayland
+{
+namespace Client
+{
+class OutputConfiguration;
+}
+}
+
 namespace KScreen
 {
 
@@ -50,14 +58,8 @@ public:
     KWayland::Client::OutputDevice* outputDevice() const;
     void createOutputDevice(KWayland::Client::Registry *registry, quint32 name, quint32 version);
 
-    // translation methods
-    KScreen::Output::Rotation toKScreenRotation(
-            const KWayland::Client::OutputDevice::Transform transform) const;
-    KWayland::Client::OutputDevice::Transform toKWaylandTransform(
-            const KScreen::Output::Rotation rotation) const;
-
-    QString toKScreenModeId(int kwaylandmodeid) const;
-    int toKWaylandModeId(const QString &kscreenmodeid) const;
+    bool setWlConfig(KWayland::Client::OutputConfiguration *wlConfig,
+                   const KScreen::OutputPtr &output);
 
 Q_SIGNALS:
     void deviceRemoved();

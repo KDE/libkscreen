@@ -23,6 +23,9 @@
 #include <mode.h>
 #include <edid.h>
 
+#include <KWayland/Client/outputconfiguration.h>
+#include <KWayland/Client/outputdevice.h>
+
 using namespace KScreen;
 namespace Wl = KWayland::Client;
 
@@ -38,42 +41,22 @@ s_rotationMap = {
     {Wl::OutputDevice::Transform::Flipped270, Output::Left}
 };
 
-WaylandOutput::WaylandOutput(quint32 id, WaylandConfig *parent)
-    : QObject(parent)
-    , m_id(id)
-    , m_output(nullptr)
-{
-}
-
-Output::Rotation
-WaylandOutput::toKScreenRotation(const Wl::OutputDevice::Transform transform) const
+Output::Rotation toKScreenRotation(const Wl::OutputDevice::Transform transform)
 {
     auto it = s_rotationMap.constFind(transform);
     return it.value();
 }
 
-Wl::OutputDevice::Transform
-WaylandOutput::toKWaylandTransform(const Output::Rotation rotation) const
+Wl::OutputDevice::Transform toKWaylandTransform(const Output::Rotation rotation)
 {
     return s_rotationMap.key(rotation);
 }
 
-QString WaylandOutput::toKScreenModeId(int kwaylandmodeid) const
+WaylandOutput::WaylandOutput(quint32 id, WaylandConfig *parent)
+    : QObject(parent)
+    , m_id(id)
+    , m_output(nullptr)
 {
-    auto it = std::find(m_modeIdMap.constBegin(), m_modeIdMap.constEnd(), kwaylandmodeid);
-    if (it == m_modeIdMap.constEnd()) {
-        qCWarning(KSCREEN_WAYLAND) << "Invalid kwayland mode id:" << kwaylandmodeid << m_modeIdMap;
-        return QStringLiteral("invalid_mode_id");
-    }
-    return it.key();
-}
-
-int WaylandOutput::toKWaylandModeId(const QString &kscreenmodeid) const
-{
-    if (!m_modeIdMap.contains(kscreenmodeid)) {
-        qCWarning(KSCREEN_WAYLAND) << "Invalid kscreen mode id:" << kscreenmodeid << m_modeIdMap;
-    }
-    return m_modeIdMap.value(kscreenmodeid, -1);
 }
 
 quint32 WaylandOutput::id() const
@@ -172,6 +155,52 @@ void WaylandOutput::updateKScreenOutput(OutputPtr &output)
     output->setModes(modeList);
     output->setScale(m_output->scale());
     output->setType(Utils::guessOutputType(m_output->model(), m_output->model()));
+}
+
+bool WaylandOutput::setWlConfig(Wl::OutputConfiguration *wlConfig,
+                                const KScreen::OutputPtr &output)
+{
+    bool changed = false;
+
+    // enabled?
+    if ((m_output->enabled() == Wl::OutputDevice::Enablement::Enabled)
+            != output->isEnabled()) {
+        changed = true;
+        const auto enablement = output->isEnabled() ? Wl::OutputDevice::Enablement::Enabled :
+                                                      Wl::OutputDevice::Enablement::Disabled;
+        wlConfig->setEnabled(m_output, enablement);
+    }
+
+    // position
+    if (m_output->globalPosition() != output->pos()) {
+        changed = true;
+        wlConfig->setPosition(m_output, output->pos());
+    }
+
+    // scale
+    if (!qFuzzyCompare(m_output->scaleF(), output->scale())) {
+        changed = true;
+        wlConfig->setScaleF(m_output, output->scale());
+    }
+
+    // rotation
+    if (toKScreenRotation(m_output->transform()) != output->rotation()) {
+        changed = true;
+        wlConfig->setTransform(m_output, toKWaylandTransform(output->rotation()));
+    }
+
+    // mode
+    if (m_modeIdMap.contains(output->currentModeId())) {
+        const int newModeId = m_modeIdMap.value(output->currentModeId(), -1);
+        if (newModeId != m_output->currentMode().id) {
+            changed = true;
+            wlConfig->setMode(m_output, newModeId);
+        }
+    } else {
+        qCWarning(KSCREEN_WAYLAND) << "Invalid kscreen mode id:" << output->currentModeId()
+                                   << "\n\n" << m_modeIdMap;
+    }
+    return changed;
 }
 
 QString WaylandOutput::modeName(const Wl::OutputDevice::Mode &m) const
