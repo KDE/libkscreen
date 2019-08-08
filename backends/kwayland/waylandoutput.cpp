@@ -38,10 +38,9 @@ s_rotationMap = {
     {Wl::OutputDevice::Transform::Flipped270, Output::Left}
 };
 
-WaylandOutput::WaylandOutput(quint32 id, quint32 wlName, WaylandConfig *parent)
+WaylandOutput::WaylandOutput(quint32 id, WaylandConfig *parent)
     : QObject(parent)
     , m_id(id)
-    , m_wlName(wlName)
     , m_output(nullptr)
 {
 }
@@ -83,11 +82,6 @@ quint32 WaylandOutput::id() const
     return m_id;
 }
 
-quint32 WaylandOutput::wlName() const
-{
-    return m_wlName;
-}
-
 bool WaylandOutput::enabled() const
 {
     return m_output != nullptr;
@@ -98,10 +92,10 @@ Wl::OutputDevice* WaylandOutput::outputDevice() const
     return m_output;
 }
 
-void WaylandOutput::createOutputDevice(Wl::Registry *registry, quint32 version)
+void WaylandOutput::createOutputDevice(Wl::Registry *registry, quint32 name, quint32 version)
 {
     Q_ASSERT(!m_output);
-    m_output = registry->createOutputDevice(m_wlName, version);
+    m_output = registry->createOutputDevice(name, version);
 
     connect(m_output, &Wl::OutputDevice::removed, this, &WaylandOutput::deviceRemoved);
     connect(m_output, &Wl::OutputDevice::done, this, [this]() {

@@ -167,17 +167,17 @@ int s_outputId = 0;
 
 void WaylandConfig::addOutput(quint32 name, quint32 version)
 {
-    WaylandOutput *waylandoutput = new WaylandOutput(++s_outputId, name, this);
+    WaylandOutput *waylandoutput = new WaylandOutput(++s_outputId, this);
     m_initializingOutputs << waylandoutput;
 
     connect(waylandoutput, &WaylandOutput::deviceRemoved, this, [this, waylandoutput]() {
         removeOutput(waylandoutput);
     });
-    waylandoutput->createOutputDevice(m_registry, version);
+    waylandoutput->createOutputDevice(m_registry, name, version);
 
     // finalize: when the output is done, we put it in the known outputs map,
     // remove if from the list of initializing outputs, and emit configChanged()
-    connect(waylandoutput, &WaylandOutput::complete, this, [this, waylandoutput, name]{
+    connect(waylandoutput, &WaylandOutput::complete, this, [this, waylandoutput]{
         m_outputMap.insert(waylandoutput->id(), waylandoutput);
         m_initializingOutputs.removeOne(waylandoutput);
         checkInitialized();
