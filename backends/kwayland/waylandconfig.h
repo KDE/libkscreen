@@ -100,7 +100,7 @@ private:
     QMap<int, WaylandOutput*> m_outputMap;
 
     // KWayland names
-    QList<int> m_initializingOutputs;
+    QList<WaylandOutput*> m_initializingOutputs;
     int m_lastOutputId = -1;
 
     bool m_registryInitialized;

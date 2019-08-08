@@ -167,11 +167,9 @@ int s_outputId = 0;
 
 void WaylandConfig::addOutput(quint32 name, quint32 version)
 {
-    // KWayland should only add this output once before removing again
-    Q_ASSERT(!m_initializingOutputs.contains(name));
-    m_initializingOutputs << name;
-
     WaylandOutput *waylandoutput = new WaylandOutput(++s_outputId, name, this);
+    m_initializingOutputs << waylandoutput;
+
     connect(waylandoutput, &WaylandOutput::deviceRemoved, this, [this, waylandoutput]() {
         removeOutput(waylandoutput);
     });
@@ -181,7 +179,7 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
     // remove if from the list of initializing outputs, and emit configChanged()
     connect(waylandoutput, &WaylandOutput::complete, this, [this, waylandoutput, name]{
         m_outputMap.insert(waylandoutput->id(), waylandoutput);
-        m_initializingOutputs.removeAll(name);
+        m_initializingOutputs.removeOne(waylandoutput);
         checkInitialized();
 
         if (!m_blockSignals && m_initializingOutputs.empty()) {
@@ -199,7 +197,7 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
 
 void WaylandConfig::removeOutput(WaylandOutput *output)
 {
-    if (m_initializingOutputs.removeOne(output->wlName())) {
+    if (m_initializingOutputs.removeOne(output)) {
         // output was not yet fully initialized, just remove here and return
         delete output;
         return;
