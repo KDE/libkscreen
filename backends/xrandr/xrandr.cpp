@@ -142,31 +142,28 @@ QString XRandR::serviceName() const
 void XRandR::outputChanged(xcb_randr_output_t output, xcb_randr_crtc_t crtc,
                            xcb_randr_mode_t mode, xcb_randr_connection_t connection)
 {
+    m_configChangeCompressor->start();
+
     XRandROutput *xOutput = s_internalConfig->output(output);
-    XCB::PrimaryOutput primary(XRandR::rootWindow());
     if (!xOutput) {
         s_internalConfig->addNewOutput(output);
-    } else {
-        switch (crtc == XCB_NONE && mode == XCB_NONE && connection == XCB_RANDR_CONNECTION_DISCONNECTED) {
-        case true: {
-            XCB::OutputInfo info(output, XCB_TIME_CURRENT_TIME);
-            if (info.isNull()) {
-                s_internalConfig->removeOutput(output);
-                qCDebug(KSCREEN_XRANDR) << "Output" << output << " removed";
-                break;
-            }
-            // info is valid: fall-through
-            Q_FALLTHROUGH();
-        }
-        case false: {
-            xOutput->update(crtc, mode, connection, (primary->output == output));
-            qCDebug(KSCREEN_XRANDR) << "Output" << xOutput->id() << ": connected =" << xOutput->isConnected() << ", enabled =" << xOutput->isEnabled();
-            break;
-        }
-        } // switch
+        return;
     }
 
-    m_configChangeCompressor->start();
+    // check if this output disappeared
+    if (crtc == XCB_NONE && mode == XCB_NONE && connection == XCB_RANDR_CONNECTION_DISCONNECTED) {
+        XCB::OutputInfo info(output, XCB_TIME_CURRENT_TIME);
+        if (info.isNull()) {
+            s_internalConfig->removeOutput(output);
+            qCDebug(KSCREEN_XRANDR) << "Output" << output << " removed";
+            return;
+        }
+        // info is valid: the output is still there
+    }
+
+    XCB::PrimaryOutput primary(XRandR::rootWindow());
+    xOutput->update(crtc, mode, connection, (primary->output == output));
+    qCDebug(KSCREEN_XRANDR) << "Output" << xOutput->id() << ": connected =" << xOutput->isConnected() << ", enabled =" << xOutput->isEnabled();
 }
 
 void XRandR::crtcChanged(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode,
