@@ -15,13 +15,12 @@
  *  License along with this library; if not, write to the Free Software              *
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
+#include "waylandscreen.h"
 
 #include "waylandconfig.h"
-#include "waylandscreen.h"
 #include "waylandoutput.h"
 
 #include <mode.h>
-
 
 using namespace KScreen;
 
@@ -31,13 +30,10 @@ WaylandScreen::WaylandScreen(WaylandConfig *config)
 {
 }
 
-WaylandScreen::~WaylandScreen()
-{
-}
-
 ScreenPtr WaylandScreen::toKScreenScreen(KScreen::ConfigPtr &parent) const
 {
     Q_UNUSED(parent);
+
     KScreen::ScreenPtr kscreenScreen(new KScreen::Screen);
     updateKScreenScreen(kscreenScreen);
     return kscreenScreen;
@@ -46,10 +42,12 @@ ScreenPtr WaylandScreen::toKScreenScreen(KScreen::ConfigPtr &parent) const
 void WaylandScreen::setOutputs(const QList<WaylandOutput*> &outputs)
 {
     m_outputCount = outputs.count();
+
     QRect r;
-    Q_FOREACH (auto o, outputs) {
-        if (o->enabled()) {
-            r |= QRect(o->outputDevice()->globalPosition(), o->outputDevice()->pixelSize() / o->outputDevice()->scale());
+    for (const auto *out : outputs) {
+        if (out->enabled()) {
+            const auto *dev = out->outputDevice();
+            r |= QRect(dev->globalPosition(), dev->pixelSize() / dev->scale());
         }
     }
     m_size = r.size();
@@ -58,7 +56,10 @@ void WaylandScreen::setOutputs(const QList<WaylandOutput*> &outputs)
 void WaylandScreen::updateKScreenScreen(KScreen::ScreenPtr &screen) const
 {
     screen->setMinSize(QSize(0, 0));
-    screen->setMaxSize(QSize(64000, 64000)); // 64000^2 should be enough for everyone.
+
+    // 64000^2 should be enough for everyone.
+    screen->setMaxSize(QSize(64000, 64000));
+
     screen->setCurrentSize(m_size);
     screen->setMaxActiveOutputsCount(m_outputCount);
 }

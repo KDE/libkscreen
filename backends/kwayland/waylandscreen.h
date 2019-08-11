@@ -15,9 +15,7 @@
  *  License along with this library; if not, write to the Free Software              *
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
-
-#ifndef KSCREEN_WAYLAND_SCREEN_H
-#define KSCREEN_WAYLAND_SCREEN_H
+#pragma once
 
 #include "abstractbackend.h"
 #include "config.h"
@@ -37,7 +35,7 @@ class WaylandScreen : public QObject
 
 public:
     explicit WaylandScreen(WaylandConfig *config);
-    ~WaylandScreen() override;
+    ~WaylandScreen() override = default;
 
     KScreen::ScreenPtr toKScreenScreen(KScreen::ConfigPtr &parent) const;
     void updateKScreenScreen(KScreen::ScreenPtr &screen) const;
@@ -51,6 +49,4 @@ private:
     int m_outputCount;
 };
 
-} // namespace
-
-#endif // KSCREEN_WAYLAND_SCREEN_H
+}
