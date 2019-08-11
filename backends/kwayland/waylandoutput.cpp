@@ -55,35 +55,35 @@ Wl::OutputDevice::Transform toKWaylandTransform(const Output::Rotation rotation)
 WaylandOutput::WaylandOutput(quint32 id, WaylandConfig *parent)
     : QObject(parent)
     , m_id(id)
-    , m_output(nullptr)
+    , m_device(nullptr)
 {
 }
 
 quint32 WaylandOutput::id() const
 {
-    Q_ASSERT(m_output);
+    Q_ASSERT(m_device);
     return m_id;
 }
 
 bool WaylandOutput::enabled() const
 {
-    return m_output != nullptr;
+    return m_device != nullptr;
 }
 
 Wl::OutputDevice* WaylandOutput::outputDevice() const
 {
-    return m_output;
+    return m_device;
 }
 
 void WaylandOutput::createOutputDevice(Wl::Registry *registry, quint32 name, quint32 version)
 {
-    Q_ASSERT(!m_output);
-    m_output = registry->createOutputDevice(name, version);
+    Q_ASSERT(!m_device);
+    m_device = registry->createOutputDevice(name, version);
 
-    connect(m_output, &Wl::OutputDevice::removed, this, &WaylandOutput::deviceRemoved);
-    connect(m_output, &Wl::OutputDevice::done, this, [this]() {
+    connect(m_device, &Wl::OutputDevice::removed, this, &WaylandOutput::deviceRemoved);
+    connect(m_device, &Wl::OutputDevice::done, this, [this]() {
                 Q_EMIT complete();
-                connect(m_output, &Wl::OutputDevice::changed, this, &WaylandOutput::changed);
+                connect(m_device, &Wl::OutputDevice::changed, this, &WaylandOutput::changed);
     });
 }
 
@@ -99,20 +99,20 @@ void WaylandOutput::updateKScreenOutput(OutputPtr &output)
 {
     // Initialize primary output
     output->setId(m_id);
-    output->setEnabled(m_output->enabled() == Wl::OutputDevice::Enablement::Enabled);
+    output->setEnabled(m_device->enabled() == Wl::OutputDevice::Enablement::Enabled);
     output->setConnected(true);
     output->setPrimary(true); // FIXME: wayland doesn't have the concept of a primary display
     output->setName(name());
-    output->setSizeMm(m_output->physicalSize());
-    output->setPos(m_output->globalPosition());
-    output->setRotation(s_rotationMap[m_output->transform()]);
+    output->setSizeMm(m_device->physicalSize());
+    output->setPos(m_device->globalPosition());
+    output->setRotation(s_rotationMap[m_device->transform()]);
 
     ModeList modeList;
     QStringList preferredModeIds;
     m_modeIdMap.clear();
     QString currentModeId = QStringLiteral("-1");
 
-    for (const Wl::OutputDevice::Mode &wlMode : m_output->modes()) {
+    for (const Wl::OutputDevice::Mode &wlMode : m_device->modes()) {
         ModePtr mode(new Mode());
         const QString name = modeName(wlMode);
 
@@ -153,8 +153,8 @@ void WaylandOutput::updateKScreenOutput(OutputPtr &output)
     output->setCurrentModeId(currentModeId);
     output->setPreferredModes(preferredModeIds);
     output->setModes(modeList);
-    output->setScale(m_output->scale());
-    output->setType(Utils::guessOutputType(m_output->model(), m_output->model()));
+    output->setScale(m_device->scale());
+    output->setType(Utils::guessOutputType(m_device->model(), m_device->model()));
 }
 
 bool WaylandOutput::setWlConfig(Wl::OutputConfiguration *wlConfig,
@@ -163,38 +163,38 @@ bool WaylandOutput::setWlConfig(Wl::OutputConfiguration *wlConfig,
     bool changed = false;
 
     // enabled?
-    if ((m_output->enabled() == Wl::OutputDevice::Enablement::Enabled)
+    if ((m_device->enabled() == Wl::OutputDevice::Enablement::Enabled)
             != output->isEnabled()) {
         changed = true;
         const auto enablement = output->isEnabled() ? Wl::OutputDevice::Enablement::Enabled :
                                                       Wl::OutputDevice::Enablement::Disabled;
-        wlConfig->setEnabled(m_output, enablement);
+        wlConfig->setEnabled(m_device, enablement);
     }
 
     // position
-    if (m_output->globalPosition() != output->pos()) {
+    if (m_device->globalPosition() != output->pos()) {
         changed = true;
-        wlConfig->setPosition(m_output, output->pos());
+        wlConfig->setPosition(m_device, output->pos());
     }
 
     // scale
-    if (!qFuzzyCompare(m_output->scaleF(), output->scale())) {
+    if (!qFuzzyCompare(m_device->scaleF(), output->scale())) {
         changed = true;
-        wlConfig->setScaleF(m_output, output->scale());
+        wlConfig->setScaleF(m_device, output->scale());
     }
 
     // rotation
-    if (toKScreenRotation(m_output->transform()) != output->rotation()) {
+    if (toKScreenRotation(m_device->transform()) != output->rotation()) {
         changed = true;
-        wlConfig->setTransform(m_output, toKWaylandTransform(output->rotation()));
+        wlConfig->setTransform(m_device, toKWaylandTransform(output->rotation()));
     }
 
     // mode
     if (m_modeIdMap.contains(output->currentModeId())) {
         const int newModeId = m_modeIdMap.value(output->currentModeId(), -1);
-        if (newModeId != m_output->currentMode().id) {
+        if (newModeId != m_device->currentMode().id) {
             changed = true;
-            wlConfig->setMode(m_output, newModeId);
+            wlConfig->setMode(m_device, newModeId);
         }
     } else {
         qCWarning(KSCREEN_WAYLAND) << "Invalid kscreen mode id:" << output->currentModeId()
@@ -212,8 +212,8 @@ QString WaylandOutput::modeName(const Wl::OutputDevice::Mode &m) const
 
 QString WaylandOutput::name() const
 {
-    Q_ASSERT(m_output);
-    return QStringLiteral("%1 %2").arg(m_output->manufacturer(), m_output->model());
+    Q_ASSERT(m_device);
+    return QStringLiteral("%1 %2").arg(m_device->manufacturer(), m_device->model());
 }
 
 QDebug operator<<(QDebug dbg, const WaylandOutput *output)

@@ -73,7 +73,7 @@ private:
     QString modeName(const KWayland::Client::OutputDevice::Mode &m) const;
 
     quint32 m_id;
-    KWayland::Client::OutputDevice *m_output;
+    KWayland::Client::OutputDevice *m_device;
     KWayland::Client::Registry *m_registry;
 
     // left-hand-side: KScreen::Mode, right-hand-side: KWayland's mode.id
