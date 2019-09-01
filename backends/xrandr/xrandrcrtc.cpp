@@ -18,10 +18,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 #include "xrandrcrtc.h"
-#include "xrandrconfig.h"
+
 #include "xrandr.h"
+#include "xrandrconfig.h"
 
 #include "../xcbwrapper.h"
 
@@ -68,8 +68,10 @@ bool XRandRCrtc::connectOutput(xcb_randr_output_t output)
 {
     update();
     qCDebug(KSCREEN_XRANDR) << "Connected output" << output << "to CRTC" << m_crtc;
+
     if (!m_possibleOutputs.contains(output)) {
-        qCDebug(KSCREEN_XRANDR) << "Output" << output << "is not an allowed output for CRTC" << m_crtc;
+        qCDebug(KSCREEN_XRANDR) << "Output" << output
+                                << "is not an allowed output for CRTC" << m_crtc;
         return false;
     }
 
@@ -83,6 +85,7 @@ void XRandRCrtc::disconectOutput(xcb_randr_output_t output)
 {
     update();
     qCDebug(KSCREEN_XRANDR) << "Disconnected output" << output << "from CRTC" << m_crtc;
+
     const int index = m_outputs.indexOf(output);
     if (index > -1) {
         m_outputs.remove(index);
@@ -98,10 +101,13 @@ void XRandRCrtc::update()
 {
     XCB::CRTCInfo crtcInfo(m_crtc, XCB_TIME_CURRENT_TIME);
     m_mode = crtcInfo->mode;
-    m_rotation = (xcb_randr_rotation_t) crtcInfo->rotation;
+
     m_geometry = QRect(crtcInfo->x, crtcInfo->y, crtcInfo->width, crtcInfo->height);
+    m_rotation = (xcb_randr_rotation_t) crtcInfo->rotation;
+
     m_possibleOutputs.clear();
     m_possibleOutputs.reserve(crtcInfo->num_possible_outputs);
+
     xcb_randr_output_t *possible = xcb_randr_get_crtc_info_possible(crtcInfo);
     for (int i = 0; i < crtcInfo->num_possible_outputs; ++i) {
         m_possibleOutputs.append(possible[i]);
@@ -117,7 +123,7 @@ void XRandRCrtc::update()
 void XRandRCrtc::update(xcb_randr_mode_t mode, xcb_randr_rotation_t rotation, const QRect &geom)
 {
     m_mode = mode;
-    m_rotation = rotation;
     m_geometry = geom;
+    m_rotation = rotation;
 }
 

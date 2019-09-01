@@ -15,17 +15,16 @@
  *  License along with this library; if not, write to the Free Software              *
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
+#pragma once
 
-#ifndef XRANDROUTPUT_H
-#define XRANDROUTPUT_H
+#include "output.h"
+
+#include "xrandrmode.h"
+#include "../xcbwrapper.h"
 
 #include <QObject>
 #include <QMap>
 #include <QVariant>
-
-#include "xrandrmode.h"
-#include "output.h"
-#include "../xcbwrapper.h"
 
 class XRandRConfig;
 class XRandRCrtc;
@@ -49,21 +48,27 @@ public:
     void disconnected();
 
     void update();
-    void update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_connection_t conn, bool primary);
+    void update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_connection_t conn,
+                bool primary);
 
     void setIsPrimary(bool primary);
 
     xcb_randr_output_t id() const;
+
     bool isEnabled() const;
     bool isConnected() const;
     bool isPrimary() const;
+
     QPoint position() const;
     QSize size() const;
+
     QString currentModeId() const;
     XRandRMode::Map modes() const;
     XRandRMode* currentMode() const;
+
     KScreen::Output::Rotation rotation() const;
     bool isHorizontal() const;
+
     QByteArray edid() const;
     XRandRCrtc* crtc() const;
 
@@ -79,20 +84,23 @@ private:
     XRandRConfig *m_config;
     xcb_randr_output_t m_id;
     QString m_name;
-    xcb_randr_connection_t m_connected;
-    KScreen::Output::Type m_type;
     QString m_icon;
+    mutable QByteArray m_edid;
+
+    xcb_randr_connection_t m_connected;
+    bool m_primary;
+    KScreen::Output::Type m_type;
+
     XRandRMode::Map m_modes;
     QStringList m_preferredModes;
-    bool m_primary;
+
     QList<xcb_randr_output_t> m_clones;
-    mutable QByteArray m_edid;
+
     unsigned int m_widthMm;
     unsigned int m_heightMm;
+
     bool m_hotplugModeUpdate = false;
     XRandRCrtc *m_crtc;
 };
 
 Q_DECLARE_METATYPE(XRandROutput::Map)
-
-#endif // XRANDROUTPUT_H

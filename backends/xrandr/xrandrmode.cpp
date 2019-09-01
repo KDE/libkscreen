@@ -15,11 +15,11 @@
  *  License along with this library; if not, write to the Free Software              *
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
-
 #include "xrandrmode.h"
-#include "xrandroutput.h"
+
 #include "mode.h"
 #include "output.h"
+#include "xrandroutput.h"
 
 XRandRMode::XRandRMode(const xcb_randr_mode_info_t &modeInfo, XRandROutput *output)
     : QObject(output)
@@ -28,9 +28,9 @@ XRandRMode::XRandRMode(const xcb_randr_mode_info_t &modeInfo, XRandROutput *outp
     // FIXME XCB
     //m_name = QString::fromUtf8(modeInfo->name);
     m_size = QSize(modeInfo.width, modeInfo.height);
-    m_refreshRate = ((float) modeInfo.dot_clock / ((float) modeInfo.htotal * (float) modeInfo.vtotal));
+    m_refreshRate = (float) modeInfo.dot_clock
+                    / ((float) modeInfo.htotal * (float) modeInfo.vtotal);
 }
-
 
 XRandRMode::~XRandRMode()
 {

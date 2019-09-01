@@ -16,16 +16,13 @@
  *  License along with this library; if not, write to the Free Software              *
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
-
 #include "xrandroutput.h"
-#include "xrandrmode.h"
-#include "xrandrconfig.h"
-#include "xrandr.h"
-#include "output.h"
-#include "config.h"
-#include "../utils.h"
 
-#include <QRect>
+#include "config.h"
+#include "xrandr.h"
+#include "xrandrconfig.h"
+#include "xrandrmode.h"
+#include "../utils.h"
 
 Q_DECLARE_METATYPE(QList<int>)
 
@@ -33,8 +30,8 @@ XRandROutput::XRandROutput(xcb_randr_output_t id, XRandRConfig *config)
     : QObject(config)
     , m_config(config)
     , m_id(id)
-    , m_type(KScreen::Output::Unknown)
     , m_primary(false)
+    , m_type(KScreen::Output::Unknown)
     , m_crtc(nullptr)
 {
     init();
@@ -89,6 +86,7 @@ XRandRMode* XRandROutput::currentMode() const
     if (!m_crtc) {
         return nullptr;
     }
+
     unsigned int modeId = m_crtc->mode();
     if (!m_modes.contains(modeId)) {
         return nullptr;
@@ -99,7 +97,8 @@ XRandRMode* XRandROutput::currentMode() const
 
 KScreen::Output::Rotation XRandROutput::rotation() const
 {
-    return static_cast<KScreen::Output::Rotation>(m_crtc ? m_crtc->rotation() : XCB_RANDR_ROTATION_ROTATE_0);
+    return static_cast<KScreen::Output::Rotation>(m_crtc ? m_crtc->rotation() :
+                                                           XCB_RANDR_ROTATION_ROTATE_0);
 }
 
 QByteArray XRandROutput::edid() const
@@ -120,15 +119,16 @@ void XRandROutput::update()
     init();
 }
 
-void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_connection_t conn, bool primary)
+void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_connection_t conn,
+                          bool primary)
 {
-    qCDebug(KSCREEN_XRANDR) << "XRandROutput" << m_id << "update";
-    qCDebug(KSCREEN_XRANDR) << "\tm_connected:" << m_connected;
-    qCDebug(KSCREEN_XRANDR) << "\tm_crtc" << m_crtc;
-    qCDebug(KSCREEN_XRANDR) << "\tCRTC:" << crtc;
-    qCDebug(KSCREEN_XRANDR) << "\tMODE:" << mode;
-    qCDebug(KSCREEN_XRANDR) << "\tConnection:" << conn;
-    qCDebug(KSCREEN_XRANDR) << "\tPrimary:" << primary;
+    qCDebug(KSCREEN_XRANDR) << "XRandROutput" << m_id << "update" << "\n"
+                            << "\tm_connected:" << m_connected << "\n"
+                            << "\tm_crtc" << m_crtc << "\n"
+                            << "\tCRTC:" << crtc << "\n"
+                            << "\tMODE:" << mode << "\n"
+                            << "\tConnection:" << conn << "\n"
+                            << "\tPrimary:" << primary;
 
     // Connected or disconnected
     if (isConnected() != (conn == XCB_RANDR_CONNECTION_CONNECTED)) {
@@ -194,17 +194,21 @@ void XRandROutput::init()
 
     XCB::PrimaryOutput primary(XRandR::rootWindow());
 
-    m_name = QString::fromUtf8((const char *) xcb_randr_get_output_info_name(outputInfo.data()), outputInfo->name_len);
+    m_name = QString::fromUtf8((const char *) xcb_randr_get_output_info_name(outputInfo.data()),
+                               outputInfo->name_len);
     m_type = fetchOutputType(m_id, m_name);
     m_icon = QString();
     m_connected = (xcb_randr_connection_t) outputInfo->connection;
     m_primary = (primary->output == m_id);
+
     xcb_randr_output_t *clones = xcb_randr_get_output_info_clones(outputInfo.data());
     for (int i = 0; i < outputInfo->num_clones; ++i) {
         m_clones.append(clones[i]);
     }
+
     m_widthMm = outputInfo->mm_width;
     m_heightMm = outputInfo->mm_height;
+
     m_crtc = m_config->crtc(outputInfo->crtc);
     if (m_crtc) {
         m_crtc->connectOutput(m_id);
@@ -217,7 +221,9 @@ void XRandROutput::init()
 void XRandROutput::updateModes(const XCB::OutputInfo &outputInfo)
 {
     /* Init modes */
-    XCB::ScopedPointer<xcb_randr_get_screen_resources_reply_t> screenResources(XRandR::screenResources());
+    XCB::ScopedPointer<xcb_randr_get_screen_resources_reply_t>
+            screenResources(XRandR::screenResources());
+
     Q_ASSERT(screenResources);
     if (!screenResources) {
         return;
@@ -247,7 +253,8 @@ void XRandROutput::updateModes(const XCB::OutputInfo &outputInfo)
     }
 }
 
-KScreen::Output::Type XRandROutput::fetchOutputType(xcb_randr_output_t outputId, const QString &name)
+KScreen::Output::Type XRandROutput::fetchOutputType(xcb_randr_output_t outputId,
+                                                    const QString &name)
 {
     QString type = QString::fromUtf8(typeFromProperty(outputId));
     if (type.isEmpty()) {
@@ -266,11 +273,10 @@ QByteArray XRandROutput::typeFromProperty(xcb_randr_output_t outputId)
         return type;
     }
 
-    char *connectorType;
-
     auto cookie = xcb_randr_get_output_property(XCB::connection(), outputId, atomType->atom,
                                                 XCB_ATOM_ANY, 0, 100, false, false);
-    XCB::ScopedPointer<xcb_randr_get_output_property_reply_t> reply(xcb_randr_get_output_property_reply(XCB::connection(), cookie, nullptr));
+    XCB::ScopedPointer<xcb_randr_get_output_property_reply_t>
+            reply(xcb_randr_get_output_property_reply(XCB::connection(), cookie, nullptr));
     if (!reply) {
         return type;
     }
@@ -285,7 +291,7 @@ QByteArray XRandROutput::typeFromProperty(xcb_randr_output_t outputId)
         return type;
     }
 
-    connectorType = xcb_get_atom_name_name(atomName);
+    char *connectorType = xcb_get_atom_name_name(atomName);
     if (!connectorType) {
         return type;
     }

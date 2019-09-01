@@ -15,9 +15,7 @@
  *  License along with this library; if not, write to the Free Software              *
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
-
-#ifndef XRANDRMODE_H
-#define XRANDRMODE_H
+#pragma once
 
 #include <QObject>
 #include <QMap>
@@ -59,5 +57,3 @@ private:
 };
 
 Q_DECLARE_METATYPE(XRandRMode::Map)
-
-#endif // XRANDRMODE_H

@@ -16,14 +16,12 @@
  *  License along with this library; if not, write to the Free Software              *
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
-
-#ifndef XRANDR_BACKEND_H
-#define XRANDR_BACKEND_H
+#pragma once
 
 #include "abstractbackend.h"
 
-#include <QSize>
 #include <QLoggingCategory>
+#include <QSize>
 
 #include "../xcbwrapper.h"
 
@@ -32,8 +30,6 @@ class QTimer;
 
 class XCBEventListener;
 class XRandRConfig;
-namespace KScreen {
-}
 
 class XRandR : public KScreen::AbstractBackend
 {
@@ -58,20 +54,13 @@ class XRandR : public KScreen::AbstractBackend
 
         static bool hasProperty(xcb_randr_output_t outputId, const QByteArray &name);
 
-    private Q_SLOTS:
-        void outputChanged(xcb_randr_output_t output,
-                           xcb_randr_crtc_t crtc,
-                           xcb_randr_mode_t mode,
-                           xcb_randr_connection_t connection);
-        void crtcChanged(xcb_randr_crtc_t crtc,
-                         xcb_randr_mode_t mode,
-                         xcb_randr_rotation_t rotation,
-                         const QRect &geom);
-        void screenChanged(xcb_randr_rotation_t rotation,
-                           const QSize &sizePx,
-                           const QSize &sizeMm);
-
     private:
+        void outputChanged(xcb_randr_output_t output, xcb_randr_crtc_t crtc, xcb_randr_mode_t mode,
+                           xcb_randr_connection_t connection);
+        void crtcChanged(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode,
+                         xcb_randr_rotation_t rotation, const QRect &geom);
+        void screenChanged(xcb_randr_rotation_t rotation, const QSize &sizePx, const QSize &sizeMm);
+
         static quint8* getXProperty(xcb_randr_output_t output,
                                     xcb_atom_t atom,
                                     size_t &len);
@@ -79,6 +68,7 @@ class XRandR : public KScreen::AbstractBackend
         static xcb_screen_t *s_screen;
         static xcb_window_t s_rootWindow;
         static XRandRConfig *s_internalConfig;
+
         static int s_randrBase;
         static int s_randrError;
         static bool s_monitorInitialized;
@@ -92,4 +82,3 @@ class XRandR : public KScreen::AbstractBackend
 };
 
 Q_DECLARE_LOGGING_CATEGORY(KSCREEN_XRANDR)
-#endif //XRandR_BACKEND_H

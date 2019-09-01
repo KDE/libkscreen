@@ -15,14 +15,12 @@
  *  License along with this library; if not, write to the Free Software              *
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
+#pragma once
 
-#ifndef XRANDRSCREEN_H
-#define XRANDRSCREEN_H
+#include "types.h"
 
 #include <QObject>
 #include <QSize>
-
-#include "types.h"
 
 class XRandRConfig;
 namespace KScreen
@@ -52,5 +50,3 @@ private:
     QSize m_maxSize;
     QSize m_currentSize;
 };
-
-#endif // XRANDRSCREEN_H

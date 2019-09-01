@@ -18,14 +18,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-#ifndef XRANDRCRTC_H
-#define XRANDRCRTC_H
-
+#include <QMap>
 #include <QObject>
 #include <QRect>
 #include <QVector>
-#include <QMap>
 
 #include <xcb/randr.h>
 
@@ -43,8 +41,10 @@ public:
 
     xcb_randr_crtc_t crtc() const;
     xcb_randr_mode_t mode() const;
-    xcb_randr_rotation_t rotation() const;
+
     QRect geometry() const;
+    xcb_randr_rotation_t rotation() const;
+
     QVector<xcb_randr_output_t> possibleOutputs();
     QVector<xcb_randr_output_t> outputs() const;
 
@@ -59,10 +59,10 @@ public:
 private:
     xcb_randr_crtc_t m_crtc;
     xcb_randr_mode_t m_mode;
-    xcb_randr_rotation_t m_rotation;
+
     QRect m_geometry;
+    xcb_randr_rotation_t m_rotation;
+
     QVector<xcb_randr_output_t> m_possibleOutputs;
     QVector<xcb_randr_output_t> m_outputs;
 };
-
-#endif // XRANDRCRTC_H

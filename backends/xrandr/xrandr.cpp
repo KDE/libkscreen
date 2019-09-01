@@ -16,25 +16,22 @@
  *  License along with this library; if not, write to the Free Software              *
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
-
 #include "xrandr.h"
+
 #include "xrandrconfig.h"
 #include "xrandrscreen.h"
 #include "../xcbwrapper.h"
 #include "../xcbeventlistener.h"
 
 #include "config.h"
-#include "output.h"
 #include "edid.h"
+#include "output.h"
 
-#include <QFile>
 #include <QRect>
-#include <QAbstractEventDispatcher>
 #include <QTimer>
 #include <QTime>
 
 #include <QX11Info>
-#include <QGuiApplication>
 
 xcb_screen_t* XRandR::s_screen = nullptr;
 xcb_window_t XRandR::s_rootWindow = 0;
@@ -66,15 +63,19 @@ XRandR::XRandR()
     xcb_generic_error_t *error = nullptr;
     xcb_randr_query_version_reply_t* version;
     XCB::connection();
-    version = xcb_randr_query_version_reply(XCB::connection(), xcb_randr_query_version(XCB::connection(), XCB_RANDR_MAJOR_VERSION, XCB_RANDR_MINOR_VERSION), &error);
-
+    version = xcb_randr_query_version_reply(XCB::connection(),
+                                            xcb_randr_query_version(XCB::connection(),
+                                                                    XCB_RANDR_MAJOR_VERSION,
+                                                                    XCB_RANDR_MINOR_VERSION),
+                                            &error);
     if (!version || error) {
         XCB::closeConnection();
         free(error);
         return;
     }
 
-    if ((version->major_version > 1) || ((version->major_version == 1) && (version->minor_version >= 2))) {
+    if ((version->major_version > 1) ||
+            ((version->major_version == 1) && (version->minor_version >= 2))) {
         m_isValid = true;
     } else {
         XCB::closeConnection();
@@ -92,7 +93,8 @@ XRandR::XRandR()
         s_randrError = reply->first_error;
     }
 
-    XRandR::s_has_1_3 = (version->major_version > 1 || (version->major_version == 1 && version->minor_version >= 3));
+    XRandR::s_has_1_3 = (version->major_version > 1 ||
+                        (version->major_version == 1 && version->minor_version >= 3));
 
     if (s_internalConfig == nullptr) {
         s_internalConfig = new XRandRConfig();
@@ -163,7 +165,8 @@ void XRandR::outputChanged(xcb_randr_output_t output, xcb_randr_crtc_t crtc,
 
     XCB::PrimaryOutput primary(XRandR::rootWindow());
     xOutput->update(crtc, mode, connection, (primary->output == output));
-    qCDebug(KSCREEN_XRANDR) << "Output" << xOutput->id() << ": connected =" << xOutput->isConnected() << ", enabled =" << xOutput->isEnabled();
+    qCDebug(KSCREEN_XRANDR) << "Output" << xOutput->id() << ": connected ="
+                            << xOutput->isConnected() << ", enabled =" << xOutput->isEnabled();
 }
 
 void XRandR::crtcChanged(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode,
@@ -236,6 +239,7 @@ quint8* XRandR::getXProperty(xcb_randr_output_t output, xcb_atom_t atom, size_t 
                                                 XCB_ATOM_ANY,
                                                 0, 100, false, false);
     auto reply = xcb_randr_get_output_property_reply(XCB::connection(), cookie, nullptr);
+
     if (reply->type == XCB_ATOM_INTEGER && reply->format == 8) {
         result = new quint8[reply->num_items];
         memcpy(result, xcb_randr_get_output_property_data(reply), reply->num_items);
@@ -278,7 +282,9 @@ bool XRandR::hasProperty(xcb_randr_output_t output, const QByteArray& name)
 {
     xcb_generic_error_t *error = nullptr;
     auto atom = XCB::InternAtom(false, name.length(), name.constData())->atom;
-    auto cookie = xcb_randr_get_output_property(XCB::connection(), output, atom, XCB_ATOM_ANY, 0, 1, false, false);
+
+    auto cookie = xcb_randr_get_output_property(XCB::connection(), output, atom, XCB_ATOM_ANY,
+                                                0, 1, false, false);
     auto prop_reply = xcb_randr_get_output_property_reply (XCB::connection(), cookie, &error);
 
     const bool ret = prop_reply->num_items == 1;
@@ -294,8 +300,9 @@ xcb_randr_get_screen_resources_reply_t* XRandR::screenResources()
             // and xcb_randr_get_screen_resources_current_reply_t are the same
             return reinterpret_cast<xcb_randr_get_screen_resources_reply_t*>(
                 xcb_randr_get_screen_resources_current_reply(XCB::connection(),
-                    xcb_randr_get_screen_resources_current(XCB::connection(), XRandR::rootWindow()),
-                    nullptr));
+                                                             xcb_randr_get_screen_resources_current(
+                                                                 XCB::connection(),
+                                                                 XRandR::rootWindow()), nullptr));
         } else {
             /* XRRGetScreenResourcesCurrent is faster then XRRGetScreenResources
              * because it returns cached values. However the cached values are not
@@ -306,7 +313,10 @@ xcb_randr_get_screen_resources_reply_t* XRandR::screenResources()
     }
 
     return xcb_randr_get_screen_resources_reply(XCB::connection(),
-        xcb_randr_get_screen_resources(XCB::connection(), XRandR::rootWindow()), nullptr);
+                                                xcb_randr_get_screen_resources(
+                                                    XCB::connection(),
+                                                    XRandR::rootWindow()),
+                                                nullptr);
 }
 
 xcb_window_t XRandR::rootWindow()

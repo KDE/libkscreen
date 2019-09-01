@@ -15,9 +15,7 @@
  *  License along with this library; if not, write to the Free Software              *
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
-
-#ifndef XRANDRCONFIG_H
-#define XRANDRCONFIG_H
+#pragma once
 
 #include <QObject>
 
@@ -35,7 +33,7 @@ class XRandRConfig : public QObject
     Q_OBJECT
 
 public:
-    explicit XRandRConfig();
+    XRandRConfig();
     ~XRandRConfig() override;
 
     XRandROutput::Map outputs() const;
@@ -54,22 +52,23 @@ public:
     void applyKScreenConfig(const KScreen::ConfigPtr &config);
 
 private:
+    QSize screenSize(const KScreen::ConfigPtr &config) const;
+    bool setScreenSize(const QSize &size) const;
+
+    void setPrimaryOutput(xcb_randr_output_t outputId) const;
+
+    bool disableOutput(const KScreen::OutputPtr &output) const;
+    bool enableOutput(const KScreen::OutputPtr &output) const;
+    bool changeOutput(const KScreen::OutputPtr &output) const;
+
     /**
      * We need to print stuff to discover the damn bug
      * where currentMode is null
      */
     void printConfig(const KScreen::ConfigPtr &config) const;
     void printInternalCond() const;
-    QSize screenSize(const KScreen::ConfigPtr &config) const;
-    bool setScreenSize(const QSize &size) const;
-    void setPrimaryOutput(xcb_randr_output_t outputId) const;
-    bool disableOutput(const KScreen::OutputPtr &output) const;
-    bool enableOutput(const KScreen::OutputPtr &output) const;
-    bool changeOutput(const KScreen::OutputPtr &output) const;
 
     XRandROutput::Map m_outputs;
     XRandRCrtc::Map m_crtcs;
     XRandRScreen *m_screen;
 };
-
-#endif // XRANDRCONFIG_H
