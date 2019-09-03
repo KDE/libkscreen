@@ -141,7 +141,7 @@ void SetConfigOperationPrivate::normalizeOutputPositions()
     int offsetX = INT_MAX;
     int offsetY = INT_MAX;
     Q_FOREACH (const KScreen::OutputPtr &output, config->outputs()) {
-        if (!output->isConnected() || !output->isEnabled()) {
+        if (!output->isPositionable()) {
             continue;
         }
         offsetX = qMin(output->pos().x(), offsetX);

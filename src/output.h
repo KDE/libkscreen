@@ -56,6 +56,8 @@ class KSCREEN_EXPORT Output : public QObject
         Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled NOTIFY isEnabledChanged)
         Q_PROPERTY(bool primary READ isPrimary WRITE setPrimary NOTIFY isPrimaryChanged)
         Q_PROPERTY(QList<int> clones READ clones WRITE setClones NOTIFY clonesChanged)
+        Q_PROPERTY(int replicationSource READ replicationSource
+                   WRITE setReplicationSource NOTIFY replicationSourceChanged)
         Q_PROPERTY(KScreen::Edid* edid READ edid CONSTANT)
         Q_PROPERTY(QSize sizeMm READ sizeMm CONSTANT)
         Q_PROPERTY(qreal scale READ scale WRITE setScale NOTIFY scaleChanged)
@@ -190,8 +192,40 @@ class KSCREEN_EXPORT Output : public QObject
         bool isPrimary() const;
         void setPrimary(bool primary);
 
+        /**
+         * @brief Immutable clones because of hardware restrictions
+         *
+         * Clones are set symmetcally on all outputs. The list contains ids
+         * for all other outputs being clones of this output.
+         *
+         * @return List of output ids being clones of each other.
+         */
         QList<int> clones() const;
+        /**
+         * @brief Set the clones list.
+         *
+         * When this output is part of a configuration this call is followed by
+         * similar calls on other outputs making the lists in all outputs
+         * symmetric.
+         * @param outputlist
+         */
         void setClones(const QList<int> &outputlist);
+
+        /**
+         * @brief Provides the source for an ongoing replication
+         *
+         * If the returned output id is non-null this output is a replica of the
+         * returned output. If null is returned the output is no replica of any
+         * other output.
+         *
+         * @return Replication source output id of this output
+         */
+        int replicationSource() const;
+        /**
+         * @brief Set the replication source.
+         * @param source
+         */
+        void setReplicationSource(int source);
 
         void setEdid(const QByteArray &rawData);
 
@@ -211,6 +245,16 @@ class KSCREEN_EXPORT Output : public QObject
          */
         QSize sizeMm() const;
         void setSizeMm(const QSize &size);
+
+        /**
+         * Returns if the output needs to be taken account for in the overall compositor/screen
+         * space and if it should be depicted on its own in a graphical view for repositioning.
+         *
+         * @return true if the output is positionable in compositor/screen space.
+         *
+         * @since 5.17
+         */
+        bool isPositionable() const;
 
         /**
          * Returns a rectangle containing the currently set output position and
@@ -269,6 +313,7 @@ class KSCREEN_EXPORT Output : public QObject
         void isEnabledChanged();
         void isPrimaryChanged();
         void clonesChanged();
+        void replicationSourceChanged();
         void scaleChanged();
         void followPreferredModeChanged(bool followPreferredMode);
 

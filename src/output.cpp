@@ -37,6 +37,7 @@ class Q_DECL_HIDDEN Output::Private
     Private():
         id(0),
         type(Unknown),
+        replicationSource(0),
         rotation(None),
         scale(1.0),
         connected(false),
@@ -51,6 +52,7 @@ class Q_DECL_HIDDEN Output::Private
         type(other.type),
         icon(other.icon),
         clones(other.clones),
+        replicationSource(other.replicationSource),
         currentMode(other.currentMode),
         preferredMode(other.preferredMode),
         preferredModes(other.preferredModes),
@@ -81,6 +83,7 @@ class Q_DECL_HIDDEN Output::Private
     QString icon;
     ModeList modeList;
     QList<int> clones;
+    int replicationSource;
     QString currentMode;
     QString preferredMode;
     QStringList preferredModes;
@@ -484,6 +487,22 @@ void Output::setClones(const QList<int> &outputlist)
     Q_EMIT clonesChanged();
 }
 
+int Output::replicationSource() const
+{
+    return d->replicationSource;
+}
+
+void Output::setReplicationSource(int source)
+{
+    if (d->replicationSource == source) {
+        return;
+    }
+
+    d->replicationSource = source;
+
+    Q_EMIT replicationSourceChanged();
+}
+
 void Output::setEdid(const QByteArray& rawData)
 {
     Q_ASSERT(d->edid.isNull());
@@ -516,6 +535,11 @@ void KScreen::Output::setFollowPreferredMode(bool follow)
         d->followPreferredMode = follow;
         Q_EMIT followPreferredModeChanged(follow);
     }
+}
+
+bool Output::isPositionable() const
+{
+    return isConnected() && isEnabled() && !replicationSource();
 }
 
 QRect Output::geometry() const
@@ -590,6 +614,10 @@ void Output::apply(const OutputPtr& other)
         changes << &Output::clonesChanged;
         setClones(other->d->clones);;
     }
+    if (d->replicationSource != other->d->replicationSource) {
+        changes << &Output::replicationSourceChanged;
+        setReplicationSource(other->d->replicationSource);;
+    }
     if (!d->compareModeList(d->modeList, other->d->modeList)) {
         changes << &Output::outputChanged;
         changes << &Output::modesChanged;
@@ -627,6 +655,7 @@ QDebug operator<<(QDebug dbg, const KScreen::OutputPtr &output)
                                   << "pos:" << output->pos() << "res:" << output->size()
                                   << "modeId:" << output->currentModeId()
                                   << "scale:" << output->scale()
+                                  << "clone:" << (output->clones().isEmpty() ? "no" : "yes")
                                   << "followPreferredMode:" << output->followPreferredMode()
                                   << ")";
     } else {

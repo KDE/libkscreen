@@ -92,6 +92,7 @@ QJsonObject ConfigSerializer::serializeOutput(const OutputPtr &output)
     obj[QLatin1String("clones")] = serializeList(output->clones());
     //obj[QLatin1String("edid")] = output->edid()->raw();
     obj[QLatin1String("sizeMM")] = serializeSize(output->sizeMm());
+    obj[QLatin1String("replicationSource")] = output->replicationSource();
 
     QJsonArray modes;
     Q_FOREACH (const ModePtr &mode, output->modes()) {
@@ -251,6 +252,8 @@ OutputPtr ConfigSerializer::deserializeOutput(const QDBusArgument &arg)
             output->setPrimary(value.toBool());
         } else if (key == QLatin1String("clones")) {
             output->setClones(deserializeList<int>(value.value<QDBusArgument>()));
+        } else if (key == QLatin1String("replicationSource")) {
+            output->setReplicationSource(value.toInt());
         } else if (key == QLatin1String("sizeMM")) {
             output->setSizeMm(deserializeSize(value.value<QDBusArgument>()));
         } else if (key == QLatin1String("modes")) {
