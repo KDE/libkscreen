@@ -104,7 +104,7 @@ void testQScreenBackend::verifyOutputs()
     }
     qDebug() << "Primary found? " << primaryFound;
     QVERIFY(primaryFound);
-    if (m_backend == QStringLiteral("screen")) {
+    if (m_backend == QLatin1String("screen")) {
         QCOMPARE(m_config->outputs().count(), QGuiApplication::screens().count());
     }
 

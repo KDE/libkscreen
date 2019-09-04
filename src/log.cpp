@@ -68,7 +68,7 @@ Log::Log() :
 
     if (qEnvironmentVariableIsSet(logging_env)) {
         const QString logging_env_value = QString::fromUtf8(qgetenv(logging_env));
-        if (logging_env_value != QLatin1Char('0') && logging_env_value.toLower() != QStringLiteral("false")) {
+        if (logging_env_value != QLatin1Char('0') && logging_env_value.toLower() != QLatin1String("false")) {
             d->enabled = true;
         }
     }

@@ -136,9 +136,9 @@ QPoint ConfigSerializer::deserializePoint(const QDBusArgument &arg)
         QVariant value;
         arg.beginMapEntry();
         arg >> key >> value;
-        if (key == QLatin1String("x")) {
+        if (key == QLatin1Char('x')) {
             x = value.toInt();
-        } else if (key == QLatin1String("y")) {
+        } else if (key == QLatin1Char('y')) {
             y = value.toInt();
         } else {
             qCWarning(KSCREEN) << "Invalid key in Point map: " << key;
@@ -178,11 +178,11 @@ ConfigPtr ConfigSerializer::deserializeConfig(const QVariantMap &map)
 {
     ConfigPtr config(new Config);
 
-    if (map.contains(QStringLiteral("features"))) {
+    if (map.contains(QLatin1String("features"))) {
         config->setSupportedFeatures(static_cast<Config::Features>(map[QStringLiteral("features")].toInt()));
     }
 
-    if (map.contains(QStringLiteral("outputs"))) {
+    if (map.contains(QLatin1String("outputs"))) {
         const QDBusArgument &outputsArg = map[QStringLiteral("outputs")].value<QDBusArgument>();
         outputsArg.beginArray();
         OutputList outputs;
@@ -199,7 +199,7 @@ ConfigPtr ConfigSerializer::deserializeConfig(const QVariantMap &map)
         config->setOutputs(outputs);
     }
 
-    if (map.contains(QStringLiteral("screen"))) {
+    if (map.contains(QLatin1String("screen"))) {
         const QDBusArgument &screenArg = map[QStringLiteral("screen")].value<QDBusArgument>();
         const KScreen::ScreenPtr screen = deserializeScreen(screenArg);
         if (!screen) {

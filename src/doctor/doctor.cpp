@@ -103,7 +103,7 @@ void Doctor::start(QCommandLineParser *parser)
         connect(m_dpmsClient, &DpmsClient::finished, qApp, &QCoreApplication::quit);
 
         const QString dpmsArg = m_parser->value(QStringLiteral("dpms"));
-        if (dpmsArg == QStringLiteral("show")) {
+        if (dpmsArg == QLatin1String("show")) {
             showDpms();
         } else {
             setDpms(dpmsArg);
@@ -129,9 +129,9 @@ void KScreen::Doctor::setDpms(const QString& dpmsArg)
     qDebug() << "SetDpms: " << dpmsArg;
     connect(m_dpmsClient, &DpmsClient::ready, this, [this, dpmsArg]() {
         cout << "DPMS.ready()";
-        if (dpmsArg == QStringLiteral("off")) {
+        if (dpmsArg == QLatin1String("off")) {
             m_dpmsClient->off();
-        } else if (dpmsArg == QStringLiteral("on")) {
+        } else if (dpmsArg == QLatin1String("on")) {
             m_dpmsClient->on();
         } else {
             cout << "--dpms argument not understood (" << dpmsArg << ")";
@@ -191,7 +191,7 @@ void Doctor::parsePositionalArgs()
         if (ops.count() > 2) {
             bool ok;
             int output_id = -1;
-            if (ops[0] == QStringLiteral("output")) {
+            if (ops[0] == QLatin1String("output")) {
                 Q_FOREACH (const auto &output, m_config->outputs()) {
                     if (output->name() == ops[1]) {
                         output_id = output->id();
@@ -205,17 +205,17 @@ void Doctor::parsePositionalArgs()
                         return;
                     }
                 }
-                if (ops.count() == 3 && ops[2] == QStringLiteral("enable")) {
+                if (ops.count() == 3 && ops[2] == QLatin1String("enable")) {
                     if (!setEnabled(output_id, true)) {
                         qApp->exit(1);
                         return;
                     };
-                } else if (ops.count() == 3 && ops[2] == QStringLiteral("disable")) {
+                } else if (ops.count() == 3 && ops[2] == QLatin1String("disable")) {
                     if (!setEnabled(output_id, false)) {
                         qApp->exit(1);
                         return;
                     };
-                } else if (ops.count() == 4 && ops[2] == QStringLiteral("mode")) {
+                } else if (ops.count() == 4 && ops[2] == QLatin1String("mode")) {
                     QString mode_id = ops[3];
                     // set mode
                     if (!setMode(output_id, mode_id)) {
@@ -224,7 +224,7 @@ void Doctor::parsePositionalArgs()
                     }
                     qCDebug(KSCREEN_DOCTOR) << "Output" << output_id << "set mode" << mode_id;
 
-                } else if (ops.count() == 4 && ops[2] == QStringLiteral("position")) {
+                } else if (ops.count() == 4 && ops[2] == QLatin1String("position")) {
                     QStringList _pos = ops[3].split(QLatin1Char(','));
                     if (_pos.count() != 2) {
                         qCWarning(KSCREEN_DOCTOR) << "Invalid position:" << ops[3];
@@ -245,7 +245,7 @@ void Doctor::parsePositionalArgs()
                         qApp->exit(1);
                         return;
                     }
-                } else if ((ops.count() == 4 || ops.count() == 5) && ops[2] == QStringLiteral("scale")) {
+                } else if ((ops.count() == 4 || ops.count() == 5) && ops[2] == QLatin1String("scale")) {
                     // be lenient about . vs. comma as separator
                     qreal scale = ops[3].replace(QLatin1Char(','), QLatin1Char('.')).toDouble(&ok);
                     if (ops.count() == 5) {
@@ -258,7 +258,7 @@ void Doctor::parsePositionalArgs()
                         qApp->exit(9);
                         return;
                     }
-                } else if ((ops.count() == 4) && (ops[2] == QStringLiteral("orientation") || ops[2] == QStringLiteral("rotation"))) {
+                } else if ((ops.count() == 4) && (ops[2] == QLatin1String("orientation") || ops[2] == QStringLiteral("rotation"))) {
                     const QString _rotation = ops[3].toLower();
                     bool ok = false;
                     const QHash<QString, KScreen::Output::Rotation> rotationMap({
