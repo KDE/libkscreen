@@ -61,6 +61,7 @@ public:
 
     QPoint position() const;
     QSize size() const;
+    QSizeF scaledSize(xcb_render_transform_t transform) const;
 
     QString currentModeId() const;
     XRandRMode::Map modes() const;
@@ -74,12 +75,29 @@ public:
 
     KScreen::OutputPtr toKScreenOutput() const;
 
+    bool updateReplication();
+    bool setReplicationSource(xcb_randr_output_t source);
+
+    xcb_randr_output_t replicationSource() const;
+
+    xcb_render_transform_t currentTransform() const;
+
 private:
     void init();
     void updateModes(const XCB::OutputInfo &outputInfo);
 
     static KScreen::Output::Type fetchOutputType(xcb_randr_output_t outputId, const QString &name);
     static QByteArray typeFromProperty(xcb_randr_output_t outputId);
+
+    xcb_render_transform_t getReplicationTransform(XRandROutput *source);
+
+    /**
+     * This makes an educated guess based on position, size and scale if @param output is a
+     * replication source for this output.
+     *
+     * @return true if this output can be seen as a replica of @param output
+     */
+    bool isReplicaOf(XRandROutput *output, xcb_render_transform_t ownTransform) const;
 
     XRandRConfig *m_config;
     xcb_randr_output_t m_id;
@@ -95,6 +113,7 @@ private:
     QStringList m_preferredModes;
 
     QList<xcb_randr_output_t> m_clones;
+    xcb_randr_output_t m_replicationSource;
 
     unsigned int m_widthMm;
     unsigned int m_heightMm;

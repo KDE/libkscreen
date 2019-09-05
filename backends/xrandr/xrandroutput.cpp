@@ -24,7 +24,15 @@
 #include "xrandrmode.h"
 #include "../utils.h"
 
+#include <xcb/render.h>
+
 Q_DECLARE_METATYPE(QList<int>)
+
+#define DOUBLE_TO_FIXED(d) ((xcb_render_fixed_t) ((d) * 65536))
+#define FIXED_TO_DOUBLE(f) ((double) ((f) / 65536.0))
+
+xcb_render_fixed_t fOne = DOUBLE_TO_FIXED(1);
+xcb_render_fixed_t fZero = DOUBLE_TO_FIXED(0);
 
 XRandROutput::XRandROutput(xcb_randr_output_t id, XRandRConfig *config)
     : QObject(config)
@@ -32,6 +40,7 @@ XRandROutput::XRandROutput(xcb_randr_output_t id, XRandRConfig *config)
     , m_id(id)
     , m_primary(false)
     , m_type(KScreen::Output::Unknown)
+    , m_replicationSource(XCB_NONE)
     , m_crtc(nullptr)
 {
     init();
@@ -101,6 +110,12 @@ KScreen::Output::Rotation XRandROutput::rotation() const
                                                            XCB_RANDR_ROTATION_ROTATE_0);
 }
 
+bool XRandROutput::isHorizontal() const
+{
+    const auto rot = rotation();
+    return rot == KScreen::Output::Rotation::None || rot == KScreen::Output::Rotation::Inverted;
+}
+
 QByteArray XRandROutput::edid() const
 {
     if (m_edid.isNull()) {
@@ -112,6 +127,11 @@ QByteArray XRandROutput::edid() const
 XRandRCrtc* XRandROutput::crtc() const
 {
     return m_crtc;
+}
+
+xcb_randr_output_t XRandROutput::replicationSource() const
+{
+    return m_replicationSource;
 }
 
 void XRandROutput::update()
@@ -300,6 +320,158 @@ QByteArray XRandROutput::typeFromProperty(xcb_randr_output_t outputId)
     return type;
 }
 
+bool isScaling(const xcb_render_transform_t &tr)
+{
+    return tr.matrix11 != fZero && tr.matrix12 == fZero && tr.matrix13 == fZero &&
+           tr.matrix21 == fZero && tr.matrix22 != fZero && tr.matrix23 == fZero &&
+           tr.matrix31 == fZero && tr.matrix32 == fZero && tr.matrix33 == fOne;
+}
+
+xcb_render_transform_t zeroMatrix()
+{
+    return { DOUBLE_TO_FIXED(0), DOUBLE_TO_FIXED(0), DOUBLE_TO_FIXED(0),
+             DOUBLE_TO_FIXED(0), DOUBLE_TO_FIXED(0), DOUBLE_TO_FIXED(0),
+             DOUBLE_TO_FIXED(0), DOUBLE_TO_FIXED(0), DOUBLE_TO_FIXED(0) };
+}
+
+xcb_render_transform_t XRandROutput::currentTransform() const
+{
+    auto cookie = xcb_randr_get_crtc_transform(XCB::connection(), m_crtc->crtc());
+    xcb_generic_error_t *error = nullptr;
+    auto *reply = xcb_randr_get_crtc_transform_reply(XCB::connection(), cookie, &error);
+    if (error) {
+        return zeroMatrix();
+    }
+
+    const xcb_render_transform_t transform = reply->pending_transform;
+    free(reply);
+    return transform;
+}
+
+QSizeF XRandROutput::scaledSize(xcb_render_transform_t transform) const
+{
+    const QSize ownSize = size();
+    if (!ownSize.isValid()) {
+        return QSize();
+    }
+
+    const qreal width = FIXED_TO_DOUBLE(transform.matrix11) * ownSize.width();
+    const qreal height = FIXED_TO_DOUBLE(transform.matrix22) * ownSize.height();
+
+    return QSizeF(width, height);
+}
+
+bool XRandROutput::isReplicaOf(XRandROutput *output, xcb_render_transform_t ownTransform) const
+{
+    if (output->id() == m_id) {
+        return false;
+    }
+    if (output->position() != position()) {
+        return false;
+    }
+    if (output->replicationSource() != XCB_NONE) {
+        return false;
+    }
+
+    const QSizeF sSize = scaledSize(ownTransform);
+    if (!sSize.isValid()) {
+        return false;
+    }
+
+    const auto outputTransform = output->currentTransform();
+    if (!isScaling(outputTransform)) {
+        return false;
+    }
+
+    if (sSize != output->scaledSize(outputTransform)) {
+        return false;
+    }
+
+    return true;
+}
+
+xcb_render_transform_t unityTransform()
+{
+    return { DOUBLE_TO_FIXED(1), DOUBLE_TO_FIXED(0), DOUBLE_TO_FIXED(0),
+             DOUBLE_TO_FIXED(0), DOUBLE_TO_FIXED(1), DOUBLE_TO_FIXED(0),
+             DOUBLE_TO_FIXED(0), DOUBLE_TO_FIXED(0), DOUBLE_TO_FIXED(1) };
+}
+
+xcb_render_transform_t XRandROutput::getReplicationTransform(XRandROutput *source)
+{
+    if (!source) {
+        return unityTransform();
+    }
+
+    const auto *sourceMode = source->currentMode();
+    const auto *ownMode = currentMode();
+    if (!sourceMode || !ownMode) {
+        return unityTransform();
+    }
+
+    QSize sourceSize = sourceMode->size();
+    QSize size = ownMode->size();
+
+    if (isHorizontal()) {
+        if (!source->isHorizontal()) {
+            sourceSize.transpose();
+        }
+    } else if (source->isHorizontal()) {
+        size.transpose();
+    }
+
+    const qreal widthFactor = sourceSize.width() / (qreal)size.width();
+    const qreal heightFactor = sourceSize.height() / (qreal)size.height();
+
+    xcb_render_transform_t transform = unityTransform();
+    transform.matrix11 = DOUBLE_TO_FIXED(widthFactor);
+    transform.matrix22 = DOUBLE_TO_FIXED(heightFactor);
+
+    return transform;
+}
+
+bool XRandROutput::updateReplication()
+{
+    XRandROutput *source = m_config->output(m_replicationSource);
+    if (source && (!source->isEnabled() || !source->isConnected())) {
+        return false;
+    }
+
+    xcb_render_transform_t transform = getReplicationTransform(source);
+    QByteArray filterName(isScaling(transform) ? "bilinear" : "nearest");
+
+    auto cookie = xcb_randr_set_crtc_transform_checked(XCB::connection(),
+                                                       m_crtc->crtc(),
+                                                       transform,
+                                                       filterName.size(), filterName.data(),
+                                                       0, nullptr);
+    xcb_generic_error_t *error = xcb_request_check(XCB::connection(), cookie);
+    if (error) {
+        qCDebug(KSCREEN_XRANDR) << "Error on replication transformation!";
+        free(error);
+        return false;
+    }
+    free(error);
+    return true;
+}
+
+bool XRandROutput::setReplicationSource(xcb_randr_output_t source)
+{
+    if (!m_crtc) {
+        return false;
+    }
+    if (m_replicationSource == source) {
+        return true;
+    }
+    xcb_randr_output_t oldSource = m_replicationSource;
+    m_replicationSource = source;
+    if (!updateReplication()) {
+        m_replicationSource = oldSource;
+        return false;
+    }
+    return true;
+}
+
 KScreen::OutputPtr XRandROutput::toKScreenOutput() const
 {
     KScreen::OutputPtr kscreenOutput(new KScreen::Output);
@@ -341,8 +513,8 @@ KScreen::OutputPtr XRandROutput::toKScreenOutput() const
             kscreenOutput->setRotation(rotation());
             kscreenOutput->setCurrentModeId(currentModeId());
         }
+        kscreenOutput->setReplicationSource(m_replicationSource);
     }
-
 
     kscreenOutput->blockSignals(signalsBlocked);
     return kscreenOutput;

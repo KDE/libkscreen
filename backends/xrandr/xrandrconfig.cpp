@@ -108,7 +108,8 @@ KScreen::ConfigPtr XRandRConfig::toKScreenConfig() const
 {
     KScreen::ConfigPtr config(new KScreen::Config);
 
-    auto features = Config::Feature::Writable | Config::Feature::PrimaryDisplay;
+    const Config::Features features = Config::Feature::Writable | Config::Feature::PrimaryDisplay |
+                                      Config::Feature::OutputReplication;
     config->setSupportedFeatures(features);
 
     KScreen::OutputList kscreenOutputs;
@@ -154,7 +155,7 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
         }
     }
 
-    KScreen::OutputList toDisable, toEnable, toChange;
+    KScreen::OutputList toDisable, toEnable, toChange, toReplicate;
 
     for (const KScreen::OutputPtr &kscreenOutput : kscreenOutputs) {
         xcb_randr_output_t outputId = kscreenOutput->id();
@@ -178,6 +179,16 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
         }
 
         ++neededCrtcs;
+
+        // Update replication when it is supposed to be a replica or changes not to be anymore.
+        if (kscreenOutput->replicationSource() || currentOutput->replicationSource()) {
+            if (int sourceId = kscreenOutput->replicationSource()) {
+                kscreenOutput->setPos(config->output(sourceId)->pos());
+            }
+            if (!toReplicate.contains(outputId)) {
+                toReplicate.insert(outputId, kscreenOutput);
+            }
+        }
 
         if (kscreenOutput->currentModeId() != currentOutput->currentModeId()) {
             if (!toChange.contains(outputId)) {
@@ -280,7 +291,7 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
 
     //If there is nothing to do, not even bother
     if (oldPrimaryOutput == primaryOutput && toDisable.isEmpty() &&
-            toEnable.isEmpty() && toChange.isEmpty()) {
+            toEnable.isEmpty() && toChange.isEmpty() && toReplicate.isEmpty()) {
         if (newScreenSize != currentScreenSize) {
             setScreenSize(newScreenSize);
         }
@@ -302,7 +313,7 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
             /* If we disabled the output before changing it and XRandR failed
              * to re-enable it, then update screen size too */
             if (toDisable.contains(output->id())) {
-                //output->setEnabled(false);
+                output->setEnabled(false);
                 qCDebug(KSCREEN_XRANDR) << "Output failed to change: " << output->name();
                 forceScreenSizeUpdate = true;
             }
@@ -311,8 +322,13 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
 
     for (const KScreen::OutputPtr &output : toEnable) {
         if (!enableOutput(output)) {
-            //output->setEnabled(false);
             qCDebug(KSCREEN_XRANDR) << "Output failed to be Enabled: " << output->name();
+            forceScreenSizeUpdate = true;
+        }
+    }
+
+    for (KScreen::OutputPtr &output : toReplicate) {
+        if (replicateOutput(output)) {
             forceScreenSizeUpdate = true;
         }
     }
@@ -527,8 +543,6 @@ bool XRandRConfig::disableOutput(const OutputPtr &kscreenOutput) const
 
 bool XRandRConfig::enableOutput(const OutputPtr &kscreenOutput) const
 {
-    xcb_randr_output_t outputs[1] { static_cast<xcb_randr_output_t>(kscreenOutput->id()) };
-
     XRandRCrtc *freeCrtc = nullptr;
     qCDebug(KSCREEN_XRANDR) << m_crtcs;
 
@@ -564,34 +578,20 @@ bool XRandRConfig::enableOutput(const OutputPtr &kscreenOutput) const
                             << "Preferred:" << kscreenOutput->preferredModeId() << "\n"
                             << "\tRotation:" << kscreenOutput->rotation();
 
-    auto cookie = xcb_randr_set_crtc_config(XCB::connection(), freeCrtc->crtc(),
-            XCB_CURRENT_TIME, XCB_CURRENT_TIME,
-            kscreenOutput->pos().rx(), kscreenOutput->pos().ry(),
-            modeId,
-            kscreenOutput->rotation(),
-            1, outputs);
-
-    XCB::ScopedPointer<xcb_randr_set_crtc_config_reply_t>
-            reply(xcb_randr_set_crtc_config_reply(XCB::connection(), cookie, nullptr));
-
-    if (!reply) {
-        qCDebug(KSCREEN_XRANDR) << "Result: unknown (error)";
+    if (!sendConfig(kscreenOutput, freeCrtc)) {
         return false;
     }
-    qCDebug(KSCREEN_XRANDR) << "\tResult:" << reply->status;
 
-    if (reply->status == XCB_RANDR_SET_CONFIG_SUCCESS) {
-        XRandROutput *xOutput = output(kscreenOutput->id());
-        xOutput->update(freeCrtc->crtc(), modeId, XCB_RANDR_CONNECTION_CONNECTED,
-                        kscreenOutput->isPrimary());
-    }
-    return (reply->status == XCB_RANDR_SET_CONFIG_SUCCESS);
+    output(kscreenOutput->id())->update(freeCrtc->crtc(), modeId, XCB_RANDR_CONNECTION_CONNECTED,
+                                        kscreenOutput->isPrimary());
+    return true;
 }
 
-bool XRandRConfig::changeOutput(const OutputPtr &kscreenOutput) const
+bool XRandRConfig::changeOutput(const KScreen::OutputPtr &kscreenOutput) const
 {
     XRandROutput *xOutput = output(kscreenOutput->id());
     Q_ASSERT(xOutput);
+
     if (!xOutput->crtc()) {
         qCDebug(KSCREEN_XRANDR) << "Output" << kscreenOutput->id()
                                 << "has no CRTC, falling back to enableOutput()";
@@ -609,27 +609,68 @@ bool XRandRConfig::changeOutput(const OutputPtr &kscreenOutput) const
                             << "\tMode:" << modeId  << kscreenOutput->currentMode() << "\n"
                             << "\tRotation:" << kscreenOutput->rotation();
 
-    xcb_randr_output_t outputs[1] { static_cast<xcb_randr_output_t>(kscreenOutput->id()) };
+    if (!sendConfig(kscreenOutput, xOutput->crtc())) {
+        return false;
+    }
 
-    auto cookie = xcb_randr_set_crtc_config(XCB::connection(), xOutput->crtc()->crtc(),
-            XCB_CURRENT_TIME, XCB_CURRENT_TIME,
-            kscreenOutput->pos().rx(), kscreenOutput->pos().ry(),
-            modeId,
-            kscreenOutput->rotation(),
-            1, outputs);
+    xOutput->update(xOutput->crtc()->crtc(), modeId,
+                    XCB_RANDR_CONNECTION_CONNECTED, kscreenOutput->isPrimary());
+    return true;
+}
+
+bool XRandRConfig::replicateOutput(const KScreen::OutputPtr &kscreenOutput) const
+{
+    XRandROutput *xOutput = output(kscreenOutput->id());
+    Q_ASSERT(xOutput);
+
+    if (!xOutput->crtc()) {
+        qCDebug(KSCREEN_XRANDR) << "Output" << kscreenOutput->id()
+                                << "has no CRTC, falling back to enableOutput()";
+        enableOutput(kscreenOutput);
+    }
+
+    int modeId = kscreenOutput->currentMode() ? kscreenOutput->currentModeId().toInt() :
+                                                kscreenOutput->preferredModeId().toInt();
+
+    qCDebug(KSCREEN_XRANDR) << "RRSetCrtcConfig (change output)" << "\n"
+                            << "\tOutput:" << kscreenOutput->id() << "(" << kscreenOutput->name()
+                            << ")" << "\n"
+                            << "\tCRTC:" << xOutput->crtc()->crtc() << "\n"
+                            << "\tPos:" << kscreenOutput->pos() << "\n"
+                            << "\tMode:" << modeId  << kscreenOutput->currentMode() << "\n"
+                            << "\tRotation:" << kscreenOutput->rotation();
+
+    if (!xOutput->setReplicationSource(kscreenOutput->replicationSource())) {
+        return false;
+    }
+    if (!sendConfig(kscreenOutput, xOutput->crtc())) {
+        return false;
+    }
+
+    xOutput->update(xOutput->crtc()->crtc(), modeId,
+                    XCB_RANDR_CONNECTION_CONNECTED, kscreenOutput->isPrimary());
+    return true;
+}
+
+bool XRandRConfig::sendConfig(const KScreen::OutputPtr &kscreenOutput, XRandRCrtc *crtc) const
+{
+    xcb_randr_output_t outputs[1] { static_cast<xcb_randr_output_t>(kscreenOutput->id()) };
+    const int modeId = kscreenOutput->currentMode() ? kscreenOutput->currentModeId().toInt() :
+                                                      kscreenOutput->preferredModeId().toInt();
+
+    auto cookie = xcb_randr_set_crtc_config(XCB::connection(), crtc->crtc(),
+                                            XCB_CURRENT_TIME, XCB_CURRENT_TIME,
+                                            kscreenOutput->pos().rx(), kscreenOutput->pos().ry(),
+                                            modeId,
+                                            kscreenOutput->rotation(),
+                                            1, outputs);
 
     XCB::ScopedPointer<xcb_randr_set_crtc_config_reply_t>
             reply(xcb_randr_set_crtc_config_reply(XCB::connection(), cookie, nullptr));
-
     if (!reply) {
         qCDebug(KSCREEN_XRANDR) << "\tResult: unknown (error)";
         return false;
     }
     qCDebug(KSCREEN_XRANDR) << "\tResult: " << reply->status;
-
-    if (reply->status == XCB_RANDR_SET_CONFIG_SUCCESS) {
-        xOutput->update(xOutput->crtc()->crtc(), modeId,
-                        XCB_RANDR_CONNECTION_CONNECTED, kscreenOutput->isPrimary());
-    }
     return (reply->status == XCB_RANDR_SET_CONFIG_SUCCESS);
 }
