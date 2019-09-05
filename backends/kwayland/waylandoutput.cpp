@@ -153,7 +153,7 @@ void WaylandOutput::updateKScreenOutput(OutputPtr &output)
     output->setCurrentModeId(currentModeId);
     output->setPreferredModes(preferredModeIds);
     output->setModes(modeList);
-    output->setScale(m_device->scale());
+    output->setScale(m_device->scaleF());
     output->setType(Utils::guessOutputType(m_device->model(), m_device->model()));
 }
 
