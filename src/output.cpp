@@ -542,17 +542,30 @@ bool Output::isPositionable() const
     return isConnected() && isEnabled() && !replicationSource();
 }
 
+QSize Output::enforcedModeSize() const
+{
+    if (const auto mode = currentMode()) {
+        return mode->size();
+    } else if (const auto mode = preferredMode()) {
+        return mode->size();
+    } else if (d->modeList.count() > 0) {
+        return d->modeList.first()->size();
+    }
+    return QSize();
+}
+
 QRect Output::geometry() const
 {
-    if (!currentMode()) {
+    QSize size = enforcedModeSize();
+    if (!size.isValid()) {
         return QRect();
     }
+    size = size / d->scale;
 
     // We can't use QRect(d->pos, d->size), because d->size does not reflect the
     // actual rotation() set by caller, it's only updated when we get update from
     // KScreen, but not when user changes mode or rotation manually
 
-    QSize size = currentMode()->size() / d->scale;
     if (!isHorizontal()) {
         size = size.transposed();
     }
