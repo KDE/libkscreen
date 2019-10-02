@@ -185,7 +185,7 @@ void ConfigMonitor::Private::updateConfigs(const KScreen::ConfigPtr &newConfig)
 void ConfigMonitor::Private::configDestroyed(QObject *removedConfig)
 {
     for (auto iter = watchedConfigs.begin(); iter != watchedConfigs.end(); ++iter) {
-        if (iter->data() == removedConfig) {
+        if (iter->toStrongRef() == removedConfig) {
             iter = watchedConfigs.erase(iter);
             // Iterate over the entire list in case there are duplicates
         }
@@ -223,7 +223,7 @@ void ConfigMonitor::addConfig(const ConfigPtr &config)
 {
     const QWeakPointer<Config> weakConfig = config.toWeakRef();
     if (!d->watchedConfigs.contains(weakConfig)) {
-        connect(weakConfig.data(), &QObject::destroyed,
+        connect(weakConfig.toStrongRef().data(), &QObject::destroyed,
                 d, &Private::configDestroyed);
         d->watchedConfigs << weakConfig;
     }
@@ -233,7 +233,7 @@ void ConfigMonitor::removeConfig(const ConfigPtr &config)
 {
     const QWeakPointer<Config> weakConfig = config.toWeakRef();
     if (d->watchedConfigs.contains(config)) {
-        disconnect(weakConfig.data(), &QObject::destroyed,
+        disconnect(weakConfig.toStrongRef().data(), &QObject::destroyed,
                    d, &Private::configDestroyed);
         d->watchedConfigs.removeAll(config);
     }
