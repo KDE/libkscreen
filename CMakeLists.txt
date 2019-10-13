@@ -99,11 +99,7 @@ install(FILES
   DESTINATION "${KF5_INCLUDE_INSTALL_DIR}"
   COMPONENT Devel
 )
-if (${ECM_VERSION} STRGREATER "5.58.0")
-    install(FILES libkscreen.categories  DESTINATION  ${KDE_INSTALL_LOGGINGCATEGORIESDIR})
-else()
-    install(FILES libkscreen.categories  DESTINATION ${KDE_INSTALL_CONFDIR})
-endif()
+install(FILES libkscreen.categories  DESTINATION  ${KDE_INSTALL_LOGGINGCATEGORIESDIR})
 
 
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
