@@ -40,8 +40,6 @@ WaylandBackend::WaylandBackend()
 {
     qCDebug(KSCREEN_WAYLAND) << "Loading Wayland backend.";
 
-    m_internalConfig = new WaylandConfig(this);
-
     connect(m_internalConfig, &WaylandConfig::configChanged,
             this, [this]() {
         Q_EMIT configChanged(m_internalConfig->currentConfig());
