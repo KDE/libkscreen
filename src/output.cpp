@@ -214,6 +214,7 @@ void Output::setName(const QString& name)
     Q_EMIT outputChanged();
 }
 
+// TODO KF6: remove this deprecated method
 QString Output::hash() const
 {
     if (edid() && edid()->isValid()) {
@@ -393,6 +394,7 @@ void Output::setSize(const QSize& size)
     Q_EMIT sizeChanged();
 }
 
+// TODO KF6: make the Rotation enum an enum class and align values with Wayland transformation property
 Output::Rotation Output::rotation() const
 {
     return d->rotation;
