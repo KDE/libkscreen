@@ -67,6 +67,8 @@ class KSCREEN_EXPORT Config : public QObject
         Writable = 1 << 1, ///< The backend supports setting the config, it's not read-only.
         PerOutputScaling = 1 << 2, ///< The backend supports scaling each output individually.
         OutputReplication = 1 << 3, ///< The backend supports replication of outputs.
+        AutoRotation = 1 << 4, ///< The backend supports automatic rotation of outputs.
+        TabletMode = 1 << 5, ///< The backend supports querying if a device is in tablet mode.
     };
     Q_DECLARE_FLAGS(Features, Feature)
 
@@ -164,6 +166,42 @@ class KSCREEN_EXPORT Config : public QObject
      * @since 5.7
      */
     void setSupportedFeatures(const Features &features);
+
+    /**
+     * Indicates that the device supports switching between a default and a tablet mode. This is
+     * common for convertibles.
+     *
+     * @return true when tablet mode is available, otherwise false
+     * @see setTabletModeAvailable
+     * @since 5.18
+     */
+    bool tabletModeAvailable() const;
+
+    /** Sets if the device supports a tablet mode. This should not be called by the
+     * user, but by the backend.
+     *
+     * @see tabletModeAvailable
+     * @since 5.18
+     */
+    void setTabletModeAvailable(bool available);
+
+    /**
+     * Indicates that the device is currently in tablet mode.
+     *
+     * @return true when in tablet mode, otherwise false
+     * @see setTabletModeEngaged
+     * @since 5.18
+     */
+    bool tabletModeEngaged() const;
+
+    /**
+     * Sets if the device is currently in tablet mode. This should not be called by the
+     * user, but by the backend.
+     *
+     * @see tabletModeEngaged
+     * @since 5.18
+     */
+    void setTabletModeEngaged(bool engaged);
 
   Q_SIGNALS:
       void outputAdded(const KScreen::OutputPtr &output);

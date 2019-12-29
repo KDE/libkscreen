@@ -22,6 +22,8 @@
 #include "waylandoutput.h"
 #include "waylandscreen.h"
 
+#include "tabletmodemanager_interface.h"
+
 #include <configmonitor.h>
 #include <mode.h>
 
@@ -43,6 +45,8 @@ WaylandConfig::WaylandConfig(QObject *parent)
     , m_kscreenConfig(new Config)
     , m_kscreenPendingConfig(nullptr)
     , m_screen(new WaylandScreen(this))
+    , m_tabletModeAvailable(false)
+    , m_tabletModeEngaged(false)
 {
     connect(this, &WaylandConfig::initialized, &m_syncLoop, &QEventLoop::quit);
 
@@ -56,6 +60,7 @@ WaylandConfig::WaylandConfig(QObject *parent)
         }
     });
 
+    initKWinTabletMode();
     initConnection();
     m_syncLoop.exec();
 }
@@ -65,6 +70,43 @@ WaylandConfig::~WaylandConfig()
     m_thread->quit();
     m_thread->wait();
     m_syncLoop.quit();
+}
+
+void WaylandConfig::initKWinTabletMode()
+{
+    auto *interface = new OrgKdeKWinTabletModeManagerInterface(QStringLiteral("org.kde.KWin"),
+                                                           QStringLiteral("/org/kde/KWin"),
+                                                           QDBusConnection::sessionBus(), this);
+    if (!interface->isValid()) {
+        m_tabletModeAvailable = false;
+        m_tabletModeEngaged = false;
+        return;
+    }
+
+    m_tabletModeAvailable = interface->tabletModeAvailable();
+    m_tabletModeEngaged = interface->tabletMode();
+
+    connect(interface, &OrgKdeKWinTabletModeManagerInterface::tabletModeChanged,
+            this, [this](bool tabletMode) {
+                if (m_tabletModeEngaged == tabletMode) {
+                    return;
+                }
+                m_tabletModeEngaged = tabletMode;
+                if (!m_blockSignals && m_initializingOutputs.empty()) {
+                    Q_EMIT configChanged();
+                }
+            }
+    );
+    connect(interface, &OrgKdeKWinTabletModeManagerInterface::tabletModeAvailableChanged,
+            this, [this](bool available) {
+                if (m_tabletModeAvailable == available) {
+                    return;
+                }
+                m_tabletModeAvailable = available;
+                if (!m_blockSignals && m_initializingOutputs.empty()) {
+                    Q_EMIT configChanged();
+                }
+    });
 }
 
 void WaylandConfig::initConnection()
@@ -227,6 +269,9 @@ KScreen::ConfigPtr WaylandConfig::currentConfig()
     m_kscreenConfig->setScreen(m_screen->toKScreenScreen(m_kscreenConfig));
 
     auto features = Config::Feature::Writable | Config::Feature::PerOutputScaling;
+    // TODO: enable new features when all patches have landed
+//    const auto features = Config::Feature::Writable | Config::Feature::PerOutputScaling
+//                        | Config::Feature::AutoRotation | Config::Feature::TabletMode;
     m_kscreenConfig->setSupportedFeatures(features);
     m_kscreenConfig->setValid(m_connection->display());
 
@@ -257,6 +302,9 @@ KScreen::ConfigPtr WaylandConfig::currentConfig()
         output->updateKScreenOutput(kscreenOutput);
     }
     m_kscreenConfig->setOutputs(kscreenOutputs);
+
+    m_kscreenConfig->setTabletModeAvailable(m_tabletModeAvailable);
+    m_kscreenConfig->setTabletModeEngaged(m_tabletModeEngaged);
 
     return m_kscreenConfig;
 }

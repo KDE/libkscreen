@@ -38,6 +38,8 @@ public:
         : QObject(parent)
         , valid(true)
         , supportedFeatures(Config::Feature::None)
+        , tabletModeAvailable(false)
+        , tabletModeEngaged(false)
         , q(parent)
     { }
 
@@ -90,6 +92,8 @@ public:
     OutputPtr primaryOutput;
     OutputList outputs;
     Features supportedFeatures;
+    bool tabletModeAvailable;
+    bool tabletModeEngaged;
 
 private:
     Config *q;
@@ -258,6 +262,26 @@ Config::Features Config::supportedFeatures() const
 void Config::setSupportedFeatures(const Config::Features &features)
 {
     d->supportedFeatures = features;
+}
+
+bool Config::tabletModeAvailable() const
+{
+    return d->tabletModeAvailable;
+}
+
+void Config::setTabletModeAvailable(bool available)
+{
+    d->tabletModeAvailable = available;
+}
+
+bool Config::tabletModeEngaged() const
+{
+    return d->tabletModeEngaged;
+}
+
+void Config::setTabletModeEngaged(bool engaged)
+{
+    d->tabletModeEngaged = engaged;
 }
 
 OutputList Config::outputs() const

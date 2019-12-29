@@ -80,6 +80,7 @@ private:
     void checkInitialized();
     void disconnected();
 
+    void initKWinTabletMode();
     void initConnection();
 
     void addOutput(quint32 name, quint32 version);
@@ -109,6 +110,9 @@ private:
     KScreen::ConfigPtr m_kscreenConfig;
     KScreen::ConfigPtr m_kscreenPendingConfig;
     WaylandScreen *m_screen;
+
+    bool m_tabletModeAvailable;
+    bool m_tabletModeEngaged;
 };
 
 }
