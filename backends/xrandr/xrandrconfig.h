@@ -60,7 +60,6 @@ private:
     bool disableOutput(const KScreen::OutputPtr &output) const;
     bool enableOutput(const KScreen::OutputPtr &output) const;
     bool changeOutput(const KScreen::OutputPtr &output) const;
-    bool replicateOutput(const KScreen::OutputPtr &output) const;
 
     bool sendConfig(const KScreen::OutputPtr &kscreenOutput, XRandRCrtc *crtc) const;
 

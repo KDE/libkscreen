@@ -62,6 +62,8 @@ class KSCREEN_EXPORT Output : public QObject
         Q_PROPERTY(QSize sizeMm READ sizeMm CONSTANT)
         Q_PROPERTY(qreal scale READ scale WRITE setScale NOTIFY scaleChanged)
         Q_PROPERTY(bool followPreferredMode READ followPreferredMode WRITE setFollowPreferredMode NOTIFY followPreferredModeChanged)
+        Q_PROPERTY(QSizeF logicalSize READ logicalSize WRITE setLogicalSize
+                   NOTIFY logicalSizeChanged)
 
 
         enum Type {
@@ -296,6 +298,37 @@ class KSCREEN_EXPORT Output : public QObject
         void setScale(qreal factor);
 
         /**
+         * The logical size is the output's representation internal to the display server and its
+         * overall screen geometry.
+         *
+         * returns the logical size of this output
+         *
+         * @since 5.18
+         */
+        QSizeF logicalSize() const;
+
+        /**
+         * The logical size is the output's representation internal to the display server and its
+         * overall screen geometry.
+         *
+         * returns the explicitly set logical size of this output, is an invalid size if not set
+         *
+         * @since 5.18
+         */
+        QSizeF explicitLogicalSize() const;
+
+        /**
+         * Specifies explicitly the logical size of this output and by that overrides any other
+         * logical size calculation through mode and scale. To enable this instead again call this
+         * function with an invalid size as argument.
+         *
+         * @param size of this output in logical space
+         *
+         * @since 5.18
+         */
+        void setLogicalSize(const QSizeF &size);
+
+        /**
          * @returns whether the mode should be changed to the new preferred mode
          * once it changes
          *
@@ -323,6 +356,7 @@ class KSCREEN_EXPORT Output : public QObject
         void clonesChanged();
         void replicationSourceChanged();
         void scaleChanged();
+        void logicalSizeChanged();
         void followPreferredModeChanged(bool followPreferredMode);
 
         /** The mode list changed.
