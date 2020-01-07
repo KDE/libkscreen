@@ -559,7 +559,7 @@ bool XRandRConfig::enableOutput(const OutputPtr &kscreenOutput) const
     XRandROutput *xOutput = output(kscreenOutput->id());
     const int modeId = kscreenOutput->currentMode() ? kscreenOutput->currentModeId().toInt() :
                                                       kscreenOutput->preferredModeId().toInt();
-    xOutput->updateLogicalSize(kscreenOutput);
+    xOutput->updateLogicalSize(kscreenOutput, freeCrtc);
 
     qCDebug(KSCREEN_XRANDR) << "RRSetCrtcConfig (enable output)" << "\n"
                             << "\tOutput:" << kscreenOutput->id() << "(" << kscreenOutput->name()

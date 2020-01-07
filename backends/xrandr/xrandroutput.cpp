@@ -363,8 +363,14 @@ QSizeF XRandROutput::logicalSize() const
     return QSizeF(width, height);
 }
 
-void XRandROutput::updateLogicalSize(const KScreen::OutputPtr &output)
+void XRandROutput::updateLogicalSize(const KScreen::OutputPtr &output, XRandRCrtc *crtc)
 {
+    if (!crtc) {
+        // TODO: This is a workaround for now when updateLogicalSize is called on enabling the
+        //       output. At this point m_crtc is not yet set. Change the order in the future so
+        //       that the additional argument is not necessary anymore.
+        crtc = m_crtc;
+    }
     const QSizeF logicalSize = output->explicitLogicalSize();
     xcb_render_transform_t transform = unityTransform();
 
@@ -384,7 +390,7 @@ void XRandROutput::updateLogicalSize(const KScreen::OutputPtr &output)
     QByteArray filterName(isScaling(transform) ? "bilinear" : "nearest");
 
     auto cookie = xcb_randr_set_crtc_transform_checked(XCB::connection(),
-                                                       m_crtc->crtc(),
+                                                       crtc->crtc(),
                                                        transform,
                                                        filterName.size(), filterName.data(),
                                                        0, nullptr);

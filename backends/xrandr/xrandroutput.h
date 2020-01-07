@@ -75,7 +75,7 @@ public:
 
     KScreen::OutputPtr toKScreenOutput() const;
 
-    void updateLogicalSize(const KScreen::OutputPtr &output);
+    void updateLogicalSize(const KScreen::OutputPtr &output, XRandRCrtc *crtc = nullptr);
 
 private:
     void init();
