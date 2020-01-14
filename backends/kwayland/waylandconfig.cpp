@@ -48,8 +48,9 @@ WaylandConfig::WaylandConfig(QObject *parent)
     , m_tabletModeAvailable(false)
     , m_tabletModeEngaged(false)
 {
-    connect(this, &WaylandConfig::initialized, &m_syncLoop, &QEventLoop::quit);
+    initKWinTabletMode();
 
+    connect(this, &WaylandConfig::initialized, &m_syncLoop, &QEventLoop::quit);
     QTimer::singleShot(1000, this, [this] {
         if (m_syncLoop.isRunning()) {
             qCWarning(KSCREEN_WAYLAND) << "Connection to Wayland server at socket:"
@@ -60,7 +61,6 @@ WaylandConfig::WaylandConfig(QObject *parent)
         }
     });
 
-    initKWinTabletMode();
     initConnection();
     m_syncLoop.exec();
 }
