@@ -370,7 +370,7 @@ void Doctor::showOutputs() const
         if (output->isPrimary()) {
             cout << blue << "primary";
         }
-        cout << endl;
+        cout << cr << endl;
     }
 }
 
