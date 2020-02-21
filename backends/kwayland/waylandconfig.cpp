@@ -245,7 +245,8 @@ void WaylandConfig::removeOutput(WaylandOutput *output)
     }
 
     // remove the output from output mapping
-    Q_ASSERT(m_outputMap.take(output->id()) == output);
+    const auto removedOutput = m_outputMap.take(output->id());
+    Q_ASSERT(removedOutput == output); Q_UNUSED(removedOutput);
     m_screen->setOutputs(m_outputMap.values());
     delete output;
 
