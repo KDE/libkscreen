@@ -189,8 +189,7 @@ void testWaylandBackend::simpleWrite()
     GetConfigOperation *op = new GetConfigOperation();
     op->exec();
     m_config = op->config();
-    auto output = m_config->output(3);
-    QVERIFY(output);
+    auto output = m_config->output(1);
     auto n_mode = QStringLiteral("800x600@60");
     auto o_mode = output->currentModeId();
     output->setCurrentModeId(n_mode);
