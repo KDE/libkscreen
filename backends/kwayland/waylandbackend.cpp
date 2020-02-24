@@ -35,7 +35,6 @@ Q_LOGGING_CATEGORY(KSCREEN_WAYLAND, "kscreen.kwayland")
 
 WaylandBackend::WaylandBackend()
     : KScreen::AbstractBackend()
-    , m_isValid(true)
     , m_internalConfig(new WaylandConfig(this))
 {
     qCDebug(KSCREEN_WAYLAND) << "Loading Wayland backend.";
@@ -81,5 +80,5 @@ QByteArray WaylandBackend::edid(int outputId) const
 
 bool WaylandBackend::isValid() const
 {
-    return m_isValid;
+    return m_internalConfig->isInitialized();
 }

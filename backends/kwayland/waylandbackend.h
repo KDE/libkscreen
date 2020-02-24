@@ -45,7 +45,6 @@ public:
     QByteArray edid(int outputId) const override;
 
 private:
-    bool m_isValid;
     WaylandConfig *m_internalConfig;
 };
 

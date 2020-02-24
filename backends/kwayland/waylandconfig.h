@@ -71,6 +71,8 @@ public:
 
     void applyConfig(const KScreen::ConfigPtr &newConfig);
 
+    bool isInitialized() const;
+
 Q_SIGNALS:
     void configChanged();
     void initialized();
