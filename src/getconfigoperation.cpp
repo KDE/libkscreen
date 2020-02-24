@@ -171,6 +171,9 @@ void GetConfigOperation::start()
     Q_D(GetConfigOperation);
     if (BackendManager::instance()->method() == BackendManager::InProcess) {
         auto backend = d->loadBackend();
+        if (!backend) {
+            return; // loadBackend() already set error and called emitResult() for us
+        }
         d->config = backend->config()->clone();
         d->loadEdid(backend);
         emitResult();
