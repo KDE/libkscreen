@@ -51,7 +51,7 @@ WaylandConfig::WaylandConfig(QObject *parent)
     initKWinTabletMode();
 
     connect(this, &WaylandConfig::initialized, &m_syncLoop, &QEventLoop::quit);
-    QTimer::singleShot(1000, this, [this] {
+    QTimer::singleShot(3000, this, [this] {
         if (m_syncLoop.isRunning()) {
             qCWarning(KSCREEN_WAYLAND) << "Connection to Wayland server at socket:"
                                        << m_connection->socketName() << "timed out.";
@@ -255,10 +255,18 @@ void WaylandConfig::removeOutput(WaylandOutput *output)
     }
 }
 
+bool WaylandConfig::isInitialized() const
+{
+    return !m_blockSignals
+            && m_registryInitialized
+            && m_initializingOutputs.isEmpty()
+            && m_outputMap.count() > 0
+            && m_outputManagement != nullptr;
+}
+
 void WaylandConfig::checkInitialized()
 {
-    if (!m_blockSignals && m_registryInitialized &&
-        m_initializingOutputs.isEmpty() && m_outputMap.count() && m_outputManagement != nullptr) {
+    if (isInitialized()) {
         m_screen->setOutputs(m_outputMap.values());
         Q_EMIT initialized();
     }
