@@ -277,10 +277,8 @@ KScreen::ConfigPtr WaylandConfig::currentConfig()
     // TODO: do this setScreen call less clunky
     m_kscreenConfig->setScreen(m_screen->toKScreenScreen(m_kscreenConfig));
 
-    auto features = Config::Feature::Writable | Config::Feature::PerOutputScaling;
-    // TODO: enable new features when all patches have landed
-//    const auto features = Config::Feature::Writable | Config::Feature::PerOutputScaling
-//                        | Config::Feature::AutoRotation | Config::Feature::TabletMode;
+    const auto features = Config::Feature::Writable | Config::Feature::PerOutputScaling
+                        | Config::Feature::AutoRotation | Config::Feature::TabletMode;
     m_kscreenConfig->setSupportedFeatures(features);
     m_kscreenConfig->setValid(m_connection->display());
 
