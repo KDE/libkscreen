@@ -222,6 +222,8 @@ ConfigPtr Config::clone() const
     }
     newConfig->d->primaryOutput = newConfig->d->findPrimaryOutput();
     newConfig->setSupportedFeatures(supportedFeatures());
+    newConfig->setTabletModeAvailable(tabletModeAvailable());
+    newConfig->setTabletModeEngaged(tabletModeEngaged());
     return newConfig;
 }
 

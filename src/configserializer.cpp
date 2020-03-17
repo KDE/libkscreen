@@ -68,6 +68,9 @@ QJsonObject ConfigSerializer::serializeConfig(const ConfigPtr &config)
         obj[QLatin1String("screen")] = serializeScreen(config->screen());
     }
 
+    obj[QLatin1String("tabletModeAvailable")] = config->tabletModeAvailable();
+    obj[QLatin1String("tabletModeEngaged")] = config->tabletModeEngaged();
+
     return obj;
 }
 
@@ -181,6 +184,13 @@ ConfigPtr ConfigSerializer::deserializeConfig(const QVariantMap &map)
 
     if (map.contains(QLatin1String("features"))) {
         config->setSupportedFeatures(static_cast<Config::Features>(map[QStringLiteral("features")].toInt()));
+    }
+
+    if (map.contains(QLatin1String("tabletModeAvailable"))) {
+        config->setTabletModeAvailable(map[QStringLiteral("tabletModeAvailable")].toBool());
+    }
+    if (map.contains(QLatin1String("tabletModeEngaged"))) {
+        config->setTabletModeEngaged(map[QStringLiteral("tabletModeEngaged")].toBool());
     }
 
     if (map.contains(QLatin1String("outputs"))) {
