@@ -2,3 +2,6 @@
 *.kdev4
 build
 build-overlay
+.clang-format
+CMakeLists.txt.user*
+/build*/
