@@ -19,7 +19,7 @@
 #ifndef KSCREEN_BACKEND_UTILS_H_
 #define KSCREEN_BACKEND_UTILS_H_
 
-#include <kscreen/output.h>
+#include "output.h"
 
 namespace Utils {
 

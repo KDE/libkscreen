@@ -23,7 +23,7 @@
 #include <QObject>
 #include "../config.h"
 
-#include <KScreen/Output>
+#include "output.h"
 
 namespace KScreen
 {
