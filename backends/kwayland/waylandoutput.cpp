@@ -152,6 +152,7 @@ void WaylandOutput::updateKScreenOutput(OutputPtr &output)
 
     output->setCurrentModeId(currentModeId);
     output->setPreferredModes(preferredModeIds);
+    output->setFollowPreferredMode(true);
     output->setModes(modeList);
     output->setScale(m_device->scaleF());
     output->setType(Utils::guessOutputType(m_device->model(), m_device->model()));
@@ -192,10 +193,8 @@ bool WaylandOutput::setWlConfig(Wl::OutputConfiguration *wlConfig,
     // mode
     if (m_modeIdMap.contains(output->currentModeId())) {
         const int newModeId = m_modeIdMap.value(output->currentModeId(), -1);
-        if (newModeId != m_device->currentMode().id) {
-            changed = true;
-            wlConfig->setMode(m_device, newModeId);
-        }
+        changed = true;
+        wlConfig->setMode(m_device, newModeId);
     } else {
         qCWarning(KSCREEN_WAYLAND) << "Invalid kscreen mode id:" << output->currentModeId()
                                    << "\n\n" << m_modeIdMap;
