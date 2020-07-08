@@ -200,6 +200,9 @@ void XRandROutput::setIsPrimary(bool primary)
 
 void XRandROutput::init()
 {
+    // Whether or not to try to enable this output once we have finished initializing
+    bool enable = false;
+
     XCB::OutputInfo outputInfo(m_id, XCB_TIME_CURRENT_TIME);
     Q_ASSERT(outputInfo);
     if (!outputInfo) {
@@ -226,10 +229,44 @@ void XRandROutput::init()
     m_crtc = m_config->crtc(outputInfo->crtc);
     if (m_crtc) {
         m_crtc->connectOutput(m_id);
+    } else {
+        enable = true;
     }
     m_hotplugModeUpdate = XRandR::hasProperty(m_id, "hotplug_mode_update");
 
     updateModes(outputInfo);
+
+    if (enable) {
+        qCDebug(KSCREEN_XRANDR) << "No crtc asociated with this output, finding one";
+        KScreen::ConfigPtr config = m_config->toKScreenConfig();
+        qCDebug(KSCREEN_XRANDR) << "Got kscreen config, setting enable output for my id " << id();
+        KScreen::OutputList outputs = config->outputs();
+        qCDebug(KSCREEN_XRANDR) << "Found " << outputs.count() << " outputs in config";
+        for (int i =0; i < outputs.keys().count(); ++i) {
+            qCDebug(KSCREEN_XRANDR) << "Output key: " << outputs.keys()[i];
+        }
+        KScreen::OutputPtr output = outputs.value(id());
+        QSize biggest = QSize(0, 0);
+        int biggestId = -1;
+        for (int i = 0; i < m_modes.size(); ++i) {
+            int mode = m_modes.keys().value(i);
+            QSize modeSize = m_modes.value(mode)->size();
+            qCDebug(KSCREEN_XRANDR) << "Mode: " << mode << " size: " << modeSize;
+            if (modeSize.width() > biggest.width() ||
+               modeSize.height() > biggest.height()) {
+                biggestId = mode;
+                biggest = modeSize;
+            }
+        }
+        if (output)
+            output->setEnabled(true);
+        if (biggestId != -1) {
+            qCDebug(KSCREEN_XRANDR) << "Biggest mode is " << biggest;
+            output->setCurrentModeId(QString::number(biggestId));
+        }
+        // Now just need to tell xrandrconfig
+        m_config->applyKScreenConfig(config);
+    }
 }
 
 void XRandROutput::updateModes(const XCB::OutputInfo &outputInfo)
