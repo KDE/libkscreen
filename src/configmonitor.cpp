@@ -110,13 +110,19 @@ void ConfigMonitor::Private::backendConfigChanged(const QVariantMap &configMap)
 {
     Q_ASSERT(BackendManager::instance()->method() == BackendManager::OutOfProcess);
     ConfigPtr newConfig = ConfigSerializer::deserializeConfig(configMap);
+    qDebug() << "backendConfigChanged called, newConfig: " << newConfig;
     if (!newConfig) {
         qCWarning(KSCREEN) << "Failed to deserialize config from DBus change notification";
         return;
     }
 
+    qDebug() << "backendConfigChanged called, iterating over outputs to watch for config changes";
     Q_FOREACH (OutputPtr output, newConfig->connectedOutputs()) {
+        qDebug() << "Checking output, edid: " << output->edid()
+                 << " is connected: " << output->isConnected()
+                 << " is enabled: " << output->isEnabled();
         if (!output->edid() && output->isConnected()) {
+            qDebug() << "Requesting edid";
             QDBusPendingReply<QByteArray> reply = mBackend->getEdid(output->id());
             mPendingEDIDRequests[newConfig].append(output->id());
             QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(reply);
@@ -128,18 +134,22 @@ void ConfigMonitor::Private::backendConfigChanged(const QVariantMap &configMap)
     }
 
     if (mPendingEDIDRequests.contains(newConfig)) {
-        qCDebug(KSCREEN) << "Requesting missing EDID for outputs" << mPendingEDIDRequests[newConfig];
+        qDebug() << "Requesting missing EDID for outputs" << mPendingEDIDRequests[newConfig];
     } else {
+        qDebug() << "Calling updateConfigs since we have the EDID already";
         updateConfigs(newConfig);
     }
 }
 
 void ConfigMonitor::Private::edidReady(QDBusPendingCallWatcher* watcher)
 {
+    qDebug() << "edidReady called";
     Q_ASSERT(BackendManager::instance()->method() == BackendManager::OutOfProcess);
 
     const int outputId = watcher->property("outputId").toInt();
     const ConfigPtr config = watcher->property("config").value<KScreen::ConfigPtr>();
+    qDebug() << "edidReady output id: " << outputId;
+    qDebug() << "config: " << config;
     Q_ASSERT(mPendingEDIDRequests.contains(config));
     Q_ASSERT(mPendingEDIDRequests[config].contains(outputId));
 
@@ -152,13 +162,20 @@ void ConfigMonitor::Private::edidReady(QDBusPendingCallWatcher* watcher)
         qCWarning(KSCREEN) << "Error when retrieving EDID: " << reply.error().message();
     } else {
         const QByteArray edid = reply.argumentAt<0>();
+        qDebug() << "Received edid: " << QString::fromUtf8(edid);
         if (!edid.isEmpty()) {
+            qDebug() << "setting output edid, setting enabled";
             OutputPtr output = config->output(outputId);
             output->setEdid(edid);
+            output->setEnabled(true);
+            output->setCurrentModeId(output->preferredModeId());
+            QSize idealSize = output->mode(output->preferredModeId())->size();
+            output->setSize(idealSize);
         }
     }
 
     if (mPendingEDIDRequests[config].isEmpty()) {
+        qDebug() << "Calling updateConfigs with config: " << config;
         mPendingEDIDRequests.remove(config);
         updateConfigs(config);
     }
@@ -175,6 +192,7 @@ void ConfigMonitor::Private::updateConfigs(const KScreen::ConfigPtr &newConfig)
             continue;
         }
 
+        qDebug() << "Applying config: " << newConfig;
         config->apply(newConfig);
         iter.setValue(config.toWeakRef());
     }
