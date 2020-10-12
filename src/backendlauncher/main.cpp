@@ -19,7 +19,6 @@
 
 #include <QGuiApplication>
 #include <QDBusConnection>
-#include <QSessionManager>
 
 #include "kscreen_backendLauncher_debug.h"
 #include "backendloader.h"
@@ -29,13 +28,8 @@ int main(int argc, char **argv)
 {
     KScreen::Log::instance();
     QGuiApplication::setDesktopSettingsAware(false);
+    QCoreApplication::setAttribute(Qt::AA_DisableSessionManager);
     QGuiApplication app(argc, argv);
-
-    auto disableSessionManagement = [](QSessionManager &sm) {
-        sm.setRestartHint(QSessionManager::RestartNever);
-    };
-    QObject::connect(&app, &QGuiApplication::commitDataRequest, disableSessionManagement);
-    QObject::connect(&app, &QGuiApplication::saveStateRequest, disableSessionManagement);
 
     if (!QDBusConnection::sessionBus().registerService(QStringLiteral("org.kde.KScreen"))) {
         qCWarning(KSCREEN_BACKEND_LAUNCHER) << "Cannot register org.kde.KScreen service. Another launcher already running?";
