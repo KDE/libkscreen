@@ -63,7 +63,7 @@ private:
     QThread *m_thread;
     KWayland::Client::ConnectionThread *m_connection = nullptr;
     KWayland::Client::DpmsManager *m_dpmsManager = nullptr;
-    KWayland::Client::Registry m_registry;
+    KWayland::Client::Registry *m_registry = nullptr;
     bool m_setOff = true;
     bool m_setOn = false;
 

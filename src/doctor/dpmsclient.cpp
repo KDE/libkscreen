@@ -41,19 +41,19 @@ using namespace KWayland::Client;
 DpmsClient::DpmsClient(QObject *parent)
     : QObject(parent)
     , m_thread(nullptr)
-    , m_connection(nullptr)
-    , m_dpmsManager(nullptr)
+    , m_registry(new KWayland::Client::Registry)
 {
 
 }
 
 DpmsClient::~DpmsClient()
 {
+    delete m_registry;
+
     m_thread->exit();
     m_thread->wait();
     delete m_thread;
     delete m_connection;
-
 }
 
 void DpmsClient::connect()
@@ -78,10 +78,10 @@ void DpmsClient::connect()
 void DpmsClient::connected()
 {
     qDebug() << "Connected!";
-    m_registry.create(m_connection);
-    QObject::connect(&m_registry, &Registry::interfacesAnnounced, this,
+    m_registry->create(m_connection);
+    QObject::connect(m_registry, &Registry::interfacesAnnounced, this,
         [this] {
-            const bool hasDpms = m_registry.hasInterface(Registry::Interface::Dpms);
+            const bool hasDpms = m_registry->hasInterface(Registry::Interface::Dpms);
            // QLabel *hasDpmsLabel = new QLabel(&window);
             if (hasDpms) {
                 qDebug() << QStringLiteral("Compositor provides a DpmsManager");
@@ -90,14 +90,14 @@ void DpmsClient::connected()
             }
 
             if (hasDpms) {
-                const auto dpmsData = m_registry.interface(Registry::Interface::Dpms);
-                m_dpmsManager = m_registry.createDpmsManager(dpmsData.name, dpmsData.version);
+                const auto dpmsData = m_registry->interface(Registry::Interface::Dpms);
+                m_dpmsManager = m_registry->createDpmsManager(dpmsData.name, dpmsData.version);
             }
 
 
             emit this->ready();
         });
-    m_registry.setup();
+    m_registry->setup();
 
     //QVERIFY(dpmsSpy.wait(100));
 
@@ -105,10 +105,10 @@ void DpmsClient::connected()
 
 void KScreen::DpmsClient::changeMode(KWayland::Client::Dpms::Mode mode)
 {
-    const auto outputs = m_registry.interfaces(Registry::Interface::Output);
+    const auto outputs = m_registry->interfaces(Registry::Interface::Output);
     for (auto outputInterface : outputs) {
 
-        KWayland::Client::Output *output = m_registry.createOutput(outputInterface.name, outputInterface.version, &m_registry);
+        KWayland::Client::Output *output = m_registry->createOutput(outputInterface.name, outputInterface.version, m_registry);
         qDebug() << "OUTPUT!" << output->model() << output->manufacturer() << output->geometry();
 
         Dpms *dpms = nullptr;
