@@ -69,7 +69,6 @@ Q_SIGNALS:
     void changed();
 
 private:
-    void showOutput();
     QString modeName(const KWayland::Client::OutputDevice::Mode &m) const;
 
     quint32 m_id;

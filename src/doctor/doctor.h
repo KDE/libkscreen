@@ -65,7 +65,6 @@ private:
     //static QString modeString(KWayland::Server::OutputDeviceInterface* outputdevice, int mid);
     void applyConfig();
     void parsePositionalArgs();
-    int parseInt(const QString &str, bool &ok) const;
     KScreen::ConfigPtr m_config;
     QCommandLineParser* m_parser;
     bool m_changed;

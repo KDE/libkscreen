@@ -49,7 +49,6 @@ public:
     void setConfig(const QString &configfile);
     void start();
     void stop();
-    void pickupConfigFile(const QString &configfile);
 
     void showOutputs();
     KWayland::Server::Display* display();
