@@ -112,6 +112,7 @@ void WaylandOutput::updateKScreenOutput(OutputPtr &output)
     m_modeIdMap.clear();
     QString currentModeId = QStringLiteral("-1");
 
+    QSize currentSize;
     for (const Wl::OutputDevice::Mode &wlMode : m_device->modes()) {
         ModePtr mode(new Mode());
         const QString name = modeName(wlMode);
@@ -134,6 +135,7 @@ void WaylandOutput::updateKScreenOutput(OutputPtr &output)
         mode->setName(name);
 
         if (wlMode.flags.testFlag(Wl::OutputDevice::Mode::Flag::Current)) {
+            currentSize = wlMode.size;
             currentModeId = modeId;
         }
         if (wlMode.flags.testFlag(Wl::OutputDevice::Mode::Flag::Preferred)) {
@@ -150,6 +152,7 @@ void WaylandOutput::updateKScreenOutput(OutputPtr &output)
         qCWarning(KSCREEN_WAYLAND) << "Could not find the current mode id" << modeList;
     }
 
+    output->setSize(output->isHorizontal() ? currentSize : currentSize.transposed());
     output->setCurrentModeId(currentModeId);
     output->setPreferredModes(preferredModeIds);
     output->setModes(modeList);
