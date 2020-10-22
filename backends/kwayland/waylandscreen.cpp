@@ -47,7 +47,7 @@ void WaylandScreen::setOutputs(const QList<WaylandOutput*> &outputs)
     for (const auto *out : outputs) {
         if (out->enabled()) {
             const auto *dev = out->outputDevice();
-            r |= QRect(dev->globalPosition(), dev->pixelSize() / dev->scale());
+            r |= QRect(dev->globalPosition(), dev->pixelSize() / dev->scaleF());
         }
     }
     m_size = r.size();
