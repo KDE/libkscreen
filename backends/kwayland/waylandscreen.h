@@ -41,8 +41,6 @@ public:
     void updateKScreenScreen(KScreen::ScreenPtr &screen) const;
     void setOutputs(const QList<WaylandOutput*> &outputs);
 
-    void setOutputCount(int count);
-
 private:
     QSize m_size;
     int m_outputCount;
