@@ -700,6 +700,7 @@ QDebug operator<<(QDebug dbg, const KScreen::OutputPtr &output)
                                   << "pos:" << output->pos() << "res:" << output->size()
                                   << "modeId:" << output->currentModeId()
                                   << "scale:" << output->scale()
+                                  << "rotation:" << output->rotation()
                                   << "clone:" << (output->clones().isEmpty() ? "no" : "yes")
                                   << "followPreferredMode:" << output->followPreferredMode()
                                   << ")";

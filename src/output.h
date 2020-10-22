@@ -40,8 +40,6 @@ class KSCREEN_EXPORT Output : public QObject
     Q_OBJECT
 
     public:
-        Q_ENUMS(Rotation)
-        Q_ENUMS(Type)
         Q_PROPERTY(int id READ id CONSTANT)
         Q_PROPERTY(QString name READ name WRITE setName NOTIFY outputChanged)
         Q_PROPERTY(Type type READ type WRITE setType NOTIFY outputChanged)
@@ -83,6 +81,7 @@ class KSCREEN_EXPORT Output : public QObject
             TVC4,
             DisplayPort
         };
+        Q_ENUM(Type)
 
         enum Rotation {
             None = 1,
@@ -90,6 +89,7 @@ class KSCREEN_EXPORT Output : public QObject
             Inverted = 4,
             Right = 8
         };
+        Q_ENUM(Rotation)
 
         explicit Output();
         ~Output() override;
