@@ -105,6 +105,8 @@ void WaylandOutput::updateKScreenOutput(OutputPtr &output)
     output->setSizeMm(m_device->physicalSize());
     output->setPos(m_device->globalPosition());
     output->setRotation(s_rotationMap[m_device->transform()]);
+    if (!output->edid())
+        output->setEdid(m_device->edid());
 
     ModeList modeList;
     QStringList preferredModeIds;
