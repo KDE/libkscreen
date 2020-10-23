@@ -232,6 +232,7 @@ QString Config::connectedOutputsHash() const
     QStringList hashedOutputs;
 
     const auto outputs = connectedOutputs();
+    hashedOutputs.reserve(outputs.count());
     for (const OutputPtr &output : outputs) {
         hashedOutputs << output->hash();
     }
