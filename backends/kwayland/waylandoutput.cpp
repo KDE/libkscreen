@@ -43,8 +43,7 @@ s_rotationMap = {
 
 Output::Rotation toKScreenRotation(const Wl::OutputDevice::Transform transform)
 {
-    auto it = s_rotationMap.constFind(transform);
-    return it.value();
+    return s_rotationMap.value(transform);
 }
 
 Wl::OutputDevice::Transform toKWaylandTransform(const Output::Rotation rotation)
