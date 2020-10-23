@@ -274,7 +274,6 @@ void WaylandConfig::checkInitialized()
 
 KScreen::ConfigPtr WaylandConfig::currentConfig()
 {
-    // TODO: do this setScreen call less clunky
     m_kscreenConfig->setScreen(m_screen->toKScreenScreen(m_kscreenConfig));
 
     const auto features = Config::Feature::Writable | Config::Feature::PerOutputScaling
