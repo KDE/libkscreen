@@ -332,12 +332,12 @@ QString Output::preferredModeId() const
         return d->biggestMode(modes());
     }
 
-    int area, total = 0;
+    int total = 0;
     KScreen::ModePtr biggest;
     KScreen::ModePtr candidateMode;
     Q_FOREACH(const QString &modeId, d->preferredModes) {
         candidateMode = mode(modeId);
-        area = candidateMode->size().width() * candidateMode->size().height();
+        const int area = candidateMode->size().width() * candidateMode->size().height();
         if (area < total) {
             continue;
         }
