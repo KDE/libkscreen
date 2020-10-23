@@ -264,23 +264,22 @@ bool Edid::Private::parse(const QByteArray &rawData)
      * 7654321076543210
      * |\---/\---/\---/
      * R  C1   C2   C3 */
+    pnpId.resize(3);
     pnpId[0] = 'A' + ((data[GCM_EDID_OFFSET_PNPID + 0] & 0x7c) / 4) - 1;
     pnpId[1] = 'A' + ((data[GCM_EDID_OFFSET_PNPID + 0] & 0x3) * 8) + ((data[GCM_EDID_OFFSET_PNPID+1] & 0xe0) / 32) - 1;
     pnpId[2] = 'A' + (data[GCM_EDID_OFFSET_PNPID + 1] & 0x1f) - 1;
 
     // load the PNP_IDS file and load the vendor name
-    if (!pnpId.isEmpty()) {
-        QFile pnpIds(QStringLiteral(PNP_IDS));
-        if (pnpIds.open(QIODevice::ReadOnly)) {
-            while (!pnpIds.atEnd()) {
-                QString line = QString::fromUtf8(pnpIds.readLine());
-                if (line.startsWith(pnpId)) {
-                    QStringList parts = line.split(QLatin1Char('\t'));
-                    if (parts.size() == 2) {
-                        vendorName = line.split(QLatin1Char('\t')).at(1).simplified();
-                    }
-                    break;
+    QFile pnpIds(QStringLiteral(PNP_IDS));
+    if (pnpIds.open(QIODevice::ReadOnly)) {
+        while (!pnpIds.atEnd()) {
+            QString line = QString::fromUtf8(pnpIds.readLine());
+            if (line.startsWith(pnpId)) {
+                QStringList parts = line.split(QLatin1Char('\t'));
+                if (parts.size() == 2) {
+                    vendorName = line.split(QLatin1Char('\t')).at(1).simplified();
                 }
+                break;
             }
         }
     }
