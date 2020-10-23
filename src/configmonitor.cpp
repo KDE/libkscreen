@@ -184,10 +184,12 @@ void ConfigMonitor::Private::updateConfigs(const KScreen::ConfigPtr &newConfig)
 
 void ConfigMonitor::Private::configDestroyed(QObject *removedConfig)
 {
-    for (auto iter = watchedConfigs.begin(); iter != watchedConfigs.end(); ++iter) {
+    for (auto iter = watchedConfigs.begin(); iter != watchedConfigs.end(); ) {
         if (iter->toStrongRef() == removedConfig) {
             iter = watchedConfigs.erase(iter);
             // Iterate over the entire list in case there are duplicates
+        } else {
+            ++iter;
         }
     }
 }
