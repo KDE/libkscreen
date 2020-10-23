@@ -691,21 +691,25 @@ void Output::apply(const OutputPtr& other)
 
 QDebug operator<<(QDebug dbg, const KScreen::OutputPtr &output)
 {
-    if(output) {
-        dbg << "KScreen::Output(" << output->id() << " "
-                                  << output->name()
-                                  << (output->isConnected() ? "connected" : "disconnected")
-                                  << (output->isEnabled() ? "enabled" : "disabled")
-                                  << (output->isPrimary() ? "primary" : "")
-                                  << "pos:" << output->pos() << "res:" << output->size()
-                                  << "modeId:" << output->currentModeId()
-                                  << "scale:" << output->scale()
-                                  << "rotation:" << output->rotation()
-                                  << "clone:" << (output->clones().isEmpty() ? "no" : "yes")
-                                  << "followPreferredMode:" << output->followPreferredMode()
-                                  << ")";
-    } else {
+    QDebugStateSaver saver(dbg);
+    if(!output) {
         dbg << "KScreen::Output(NULL)";
+        return dbg;
     }
+
+    dbg.nospace() << "KScreen::Output("
+                                << output->id() << ", "
+                                << output->name() << ", "
+                                << (output->isConnected() ? "connected " : "disconnected ")
+                                << (output->isEnabled() ? "enabled" : "disabled")
+                                << (output->isPrimary() ? " primary" : "")
+                                << ", pos: " << output->pos()
+                                << ", res: " << output->size()
+                                << ", modeId: " << output->currentModeId()
+                                << ", scale: " << output->scale()
+                                << ", clone: " << (output->clones().isEmpty() ? "no" : "yes")
+                                << ", rotation: " << output->rotation()
+                                << ", followPreferredMode: " << output->followPreferredMode()
+                                << ")";
     return dbg;
 }
