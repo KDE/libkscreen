@@ -275,9 +275,9 @@ bool Edid::Private::parse(const QByteArray &rawData)
         while (!pnpIds.atEnd()) {
             QString line = QString::fromUtf8(pnpIds.readLine());
             if (line.startsWith(pnpId)) {
-                QStringList parts = line.split(QLatin1Char('\t'));
+                const QStringList parts = line.split(QLatin1Char('\t'));
                 if (parts.size() == 2) {
-                    vendorName = line.split(QLatin1Char('\t')).at(1).simplified();
+                    vendorName = parts.at(1).simplified();
                 }
                 break;
             }
