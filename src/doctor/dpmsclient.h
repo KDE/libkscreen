@@ -19,8 +19,8 @@
 #ifndef KSCREEN_DPMSCLIENT_H
 #define KSCREEN_DPMSCLIENT_H
 
-#include <QCommandLineParser>
 #include <QObject>
+#include <QRect>
 #include "../config.h"
 
 #include <KWayland/Client/registry.h>
@@ -46,6 +46,10 @@ public:
     explicit DpmsClient(QObject *parent = nullptr);
     ~DpmsClient() override;
 
+    void setExcludedOutputNames(const QStringList &excluded) {
+        m_excludedOutputNames = excluded;
+    }
+
     void connect();
     void off();
     void on();
@@ -69,6 +73,7 @@ private:
 
     bool m_supportedOututCount = 0;
     int m_modeChanges = 0;
+    QStringList m_excludedOutputNames;
 };
 
 } // namespace

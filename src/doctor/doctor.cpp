@@ -99,7 +99,13 @@ void Doctor::start(QCommandLineParser *parser)
             return;
 
         }
+
         m_dpmsClient = new DpmsClient(this);
+        if (m_parser->isSet(QStringLiteral("dpms-excluded"))) {
+            const auto excludedConnectors= m_parser->values(QStringLiteral("dpms-excluded"));
+            m_dpmsClient->setExcludedOutputNames(excludedConnectors);
+        }
+
         connect(m_dpmsClient, &DpmsClient::finished, qApp, &QCoreApplication::quit);
 
         const QString dpmsArg = m_parser->value(QStringLiteral("dpms"));

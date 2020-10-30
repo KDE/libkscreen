@@ -107,9 +107,7 @@ void KScreen::DpmsClient::changeMode(KWayland::Client::Dpms::Mode mode)
 {
     const auto outputs = m_registry->interfaces(Registry::Interface::Output);
     for (auto outputInterface : outputs) {
-
         KWayland::Client::Output *output = m_registry->createOutput(outputInterface.name, outputInterface.version, m_registry);
-        qDebug() << "OUTPUT!" << output->model() << output->manufacturer() << output->geometry();
 
         Dpms *dpms = nullptr;
         if (m_dpmsManager) {
@@ -118,11 +116,16 @@ void KScreen::DpmsClient::changeMode(KWayland::Client::Dpms::Mode mode)
 
         if (dpms) {
             QObject::connect(dpms, &Dpms::supportedChanged, this,
-                [dpms, mode, this] {
+                [dpms, mode, output, this] {
+                    if (m_excludedOutputNames.contains(output->model())) {
+                        qDebug() << "Skipping" << output->model() << output->manufacturer();
+                        return;
+                    }
+
                     if (dpms->isSupported()) {
                         QObject::connect(dpms, &Dpms::modeChanged, this,
                             &DpmsClient::modeChanged, Qt::QueuedConnection);
-                        qDebug() << "Switching " << (mode == Dpms::Mode::On ? "on" : "off");
+                        qDebug() << "Switching" << output->model() << output->manufacturer() << (mode == Dpms::Mode::On ? "on" : "off");
                         m_modeChanges++;
                         dpms->requestMode(mode);
                     }
@@ -130,8 +133,6 @@ void KScreen::DpmsClient::changeMode(KWayland::Client::Dpms::Mode mode)
                 }, Qt::QueuedConnection
             );
         }
-
-    qDebug() << "dpms->isSupported()" << dpms->isSupported();
     }
 }
 
