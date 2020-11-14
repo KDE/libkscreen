@@ -410,7 +410,7 @@ QString Edid::Private::edidParseString(const quint8 *data) const
 
         for (int i = 0; i < text.length(); ++i) {
             if (!text.at(i).isPrint()) {
-                text[i] = '-';
+                text[i] = QLatin1Char('-');
             }
         }
         return text;
