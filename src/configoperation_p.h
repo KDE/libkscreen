@@ -17,6 +17,9 @@
  *
  */
 
+#ifndef CONFIGOPERATIONPRIVATE_H
+#define CONFIGOPERATIONPRIVATE_H
+
 #include <QObject>
 
 #include "configoperation.h"
@@ -55,3 +58,5 @@ protected:
 };
 
 }
+#endif
+
