@@ -3,3 +3,5 @@
 build
 build-overlay
 .clang-format
+cmake-build-debug*
+.idea
