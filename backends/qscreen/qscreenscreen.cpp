@@ -17,8 +17,9 @@
  *************************************************************************************/
 
 #include "qscreenbackend.h"
-#include "qscreenscreen.h"
 #include "qscreenoutput.h"
+
+#include "qscreenscreen.h"
 
 #include <configmonitor.h>
 #include <mode.h>

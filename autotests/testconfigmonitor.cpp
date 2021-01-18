@@ -18,17 +18,16 @@
  */
 
 #include <QObject>
-#include <QtTest>
 #include <QSignalSpy>
+#include <QtTest>
 
 #include "../src/backendmanager_p.h"
 #include "../src/config.h"
-#include "../src/output.h"
 #include "../src/configmonitor.h"
 #include "../src/configoperation.h"
 #include "../src/getconfigoperation.h"
+#include "../src/output.h"
 #include "../src/setconfigoperation.h"
-#include "../src/backendmanager_p.h"
 #include <QSignalSpy>
 
 #include "fakebackendinterface.h"
@@ -72,7 +71,7 @@ private Q_SLOTS:
         qputenv("KSCREEN_BACKEND_INPROCESS", "1");
         KScreen::BackendManager::instance()->shutdownBackend();
         KScreen::BackendManager::instance()->setMethod(KScreen::BackendManager::InProcess);
-        //json file for the fake backend
+        // json file for the fake backend
         qputenv("KSCREEN_BACKEND_ARGS", "TEST_DATA=" TEST_DATA "singleoutput.json");
 
         // Prepare monitor
@@ -103,7 +102,6 @@ private Q_SLOTS:
         QTRY_VERIFY(!spy.isEmpty());
         QCOMPARE(spy.size(), 2);
     }
-
 };
 
 QTEST_MAIN(TestConfigMonitor)

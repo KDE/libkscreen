@@ -18,8 +18,8 @@
 
 #include "testpnp.h"
 
-#include <QGuiApplication>
 #include <QCommandLineParser>
+#include <QGuiApplication>
 
 using namespace KScreen;
 
@@ -27,8 +27,8 @@ int main(int argc, char **argv)
 {
     QGuiApplication app(argc, argv);
 
-    QCommandLineOption input = QCommandLineOption(QStringList() << QStringLiteral("m") << QStringLiteral("monitor"),
-                                                  QStringLiteral("Keep running monitoring for changes"));
+    QCommandLineOption input =
+        QCommandLineOption(QStringList() << QStringLiteral("m") << QStringLiteral("monitor"), QStringLiteral("Keep running monitoring for changes"));
     QCommandLineParser parser;
     parser.addHelpOption();
     parser.addOption(input);

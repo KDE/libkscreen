@@ -21,8 +21,8 @@
 
 #include "abstractbackend.h"
 
-#include <QObject>
 #include <QLoggingCategory>
+#include <QObject>
 
 class Fake : public KScreen::AbstractBackend
 {
@@ -53,10 +53,9 @@ public:
 private Q_SLOTS:
     void delayedInit();
 
-
 private:
     QString mConfigFile;
     mutable KScreen::ConfigPtr mConfig;
 };
 Q_DECLARE_LOGGING_CATEGORY(KSCREEN_FAKE)
-#endif //FAKE_BACKEND_H
+#endif // FAKE_BACKEND_H

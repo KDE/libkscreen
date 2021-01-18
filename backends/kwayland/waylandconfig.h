@@ -23,8 +23,8 @@
 #include <QDir>
 #include <QEventLoop>
 #include <QLoggingCategory>
-#include <QSize>
 #include <QScreen>
+#include <QSize>
 #include <QSocketNotifier>
 #include <QThread>
 
@@ -57,7 +57,7 @@ class WaylandScreen;
  * received, signalled by the initialized() signal. This means that the
  * wayland client has received information about all interfaces, and that all
  * outputs are completely initialized. From then on, we properly notifyUpdate().
-*/
+ */
 class WaylandConfig : public QObject
 {
     Q_OBJECT
@@ -67,7 +67,7 @@ public:
     ~WaylandConfig() override;
 
     KScreen::ConfigPtr currentConfig();
-    QMap<int, WaylandOutput*> outputMap() const;
+    QMap<int, WaylandOutput *> outputMap() const;
 
     void applyConfig(const KScreen::ConfigPtr &newConfig);
 
@@ -100,10 +100,10 @@ private:
     KWayland::Client::OutputManagement *m_outputManagement;
 
     // KWayland names as keys
-    QMap<int, WaylandOutput*> m_outputMap;
+    QMap<int, WaylandOutput *> m_outputMap;
 
     // KWayland names
-    QList<WaylandOutput*> m_initializingOutputs;
+    QList<WaylandOutput *> m_initializingOutputs;
     int m_lastOutputId = -1;
 
     bool m_registryInitialized;

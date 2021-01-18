@@ -23,11 +23,12 @@
 #include "kscreen_export.h"
 #include "types.h"
 
-#include <QString>
 #include <QObject>
+#include <QString>
 
-namespace KScreen {
-    class Config;
+namespace KScreen
+{
+class Config;
 
 /**
  * Abstract class for backends.
@@ -37,7 +38,9 @@ class KSCREEN_EXPORT AbstractBackend : public QObject
     Q_OBJECT
 
 public:
-    ~AbstractBackend() override {}
+    ~AbstractBackend() override
+    {
+    }
 
     /**
      * This is where the backend should perform all initialization. This method
@@ -106,9 +109,8 @@ Q_SIGNALS:
      * @param config New configuration
      */
     void configChanged(const KScreen::ConfigPtr &config);
-
 };
 
 } // namespace KScreen
 
-#endif //ABSTRACT_BACKEND_H
+#endif // ABSTRACT_BACKEND_H

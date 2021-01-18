@@ -23,25 +23,26 @@
 #include "edid.h"
 #include "output.h"
 
-#include <xcb/xcb.h>
 #include <xcb/randr.h>
+#include <xcb/xcb.h>
 
-#include <QString>
 #include <QDebug>
+#include <QString>
 
 Q_LOGGING_CATEGORY(KSCREEN_XRANDR11, "kscreen.xrandr11")
 
 XRandR11::XRandR11()
- : KScreen::AbstractBackend()
- , m_valid(false)
- , m_x11Helper(nullptr)
- , m_currentConfig(new KScreen::Config)
- , m_currentTimestamp(0)
+    : KScreen::AbstractBackend()
+    , m_valid(false)
+    , m_x11Helper(nullptr)
+    , m_currentConfig(new KScreen::Config)
+    , m_currentTimestamp(0)
 {
     xcb_generic_error_t *error = nullptr;
-    xcb_randr_query_version_reply_t* version;
-    version = xcb_randr_query_version_reply(XCB::connection(),
-        xcb_randr_query_version(XCB::connection(), XCB_RANDR_MAJOR_VERSION, XCB_RANDR_MINOR_VERSION), &error);
+    xcb_randr_query_version_reply_t *version;
+    version = xcb_randr_query_version_reply(XCB::connection(), //
+                                            xcb_randr_query_version(XCB::connection(), XCB_RANDR_MAJOR_VERSION, XCB_RANDR_MINOR_VERSION),
+                                            &error);
 
     if (!version || error) {
         free(error);
@@ -57,8 +58,7 @@ XRandR11::XRandR11()
 
     m_x11Helper = new XCBEventListener();
 
-    connect(m_x11Helper, &XCBEventListener::outputsChanged,
-            this, &XRandR11::updateConfig);
+    connect(m_x11Helper, &XCBEventListener::outputsChanged, this, &XRandR11::updateConfig);
 
     m_valid = true;
 }
@@ -79,7 +79,6 @@ QString XRandR11::serviceName() const
     return QStringLiteral("org.kde.KScreen.Backend.XRandR11");
 }
 
-
 bool XRandR11::isValid() const
 {
     return m_valid;
@@ -92,7 +91,7 @@ KScreen::ConfigPtr XRandR11::config() const
     config->setSupportedFeatures(features);
 
     const int screenId = QX11Info::appScreen();
-    xcb_screen_t* xcbScreen = XCB::screenOfDisplay(XCB::connection(), screenId);
+    xcb_screen_t *xcbScreen = XCB::screenOfDisplay(XCB::connection(), screenId);
     const XCB::ScreenInfo info(xcbScreen->root);
     const XCB::ScreenSize size(xcbScreen->root);
 
@@ -121,9 +120,9 @@ KScreen::ConfigPtr XRandR11::config() const
     output->setConnected(true);
     output->setEnabled(true);
     output->setName(QStringLiteral("Default"));
-    output->setPos(QPoint(0,0));
+    output->setPos(QPoint(0, 0));
     output->setPrimary(true);
-    output->setRotation((KScreen::Output::Rotation) info->rotation);
+    output->setRotation((KScreen::Output::Rotation)info->rotation);
     output->setSizeMm(QSize(xcbScreen->width_in_millimeters, xcbScreen->height_in_millimeters));
 
     outputs.insert(1, output);
@@ -133,10 +132,10 @@ KScreen::ConfigPtr XRandR11::config() const
     KScreen::ModeList modes;
 
     auto iter = xcb_randr_get_screen_info_rates_iterator(info);
-    xcb_randr_screen_size_t* sizes = xcb_randr_get_screen_info_sizes(info);
+    xcb_randr_screen_size_t *sizes = xcb_randr_get_screen_info_sizes(info);
     for (int x = 0; x < info->nSizes; x++) {
         const xcb_randr_screen_size_t size = sizes[x];
-        const uint16_t* rates = xcb_randr_refresh_rates_rates(iter.data);
+        const uint16_t *rates = xcb_randr_refresh_rates_rates(iter.data);
         const int nrates = xcb_randr_refresh_rates_rates_length(iter.data);
 
         for (int j = 0; j < nrates; j++) {
@@ -167,16 +166,19 @@ void XRandR11::setConfig(const KScreen::ConfigPtr &config)
     const KScreen::ModePtr mode = output->currentMode();
 
     const int screenId = QX11Info::appScreen();
-    xcb_screen_t* xcbScreen = XCB::screenOfDisplay(XCB::connection(), screenId);
+    xcb_screen_t *xcbScreen = XCB::screenOfDisplay(XCB::connection(), screenId);
 
     const XCB::ScreenInfo info(xcbScreen->root);
     xcb_generic_error_t *err;
     const int sizeId = mode->id().split(QLatin1Char('-')).first().toInt();
-    auto cookie = xcb_randr_set_screen_config(XCB::connection(), xcbScreen->root,
-                                         XCB_CURRENT_TIME, info->config_timestamp, sizeId,
-                                         (short) output->rotation(), mode->refreshRate());
-    XCB::ScopedPointer<xcb_randr_set_screen_config_reply_t> reply(
-        xcb_randr_set_screen_config_reply(XCB::connection(), cookie, &err));
+    auto cookie = xcb_randr_set_screen_config(XCB::connection(),
+                                              xcbScreen->root,
+                                              XCB_CURRENT_TIME,
+                                              info->config_timestamp,
+                                              sizeId,
+                                              (short)output->rotation(),
+                                              mode->refreshRate());
+    XCB::ScopedPointer<xcb_randr_set_screen_config_reply_t> reply(xcb_randr_set_screen_config_reply(XCB::connection(), cookie, &err));
     if (err) {
         free(err);
     }

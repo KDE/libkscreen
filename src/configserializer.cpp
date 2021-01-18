@@ -20,15 +20,15 @@
 #include "configserializer_p.h"
 
 #include "config.h"
+#include "edid.h"
+#include "kscreen_debug.h"
 #include "mode.h"
 #include "output.h"
 #include "screen.h"
-#include "edid.h"
-#include "kscreen_debug.h"
 
 #include <QDBusArgument>
-#include <QJsonDocument>
 #include <QFile>
+#include <QJsonDocument>
 #include <QRect>
 
 using namespace KScreen;
@@ -93,7 +93,7 @@ QJsonObject ConfigSerializer::serializeOutput(const OutputPtr &output)
     obj[QLatin1String("enabled")] = output->isEnabled();
     obj[QLatin1String("primary")] = output->isPrimary();
     obj[QLatin1String("clones")] = serializeList(output->clones());
-    //obj[QLatin1String("edid")] = output->edid()->raw();
+    // obj[QLatin1String("edid")] = output->edid()->raw();
     obj[QLatin1String("sizeMM")] = serializeSize(output->sizeMm());
     obj[QLatin1String("replicationSource")] = output->replicationSource();
 

@@ -19,9 +19,9 @@
 #ifndef KSCREEN_DOCTOR_H
 #define KSCREEN_DOCTOR_H
 
+#include "../config.h"
 #include <QCommandLineParser>
 #include <QObject>
-#include "../config.h"
 
 #include "output.h"
 
@@ -62,11 +62,11 @@ Q_SIGNALS:
     void configChanged();
 
 private:
-    //static QString modeString(KWayland::Server::OutputDeviceInterface* outputdevice, int mid);
+    // static QString modeString(KWayland::Server::OutputDeviceInterface* outputdevice, int mid);
     void applyConfig();
     void parsePositionalArgs();
     KScreen::ConfigPtr m_config;
-    QCommandLineParser* m_parser;
+    QCommandLineParser *m_parser;
     bool m_changed;
     QStringList m_positionalArgs;
     DpmsClient *m_dpmsClient;

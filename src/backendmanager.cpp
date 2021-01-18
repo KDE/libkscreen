@@ -18,23 +18,22 @@
  *
  */
 
-
 #include "backendmanager_p.h"
 
 #include "abstractbackend.h"
+#include "backendinterface.h"
 #include "config.h"
 #include "configmonitor.h"
-#include "backendinterface.h"
-#include "kscreen_debug.h"
-#include "getconfigoperation.h"
 #include "configserializer_p.h"
+#include "getconfigoperation.h"
+#include "kscreen_debug.h"
 #include "log.h"
 
 #include <QDBusConnection>
+#include <QDBusConnectionInterface>
 #include <QDBusPendingCall>
 #include <QDBusPendingCallWatcher>
 #include <QDBusPendingReply>
-#include <QDBusConnectionInterface>
 #include <QGuiApplication>
 #include <QStandardPaths>
 #include <QThread>
@@ -42,10 +41,9 @@
 
 #include <memory>
 
-
 using namespace KScreen;
 
-Q_DECLARE_METATYPE(org::kde::kscreen::Backend*)
+Q_DECLARE_METATYPE(org::kde::kscreen::Backend *)
 
 const int BackendManager::sMaxCrashCount = 4;
 
@@ -74,7 +72,6 @@ BackendManager::BackendManager()
     // if KSCREEN_BACKEND_INPROCESS is set explicitly, we respect that
     const auto _inprocess = qgetenv("KSCREEN_BACKEND_INPROCESS");
     if (!_inprocess.isEmpty()) {
-
         const QByteArrayList falses({QByteArray("0"), QByteArray("false")});
         if (!falses.contains(_inprocess.toLower())) {
             mMethod = InProcess;
@@ -95,18 +92,16 @@ BackendManager::BackendManager()
 void BackendManager::initMethod()
 {
     if (mMethod == OutOfProcess) {
-        qRegisterMetaType<org::kde::kscreen::Backend*>("OrgKdeKscreenBackendInterface");
+        qRegisterMetaType<org::kde::kscreen::Backend *>("OrgKdeKscreenBackendInterface");
 
         mServiceWatcher.setConnection(QDBusConnection::sessionBus());
-        connect(&mServiceWatcher, &QDBusServiceWatcher::serviceUnregistered,
-                this, &BackendManager::backendServiceUnregistered);
+        connect(&mServiceWatcher, &QDBusServiceWatcher::serviceUnregistered, this, &BackendManager::backendServiceUnregistered);
 
         mResetCrashCountTimer.setSingleShot(true);
         mResetCrashCountTimer.setInterval(60000);
-        connect(&mResetCrashCountTimer, &QTimer::timeout,
-                this, [=]() {
-                    mCrashCount = 0;
-                });
+        connect(&mResetCrashCountTimer, &QTimer::timeout, this, [=]() {
+            mCrashCount = 0;
+        });
     }
 }
 
@@ -169,8 +164,8 @@ QFileInfo BackendManager::preferredBackend(const QString &backend)
             fallback = f;
         }
     }
-//     qCWarning(KSCREEN) << "No preferred backend found. KSCREEN_BACKEND is set to " << env_kscreen_backend;
-//     qCWarning(KSCREEN) << "falling back to " << fallback.fileName();
+    //     qCWarning(KSCREEN) << "No preferred backend found. KSCREEN_BACKEND is set to " << env_kscreen_backend;
+    //     qCWarning(KSCREEN) << "falling back to " << fallback.fileName();
     return fallback;
 }
 
@@ -181,17 +176,13 @@ QFileInfoList BackendManager::listBackends()
     const QStringList paths = QCoreApplication::libraryPaths();
     QFileInfoList finfos;
     for (const QString &path : paths) {
-        const QDir dir(path + QLatin1String("/kf5/kscreen/"),
-                       backendFilter,
-                       QDir::SortFlags(QDir::QDir::Name),
-                       QDir::NoDotAndDotDot | QDir::Files);
+        const QDir dir(path + QLatin1String("/kf5/kscreen/"), backendFilter, QDir::SortFlags(QDir::QDir::Name), QDir::NoDotAndDotDot | QDir::Files);
         finfos.append(dir.entryInfoList());
     }
     return finfos;
 }
 
-KScreen::AbstractBackend *BackendManager::loadBackendPlugin(QPluginLoader *loader, const QString &name,
-                                                     const QVariantMap &arguments)
+KScreen::AbstractBackend *BackendManager::loadBackendPlugin(QPluginLoader *loader, const QString &name, const QVariantMap &arguments)
 {
     const auto finfo = preferredBackend(name);
     loader->setFileName(finfo.filePath());
@@ -201,7 +192,7 @@ KScreen::AbstractBackend *BackendManager::loadBackendPlugin(QPluginLoader *loade
         return nullptr;
     }
 
-    auto backend = qobject_cast<KScreen::AbstractBackend*>(instance);
+    auto backend = qobject_cast<KScreen::AbstractBackend *>(instance);
     if (backend) {
         backend->init(arguments);
         if (!backend->isValid()) {
@@ -209,7 +200,7 @@ KScreen::AbstractBackend *BackendManager::loadBackendPlugin(QPluginLoader *loade
             delete backend;
             return nullptr;
         }
-        //qCDebug(KSCREEN) << "Loaded" << backend->name() << "backend";
+        // qCDebug(KSCREEN) << "Loaded" << backend->name() << "backend";
         return backend;
     } else {
         qCDebug(KSCREEN) << finfo.fileName() << "does not provide valid KScreen backend";
@@ -222,7 +213,8 @@ KScreen::AbstractBackend *BackendManager::loadBackendInProcess(const QString &na
 {
     Q_ASSERT(mMethod == InProcess);
     if (mMethod == OutOfProcess) {
-        qCWarning(KSCREEN) << "You are trying to load a backend in process, while the BackendManager is set to use OutOfProcess communication. Use loadBackendPlugin() instead.";
+        qCWarning(KSCREEN) << "You are trying to load a backend in process, while the BackendManager is set to use OutOfProcess communication. Use "
+                              "loadBackendPlugin() instead.";
         return nullptr;
     }
     if (m_inProcessBackend.first != nullptr && (name.isEmpty() || m_inProcessBackend.first->name() == name)) {
@@ -244,9 +236,9 @@ KScreen::AbstractBackend *BackendManager::loadBackendInProcess(const QString &na
     if (!backend) {
         return nullptr;
     }
-    //qCDebug(KSCREEN) << "Connecting ConfigMonitor to backend.";
+    // qCDebug(KSCREEN) << "Connecting ConfigMonitor to backend.";
     ConfigMonitor::instance()->connectInProcessBackend(backend);
-    m_inProcessBackend = qMakePair<KScreen::AbstractBackend*, QVariantMap>(backend, arguments);
+    m_inProcessBackend = qMakePair<KScreen::AbstractBackend *, QVariantMap>(backend, arguments);
     setConfig(backend->config());
     return backend;
 }
@@ -304,11 +296,10 @@ void BackendManager::startBackend(const QString &backend, const QVariantMap &arg
                                                        QStringLiteral("/"),
                                                        QStringLiteral("org.kde.KScreen"),
                                                        QStringLiteral("requestBackend"));
-    call.setArguments({ backend, arguments });
+    call.setArguments({backend, arguments});
     QDBusPendingCall pending = conn.asyncCall(call);
     QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(pending);
-    connect(watcher, &QDBusPendingCallWatcher::finished,
-            this, &BackendManager::onBackendRequestDone);
+    connect(watcher, &QDBusPendingCallWatcher::finished, this, &BackendManager::onBackendRequestDone);
 }
 
 void BackendManager::onBackendRequestDone(QDBusPendingCallWatcher *watcher)
@@ -340,9 +331,7 @@ void BackendManager::onBackendRequestDone(QDBusPendingCallWatcher *watcher)
     if (mInterface) {
         invalidateInterface();
     }
-    mInterface = new org::kde::kscreen::Backend(QStringLiteral("org.kde.KScreen"),
-                                                QStringLiteral("/backend"),
-                                                QDBusConnection::sessionBus());
+    mInterface = new org::kde::kscreen::Backend(QStringLiteral("org.kde.KScreen"), QStringLiteral("/backend"), QDBusConnection::sessionBus());
     if (!mInterface->isValid()) {
         qCWarning(KSCREEN) << "Backend successfully requested, but we failed to obtain a valid DBus interface for it";
         invalidateInterface();
@@ -355,16 +344,14 @@ void BackendManager::onBackendRequestDone(QDBusPendingCallWatcher *watcher)
     mServiceWatcher.addWatchedService(mBackendService);
 
     // Immediatelly request config
-    connect(new GetConfigOperation(GetConfigOperation::NoEDID), &GetConfigOperation::finished,
-            [&](ConfigOperation *op) {
-                mConfig = qobject_cast<GetConfigOperation*>(op)->config();
-                emitBackendReady();
-            });
+    connect(new GetConfigOperation(GetConfigOperation::NoEDID), &GetConfigOperation::finished, [&](ConfigOperation *op) {
+        mConfig = qobject_cast<GetConfigOperation *>(op)->config();
+        emitBackendReady();
+    });
     // And listen for its change.
-    connect(mInterface, &org::kde::kscreen::Backend::configChanged,
-            [&](const QVariantMap &newConfig) {
-                mConfig = KScreen::ConfigSerializer::deserializeConfig(newConfig);
-            });
+    connect(mInterface, &org::kde::kscreen::Backend::configChanged, [&](const QVariantMap &newConfig) {
+        mConfig = KScreen::ConfigSerializer::deserializeConfig(newConfig);
+    });
 }
 
 void BackendManager::backendServiceUnregistered(const QString &serviceName)
@@ -391,7 +378,7 @@ ConfigPtr BackendManager::config() const
 
 void BackendManager::setConfig(ConfigPtr c)
 {
-    //qCDebug(KSCREEN) << "BackendManager::setConfig, outputs:" << c->outputs().count();
+    // qCDebug(KSCREEN) << "BackendManager::setConfig, outputs:" << c->outputs().count();
     mConfig = c;
 }
 
@@ -404,7 +391,6 @@ void BackendManager::shutdownBackend()
         delete m_inProcessBackend.first;
         m_inProcessBackend.first = nullptr;
     } else {
-
         if (mBackendService.isEmpty() && !mInterface) {
             return;
         }
@@ -418,10 +404,8 @@ void BackendManager::shutdownBackend()
         mServiceWatcher.removeWatchedService(mBackendService);
         mShuttingDown = true;
 
-        QDBusMessage call = QDBusMessage::createMethodCall(QStringLiteral("org.kde.KScreen"),
-                                                        QStringLiteral("/"),
-                                                        QStringLiteral("org.kde.KScreen"),
-                                                        QStringLiteral("quit"));
+        QDBusMessage call =
+            QDBusMessage::createMethodCall(QStringLiteral("org.kde.KScreen"), QStringLiteral("/"), QStringLiteral("org.kde.KScreen"), QStringLiteral("quit"));
         // Call synchronously
         QDBusConnection::sessionBus().call(call);
         invalidateInterface();

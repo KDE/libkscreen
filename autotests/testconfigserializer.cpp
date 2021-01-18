@@ -20,11 +20,11 @@
 #include <QObject>
 #include <QtTest>
 
-#include "../src/types.h"
 #include "../src/configserializer_p.h"
-#include "../src/screen.h"
 #include "../src/mode.h"
 #include "../src/output.h"
+#include "../src/screen.h"
+#include "../src/types.h"
 
 class TestConfigSerializer : public QObject
 {
@@ -34,7 +34,6 @@ public:
     TestConfigSerializer()
     {
     }
-
 
 private Q_SLOTS:
     void testSerializePoint()
@@ -62,10 +61,7 @@ private Q_SLOTS:
     void testSerializeList()
     {
         QStringList stringList;
-        stringList << QStringLiteral("Item 1")
-                   << QStringLiteral("Item 2")
-                   << QStringLiteral("Item 3")
-                   << QStringLiteral("Item 4");
+        stringList << QStringLiteral("Item 1") << QStringLiteral("Item 2") << QStringLiteral("Item 3") << QStringLiteral("Item 4");
 
         QJsonArray arr = KScreen::ConfigSerializer::serializeList<QString>(stringList);
         QCOMPARE(arr.size(), stringList.size());
@@ -73,8 +69,6 @@ private Q_SLOTS:
         for (int i = 0; i < arr.size(); ++i) {
             QCOMPARE(arr.at(i).toString(), stringList.at(i));
         }
-
-
 
         QList<int> intList;
         intList << 4 << 3 << 2 << 1;
@@ -125,7 +119,7 @@ private Q_SLOTS:
 
         QCOMPARE(obj[QLatin1String("id")].toString(), mode->id());
         QCOMPARE(obj[QLatin1String("name")].toString(), mode->name());
-        QCOMPARE((float) obj[QLatin1String("refreshRate")].toDouble(),  mode->refreshRate());
+        QCOMPARE((float)obj[QLatin1String("refreshRate")].toDouble(), mode->refreshRate());
         const QJsonObject size = obj[QLatin1String("size")].toObject();
         QCOMPARE(size[QLatin1String("width")].toInt(), mode->size().width());
         QCOMPARE(size[QLatin1String("height")].toInt(), mode->size().height());

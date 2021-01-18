@@ -21,12 +21,11 @@
 #define KSCREEN_GETCONFIGOPERATION_H
 
 #include "configoperation.h"
-#include "types.h"
 #include "kscreen_export.h"
+#include "types.h"
 
-
-namespace KScreen {
-
+namespace KScreen
+{
 class GetConfigOperationPrivate;
 
 class KSCREEN_EXPORT GetConfigOperation : public KScreen::ConfigOperation
@@ -34,8 +33,7 @@ class KSCREEN_EXPORT GetConfigOperation : public KScreen::ConfigOperation
     Q_OBJECT
 
 public:
-
-    explicit GetConfigOperation(Options options = NoOptions, QObject* parent = nullptr);
+    explicit GetConfigOperation(Options options = NoOptions, QObject *parent = nullptr);
     ~GetConfigOperation() override;
 
     KScreen::ConfigPtr config() const override;

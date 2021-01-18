@@ -16,16 +16,16 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
-#include <QtTest>
 #include <QObject>
+#include <QtTest>
 
-#include "../src/screen.h"
-#include "../src/config.h"
-#include "../src/output.h"
-#include "../src/mode.h"
-#include "../src/getconfigoperation.h"
-#include "../src/setconfigoperation.h"
 #include "../src/backendmanager_p.h"
+#include "../src/config.h"
+#include "../src/getconfigoperation.h"
+#include "../src/mode.h"
+#include "../src/output.h"
+#include "../src/screen.h"
+#include "../src/setconfigoperation.h"
 
 using namespace KScreen;
 
@@ -64,7 +64,6 @@ ConfigPtr testScreenConfig::getConfig()
     return op->config();
 }
 
-
 void testScreenConfig::initTestCase()
 {
     qputenv("KSCREEN_LOGGING", "false");
@@ -78,14 +77,12 @@ void testScreenConfig::cleanupTestCase()
 
 void testScreenConfig::singleOutput()
 {
-    //json file for the fake backend
+    // json file for the fake backend
     qputenv("KSCREEN_BACKEND_ARGS", "TEST_DATA=" TEST_DATA "singleoutput.json");
 
-//     QVERIFY2(kscreen, KScreen::errorString().toLatin1());
+    //     QVERIFY2(kscreen, KScreen::errorString().toLatin1());
 
-//     QVERIFY2(!kscreen->backend().isEmpty(), "No backend loaded");
-
-
+    //     QVERIFY2(!kscreen->backend().isEmpty(), "No backend loaded");
 
     const ConfigPtr config = getConfig();
     QVERIFY(!config.isNull());
@@ -105,7 +102,7 @@ void testScreenConfig::singleOutput()
     QCOMPARE(output->type(), Output::Panel);
     QCOMPARE(output->modes().count(), 3);
     QCOMPARE(output->pos(), QPoint(0, 0));
-    QCOMPARE(output->geometry(), QRect(0,0, 1280, 800));
+    QCOMPARE(output->geometry(), QRect(0, 0, 1280, 800));
     QCOMPARE(output->currentModeId(), QLatin1String("3"));
     QCOMPARE(output->preferredModeId(), QLatin1String("3"));
     QCOMPARE(output->rotation(), Output::None);
@@ -113,7 +110,7 @@ void testScreenConfig::singleOutput()
     QCOMPARE(output->isConnected(), true);
     QCOMPARE(output->isEnabled(), true);
     QCOMPARE(output->isPrimary(), true);
-    //QCOMPARE(output->isEmbedded(), true);
+    // QCOMPARE(output->isEmbedded(), true);
     QVERIFY2(output->clones().isEmpty(), "In singleOutput is impossible to have clones");
 
     const ModePtr mode = output->currentMode();
@@ -221,7 +218,6 @@ void testScreenConfig::configCanBeApplied()
     qDebug() << "brokenConfig.modes" << primaryBroken->mode(QStringLiteral("3"));
     QVERIFY(Config::canBeApplied(brokenConfig));
 
-
     qputenv("KSCREEN_BACKEND_ARGS", "TEST_DATA=" TEST_DATA "tooManyOutputs.json");
     const ConfigPtr brokenConfig2 = getConfig();
     QVERIFY(!brokenConfig2.isNull());
@@ -319,7 +315,6 @@ void testScreenConfig::testOutputPositionNormalization()
     }
     QCOMPARE(right->pos(), QPoint());
 }
-
 
 QTEST_MAIN(testScreenConfig)
 

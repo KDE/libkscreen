@@ -20,10 +20,10 @@
 
 #include "waylandconfigreader.h"
 
+#include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QFile>
 #include <QLoggingCategory>
 #include <QStandardPaths>
 
@@ -73,7 +73,7 @@ void WaylandTestServer::start()
     KScreen::WaylandConfigReader::outputsFromConfig(m_configFile, m_display, m_outputs);
     qCDebug(KSCREEN_WAYLAND_TESTSERVER) << QStringLiteral("export WAYLAND_DISPLAY=") + m_display->socketName();
     qCDebug(KSCREEN_WAYLAND_TESTSERVER) << QStringLiteral("You can specify the WAYLAND_DISPLAY for this server by exporting it in the environment");
-    //showOutputs();
+    // showOutputs();
 }
 
 void WaylandTestServer::stop()
@@ -87,12 +87,12 @@ void WaylandTestServer::stop()
     m_display = nullptr;
 }
 
-KWayland::Server::Display* WaylandTestServer::display()
+KWayland::Server::Display *WaylandTestServer::display()
 {
     return m_display;
 }
 
-void WaylandTestServer::setConfig(const QString& configfile)
+void WaylandTestServer::setConfig(const QString &configfile)
 {
     qCDebug(KSCREEN_WAYLAND_TESTSERVER) << "Creating Wayland server from " << configfile;
     m_configFile = configfile;
@@ -102,7 +102,7 @@ int WaylandTestServer::outputCount() const
 {
     return m_outputs.count();
 }
-QList<KWayland::Server::OutputDeviceInterface*> WaylandTestServer::outputs() const
+QList<KWayland::Server::OutputDeviceInterface *> WaylandTestServer::outputs() const
 {
     return m_outputs;
 }
@@ -120,7 +120,7 @@ void WaylandTestServer::suspendChanges(bool suspend)
     }
 }
 
-void WaylandTestServer::configurationChangeRequested(KWayland::Server::OutputConfigurationInterface* configurationInterface)
+void WaylandTestServer::configurationChangeRequested(KWayland::Server::OutputConfigurationInterface *configurationInterface)
 {
     qCDebug(KSCREEN_WAYLAND_TESTSERVER) << "Server received change request, changes:" << configurationInterface->changes().count();
     Q_EMIT configReceived();
@@ -158,7 +158,7 @@ void WaylandTestServer::configurationChangeRequested(KWayland::Server::OutputCon
     }
 
     configurationInterface->setApplied();
-    //showOutputs();
+    // showOutputs();
     Q_EMIT configChanged();
 }
 
@@ -174,12 +174,11 @@ void WaylandTestServer::showOutputs()
         qCDebug(KSCREEN_WAYLAND_TESTSERVER) << "          Pos: " << o->globalPosition();
         qCDebug(KSCREEN_WAYLAND_TESTSERVER) << "         Edid: " << o->edid();
         // << o->currentMode().size();
-
     }
     qCDebug(KSCREEN_WAYLAND_TESTSERVER) << "******************************************************";
 }
 
-QString WaylandTestServer::modeString(KWayland::Server::OutputDeviceInterface* outputdevice, int mid)
+QString WaylandTestServer::modeString(KWayland::Server::OutputDeviceInterface *outputdevice, int mid)
 {
     QString s;
     QString ids;
@@ -192,10 +191,8 @@ QString WaylandTestServer::modeString(KWayland::Server::OutputDeviceInterface* o
             ids.append(QLatin1Char('.'));
         }
         if (_m.id == mid) {
-            s = QStringLiteral("%1x%2 @%3").arg(QString::number(_m.size.width()), \
-            QString::number(_m.size.height()), QString::number(_m.refreshRate));
+            s = QStringLiteral("%1x%2 @%3").arg(QString::number(_m.size.width()), QString::number(_m.size.height()), QString::number(_m.refreshRate));
         }
     }
     return QStringLiteral("[%1] %2 (%4 modes: %3)").arg(QString::number(mid), s, ids, QString::number(outputdevice->modes().count()));
-
 }

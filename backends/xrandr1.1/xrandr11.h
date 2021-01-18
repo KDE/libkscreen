@@ -19,11 +19,11 @@
 #ifndef XRANDR11_BACKEND_H
 #define XRANDR11_BACKEND_H
 
-#include "abstractbackend.h"
 #include "../xcbwrapper.h"
+#include "abstractbackend.h"
 
-#include <QObject>
 #include <QLoggingCategory>
+#include <QObject>
 
 class XCBEventListener;
 
@@ -47,11 +47,11 @@ private Q_SLOTS:
 
 private:
     bool m_valid;
-    XCBEventListener* m_x11Helper;
+    XCBEventListener *m_x11Helper;
     KScreen::ConfigPtr m_currentConfig;
     xcb_timestamp_t m_currentTimestamp;
 };
 
 Q_DECLARE_LOGGING_CATEGORY(KSCREEN_XRANDR11)
 
-#endif //FAKE_BACKEND_H
+#endif // FAKE_BACKEND_H

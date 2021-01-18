@@ -24,22 +24,22 @@
 
 #include <QCryptographicHash>
 #include <QFile>
-#include <QStringList>
 #include <QStringBuilder>
+#include <QStringList>
 
-#define GCM_EDID_OFFSET_PNPID                           0x08
-#define GCM_EDID_OFFSET_SERIAL                          0x0c
-#define GCM_EDID_OFFSET_SIZE                            0x15
-#define GCM_EDID_OFFSET_GAMMA                           0x17
-#define GCM_EDID_OFFSET_DATA_BLOCKS                     0x36
-#define GCM_EDID_OFFSET_LAST_BLOCK                      0x6c
-#define GCM_EDID_OFFSET_EXTENSION_BLOCK_COUNT           0x7e
+#define GCM_EDID_OFFSET_PNPID 0x08
+#define GCM_EDID_OFFSET_SERIAL 0x0c
+#define GCM_EDID_OFFSET_SIZE 0x15
+#define GCM_EDID_OFFSET_GAMMA 0x17
+#define GCM_EDID_OFFSET_DATA_BLOCKS 0x36
+#define GCM_EDID_OFFSET_LAST_BLOCK 0x6c
+#define GCM_EDID_OFFSET_EXTENSION_BLOCK_COUNT 0x7e
 
-#define GCM_DESCRIPTOR_DISPLAY_PRODUCT_NAME             0xfc
-#define GCM_DESCRIPTOR_DISPLAY_PRODUCT_SERIAL_NUMBER    0xff
-#define GCM_DESCRIPTOR_COLOR_MANAGEMENT_DATA            0xf9
-#define GCM_DESCRIPTOR_ALPHANUMERIC_DATA_STRING         0xfe
-#define GCM_DESCRIPTOR_COLOR_POINT                      0xfb
+#define GCM_DESCRIPTOR_DISPLAY_PRODUCT_NAME 0xfc
+#define GCM_DESCRIPTOR_DISPLAY_PRODUCT_SERIAL_NUMBER 0xff
+#define GCM_DESCRIPTOR_COLOR_MANAGEMENT_DATA 0xf9
+#define GCM_DESCRIPTOR_ALPHANUMERIC_DATA_STRING 0xfe
+#define GCM_DESCRIPTOR_COLOR_POINT 0xfb
 
 #define PNP_IDS "/usr/share/hwdata/pnp.ids"
 
@@ -47,29 +47,30 @@ using namespace KScreen;
 
 class Q_DECL_HIDDEN Edid::Private
 {
-  public:
-    Private():
-      valid(false),
-      width(0),
-      height(0),
-      gamma(0)
-    { }
+public:
+    Private()
+        : valid(false)
+        , width(0)
+        , height(0)
+        , gamma(0)
+    {
+    }
 
-    Private(const Private &other):
-      valid(other.valid),
-      monitorName(other.monitorName),
-      vendorName(other.vendorName),
-      serialNumber(other.serialNumber),
-      eisaId(other.eisaId),
-      checksum(other.checksum),
-      pnpId(other.pnpId),
-      width(other.width),
-      height(other.height),
-      gamma(other.gamma),
-      red(other.red),
-      green(other.green),
-      blue(other.blue),
-      white(other.white)
+    Private(const Private &other)
+        : valid(other.valid)
+        , monitorName(other.monitorName)
+        , vendorName(other.vendorName)
+        , serialNumber(other.serialNumber)
+        , eisaId(other.eisaId)
+        , checksum(other.checksum)
+        , pnpId(other.pnpId)
+        , width(other.width)
+        , height(other.height)
+        , gamma(other.gamma)
+        , red(other.red)
+        , green(other.green)
+        , blue(other.blue)
+        , white(other.white)
     {
     }
 
@@ -95,23 +96,22 @@ class Q_DECL_HIDDEN Edid::Private
     QQuaternion white;
 };
 
-
 Edid::Edid()
-  : QObject()
-  , d(new Private())
+    : QObject()
+    , d(new Private())
 {
 }
 
 Edid::Edid(const QByteArray &data, QObject *parent)
-  : QObject(parent)
-  , d(new Private())
+    : QObject(parent)
+    , d(new Private())
 {
     d->parse(data);
 }
 
 Edid::Edid(Edid::Private *dd)
-  : QObject()
-  , d(dd)
+    : QObject()
+    , d(dd)
 {
 }
 
@@ -242,7 +242,7 @@ QQuaternion Edid::white() const
 bool Edid::Private::parse(const QByteArray &rawData)
 {
     quint32 serial;
-    const quint8 *data = reinterpret_cast<const quint8*>(rawData.constData());
+    const quint8 *data = reinterpret_cast<const quint8 *>(rawData.constData());
     int length = rawData.length();
 
     /* check header */
@@ -266,7 +266,7 @@ bool Edid::Private::parse(const QByteArray &rawData)
      * R  C1   C2   C3 */
     pnpId.resize(3);
     pnpId[0] = 'A' + ((data[GCM_EDID_OFFSET_PNPID + 0] & 0x7c) / 4) - 1;
-    pnpId[1] = 'A' + ((data[GCM_EDID_OFFSET_PNPID + 0] & 0x3) * 8) + ((data[GCM_EDID_OFFSET_PNPID+1] & 0xe0) / 32) - 1;
+    pnpId[1] = 'A' + ((data[GCM_EDID_OFFSET_PNPID + 0] & 0x3) * 8) + ((data[GCM_EDID_OFFSET_PNPID + 1] & 0xe0) / 32) - 1;
     pnpId[2] = 'A' + (data[GCM_EDID_OFFSET_PNPID + 1] & 0x1f) - 1;
 
     // load the PNP_IDS file and load the vendor name
@@ -327,45 +327,43 @@ bool Edid::Private::parse(const QByteArray &rawData)
     white.setY(edidDecodeFraction(data[0x22], edidGetBits(data[0x1a], 0, 1)));
 
     /* parse EDID data */
-    for (uint i = GCM_EDID_OFFSET_DATA_BLOCKS;
-         i <= GCM_EDID_OFFSET_LAST_BLOCK;
-         i += 18) {
+    for (uint i = GCM_EDID_OFFSET_DATA_BLOCKS; i <= GCM_EDID_OFFSET_LAST_BLOCK; i += 18) {
         /* ignore pixel clock data */
         if (data[i] != 0) {
             continue;
         }
-        if (data[i+2] != 0) {
+        if (data[i + 2] != 0) {
             continue;
         }
 
         /* any useful blocks? */
-        if (data[i+3] == GCM_DESCRIPTOR_DISPLAY_PRODUCT_NAME) {
-            QString tmp = edidParseString(&data[i+5]);
+        if (data[i + 3] == GCM_DESCRIPTOR_DISPLAY_PRODUCT_NAME) {
+            QString tmp = edidParseString(&data[i + 5]);
             if (!tmp.isEmpty()) {
                 monitorName = tmp;
             }
-        } else if (data[i+3] == GCM_DESCRIPTOR_DISPLAY_PRODUCT_SERIAL_NUMBER) {
-            QString tmp = edidParseString(&data[i+5]);
+        } else if (data[i + 3] == GCM_DESCRIPTOR_DISPLAY_PRODUCT_SERIAL_NUMBER) {
+            QString tmp = edidParseString(&data[i + 5]);
             if (!tmp.isEmpty()) {
                 serialNumber = tmp;
             }
-        } else if (data[i+3] == GCM_DESCRIPTOR_COLOR_MANAGEMENT_DATA) {
+        } else if (data[i + 3] == GCM_DESCRIPTOR_COLOR_MANAGEMENT_DATA) {
             qCWarning(KSCREEN_EDID) << "failing to parse color management data";
-        } else if (data[i+3] == GCM_DESCRIPTOR_ALPHANUMERIC_DATA_STRING) {
-            QString tmp = edidParseString(&data[i+5]);
+        } else if (data[i + 3] == GCM_DESCRIPTOR_ALPHANUMERIC_DATA_STRING) {
+            QString tmp = edidParseString(&data[i + 5]);
             if (!tmp.isEmpty()) {
                 eisaId = tmp;
             }
-        } else if (data[i+3] == GCM_DESCRIPTOR_COLOR_POINT) {
-            if (data[i+3+9] != 0xff) {
+        } else if (data[i + 3] == GCM_DESCRIPTOR_COLOR_POINT) {
+            if (data[i + 3 + 9] != 0xff) {
                 /* extended EDID block(1) which contains
-                                     * a better gamma value */
-                gamma = (data[i+3+9] / 100.0) + 1;
+                 * a better gamma value */
+                gamma = (data[i + 3 + 9] / 100.0) + 1;
             }
-            if (data[i+3+14] != 0xff) {
+            if (data[i + 3 + 14] != 0xff) {
                 /* extended EDID block(2) which contains
-                                     * a better gamma value */
-                gamma = (data[i+3+9] / 100.0) + 1;
+                 * a better gamma value */
+                gamma = (data[i + 3 + 9] / 100.0) + 1;
             }
         }
     }
@@ -381,37 +379,37 @@ bool Edid::Private::parse(const QByteArray &rawData)
 
 int Edid::Private::edidGetBit(int in, int bit) const
 {
-        return (in & (1 << bit)) >> bit;
+    return (in & (1 << bit)) >> bit;
 }
 
 int Edid::Private::edidGetBits(int in, int begin, int end) const
 {
-        int mask = (1 << (end - begin + 1)) - 1;
+    int mask = (1 << (end - begin + 1)) - 1;
 
-        return (in >> begin) & mask;
+    return (in >> begin) & mask;
 }
 
 float Edid::Private::edidDecodeFraction(int high, int low) const
 {
-        float result = 0.0;
+    float result = 0.0;
 
-        high = (high << 2) | low;
-        for (int i = 0; i < 10; ++i) {
-            result += edidGetBit(high, i) * pow(2, i - 10);
-        }
-        return result;
+    high = (high << 2) | low;
+    for (int i = 0; i < 10; ++i) {
+        result += edidGetBit(high, i) * pow(2, i - 10);
+    }
+    return result;
 }
 
 QString Edid::Private::edidParseString(const quint8 *data) const
 {
-        /* this is always 13 bytes, but we can't guarantee it's null
-         * terminated or not junk. */
-        auto text = QString::fromLatin1(reinterpret_cast<const char*>(data), 13).simplified();
+    /* this is always 13 bytes, but we can't guarantee it's null
+     * terminated or not junk. */
+    auto text = QString::fromLatin1(reinterpret_cast<const char *>(data), 13).simplified();
 
-        for (int i = 0; i < text.length(); ++i) {
-            if (!text.at(i).isPrint()) {
-                text[i] = QLatin1Char('-');
-            }
+    for (int i = 0; i < text.length(); ++i) {
+        if (!text.at(i).isPrint()) {
+            text[i] = QLatin1Char('-');
         }
-        return text;
+    }
+    return text;
 }

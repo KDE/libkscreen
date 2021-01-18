@@ -22,11 +22,7 @@
 
 KScreen::Output::Type Utils::guessOutputType(const QString &type, const QString &name)
 {
-    static const auto embedded = { QLatin1String("LVDS"),
-                                   QLatin1String("IDP"),
-                                   QLatin1String("EDP"),
-                                   QLatin1String("LCD"),
-                                   QLatin1String("DSI") };
+    static const auto embedded = {QLatin1String("LVDS"), QLatin1String("IDP"), QLatin1String("EDP"), QLatin1String("LCD"), QLatin1String("DSI")};
 
     for (const QLatin1String &pre : embedded) {
         if (name.startsWith(pre, Qt::CaseInsensitive)) {
@@ -68,4 +64,3 @@ KScreen::Output::Type Utils::guessOutputType(const QString &type, const QString 
         return KScreen::Output::Unknown;
     }
 }
-

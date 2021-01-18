@@ -22,16 +22,17 @@
 using namespace KScreen;
 class Q_DECL_HIDDEN Mode::Private
 {
-  public:
-    Private():
-      rate(0)
-    { }
+public:
+    Private()
+        : rate(0)
+    {
+    }
 
-    Private(const Private &other):
-        id(other.id),
-        name(other.name),
-        size(other.size),
-        rate(other.rate)
+    Private(const Private &other)
+        : id(other.id)
+        , name(other.name)
+        , size(other.size)
+        , rate(other.rate)
     {
     }
 
@@ -42,15 +43,14 @@ class Q_DECL_HIDDEN Mode::Private
 };
 
 Mode::Mode()
-  : QObject(nullptr)
-  , d(new Private())
+    : QObject(nullptr)
+    , d(new Private())
 {
-
 }
 
 Mode::Mode(Mode::Private *dd)
-  : QObject()
-  , d(dd)
+    : QObject()
+    , d(dd)
 {
 }
 
@@ -69,7 +69,7 @@ const QString Mode::id() const
     return d->id;
 }
 
-void Mode::setId(const QString& id)
+void Mode::setId(const QString &id)
 {
     if (d->id == id) {
         return;
@@ -85,7 +85,7 @@ QString Mode::name() const
     return d->name;
 }
 
-void Mode::setName(const QString& name)
+void Mode::setName(const QString &name)
 {
     if (d->name == name) {
         return;
@@ -96,13 +96,12 @@ void Mode::setName(const QString& name)
     Q_EMIT modeChanged();
 }
 
-
 QSize Mode::size() const
 {
     return d->size;
 }
 
-void Mode::setSize(const QSize& size)
+void Mode::setSize(const QSize &size)
 {
     if (d->size == size) {
         return;
@@ -133,7 +132,7 @@ QDebug operator<<(QDebug dbg, const KScreen::ModePtr &mode)
 {
     if (mode) {
         dbg << "KScreen::Mode(Id:" << mode->id() << ", Size:" << mode->size() << "@" << mode->refreshRate() << ")";
-    }  else {
+    } else {
         dbg << "KScreen::Mode(NULL)";
     }
     return dbg;

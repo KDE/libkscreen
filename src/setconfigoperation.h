@@ -21,18 +21,18 @@
 #define KSCREEN_SETCONFIGOPERATION_H
 
 #include "configoperation.h"
-#include "types.h"
 #include "kscreen_export.h"
+#include "types.h"
 
-namespace KScreen {
-
+namespace KScreen
+{
 class SetConfigOperationPrivate;
 
 class KSCREEN_EXPORT SetConfigOperation : public KScreen::ConfigOperation
 {
     Q_OBJECT
 public:
-    explicit SetConfigOperation(const KScreen::ConfigPtr &config, QObject* parent = nullptr);
+    explicit SetConfigOperation(const KScreen::ConfigPtr &config, QObject *parent = nullptr);
     ~SetConfigOperation() override;
 
     KScreen::ConfigPtr config() const override;

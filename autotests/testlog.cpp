@@ -16,9 +16,9 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
-#include <QtTest>
-#include <QObject>
 #include <QLoggingCategory>
+#include <QObject>
+#include <QtTest>
 
 #include "../src/log.h"
 
@@ -54,7 +54,6 @@ void TestLog::init()
 
 void TestLog::initTestCase()
 {
-
     qputenv(KSCREEN_LOGGING, QByteArray("true"));
 }
 

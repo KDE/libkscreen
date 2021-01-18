@@ -16,19 +16,18 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
-#include <QtTest>
 #include <QObject>
+#include <QtTest>
 
+#include "../src/backendmanager_p.h"
 #include "../src/config.h"
 #include "../src/configmonitor.h"
-#include "../src/output.h"
-#include "../src/mode.h"
 #include "../src/getconfigoperation.h"
+#include "../src/mode.h"
+#include "../src/output.h"
 #include "../src/setconfigoperation.h"
-#include "../src/backendmanager_p.h"
 
 using namespace KScreen;
-
 
 class TestModeListChange : public QObject
 {
@@ -70,7 +69,6 @@ ConfigPtr TestModeListChange::getConfig()
 
 KScreen::ModeList TestModeListChange::createModeList()
 {
-
     KScreen::ModeList newmodes;
     {
         QString _id = QString::number(11);
@@ -102,7 +100,6 @@ KScreen::ModeList TestModeListChange::createModeList()
     return newmodes;
 }
 
-
 void TestModeListChange::initTestCase()
 {
     qputenv("KSCREEN_LOGGING", "false");
@@ -116,7 +113,7 @@ void TestModeListChange::cleanupTestCase()
 
 void TestModeListChange::modeListChange()
 {
-    //json file for the fake backend
+    // json file for the fake backend
     qputenv("KSCREEN_BACKEND_ARGS", "TEST_DATA=" TEST_DATA "singleoutput.json");
 
     const ConfigPtr config = getConfig();
@@ -172,7 +169,6 @@ void TestModeListChange::modeListChange()
     QCOMPARE(modesChangedSpy.count(), 3);
     QCOMPARE(outputChangedSpy.count(), modesChangedSpy.count());
 }
-
 
 QTEST_MAIN(TestModeListChange)
 

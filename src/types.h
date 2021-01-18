@@ -19,12 +19,11 @@
 #ifndef KSCREEN_TYPES_H
 #define KSCREEN_TYPES_H
 
-#include <QSharedPointer>
 #include <QMap>
+#include <QSharedPointer>
 
 namespace KScreen
 {
-
 class Config;
 typedef QSharedPointer<KScreen::Config> ConfigPtr;
 class Screen;

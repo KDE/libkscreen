@@ -22,10 +22,10 @@
 #include "../src/config.h"
 #include "../src/configmonitor.h"
 #include "../src/edid.h"
+#include "../src/getconfigoperation.h"
 #include "../src/mode.h"
 #include "../src/output.h"
 #include "../src/screen.h"
-#include "../src/getconfigoperation.h"
 
 #include <QGuiApplication>
 #include <QRect>
@@ -34,40 +34,39 @@
 
 using namespace KScreen;
 
-QString typetoString(const Output::Type& type)
+QString typetoString(const Output::Type &type)
 {
     switch (type) {
-        case Output::Unknown:
-            return QStringLiteral("Unknown");
-        case Output::Panel:
-            return QStringLiteral("Panel (Laptop)");
-        case Output::VGA:
-            return QStringLiteral("VGA");
-        case Output::DVII:
-            return QStringLiteral("DVI-I");
-        case Output::DVIA:
-            return QStringLiteral("DVI-A");
-        case Output::DVID:
-            return QStringLiteral("DVI-D");
-        case Output::HDMI:
-            return QStringLiteral("HDMI");
-        case Output::TV:
-            return QStringLiteral("TV");
-        case Output::TVComposite:
-            return QStringLiteral("TV-Composite");
-        case Output::TVSVideo:
-            return QStringLiteral("TV-SVideo");
-        case Output::TVComponent:
-            return QStringLiteral("TV-Component");
-        case Output::TVSCART:
-            return QStringLiteral("TV-SCART");
-        case Output::TVC4:
-            return QStringLiteral("TV-C4");
-        case Output::DisplayPort:
-            return QStringLiteral("DisplayPort");
-        default:
-            return QStringLiteral("Invalid Type");
-
+    case Output::Unknown:
+        return QStringLiteral("Unknown");
+    case Output::Panel:
+        return QStringLiteral("Panel (Laptop)");
+    case Output::VGA:
+        return QStringLiteral("VGA");
+    case Output::DVII:
+        return QStringLiteral("DVI-I");
+    case Output::DVIA:
+        return QStringLiteral("DVI-A");
+    case Output::DVID:
+        return QStringLiteral("DVI-D");
+    case Output::HDMI:
+        return QStringLiteral("HDMI");
+    case Output::TV:
+        return QStringLiteral("TV");
+    case Output::TVComposite:
+        return QStringLiteral("TV-Composite");
+    case Output::TVSVideo:
+        return QStringLiteral("TV-SVideo");
+    case Output::TVComponent:
+        return QStringLiteral("TV-Component");
+    case Output::TVSCART:
+        return QStringLiteral("TV-SCART");
+    case Output::TVC4:
+        return QStringLiteral("TV-C4");
+    case Output::DisplayPort:
+        return QStringLiteral("DisplayPort");
+    default:
+        return QStringLiteral("Invalid Type");
     };
 }
 
@@ -84,13 +83,12 @@ TestPnp::~TestPnp()
 
 void TestPnp::init()
 {
-    connect(new KScreen::GetConfigOperation(), &KScreen::GetConfigOperation::finished,
-            this, &TestPnp::configReady);
+    connect(new KScreen::GetConfigOperation(), &KScreen::GetConfigOperation::finished, this, &TestPnp::configReady);
 }
 
 void TestPnp::configReady(KScreen::ConfigOperation *op)
 {
-    m_config = qobject_cast<KScreen::GetConfigOperation*>(op)->config();
+    m_config = qobject_cast<KScreen::GetConfigOperation *>(op)->config();
     if (!m_config) {
         qDebug() << "Config is invalid, probably backend couldn't load";
         qApp->quit();
@@ -118,7 +116,7 @@ void TestPnp::print()
     qDebug() << "\tcurrentSize:" << m_config->screen()->currentSize();
 
     const OutputList outputs = m_config->outputs();
-    Q_FOREACH(const OutputPtr &output, outputs) {
+    Q_FOREACH (const OutputPtr &output, outputs) {
         qDebug() << "\n-----------------------------------------------------\n";
         qDebug() << "Id: " << output->id();
         qDebug() << "Name: " << output->name();
@@ -136,7 +134,8 @@ void TestPnp::print()
             qDebug() << "Size: " << output->currentMode()->size();
         }
         if (output->clones().isEmpty()) {
-            qDebug() << "Clones: " << "None";
+            qDebug() << "Clones: "
+                     << "None";
         } else {
             qDebug() << "Clones: " << output->clones().count();
         }
@@ -146,11 +145,11 @@ void TestPnp::print()
         qDebug() << "Modes: ";
 
         const ModeList modes = output->modes();
-        Q_FOREACH(const ModePtr &mode, modes) {
+        Q_FOREACH (const ModePtr &mode, modes) {
             qDebug() << "\t" << mode->id() << "  " << mode->name() << " " << mode->size() << " " << mode->refreshRate();
         }
 
-        const Edid * const edid = output->edid();
+        const Edid *const edid = output->edid();
         qDebug() << "EDID Info: ";
         if (edid && edid->isValid()) {
             qDebug() << "\tDevice ID: " << edid->deviceId();

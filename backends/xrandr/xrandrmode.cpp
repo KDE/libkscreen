@@ -26,10 +26,9 @@ XRandRMode::XRandRMode(const xcb_randr_mode_info_t &modeInfo, XRandROutput *outp
 {
     m_id = modeInfo.id;
     // FIXME XCB
-    //m_name = QString::fromUtf8(modeInfo->name);
+    // m_name = QString::fromUtf8(modeInfo->name);
     m_size = QSize(modeInfo.width, modeInfo.height);
-    m_refreshRate = (float) modeInfo.dot_clock
-                    / ((float) modeInfo.htotal * (float) modeInfo.vtotal);
+    m_refreshRate = (float)modeInfo.dot_clock / ((float)modeInfo.htotal * (float)modeInfo.vtotal);
 }
 
 XRandRMode::~XRandRMode()

@@ -24,7 +24,8 @@
 #include "xrandroutput.h"
 
 class XRandRScreen;
-namespace KScreen {
+namespace KScreen
+{
 class Config;
 }
 

@@ -17,20 +17,18 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
-
 #ifndef KSCREEN_EDID_H
 #define KSCREEN_EDID_H
 
 #include "kscreen_export.h"
 
 #include <QObject>
-#include <QtGlobal>
 #include <QQuaternion>
+#include <QtGlobal>
 
 namespace KScreen
 {
-
-class KSCREEN_EXPORT Edid: public QObject
+class KSCREEN_EXPORT Edid : public QObject
 {
     Q_OBJECT
 
@@ -48,12 +46,12 @@ class KSCREEN_EXPORT Edid: public QObject
     Q_PROPERTY(QQuaternion blue READ blue CONSTANT)
     Q_PROPERTY(QQuaternion white READ white CONSTANT)
 
-  public:
+public:
     explicit Edid();
     explicit Edid(const QByteArray &data, QObject *parent = nullptr);
     ~Edid() override;
 
-    Q_REQUIRED_RESULT Edid* clone() const;
+    Q_REQUIRED_RESULT Edid *clone() const;
 
     bool isValid() const;
 
@@ -72,17 +70,17 @@ class KSCREEN_EXPORT Edid: public QObject
     QQuaternion blue() const;
     QQuaternion white() const;
 
-  private:
+private:
     Q_DISABLE_COPY(Edid)
 
     class Private;
-    Private * const d;
+    Private *const d;
 
     explicit Edid(Private *dd);
 };
 
 }
 
-Q_DECLARE_METATYPE(KScreen::Edid*)
+Q_DECLARE_METATYPE(KScreen::Edid *)
 
 #endif // EDID_H

@@ -18,10 +18,10 @@
  *************************************************************************************/
 #include "xrandrscreen.h"
 
+#include "../xcbwrapper.h"
 #include "config.h"
 #include "screen.h"
 #include "xrandrconfig.h"
-#include "../xcbwrapper.h"
 
 #include <QX11Info>
 
@@ -62,8 +62,7 @@ KScreen::ScreenPtr XRandRScreen::toKScreenScreen() const
     kscreenScreen->setMinSize(m_minSize);
     kscreenScreen->setCurrentSize(m_currentSize);
 
-    XCB::ScopedPointer<xcb_randr_get_screen_resources_reply_t>
-            screenResources(XRandR::screenResources());
+    XCB::ScopedPointer<xcb_randr_get_screen_resources_reply_t> screenResources(XRandR::screenResources());
     kscreenScreen->setMaxActiveOutputsCount(screenResources->num_crtcs);
 
     return kscreenScreen;

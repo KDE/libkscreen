@@ -17,11 +17,11 @@
  *
  */
 
-#include <QGuiApplication>
 #include <QDBusConnection>
+#include <QGuiApplication>
 
-#include "kscreen_backendLauncher_debug.h"
 #include "backendloader.h"
+#include "kscreen_backendLauncher_debug.h"
 #include "log.h"
 
 int main(int argc, char **argv)

@@ -32,15 +32,13 @@ using namespace KScreen;
 
 Q_LOGGING_CATEGORY(KSCREEN_WAYLAND, "kscreen.kwayland")
 
-
 WaylandBackend::WaylandBackend()
     : KScreen::AbstractBackend()
     , m_internalConfig(new WaylandConfig(this))
 {
     qCDebug(KSCREEN_WAYLAND) << "Loading Wayland backend.";
 
-    connect(m_internalConfig, &WaylandConfig::configChanged,
-            this, [this]() {
+    connect(m_internalConfig, &WaylandConfig::configChanged, this, [this]() {
         Q_EMIT configChanged(m_internalConfig->currentConfig());
     });
 }

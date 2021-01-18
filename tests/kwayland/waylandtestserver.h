@@ -24,16 +24,15 @@
 // KWayland
 #include <KWayland/Server/compositor_interface.h>
 #include <KWayland/Server/display.h>
-#include <KWayland/Server/outputdevice_interface.h>
 #include <KWayland/Server/dpms_interface.h>
 #include <KWayland/Server/outputconfiguration_interface.h>
+#include <KWayland/Server/outputdevice_interface.h>
+#include <KWayland/Server/outputmanagement_interface.h>
 #include <KWayland/Server/seat_interface.h>
 #include <KWayland/Server/shell_interface.h>
-#include <KWayland/Server/outputmanagement_interface.h>
 
 namespace KScreen
 {
-
 static const QString s_socketName = QStringLiteral("libkscreen-test-wayland-backend-0");
 
 using namespace KWayland::Server;
@@ -51,8 +50,8 @@ public:
     void stop();
 
     void showOutputs();
-    KWayland::Server::Display* display();
-    QList<KWayland::Server::OutputDeviceInterface*> outputs() const;
+    KWayland::Server::Display *display();
+    QList<KWayland::Server::OutputDeviceInterface *> outputs() const;
 
     int outputCount() const;
 
@@ -70,10 +69,10 @@ private Q_SLOTS:
     void configurationChangeRequested(KWayland::Server::OutputConfigurationInterface *configurationInterface);
 
 private:
-    static QString modeString(KWayland::Server::OutputDeviceInterface* outputdevice, int mid);
+    static QString modeString(KWayland::Server::OutputDeviceInterface *outputdevice, int mid);
     QString m_configFile;
     KWayland::Server::Display *m_display;
-    QList<KWayland::Server::OutputDeviceInterface*> m_outputs;
+    QList<KWayland::Server::OutputDeviceInterface *> m_outputs;
     KWayland::Server::OutputManagementInterface *m_outputManagement;
     KWayland::Server::DpmsManagerInterface *m_dpmsManager;
     bool m_suspendChanges;

@@ -22,14 +22,13 @@
 #include "qscreenconfig.h"
 
 #include "config.h"
-#include "output.h"
 #include "edid.h"
+#include "output.h"
 
 #include <QScreen>
 
 namespace KScreen
 {
-
 class QScreenOutput : public QObject
 {
     Q_OBJECT

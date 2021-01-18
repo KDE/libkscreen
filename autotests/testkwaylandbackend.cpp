@@ -18,17 +18,17 @@
 
 #include <QCoreApplication>
 #include <QCryptographicHash>
-#include <QtTest>
 #include <QObject>
+#include <QtTest>
 
 #include "../src/backendmanager_p.h"
-#include "../src/getconfigoperation.h"
-#include "../src/setconfigoperation.h"
 #include "../src/config.h"
 #include "../src/configmonitor.h"
-#include "../src/output.h"
-#include "../src/mode.h"
 #include "../src/edid.h"
+#include "../src/getconfigoperation.h"
+#include "../src/mode.h"
+#include "../src/output.h"
+#include "../src/setconfigoperation.h"
 
 // KWayland
 #include <KWayland/Server/display.h>
@@ -62,7 +62,6 @@ private Q_SLOTS:
     void addOutput();
     void removeOutput();
     void testEdid();
-
 
 private:
     ConfigPtr m_config;
@@ -133,7 +132,7 @@ void testWaylandBackend::verifyOutputs()
             primaryFound = true;
         }
     }
-    //qCDebug(KSCREEN_WAYLAND) << "Primary found? " << primaryFound << m_config->outputs();
+    // qCDebug(KSCREEN_WAYLAND) << "Primary found? " << primaryFound << m_config->outputs();
     QVERIFY(primaryFound);
     QVERIFY(m_config->outputs().count());
     QCOMPARE(m_server->outputCount(), m_config->outputs().count());
@@ -147,7 +146,7 @@ void testWaylandBackend::verifyOutputs()
         QVERIFY(!output->name().isEmpty());
         QVERIFY(output->id() > -1);
         QVERIFY(output->isConnected());
-        QVERIFY(output->geometry() != QRectF(1,1,1,1));
+        QVERIFY(output->geometry() != QRectF(1, 1, 1, 1));
         QVERIFY(output->geometry() != QRectF());
         QVERIFY(output->sizeMm() != QSize());
         QVERIFY(output->edid() != nullptr);
@@ -242,7 +241,7 @@ void testWaylandBackend::addOutput()
     m_serverOutputDevice->create();
 
     QVERIFY(configSpy.wait());
-    //QTRY_VERIFY(configSpy.count());
+    // QTRY_VERIFY(configSpy.count());
 
     GetConfigOperation *op2 = new GetConfigOperation();
     op2->exec();
@@ -273,7 +272,10 @@ void testWaylandBackend::testEdid()
 {
     m_server->showOutputs();
 
-    QByteArray data = QByteArray::fromBase64("AP///////wAQrBbwTExLQQ4WAQOANCB46h7Frk80sSYOUFSlSwCBgKlA0QBxTwEBAQEBAQEBKDyAoHCwI0AwIDYABkQhAAAaAAAA/wBGNTI1TTI0NUFLTEwKAAAA/ABERUxMIFUyNDEwCiAgAAAA/QA4TB5REQAKICAgICAgAToCAynxUJAFBAMCBxYBHxITFCAVEQYjCQcHZwMMABAAOC2DAQAA4wUDAQI6gBhxOC1AWCxFAAZEIQAAHgEdgBhxHBYgWCwlAAZEIQAAngEdAHJR0B4gbihVAAZEIQAAHowK0Iog4C0QED6WAAZEIQAAGAAAAAAAAAAAAAAAAAAAPg==");
+    QByteArray data = QByteArray::fromBase64(
+        "AP///////wAQrBbwTExLQQ4WAQOANCB46h7Frk80sSYOUFSlSwCBgKlA0QBxTwEBAQEBAQEBKDyAoHCwI0AwIDYABkQhAAAaAAAA/wBGNTI1TTI0NUFLTEwKAAAA/ABERUxMIFUyNDEwCiAgAAAA/"
+        "QA4TB5REQAKICAgICAgAToCAynxUJAFBAMCBxYBHxITFCAVEQYjCQcHZwMMABAAOC2DAQAA4wUDAQI6gBhxOC1AWCxFAAZEIQAAHgEdgBhxHBYgWCwlAAZEIQAAngEdAHJR0B4gbihVAAZEIQAAHow"
+        "K0Iog4C0QED6WAAZEIQAAGAAAAAAAAAAAAAAAAAAAPg==");
 
     QScopedPointer<Edid> edid(new Edid(data));
     QVERIFY(edid->isValid());
@@ -310,7 +312,6 @@ void testWaylandBackend::verifyFeatures()
     QVERIFY(config->supportedFeatures().testFlag(Config::Feature::Writable));
     QVERIFY(!config->supportedFeatures().testFlag(Config::Feature::PrimaryDisplay));
 }
-
 
 QTEST_GUILESS_MAIN(testWaylandBackend)
 

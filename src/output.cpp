@@ -18,54 +18,55 @@
  *************************************************************************************/
 
 #include "output.h"
-#include "mode.h"
-#include "edid.h"
 #include "abstractbackend.h"
 #include "backendmanager_p.h"
+#include "edid.h"
 #include "kscreen_debug.h"
+#include "mode.h"
 
-#include <QStringList>
-#include <QScopedPointer>
-#include <QRect>
 #include <QCryptographicHash>
+#include <QRect>
+#include <QScopedPointer>
+#include <QStringList>
 
 using namespace KScreen;
 
 class Q_DECL_HIDDEN Output::Private
 {
-  public:
-    Private():
-        id(0),
-        type(Unknown),
-        replicationSource(0),
-        rotation(None),
-        scale(1.0),
-        logicalSize(QSizeF()),
-        connected(false),
-        enabled(false),
-        primary(false),
-        edid(nullptr)
-    {}
+public:
+    Private()
+        : id(0)
+        , type(Unknown)
+        , replicationSource(0)
+        , rotation(None)
+        , scale(1.0)
+        , logicalSize(QSizeF())
+        , connected(false)
+        , enabled(false)
+        , primary(false)
+        , edid(nullptr)
+    {
+    }
 
-    Private(const Private &other):
-        id(other.id),
-        name(other.name),
-        type(other.type),
-        icon(other.icon),
-        clones(other.clones),
-        replicationSource(other.replicationSource),
-        currentMode(other.currentMode),
-        preferredMode(other.preferredMode),
-        preferredModes(other.preferredModes),
-        sizeMm(other.sizeMm),
-        pos(other.pos),
-        size(other.size),
-        rotation(other.rotation),
-        scale(other.scale),
-        connected(other.connected),
-        enabled(other.enabled),
-        primary(other.primary),
-        followPreferredMode(other.followPreferredMode)
+    Private(const Private &other)
+        : id(other.id)
+        , name(other.name)
+        , type(other.type)
+        , icon(other.icon)
+        , clones(other.clones)
+        , replicationSource(other.replicationSource)
+        , currentMode(other.currentMode)
+        , preferredMode(other.preferredMode)
+        , preferredModes(other.preferredModes)
+        , sizeMm(other.sizeMm)
+        , pos(other.pos)
+        , size(other.size)
+        , rotation(other.rotation)
+        , scale(other.scale)
+        , connected(other.connected)
+        , enabled(other.enabled)
+        , primary(other.primary)
+        , followPreferredMode(other.followPreferredMode)
     {
         Q_FOREACH (const ModePtr &otherMode, other.modeList) {
             modeList.insert(otherMode->id(), otherMode->clone());
@@ -75,8 +76,8 @@ class Q_DECL_HIDDEN Output::Private
         }
     }
 
-    QString biggestMode(const ModeList& modes) const;
-    bool compareModeList(const ModeList& before, const ModeList& after);
+    QString biggestMode(const ModeList &modes) const;
+    bool compareModeList(const ModeList &before, const ModeList &after);
 
     int id;
     QString name;
@@ -102,7 +103,7 @@ class Q_DECL_HIDDEN Output::Private
     QScopedPointer<Edid> edid;
 };
 
-bool Output::Private::compareModeList(const ModeList& before, const ModeList &after)
+bool Output::Private::compareModeList(const ModeList &before, const ModeList &after)
 {
     if (before.count() != after.count()) {
         return false;
@@ -132,12 +133,11 @@ bool Output::Private::compareModeList(const ModeList& before, const ModeList &af
     return true;
 }
 
-
-QString Output::Private::biggestMode(const ModeList& modes) const
+QString Output::Private::biggestMode(const ModeList &modes) const
 {
     int area, total = 0;
     KScreen::ModePtr biggest;
-    Q_FOREACH(const KScreen::ModePtr &mode, modes) {
+    Q_FOREACH (const KScreen::ModePtr &mode, modes) {
         area = mode->size().width() * mode->size().height();
         if (area < total) {
             continue;
@@ -162,15 +162,14 @@ QString Output::Private::biggestMode(const ModeList& modes) const
 }
 
 Output::Output()
- : QObject(nullptr)
- , d(new Private())
+    : QObject(nullptr)
+    , d(new Private())
 {
-
 }
 
 Output::Output(Output::Private *dd)
- : QObject()
- , d(dd)
+    : QObject()
+    , d(dd)
 {
 }
 
@@ -205,7 +204,7 @@ QString Output::name() const
     return d->name;
 }
 
-void Output::setName(const QString& name)
+void Output::setName(const QString &name)
 {
     if (d->name == name) {
         return;
@@ -230,8 +229,7 @@ QString Output::hashMd5() const
     if (edid() && edid()->isValid()) {
         return edid()->hash();
     }
-    const auto hash = QCryptographicHash::hash(name().toLatin1(),
-                                               QCryptographicHash::Md5);
+    const auto hash = QCryptographicHash::hash(name().toLatin1(), QCryptographicHash::Md5);
     return QString::fromLatin1(hash.toHex());
 }
 
@@ -256,7 +254,7 @@ QString Output::icon() const
     return d->icon;
 }
 
-void Output::setIcon(const QString& icon)
+void Output::setIcon(const QString &icon)
 {
     if (d->icon == icon) {
         return;
@@ -267,7 +265,7 @@ void Output::setIcon(const QString& icon)
     Q_EMIT outputChanged();
 }
 
-ModePtr Output::mode(const QString& id) const
+ModePtr Output::mode(const QString &id) const
 {
     if (!d->modeList.contains(id)) {
         return ModePtr();
@@ -296,7 +294,7 @@ QString Output::currentModeId() const
     return d->currentMode;
 }
 
-void Output::setCurrentModeId(const QString& mode)
+void Output::setCurrentModeId(const QString &mode)
 {
     if (d->currentMode == mode) {
         return;
@@ -335,7 +333,7 @@ QString Output::preferredModeId() const
     int total = 0;
     KScreen::ModePtr biggest;
     KScreen::ModePtr candidateMode;
-    Q_FOREACH(const QString &modeId, d->preferredModes) {
+    Q_FOREACH (const QString &modeId, d->preferredModes) {
         candidateMode = mode(modeId);
         const int area = candidateMode->size().width() * candidateMode->size().height();
         if (area < total) {
@@ -369,7 +367,7 @@ QPoint Output::pos() const
     return d->pos;
 }
 
-void Output::setPos(const QPoint& pos)
+void Output::setPos(const QPoint &pos)
 {
     if (d->pos == pos) {
         return;
@@ -385,7 +383,7 @@ QSize Output::size() const
     return d->size;
 }
 
-void Output::setSize(const QSize& size)
+void Output::setSize(const QSize &size)
 {
     if (d->size == size) {
         return;
@@ -456,8 +454,7 @@ QSizeF Output::explicitLogicalSize() const
 
 void Output::setLogicalSize(const QSizeF &size)
 {
-    if (qFuzzyCompare(d->logicalSize.width(), size.width())
-                      && qFuzzyCompare(d->logicalSize.height(), size.height())) {
+    if (qFuzzyCompare(d->logicalSize.width(), size.width()) && qFuzzyCompare(d->logicalSize.height(), size.height())) {
         return;
     }
     d->logicalSize = size;
@@ -544,7 +541,7 @@ void Output::setReplicationSource(int source)
     Q_EMIT replicationSourceChanged();
 }
 
-void Output::setEdid(const QByteArray& rawData)
+void Output::setEdid(const QByteArray &rawData)
 {
     Q_ASSERT(d->edid.isNull());
     d->edid.reset(new Edid(rawData));
@@ -605,7 +602,7 @@ QRect Output::geometry() const
     return QRect(d->pos, size);
 }
 
-void Output::apply(const OutputPtr& other)
+void Output::apply(const OutputPtr &other)
 {
     typedef void (KScreen::Output::*ChangeSignal)();
     QList<ChangeSignal> changes;
@@ -657,11 +654,13 @@ void Output::apply(const OutputPtr& other)
     }
     if (d->clones != other->d->clones) {
         changes << &Output::clonesChanged;
-        setClones(other->d->clones);;
+        setClones(other->d->clones);
+        ;
     }
     if (d->replicationSource != other->d->replicationSource) {
         changes << &Output::replicationSourceChanged;
-        setReplicationSource(other->d->replicationSource);;
+        setReplicationSource(other->d->replicationSource);
+        ;
     }
     if (!d->compareModeList(d->modeList, other->d->modeList)) {
         changes << &Output::outputChanged;
@@ -684,7 +683,7 @@ void Output::apply(const OutputPtr& other)
 
     while (!changes.isEmpty()) {
         const ChangeSignal &sig = changes.first();
-        Q_EMIT (this->*sig)();
+        Q_EMIT(this->*sig)();
         changes.removeAll(sig);
     }
 }
@@ -692,24 +691,15 @@ void Output::apply(const OutputPtr& other)
 QDebug operator<<(QDebug dbg, const KScreen::OutputPtr &output)
 {
     QDebugStateSaver saver(dbg);
-    if(!output) {
+    if (!output) {
         dbg << "KScreen::Output(NULL)";
         return dbg;
     }
 
-    dbg.nospace() << "KScreen::Output("
-                                << output->id() << ", "
-                                << output->name() << ", "
-                                << (output->isConnected() ? "connected " : "disconnected ")
-                                << (output->isEnabled() ? "enabled" : "disabled")
-                                << (output->isPrimary() ? " primary" : "")
-                                << ", pos: " << output->pos()
-                                << ", res: " << output->size()
-                                << ", modeId: " << output->currentModeId()
-                                << ", scale: " << output->scale()
-                                << ", clone: " << (output->clones().isEmpty() ? "no" : "yes")
-                                << ", rotation: " << output->rotation()
-                                << ", followPreferredMode: " << output->followPreferredMode()
-                                << ")";
+    dbg.nospace() << "KScreen::Output(" << output->id() << ", " << output->name() << ", " << (output->isConnected() ? "connected " : "disconnected ")
+                  << (output->isEnabled() ? "enabled" : "disabled") << (output->isPrimary() ? " primary" : "") << ", pos: " << output->pos()
+                  << ", res: " << output->size() << ", modeId: " << output->currentModeId() << ", scale: " << output->scale()
+                  << ", clone: " << (output->clones().isEmpty() ? "no" : "yes") << ", rotation: " << output->rotation()
+                  << ", followPreferredMode: " << output->followPreferredMode() << ")";
     return dbg;
 }

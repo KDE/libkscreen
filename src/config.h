@@ -20,17 +20,16 @@
 #ifndef KSCREEN_CONFIG_H
 #define KSCREEN_CONFIG_H
 
+#include "kscreen_export.h"
 #include "screen.h"
 #include "types.h"
-#include "kscreen_export.h"
 
 #include <QHash>
-#include <QObject>
 #include <QMetaType>
+#include <QObject>
 
-
-namespace KScreen {
-
+namespace KScreen
+{
 /**
  * Represents a (or the) screen configuration.
  *
@@ -49,10 +48,10 @@ class KSCREEN_EXPORT Config : public QObject
     Q_PROPERTY(ScreenPtr screen READ screen)
     Q_PROPERTY(OutputList outputs READ outputs)
 
-  public:
+public:
     enum class ValidityFlag {
         None = 0x0,
-        RequireAtLeastOneEnabledScreen = 0x1
+        RequireAtLeastOneEnabledScreen = 0x1,
     };
     Q_DECLARE_FLAGS(ValidityFlags, ValidityFlag)
 
@@ -203,24 +202,22 @@ class KSCREEN_EXPORT Config : public QObject
      */
     void setTabletModeEngaged(bool engaged);
 
-  Q_SIGNALS:
-      void outputAdded(const KScreen::OutputPtr &output);
-      void outputRemoved(int outputId);
-      void primaryOutputChanged(const KScreen::OutputPtr &output);
+Q_SIGNALS:
+    void outputAdded(const KScreen::OutputPtr &output);
+    void outputRemoved(int outputId);
+    void primaryOutputChanged(const KScreen::OutputPtr &output);
 
-  private:
+private:
     Q_DISABLE_COPY(Config)
 
     class Private;
-    Private * const d;
+    Private *const d;
 };
 
-} //KScreen namespace
+} // KScreen namespace
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(KScreen::Config::Features)
 
 KSCREEN_EXPORT QDebug operator<<(QDebug dbg, const KScreen::ConfigPtr &config);
 
-
-
-#endif //KSCREEN_CONFIG_H
+#endif // KSCREEN_CONFIG_H

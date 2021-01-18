@@ -29,9 +29,9 @@
 
 #include <KWayland/Client/connection_thread.h>
 #include <KWayland/Client/event_queue.h>
-#include <KWayland/Client/registry.h>
 #include <KWayland/Client/outputconfiguration.h>
 #include <KWayland/Client/outputmanagement.h>
+#include <KWayland/Client/registry.h>
 
 #include <QTimer>
 
@@ -53,8 +53,7 @@ WaylandConfig::WaylandConfig(QObject *parent)
     connect(this, &WaylandConfig::initialized, &m_syncLoop, &QEventLoop::quit);
     QTimer::singleShot(3000, this, [this] {
         if (m_syncLoop.isRunning()) {
-            qCWarning(KSCREEN_WAYLAND) << "Connection to Wayland server at socket:"
-                                       << m_connection->socketName() << "timed out.";
+            qCWarning(KSCREEN_WAYLAND) << "Connection to Wayland server at socket:" << m_connection->socketName() << "timed out.";
             m_syncLoop.quit();
             m_thread->quit();
             m_thread->wait();
@@ -74,9 +73,8 @@ WaylandConfig::~WaylandConfig()
 
 void WaylandConfig::initKWinTabletMode()
 {
-    auto *interface = new OrgKdeKWinTabletModeManagerInterface(QStringLiteral("org.kde.KWin"),
-                                                           QStringLiteral("/org/kde/KWin"),
-                                                           QDBusConnection::sessionBus(), this);
+    auto *interface =
+        new OrgKdeKWinTabletModeManagerInterface(QStringLiteral("org.kde.KWin"), QStringLiteral("/org/kde/KWin"), QDBusConnection::sessionBus(), this);
     if (!interface->isValid()) {
         m_tabletModeAvailable = false;
         m_tabletModeEngaged = false;
@@ -86,26 +84,23 @@ void WaylandConfig::initKWinTabletMode()
     m_tabletModeAvailable = interface->tabletModeAvailable();
     m_tabletModeEngaged = interface->tabletMode();
 
-    connect(interface, &OrgKdeKWinTabletModeManagerInterface::tabletModeChanged,
-            this, [this](bool tabletMode) {
-                if (m_tabletModeEngaged == tabletMode) {
-                    return;
-                }
-                m_tabletModeEngaged = tabletMode;
-                if (!m_blockSignals && m_initializingOutputs.empty()) {
-                    Q_EMIT configChanged();
-                }
-            }
-    );
-    connect(interface, &OrgKdeKWinTabletModeManagerInterface::tabletModeAvailableChanged,
-            this, [this](bool available) {
-                if (m_tabletModeAvailable == available) {
-                    return;
-                }
-                m_tabletModeAvailable = available;
-                if (!m_blockSignals && m_initializingOutputs.empty()) {
-                    Q_EMIT configChanged();
-                }
+    connect(interface, &OrgKdeKWinTabletModeManagerInterface::tabletModeChanged, this, [this](bool tabletMode) {
+        if (m_tabletModeEngaged == tabletMode) {
+            return;
+        }
+        m_tabletModeEngaged = tabletMode;
+        if (!m_blockSignals && m_initializingOutputs.empty()) {
+            Q_EMIT configChanged();
+        }
+    });
+    connect(interface, &OrgKdeKWinTabletModeManagerInterface::tabletModeAvailableChanged, this, [this](bool available) {
+        if (m_tabletModeAvailable == available) {
+            return;
+        }
+        m_tabletModeAvailable = available;
+        if (!m_blockSignals && m_initializingOutputs.empty()) {
+            Q_EMIT configChanged();
+        }
     });
 }
 
@@ -114,15 +109,12 @@ void WaylandConfig::initConnection()
     m_thread = new QThread(this);
     m_connection = new KWayland::Client::ConnectionThread;
 
-    connect(m_connection, &KWayland::Client::ConnectionThread::connected,
-            this, &WaylandConfig::setupRegistry, Qt::QueuedConnection);
+    connect(m_connection, &KWayland::Client::ConnectionThread::connected, this, &WaylandConfig::setupRegistry, Qt::QueuedConnection);
 
-    connect(m_connection, &KWayland::Client::ConnectionThread::connectionDied,
-            this, &WaylandConfig::disconnected, Qt::QueuedConnection);
+    connect(m_connection, &KWayland::Client::ConnectionThread::connectionDied, this, &WaylandConfig::disconnected, Qt::QueuedConnection);
 
     connect(m_connection, &KWayland::Client::ConnectionThread::failed, this, [this] {
-        qCWarning(KSCREEN_WAYLAND) << "Failed to connect to Wayland server at socket:"
-                                   << m_connection->socketName();
+        qCWarning(KSCREEN_WAYLAND) << "Failed to connect to Wayland server at socket:" << m_connection->socketName();
         m_syncLoop.quit();
         m_thread->quit();
         m_thread->wait();
@@ -131,7 +123,6 @@ void WaylandConfig::initConnection()
     m_thread->start();
     m_connection->moveToThread(m_thread);
     m_connection->initConnection();
-
 }
 
 void WaylandConfig::blockSignals()
@@ -181,23 +172,18 @@ void WaylandConfig::setupRegistry()
 
     m_registry = new KWayland::Client::Registry(this);
 
-    connect(m_registry, &KWayland::Client::Registry::outputDeviceAnnounced,
-            this, &WaylandConfig::addOutput);
+    connect(m_registry, &KWayland::Client::Registry::outputDeviceAnnounced, this, &WaylandConfig::addOutput);
 
-    connect(m_registry, &KWayland::Client::Registry::outputManagementAnnounced,
-            this, [this](quint32 name, quint32 version) {
-                m_outputManagement = m_registry->createOutputManagement(name, version, m_registry);
-                checkInitialized();
-            }
-    );
+    connect(m_registry, &KWayland::Client::Registry::outputManagementAnnounced, this, [this](quint32 name, quint32 version) {
+        m_outputManagement = m_registry->createOutputManagement(name, version, m_registry);
+        checkInitialized();
+    });
 
-    connect(m_registry, &KWayland::Client::Registry::interfacesAnnounced,
-            this, [this] {
-                m_registryInitialized = true;
-                unblockSignals();
-                checkInitialized();
-            }
-    );
+    connect(m_registry, &KWayland::Client::Registry::interfacesAnnounced, this, [this] {
+        m_registryInitialized = true;
+        unblockSignals();
+        checkInitialized();
+    });
 
     m_registry->create(m_connection);
     m_registry->setEventQueue(m_queue);
@@ -218,7 +204,7 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
 
     // finalize: when the output is done, we put it in the known outputs map,
     // remove if from the list of initializing outputs, and emit configChanged()
-    connect(waylandoutput, &WaylandOutput::complete, this, [this, waylandoutput]{
+    connect(waylandoutput, &WaylandOutput::complete, this, [this, waylandoutput] {
         m_outputMap.insert(waylandoutput->id(), waylandoutput);
         m_initializingOutputs.removeOne(waylandoutput);
         checkInitialized();
@@ -246,7 +232,8 @@ void WaylandConfig::removeOutput(WaylandOutput *output)
 
     // remove the output from output mapping
     const auto removedOutput = m_outputMap.take(output->id());
-    Q_ASSERT(removedOutput == output); Q_UNUSED(removedOutput);
+    Q_ASSERT(removedOutput == output);
+    Q_UNUSED(removedOutput);
     m_screen->setOutputs(m_outputMap.values());
     delete output;
 
@@ -257,11 +244,13 @@ void WaylandConfig::removeOutput(WaylandOutput *output)
 
 bool WaylandConfig::isInitialized() const
 {
+    // clang-format off
     return !m_blockSignals
             && m_registryInitialized
             && m_initializingOutputs.isEmpty()
             && m_outputMap.count() > 0
             && m_outputManagement != nullptr;
+    // clang-format on
 }
 
 void WaylandConfig::checkInitialized()
@@ -276,15 +265,14 @@ KScreen::ConfigPtr WaylandConfig::currentConfig()
 {
     m_kscreenConfig->setScreen(m_screen->toKScreenScreen(m_kscreenConfig));
 
-    const auto features = Config::Feature::Writable | Config::Feature::PerOutputScaling
-                        | Config::Feature::AutoRotation | Config::Feature::TabletMode;
+    const auto features = Config::Feature::Writable | Config::Feature::PerOutputScaling | Config::Feature::AutoRotation | Config::Feature::TabletMode;
     m_kscreenConfig->setSupportedFeatures(features);
     m_kscreenConfig->setValid(m_connection->display());
 
     KScreen::ScreenPtr screen = m_kscreenConfig->screen();
     m_screen->updateKScreenScreen(screen);
 
-    //Removing removed outputs
+    // Removing removed outputs
     const KScreen::OutputList outputs = m_kscreenConfig->outputs();
     for (const auto &output : outputs) {
         if (!m_outputMap.contains(output->id())) {
@@ -315,7 +303,7 @@ KScreen::ConfigPtr WaylandConfig::currentConfig()
     return m_kscreenConfig;
 }
 
-QMap<int, WaylandOutput*> WaylandConfig::outputMap() const
+QMap<int, WaylandOutput *> WaylandConfig::outputMap() const
 {
     return m_outputMap;
 }

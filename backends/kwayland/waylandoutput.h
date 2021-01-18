@@ -39,7 +39,6 @@ class OutputConfiguration;
 
 namespace KScreen
 {
-
 class WaylandOutput : public QObject
 {
     Q_OBJECT
@@ -55,11 +54,10 @@ public:
     QString name() const;
     bool enabled() const;
 
-    KWayland::Client::OutputDevice* outputDevice() const;
+    KWayland::Client::OutputDevice *outputDevice() const;
     void createOutputDevice(KWayland::Client::Registry *registry, quint32 name, quint32 version);
 
-    bool setWlConfig(KWayland::Client::OutputConfiguration *wlConfig,
-                   const KScreen::OutputPtr &output);
+    bool setWlConfig(KWayland::Client::OutputConfiguration *wlConfig, const KScreen::OutputPtr &output);
 
 Q_SIGNALS:
     void deviceRemoved();

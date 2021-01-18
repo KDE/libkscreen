@@ -18,24 +18,24 @@
  *************************************************************************************/
 #include "xrandr.h"
 
+#include "../xcbeventlistener.h"
+#include "../xcbwrapper.h"
 #include "xrandrconfig.h"
 #include "xrandrscreen.h"
-#include "../xcbwrapper.h"
-#include "../xcbeventlistener.h"
 
 #include "config.h"
 #include "edid.h"
 #include "output.h"
 
 #include <QRect>
-#include <QTimer>
 #include <QTime>
+#include <QTimer>
 
 #include <QX11Info>
 
-xcb_screen_t* XRandR::s_screen = nullptr;
+xcb_screen_t *XRandR::s_screen = nullptr;
 xcb_window_t XRandR::s_rootWindow = 0;
-XRandRConfig* XRandR::s_internalConfig = nullptr;
+XRandRConfig *XRandR::s_internalConfig = nullptr;
 int XRandR::s_randrBase = 0;
 int XRandR::s_randrError = 0;
 bool XRandR::s_monitorInitialized = false;
@@ -61,12 +61,10 @@ XRandR::XRandR()
     // Use our own connection to make sure that we won't mess up Qt's connection
     // if something goes wrong on our side.
     xcb_generic_error_t *error = nullptr;
-    xcb_randr_query_version_reply_t* version;
+    xcb_randr_query_version_reply_t *version;
     XCB::connection();
-    version = xcb_randr_query_version_reply(XCB::connection(),
-                                            xcb_randr_query_version(XCB::connection(),
-                                                                    XCB_RANDR_MAJOR_VERSION,
-                                                                    XCB_RANDR_MINOR_VERSION),
+    version = xcb_randr_query_version_reply(XCB::connection(), //
+                                            xcb_randr_query_version(XCB::connection(), XCB_RANDR_MAJOR_VERSION, XCB_RANDR_MINOR_VERSION),
                                             &error);
     if (!version || error) {
         XCB::closeConnection();
@@ -74,8 +72,7 @@ XRandR::XRandR()
         return;
     }
 
-    if ((version->major_version > 1) ||
-            ((version->major_version == 1) && (version->minor_version >= 2))) {
+    if ((version->major_version > 1) || ((version->major_version == 1) && (version->minor_version >= 2))) {
         m_isValid = true;
     } else {
         XCB::closeConnection();
@@ -88,13 +85,12 @@ XRandR::XRandR()
         s_rootWindow = s_screen->root;
 
         xcb_prefetch_extension_data(XCB::connection(), &xcb_randr_id);
-        auto  reply = xcb_get_extension_data(XCB::connection(), &xcb_randr_id);
+        auto reply = xcb_get_extension_data(XCB::connection(), &xcb_randr_id);
         s_randrBase = reply->first_event;
         s_randrError = reply->first_error;
     }
 
-    XRandR::s_has_1_3 = (version->major_version > 1 ||
-                        (version->major_version == 1 && version->minor_version >= 3));
+    XRandR::s_has_1_3 = (version->major_version > 1 || (version->major_version == 1 && version->minor_version >= 3));
 
     if (s_internalConfig == nullptr) {
         s_internalConfig = new XRandRConfig();
@@ -102,24 +98,17 @@ XRandR::XRandR()
 
     if (!s_monitorInitialized) {
         m_x11Helper = new XCBEventListener();
-        connect(m_x11Helper, &XCBEventListener::outputChanged,
-                this, &XRandR::outputChanged,
-                Qt::QueuedConnection);
-        connect(m_x11Helper, &XCBEventListener::crtcChanged,
-                this, &XRandR::crtcChanged,
-                Qt::QueuedConnection);
-        connect(m_x11Helper, &XCBEventListener::screenChanged,
-                this, &XRandR::screenChanged,
-                Qt::QueuedConnection);
+        connect(m_x11Helper, &XCBEventListener::outputChanged, this, &XRandR::outputChanged, Qt::QueuedConnection);
+        connect(m_x11Helper, &XCBEventListener::crtcChanged, this, &XRandR::crtcChanged, Qt::QueuedConnection);
+        connect(m_x11Helper, &XCBEventListener::screenChanged, this, &XRandR::screenChanged, Qt::QueuedConnection);
 
         m_configChangeCompressor = new QTimer(this);
         m_configChangeCompressor->setSingleShot(true);
         m_configChangeCompressor->setInterval(500);
-        connect(m_configChangeCompressor, &QTimer::timeout,
-                [&]() {
-                    qCDebug(KSCREEN_XRANDR) << "Emitting configChanged()";
-                    Q_EMIT configChanged(config());
-                });
+        connect(m_configChangeCompressor, &QTimer::timeout, [&]() {
+            qCDebug(KSCREEN_XRANDR) << "Emitting configChanged()";
+            Q_EMIT configChanged(config());
+        });
 
         s_monitorInitialized = true;
     }
@@ -140,9 +129,7 @@ QString XRandR::serviceName() const
     return QStringLiteral("org.kde.KScreen.Backend.XRandR");
 }
 
-
-void XRandR::outputChanged(xcb_randr_output_t output, xcb_randr_crtc_t crtc,
-                           xcb_randr_mode_t mode, xcb_randr_connection_t connection)
+void XRandR::outputChanged(xcb_randr_output_t output, xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_connection_t connection)
 {
     m_configChangeCompressor->start();
 
@@ -165,12 +152,10 @@ void XRandR::outputChanged(xcb_randr_output_t output, xcb_randr_crtc_t crtc,
 
     XCB::PrimaryOutput primary(XRandR::rootWindow());
     xOutput->update(crtc, mode, connection, (primary->output == output));
-    qCDebug(KSCREEN_XRANDR) << "Output" << xOutput->id() << ": connected ="
-                            << xOutput->isConnected() << ", enabled =" << xOutput->isEnabled();
+    qCDebug(KSCREEN_XRANDR) << "Output" << xOutput->id() << ": connected =" << xOutput->isConnected() << ", enabled =" << xOutput->isEnabled();
 }
 
-void XRandR::crtcChanged(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode,
-                         xcb_randr_rotation_t rotation, const QRect& geom)
+void XRandR::crtcChanged(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_rotation_t rotation, const QRect &geom)
 {
     XRandRCrtc *xCrtc = s_internalConfig->crtc(crtc);
     if (!xCrtc) {
@@ -182,8 +167,7 @@ void XRandR::crtcChanged(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode,
     m_configChangeCompressor->start();
 }
 
-void XRandR::screenChanged(xcb_randr_rotation_t rotation,
-                           const QSize &sizePx, const QSize &sizeMm)
+void XRandR::screenChanged(xcb_randr_rotation_t rotation, const QSize &sizePx, const QSize &sizeMm)
 {
     Q_UNUSED(sizeMm);
 
@@ -198,7 +182,6 @@ void XRandR::screenChanged(xcb_randr_rotation_t rotation,
 
     m_configChangeCompressor->start();
 }
-
 
 ConfigPtr XRandR::config() const
 {
@@ -231,13 +214,11 @@ bool XRandR::isValid() const
     return m_isValid;
 }
 
-quint8* XRandR::getXProperty(xcb_randr_output_t output, xcb_atom_t atom, size_t &len)
+quint8 *XRandR::getXProperty(xcb_randr_output_t output, xcb_atom_t atom, size_t &len)
 {
     quint8 *result;
 
-    auto cookie = xcb_randr_get_output_property(XCB::connection(), output, atom,
-                                                XCB_ATOM_ANY,
-                                                0, 100, false, false);
+    auto cookie = xcb_randr_get_output_property(XCB::connection(), output, atom, XCB_ATOM_ANY, 0, 100, false, false);
     auto reply = xcb_randr_get_output_property_reply(XCB::connection(), cookie, nullptr);
 
     if (reply->type == XCB_ATOM_INTEGER && reply->format == 8) {
@@ -278,31 +259,29 @@ QByteArray XRandR::outputEdid(xcb_randr_output_t outputId)
     return edid;
 }
 
-bool XRandR::hasProperty(xcb_randr_output_t output, const QByteArray& name)
+bool XRandR::hasProperty(xcb_randr_output_t output, const QByteArray &name)
 {
     xcb_generic_error_t *error = nullptr;
     auto atom = XCB::InternAtom(false, name.length(), name.constData())->atom;
 
-    auto cookie = xcb_randr_get_output_property(XCB::connection(), output, atom, XCB_ATOM_ANY,
-                                                0, 1, false, false);
-    auto prop_reply = xcb_randr_get_output_property_reply (XCB::connection(), cookie, &error);
+    auto cookie = xcb_randr_get_output_property(XCB::connection(), output, atom, XCB_ATOM_ANY, 0, 1, false, false);
+    auto prop_reply = xcb_randr_get_output_property_reply(XCB::connection(), cookie, &error);
 
     const bool ret = prop_reply->num_items == 1;
     free(prop_reply);
     return ret;
 }
 
-xcb_randr_get_screen_resources_reply_t* XRandR::screenResources()
+xcb_randr_get_screen_resources_reply_t *XRandR::screenResources()
 {
     if (XRandR::s_has_1_3) {
         if (XRandR::s_xorgCacheInitialized) {
             // HACK: This abuses the fact that xcb_randr_get_screen_resources_reply_t
             // and xcb_randr_get_screen_resources_current_reply_t are the same
-            return reinterpret_cast<xcb_randr_get_screen_resources_reply_t*>(
+            return reinterpret_cast<xcb_randr_get_screen_resources_reply_t *>(
                 xcb_randr_get_screen_resources_current_reply(XCB::connection(),
-                                                             xcb_randr_get_screen_resources_current(
-                                                                 XCB::connection(),
-                                                                 XRandR::rootWindow()), nullptr));
+                                                             xcb_randr_get_screen_resources_current(XCB::connection(), XRandR::rootWindow()),
+                                                             nullptr));
         } else {
             /* XRRGetScreenResourcesCurrent is faster then XRRGetScreenResources
              * because it returns cached values. However the cached values are not
@@ -312,11 +291,7 @@ xcb_randr_get_screen_resources_reply_t* XRandR::screenResources()
         }
     }
 
-    return xcb_randr_get_screen_resources_reply(XCB::connection(),
-                                                xcb_randr_get_screen_resources(
-                                                    XCB::connection(),
-                                                    XRandR::rootWindow()),
-                                                nullptr);
+    return xcb_randr_get_screen_resources_reply(XCB::connection(), xcb_randr_get_screen_resources(XCB::connection(), XRandR::rootWindow()), nullptr);
 }
 
 xcb_window_t XRandR::rootWindow()
@@ -324,7 +299,7 @@ xcb_window_t XRandR::rootWindow()
     return s_rootWindow;
 }
 
-xcb_screen_t* XRandR::screen()
+xcb_screen_t *XRandR::screen()
 {
     return s_screen;
 }

@@ -19,14 +19,14 @@
 #include "doctor.h"
 #include "dpmsclient.h"
 
-#include <QCoreApplication>
 #include <QCommandLineParser>
+#include <QCoreApplication>
 #include <QDateTime>
+#include <QFile>
 #include <QGuiApplication>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QFile>
 #include <QLoggingCategory>
 #include <QRect>
 #include <QStandardPaths>
@@ -34,14 +34,13 @@
 #include "../backendmanager_p.h"
 #include "../config.h"
 #include "../configoperation.h"
-#include "../getconfigoperation.h"
-#include "../setconfigoperation.h"
 #include "../edid.h"
+#include "../getconfigoperation.h"
 #include "../log.h"
 #include "../output.h"
+#include "../setconfigoperation.h"
 
 Q_LOGGING_CATEGORY(KSCREEN_DOCTOR, "kscreen.doctor")
-
 
 static QTextStream cout(stdout);
 static QTextStream cerr(stderr);
@@ -83,12 +82,10 @@ void Doctor::start(QCommandLineParser *parser)
         showBackends();
     }
     if (parser->isSet(QStringLiteral("json")) || parser->isSet(QStringLiteral("outputs")) || !m_positionalArgs.isEmpty()) {
-
         KScreen::GetConfigOperation *op = new KScreen::GetConfigOperation();
-        connect(op, &KScreen::GetConfigOperation::finished, this,
-                [this](KScreen::ConfigOperation *op) {
-                    configReceived(op);
-                });
+        connect(op, &KScreen::GetConfigOperation::finished, this, [this](KScreen::ConfigOperation *op) {
+            configReceived(op);
+        });
         return;
     }
     if (m_parser->isSet(QStringLiteral("dpms"))) {
@@ -97,12 +94,11 @@ void Doctor::start(QCommandLineParser *parser)
             // We need to kick the event loop, otherwise .quit() hangs
             QTimer::singleShot(0, qApp->quit);
             return;
-
         }
 
         m_dpmsClient = new DpmsClient(this);
         if (m_parser->isSet(QStringLiteral("dpms-excluded"))) {
-            const auto excludedConnectors= m_parser->values(QStringLiteral("dpms-excluded"));
+            const auto excludedConnectors = m_parser->values(QStringLiteral("dpms-excluded"));
             m_dpmsClient->setExcludedOutputNames(excludedConnectors);
         }
 
@@ -118,7 +114,6 @@ void Doctor::start(QCommandLineParser *parser)
     }
 
     if (m_parser->isSet(QStringLiteral("log"))) {
-
         const QString logmsg = m_parser->value(QStringLiteral("log"));
         if (!Log::instance()->enabled()) {
             qCWarning(KSCREEN_DOCTOR) << "Logging is disabled, unset KSCREEN_LOGGING in your environment.";
@@ -130,7 +125,7 @@ void Doctor::start(QCommandLineParser *parser)
     QTimer::singleShot(0, qApp->quit);
 }
 
-void KScreen::Doctor::setDpms(const QString& dpmsArg)
+void KScreen::Doctor::setDpms(const QString &dpmsArg)
 {
     qDebug() << "SetDpms: " << dpmsArg;
     connect(m_dpmsClient, &DpmsClient::ready, this, [this, dpmsArg]() {
@@ -146,7 +141,6 @@ void KScreen::Doctor::setDpms(const QString& dpmsArg)
 
     m_dpmsClient->connect();
 }
-
 
 void Doctor::showDpms()
 {
@@ -164,7 +158,8 @@ void Doctor::showBackends() const
     cout << "Environment: " << endl;
     auto env_kscreen_backend = (qgetenv("KSCREEN_BACKEND").isEmpty()) ? QStringLiteral("[not set]") : QString::fromUtf8(qgetenv("KSCREEN_BACKEND"));
     cout << "  * KSCREEN_BACKEND           : " << env_kscreen_backend << endl;
-    auto env_kscreen_backend_inprocess = (qgetenv("KSCREEN_BACKEND_INPROCESS").isEmpty()) ? QStringLiteral("[not set]") : QString::fromUtf8(qgetenv("KSCREEN_BACKEND_INPROCESS"));
+    auto env_kscreen_backend_inprocess =
+        (qgetenv("KSCREEN_BACKEND_INPROCESS").isEmpty()) ? QStringLiteral("[not set]") : QString::fromUtf8(qgetenv("KSCREEN_BACKEND_INPROCESS"));
     cout << "  * KSCREEN_BACKEND_INPROCESS : " << env_kscreen_backend_inprocess << endl;
     auto env_kscreen_logging = (qgetenv("KSCREEN_LOGGING").isEmpty()) ? QStringLiteral("[not set]") : QString::fromUtf8(qgetenv("KSCREEN_LOGGING"));
     cout << "  * KSCREEN_LOGGING           : " << env_kscreen_logging << endl;
@@ -174,7 +169,7 @@ void Doctor::showBackends() const
     auto preferred = BackendManager::instance()->preferredBackend();
     cout << "Preferred KScreen backend : " << green << preferred.fileName() << cr << endl;
     cout << "Available KScreen backends:" << endl;
-    Q_FOREACH(const QFileInfo f, backends) {
+    Q_FOREACH (const QFileInfo f, backends) {
         auto c = blue;
         if (preferred == f) {
             c = green;
@@ -191,8 +186,8 @@ void Doctor::setOptionList(const QStringList &positionalArgs)
 
 void Doctor::parsePositionalArgs()
 {
-    //qCDebug(KSCREEN_DOCTOR) << "POSARGS" << m_positionalArgs;
-    Q_FOREACH(const QString &op, m_positionalArgs) {
+    // qCDebug(KSCREEN_DOCTOR) << "POSARGS" << m_positionalArgs;
+    Q_FOREACH (const QString &op, m_positionalArgs) {
         auto ops = op.split(QLatin1Char('.'));
         if (ops.count() > 2) {
             bool ok;
@@ -267,13 +262,11 @@ void Doctor::parsePositionalArgs()
                 } else if ((ops.count() == 4) && (ops[2] == QLatin1String("orientation") || ops[2] == QStringLiteral("rotation"))) {
                     const QString _rotation = ops[3].toLower();
                     bool ok = false;
-                    const QHash<QString, KScreen::Output::Rotation> rotationMap({
-                                                                            {QStringLiteral("none"), KScreen::Output::None},
-                                                                            {QStringLiteral("normal"), KScreen::Output::None},
-                                                                            {QStringLiteral("left"), KScreen::Output::Left},
-                                                                            {QStringLiteral("right"), KScreen::Output::Right},
-                                                                            {QStringLiteral("inverted"), KScreen::Output::Inverted}
-                                                                        });
+                    const QHash<QString, KScreen::Output::Rotation> rotationMap({{QStringLiteral("none"), KScreen::Output::None},
+                                                                                 {QStringLiteral("normal"), KScreen::Output::None},
+                                                                                 {QStringLiteral("left"), KScreen::Output::Left},
+                                                                                 {QStringLiteral("right"), KScreen::Output::Right},
+                                                                                 {QStringLiteral("inverted"), KScreen::Output::Inverted}});
                     KScreen::Output::Rotation rot = KScreen::Output::None;
                     // set orientation
                     if (rotationMap.contains(_rotation)) {
@@ -358,9 +351,8 @@ void Doctor::showOutputs() const
         cout << " " << yellow << (_type.isEmpty() ? QStringLiteral("UnmappedOutputType") : _type);
         cout << blue << " Modes: " << cr;
         Q_FOREACH (auto mode, output->modes()) {
-            auto name = QStringLiteral("%1x%2@%3").arg(QString::number(mode->size().width()),
-                                                QString::number(mode->size().height()),
-                                                QString::number(qRound(mode->refreshRate())));
+            auto name = QStringLiteral("%1x%2@%3")
+                            .arg(QString::number(mode->size().width()), QString::number(mode->size().height()), QString::number(qRound(mode->refreshRate())));
             if (mode == output->currentMode()) {
                 name = green + name + QLatin1Char('*') + cr;
             }
@@ -436,9 +428,9 @@ bool Doctor::setMode(int id, const QString &mode_id)
         if (output->id() == id) {
             // find mode
             Q_FOREACH (const KScreen::ModePtr mode, output->modes()) {
-                auto name = QStringLiteral("%1x%2@%3").arg(QString::number(mode->size().width()),
-                                    QString::number(mode->size().height()),
-                                    QString::number(qRound(mode->refreshRate())));
+                auto name =
+                    QStringLiteral("%1x%2@%3")
+                        .arg(QString::number(mode->size().width()), QString::number(mode->size().height()), QString::number(qRound(mode->refreshRate())));
                 if (mode->id() == mode_id || name == mode_id) {
                     qCDebug(KSCREEN_DOCTOR) << "Taddaaa! Found mode" << mode->id() << name;
                     output->setCurrentModeId(mode->id());

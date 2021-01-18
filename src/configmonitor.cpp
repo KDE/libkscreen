@@ -17,9 +17,9 @@
  *************************************************************************************/
 
 #include "configmonitor.h"
-#include "backendmanager_p.h"
-#include "backendinterface.h"
 #include "abstractbackend.h"
+#include "backendinterface.h"
+#include "backendmanager_p.h"
 #include "configserializer_p.h"
 #include "getconfigoperation.h"
 #include "kscreen_debug.h"
@@ -29,10 +29,9 @@
 
 using namespace KScreen;
 
-
 class Q_DECL_HIDDEN ConfigMonitor::Private : public QObject
 {
-      Q_OBJECT
+    Q_OBJECT
 
 public:
     Private(ConfigMonitor *q);
@@ -40,17 +39,18 @@ public:
     void updateConfigs();
     void onBackendReady(org::kde::kscreen::Backend *backend);
     void backendConfigChanged(const QVariantMap &configMap);
-    void configDestroyed(QObject* removedConfig);
+    void configDestroyed(QObject *removedConfig);
     void getConfigFinished(ConfigOperation *op);
     void updateConfigs(const KScreen::ConfigPtr &newConfig);
     void edidReady(QDBusPendingCallWatcher *watcher);
 
-    QList<QWeakPointer<KScreen::Config>>  watchedConfigs;
+    QList<QWeakPointer<KScreen::Config>> watchedConfigs;
 
     QPointer<org::kde::kscreen::Backend> mBackend;
     bool mFirstBackend;
 
     QMap<KScreen::ConfigPtr, QList<int>> mPendingEDIDRequests;
+
 private:
     ConfigMonitor *q;
 };
@@ -70,8 +70,7 @@ void ConfigMonitor::Private::onBackendReady(org::kde::kscreen::Backend *backend)
     }
 
     if (mBackend) {
-        disconnect(mBackend.data(), &org::kde::kscreen::Backend::configChanged,
-                   this, &ConfigMonitor::Private::backendConfigChanged);
+        disconnect(mBackend.data(), &org::kde::kscreen::Backend::configChanged, this, &ConfigMonitor::Private::backendConfigChanged);
     }
 
     mBackend = QPointer<org::kde::kscreen::Backend>(backend);
@@ -84,17 +83,14 @@ void ConfigMonitor::Private::onBackendReady(org::kde::kscreen::Backend *backend)
     // the result will be invalid. This can happen when KScreen KDED launches and
     // detects changes need to be done.
     if (!mFirstBackend && !watchedConfigs.isEmpty()) {
-        connect(new GetConfigOperation(), &GetConfigOperation::finished,
-                this, &Private::getConfigFinished);
+        connect(new GetConfigOperation(), &GetConfigOperation::finished, this, &Private::getConfigFinished);
     }
     mFirstBackend = false;
 
-    connect(mBackend.data(), &org::kde::kscreen::Backend::configChanged,
-            this, &ConfigMonitor::Private::backendConfigChanged);
-
+    connect(mBackend.data(), &org::kde::kscreen::Backend::configChanged, this, &ConfigMonitor::Private::backendConfigChanged);
 }
 
-void ConfigMonitor::Private::getConfigFinished(ConfigOperation* op)
+void ConfigMonitor::Private::getConfigFinished(ConfigOperation *op)
 {
     Q_ASSERT(BackendManager::instance()->method() == BackendManager::OutOfProcess);
     if (op->hasError()) {
@@ -102,7 +98,7 @@ void ConfigMonitor::Private::getConfigFinished(ConfigOperation* op)
         return;
     }
 
-    const KScreen::ConfigPtr config = qobject_cast<GetConfigOperation*>(op)->config();
+    const KScreen::ConfigPtr config = qobject_cast<GetConfigOperation *>(op)->config();
     updateConfigs(config);
 }
 
@@ -122,8 +118,7 @@ void ConfigMonitor::Private::backendConfigChanged(const QVariantMap &configMap)
             QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(reply);
             watcher->setProperty("outputId", output->id());
             watcher->setProperty("config", QVariant::fromValue(newConfig));
-            connect(watcher, &QDBusPendingCallWatcher::finished,
-                    this, &ConfigMonitor::Private::edidReady);
+            connect(watcher, &QDBusPendingCallWatcher::finished, this, &ConfigMonitor::Private::edidReady);
         }
     }
 
@@ -134,7 +129,7 @@ void ConfigMonitor::Private::backendConfigChanged(const QVariantMap &configMap)
     }
 }
 
-void ConfigMonitor::Private::edidReady(QDBusPendingCallWatcher* watcher)
+void ConfigMonitor::Private::edidReady(QDBusPendingCallWatcher *watcher)
 {
     Q_ASSERT(BackendManager::instance()->method() == BackendManager::OutOfProcess);
 
@@ -164,7 +159,6 @@ void ConfigMonitor::Private::edidReady(QDBusPendingCallWatcher* watcher)
     }
 }
 
-
 void ConfigMonitor::Private::updateConfigs(const KScreen::ConfigPtr &newConfig)
 {
     QMutableListIterator<QWeakPointer<Config>> iter(watchedConfigs);
@@ -184,7 +178,7 @@ void ConfigMonitor::Private::updateConfigs(const KScreen::ConfigPtr &newConfig)
 
 void ConfigMonitor::Private::configDestroyed(QObject *removedConfig)
 {
-    for (auto iter = watchedConfigs.begin(); iter != watchedConfigs.end(); ) {
+    for (auto iter = watchedConfigs.begin(); iter != watchedConfigs.end();) {
         if (iter->toStrongRef() == removedConfig) {
             iter = watchedConfigs.erase(iter);
             // Iterate over the entire list in case there are duplicates
@@ -205,13 +199,12 @@ ConfigMonitor *ConfigMonitor::instance()
     return s_instance;
 }
 
-ConfigMonitor::ConfigMonitor():
-    QObject(),
-    d(new Private(this))
+ConfigMonitor::ConfigMonitor()
+    : QObject()
+    , d(new Private(this))
 {
     if (BackendManager::instance()->method() == BackendManager::OutOfProcess) {
-        connect(BackendManager::instance(), &BackendManager::backendReady,
-                d, &ConfigMonitor::Private::onBackendReady);
+        connect(BackendManager::instance(), &BackendManager::backendReady, d, &ConfigMonitor::Private::onBackendReady);
         BackendManager::instance()->requestBackend();
     }
 }
@@ -225,8 +218,7 @@ void ConfigMonitor::addConfig(const ConfigPtr &config)
 {
     const QWeakPointer<Config> weakConfig = config.toWeakRef();
     if (!d->watchedConfigs.contains(weakConfig)) {
-        connect(weakConfig.toStrongRef().data(), &QObject::destroyed,
-                d, &Private::configDestroyed);
+        connect(weakConfig.toStrongRef().data(), &QObject::destroyed, d, &Private::configDestroyed);
         d->watchedConfigs << weakConfig;
     }
 }
@@ -235,13 +227,12 @@ void ConfigMonitor::removeConfig(const ConfigPtr &config)
 {
     const QWeakPointer<Config> weakConfig = config.toWeakRef();
     if (d->watchedConfigs.contains(config)) {
-        disconnect(weakConfig.toStrongRef().data(), &QObject::destroyed,
-                   d, &Private::configDestroyed);
+        disconnect(weakConfig.toStrongRef().data(), &QObject::destroyed, d, &Private::configDestroyed);
         d->watchedConfigs.removeAll(config);
     }
 }
 
-void ConfigMonitor::connectInProcessBackend(KScreen::AbstractBackend* backend)
+void ConfigMonitor::connectInProcessBackend(KScreen::AbstractBackend *backend)
 {
     Q_ASSERT(BackendManager::instance()->method() == BackendManager::InProcess);
     connect(backend, &AbstractBackend::configChanged, [=](KScreen::ConfigPtr config) {
@@ -252,6 +243,5 @@ void ConfigMonitor::connectInProcessBackend(KScreen::AbstractBackend* backend)
         d->updateConfigs(config);
     });
 }
-
 
 #include "configmonitor.moc"

@@ -24,9 +24,9 @@
 #include <QFileInfo>
 #include <QStandardPaths>
 
-namespace KScreen {
-
-Log* Log::sInstance = nullptr;
+namespace KScreen
+{
+Log *Log::sInstance = nullptr;
 QtMessageHandler sDefaultMessageHandler = nullptr;
 
 void kscreenLogOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
@@ -38,12 +38,12 @@ void kscreenLogOutput(QtMsgType type, const QMessageLogContext &context, const Q
     sDefaultMessageHandler(type, context, msg);
 }
 
-void log(const QString& msg)
+void log(const QString &msg)
 {
     Log::log(msg);
 }
 
-Log* Log::instance()
+Log *Log::instance()
 {
     if (!sInstance) {
         sInstance = new Log();
@@ -55,16 +55,16 @@ Log* Log::instance()
 using namespace KScreen;
 class Q_DECL_HIDDEN Log::Private
 {
-  public:
-      QString context;
-      bool enabled = false;
-      QString logFile;
+public:
+    QString context;
+    bool enabled = false;
+    QString logFile;
 };
 
-Log::Log() :
-   d(new Private)
+Log::Log()
+    : d(new Private)
 {
-    const char* logging_env = "KSCREEN_LOGGING";
+    const char *logging_env = "KSCREEN_LOGGING";
 
     if (qEnvironmentVariableIsSet(logging_env)) {
         const QString logging_env_value = QString::fromUtf8(qgetenv(logging_env));
@@ -73,7 +73,7 @@ Log::Log() :
         }
     }
     if (!d->enabled) {
-         return;
+        return;
     }
     d->logFile = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + QLatin1String("/kscreen/kscreen.log");
 
@@ -88,8 +88,8 @@ Log::Log() :
     }
 }
 
-Log::Log(Log::Private *dd) :
-   d(dd)
+Log::Log(Log::Private *dd)
+    : d(dd)
 {
 }
 
@@ -104,7 +104,7 @@ QString Log::context() const
     return d->context;
 }
 
-void Log::setContext(const QString& context)
+void Log::setContext(const QString &context)
 {
     d->context = context;
 }

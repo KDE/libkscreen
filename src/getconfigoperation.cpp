@@ -18,19 +18,18 @@
  */
 
 #include "getconfigoperation.h"
-#include "configoperation_p.h"
-#include "config.h"
-#include "output.h"
-#include "log.h"
-#include "backendmanager_p.h"
-#include "configserializer_p.h"
 #include "backendinterface.h"
+#include "backendmanager_p.h"
+#include "config.h"
+#include "configoperation_p.h"
+#include "configserializer_p.h"
+#include "log.h"
+#include "output.h"
 
 using namespace KScreen;
 
 namespace KScreen
 {
-
 class GetConfigOperationPrivate : public ConfigOperationPrivate
 {
     Q_OBJECT
@@ -38,7 +37,7 @@ class GetConfigOperationPrivate : public ConfigOperationPrivate
 public:
     GetConfigOperationPrivate(GetConfigOperation::Options options, GetConfigOperation *qq);
 
-    void backendReady(org::kde::kscreen::Backend* backend) override;
+    void backendReady(org::kde::kscreen::Backend *backend) override;
     void onConfigReceived(QDBusPendingCallWatcher *watcher);
     void onEDIDReceived(QDBusPendingCallWatcher *watcher);
 
@@ -46,7 +45,7 @@ public:
     GetConfigOperation::Options options;
     ConfigPtr config;
     // For in-process
-    void loadEdid(KScreen::AbstractBackend* backend);
+    void loadEdid(KScreen::AbstractBackend *backend);
 
     // For out-of-process
     int pendingEDIDs;
@@ -58,7 +57,7 @@ private:
 
 }
 
-GetConfigOperationPrivate::GetConfigOperationPrivate(GetConfigOperation::Options options, GetConfigOperation* qq)
+GetConfigOperationPrivate::GetConfigOperationPrivate(GetConfigOperation::Options options, GetConfigOperation *qq)
     : ConfigOperationPrivate(qq)
     , options(options)
 {
@@ -79,8 +78,7 @@ void GetConfigOperationPrivate::backendReady(org::kde::kscreen::Backend *backend
 
     mBackend = backend;
     QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(mBackend->getConfig(), this);
-    connect(watcher, &QDBusPendingCallWatcher::finished,
-            this, &GetConfigOperationPrivate::onConfigReceived);
+    connect(watcher, &QDBusPendingCallWatcher::finished, this, &GetConfigOperationPrivate::onConfigReceived);
 }
 
 void GetConfigOperationPrivate::onConfigReceived(QDBusPendingCallWatcher *watcher)
@@ -121,13 +119,12 @@ void GetConfigOperationPrivate::onConfigReceived(QDBusPendingCallWatcher *watche
 
         QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(mBackend->getEdid(output->id()), this);
         watcher->setProperty("outputId", output->id());
-        connect(watcher, &QDBusPendingCallWatcher::finished,
-                this, &GetConfigOperationPrivate::onEDIDReceived);
+        connect(watcher, &QDBusPendingCallWatcher::finished, this, &GetConfigOperationPrivate::onEDIDReceived);
         ++pendingEDIDs;
     }
 }
 
-void GetConfigOperationPrivate::onEDIDReceived(QDBusPendingCallWatcher* watcher)
+void GetConfigOperationPrivate::onEDIDReceived(QDBusPendingCallWatcher *watcher)
 {
     Q_ASSERT(BackendManager::instance()->method() == BackendManager::OutOfProcess);
     Q_Q(GetConfigOperation);
@@ -149,9 +146,7 @@ void GetConfigOperationPrivate::onEDIDReceived(QDBusPendingCallWatcher* watcher)
     }
 }
 
-
-
-GetConfigOperation::GetConfigOperation(Options options, QObject* parent)
+GetConfigOperation::GetConfigOperation(Options options, QObject *parent)
     : ConfigOperation(new GetConfigOperationPrivate(options, this), parent)
 {
 }
@@ -182,7 +177,7 @@ void GetConfigOperation::start()
     }
 }
 
-void GetConfigOperationPrivate::loadEdid(KScreen::AbstractBackend* backend)
+void GetConfigOperationPrivate::loadEdid(KScreen::AbstractBackend *backend)
 {
     Q_ASSERT(BackendManager::instance()->method() == BackendManager::InProcess);
     if (options & KScreen::ConfigOperation::NoEDID) {
@@ -198,6 +193,5 @@ void GetConfigOperationPrivate::loadEdid(KScreen::AbstractBackend* backend)
         }
     }
 }
-
 
 #include "getconfigoperation.moc"

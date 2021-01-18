@@ -18,13 +18,13 @@
 
 #define QT_GUI_LIB
 
-#include <QtTest>
 #include <QObject>
+#include <QtTest>
 
 #include "../src/config.h"
-#include "../src/output.h"
-#include "../src/mode.h"
 #include "../src/getconfigoperation.h"
+#include "../src/mode.h"
+#include "../src/output.h"
 
 using namespace KScreen;
 

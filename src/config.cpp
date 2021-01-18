@@ -18,15 +18,15 @@
  *************************************************************************************/
 
 #include "config.h"
-#include "output.h"
-#include "backendmanager_p.h"
 #include "abstractbackend.h"
+#include "backendmanager_p.h"
 #include "kscreen_debug.h"
+#include "output.h"
 
+#include <QCryptographicHash>
 #include <QDebug>
 #include <QRect>
 #include <QStringList>
-#include <QCryptographicHash>
 
 using namespace KScreen;
 
@@ -41,20 +41,20 @@ public:
         , tabletModeAvailable(false)
         , tabletModeEngaged(false)
         , q(parent)
-    { }
+    {
+    }
 
     KScreen::OutputPtr findPrimaryOutput() const
     {
-        auto iter = std::find_if(outputs.constBegin(), outputs.constEnd(),
-                                 [](const KScreen::OutputPtr &output) -> bool {
-                                    return output->isPrimary();
-                                 });
+        auto iter = std::find_if(outputs.constBegin(), outputs.constEnd(), [](const KScreen::OutputPtr &output) -> bool {
+            return output->isPrimary();
+        });
         return iter == outputs.constEnd() ? KScreen::OutputPtr() : iter.value();
     }
 
     void onPrimaryOutputChanged()
     {
-        const KScreen::OutputPtr output(qobject_cast<KScreen::Output*>(sender()), [](void *) {});
+        const KScreen::OutputPtr output(qobject_cast<KScreen::Output *>(sender()), [](void *) {});
         Q_ASSERT(output);
         if (output->isPrimary()) {
             q->setPrimaryOutput(output);
@@ -120,7 +120,7 @@ bool Config::canBeApplied(const ConfigPtr &config, ValidityFlags flags)
     OutputPtr currentOutput;
     const OutputList outputs = config->outputs();
     int enabledOutputsCount = 0;
-    Q_FOREACH(const OutputPtr &output, outputs) {
+    Q_FOREACH (const OutputPtr &output, outputs) {
         if (!output->isEnabled()) {
             continue;
         }
@@ -128,22 +128,22 @@ bool Config::canBeApplied(const ConfigPtr &config, ValidityFlags flags)
         ++enabledOutputsCount;
 
         currentOutput = currentConfig->output(output->id());
-        //If there is no such output
+        // If there is no such output
         if (!currentOutput) {
             qCDebug(KSCREEN) << "canBeApplied: The output:" << output->id() << "does not exists";
             return false;
         }
-        //If the output is not connected
+        // If the output is not connected
         if (!currentOutput->isConnected()) {
             qCDebug(KSCREEN) << "canBeApplied: The output:" << output->id() << "is not connected";
             return false;
         }
-        //if there is no currentMode
+        // if there is no currentMode
         if (output->currentModeId().isEmpty()) {
             qCDebug(KSCREEN) << "canBeApplied: The output:" << output->id() << "has no currentModeId";
             return false;
         }
-        //If the mode is not found in the current output
+        // If the mode is not found in the current output
         if (!currentOutput->mode(output->currentModeId())) {
             qCDebug(KSCREEN) << "canBeApplied: The output:" << output->id() << "has no mode:" << output->currentModeId();
             return false;
@@ -163,11 +163,9 @@ bool Config::canBeApplied(const ConfigPtr &config, ValidityFlags flags)
 
         QPoint bottomRight;
         if (output->isHorizontal()) {
-            bottomRight = QPoint(output->pos().x() + outputSize.width(),
-                                    output->pos().y() + outputSize.height());
+            bottomRight = QPoint(output->pos().x() + outputSize.width(), output->pos().y() + outputSize.height());
         } else {
-            bottomRight = QPoint(output->pos().x() + outputSize.height(),
-                                    output->pos().y() + outputSize.width());
+            bottomRight = QPoint(output->pos().x() + outputSize.height(), output->pos().y() + outputSize.width());
         }
 
         if (bottomRight.x() > rect.width()) {
@@ -203,8 +201,8 @@ bool Config::canBeApplied(const ConfigPtr &config, ValidityFlags flags)
 }
 
 Config::Config()
- : QObject(nullptr)
- , d(new Private(this))
+    : QObject(nullptr)
+    , d(new Private(this))
 {
 }
 
@@ -237,8 +235,7 @@ QString Config::connectedOutputsHash() const
         hashedOutputs << output->hash();
     }
     std::sort(hashedOutputs.begin(), hashedOutputs.end());
-    const auto hash = QCryptographicHash::hash(hashedOutputs.join(QString()).toLatin1(),
-                                               QCryptographicHash::Md5);
+    const auto hash = QCryptographicHash::hash(hashedOutputs.join(QString()).toLatin1(), QCryptographicHash::Md5);
     return QString::fromLatin1(hash.toHex());
 }
 
@@ -295,7 +292,7 @@ OutputList Config::outputs() const
 OutputList Config::connectedOutputs() const
 {
     OutputList outputs;
-    Q_FOREACH(const OutputPtr &output, d->outputs) {
+    Q_FOREACH (const OutputPtr &output, d->outputs) {
         if (!output->isConnected()) {
             continue;
         }
@@ -323,16 +320,14 @@ void Config::setPrimaryOutput(const OutputPtr &newPrimary)
         return;
     }
 
-//     qCDebug(KSCREEN) << "Primary output changed from" << primaryOutput()
-//                      << "(" << (primaryOutput().isNull() ? "none" : primaryOutput()->name()) << ") to"
-//                      << newPrimary << "(" << (newPrimary.isNull() ? "none" : newPrimary->name()) << ")";
+    // qCDebug(KSCREEN) << "Primary output changed from" << primaryOutput()
+    //                  << "(" << (primaryOutput().isNull() ? "none" : primaryOutput()->name()) << ") to"
+    //                  << newPrimary << "(" << (newPrimary.isNull() ? "none" : newPrimary->name()) << ")";
 
     for (OutputPtr &output : d->outputs) {
-        disconnect(output.data(), &KScreen::Output::isPrimaryChanged,
-                d, &KScreen::Config::Private::onPrimaryOutputChanged);
+        disconnect(output.data(), &KScreen::Output::isPrimaryChanged, d, &KScreen::Config::Private::onPrimaryOutputChanged);
         output->setPrimary(output == newPrimary);
-        connect(output.data(), &KScreen::Output::isPrimaryChanged,
-                d, &KScreen::Config::Private::onPrimaryOutputChanged);
+        connect(output.data(), &KScreen::Output::isPrimaryChanged, d, &KScreen::Config::Private::onPrimaryOutputChanged);
     }
 
     d->primaryOutput = newPrimary;
@@ -342,8 +337,7 @@ void Config::setPrimaryOutput(const OutputPtr &newPrimary)
 void Config::addOutput(const OutputPtr &output)
 {
     d->outputs.insert(output->id(), output);
-    connect(output.data(), &KScreen::Output::isPrimaryChanged,
-            d, &KScreen::Config::Private::onPrimaryOutputChanged);
+    connect(output.data(), &KScreen::Output::isPrimaryChanged, d, &KScreen::Config::Private::onPrimaryOutputChanged);
 
     Q_EMIT outputAdded(output);
 
@@ -359,7 +353,7 @@ void Config::removeOutput(int outputId)
 
 void Config::setOutputs(const OutputList &outputs)
 {
-    for (auto iter = d->outputs.begin(), end = d->outputs.end(); iter != end; ) {
+    for (auto iter = d->outputs.begin(), end = d->outputs.end(); iter != end;) {
         iter = d->removeOutput(iter);
         end = d->outputs.end();
     }
@@ -379,7 +373,7 @@ void Config::setValid(bool valid)
     d->valid = valid;
 }
 
-void Config::apply(const ConfigPtr& other)
+void Config::apply(const ConfigPtr &other)
 {
     d->screen->apply(other->screen());
 
@@ -404,7 +398,6 @@ void Config::apply(const ConfigPtr& other)
     setValid(other->isValid());
 }
 
-
 QDebug operator<<(QDebug dbg, const KScreen::ConfigPtr &config)
 {
     if (config) {
@@ -421,6 +414,5 @@ QDebug operator<<(QDebug dbg, const KScreen::ConfigPtr &config)
     }
     return dbg;
 }
-
 
 #include "config.moc"

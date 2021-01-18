@@ -17,19 +17,19 @@
  *************************************************************************************/
 
 #include <QCoreApplication>
-#include <QtTest>
+#include <QDBusConnectionInterface>
 #include <QObject>
 #include <QSignalSpy>
-#include <QDBusConnectionInterface>
+#include <QtTest>
 
 #include "../src/backendmanager_p.h"
-#include "../src/getconfigoperation.h"
-#include "../src/setconfigoperation.h"
 #include "../src/config.h"
 #include "../src/configmonitor.h"
-#include "../src/output.h"
-#include "../src/mode.h"
 #include "../src/edid.h"
+#include "../src/getconfigoperation.h"
+#include "../src/mode.h"
+#include "../src/output.h"
+#include "../src/setconfigoperation.h"
 
 Q_LOGGING_CATEGORY(KSCREEN, "kscreen")
 
@@ -58,10 +58,8 @@ private Q_SLOTS:
     void testConfigMonitor();
 
 private:
-
     ConfigPtr m_config;
     bool m_backendServiceInstalled = false;
-
 };
 
 TestInProcess::TestInProcess(QObject *parent)
@@ -196,7 +194,7 @@ void TestInProcess::testBackendCaching()
         QVERIFY(cc->outputs().count());
     }
     {
-        //KScreen::BackendManager::instance()->shutdownBackend();
+        // KScreen::BackendManager::instance()->shutdownBackend();
         QCOMPARE(BackendManager::instance()->method(), BackendManager::InProcess);
         t.start();
         auto cp = new GetConfigOperation();
@@ -220,7 +218,7 @@ void TestInProcess::testBackendCaching()
     KScreen::BackendManager::instance()->shutdownBackend();
 
     if (m_backendServiceInstalled) {
-        //qputenv("KSCREEN_BACKEND", "QScreen");
+        // qputenv("KSCREEN_BACKEND", "QScreen");
         qputenv("KSCREEN_BACKEND_INPROCESS", "0");
         BackendManager::instance()->setMethod(BackendManager::OutOfProcess);
         QCOMPARE(BackendManager::instance()->method(), BackendManager::OutOfProcess);
@@ -262,7 +260,7 @@ void TestInProcess::testCreateJob()
     {
         BackendManager::instance()->setMethod(BackendManager::InProcess);
         auto op = new GetConfigOperation();
-        auto _op = qobject_cast<GetConfigOperation*>(op);
+        auto _op = qobject_cast<GetConfigOperation *>(op);
         QVERIFY(_op != nullptr);
         QCOMPARE(BackendManager::instance()->method(), BackendManager::InProcess);
         QVERIFY(op->exec());
@@ -273,7 +271,7 @@ void TestInProcess::testCreateJob()
     if (m_backendServiceInstalled) {
         BackendManager::instance()->setMethod(BackendManager::OutOfProcess);
         auto op = new GetConfigOperation();
-        auto _op = qobject_cast<GetConfigOperation*>(op);
+        auto _op = qobject_cast<GetConfigOperation *>(op);
         QVERIFY(_op != nullptr);
         QCOMPARE(BackendManager::instance()->method(), BackendManager::OutOfProcess);
         QVERIFY(op->exec());
@@ -293,12 +291,12 @@ void TestInProcess::testConfigApply()
     auto op = new GetConfigOperation();
     op->exec();
     auto config = op->config();
-//     qDebug() << "op:" << config->outputs().count();
+    //     qDebug() << "op:" << config->outputs().count();
     auto output = config->outputs().first();
-//     qDebug() << "res:" << output->geometry();
-//     qDebug() << "modes:" << output->modes();
+    //     qDebug() << "res:" << output->geometry();
+    //     qDebug() << "modes:" << output->modes();
     auto m0 = output->modes().first();
-    //qDebug() << "m0:" << m0->id() << m0;
+    // qDebug() << "m0:" << m0->id() << m0;
     output->setCurrentModeId(m0->id());
     QVERIFY(Config::canBeApplied(config));
 
@@ -324,7 +322,7 @@ void TestInProcess::testConfigMonitor()
     //     qDebug() << "res:" << output->geometry();
     //     qDebug() << "modes:" << output->modes();
     auto m0 = output->modes().first();
-    //qDebug() << "m0:" << m0->id() << m0;
+    // qDebug() << "m0:" << m0->id() << m0;
     output->setCurrentModeId(m0->id());
     QVERIFY(Config::canBeApplied(config));
 
@@ -337,7 +335,6 @@ void TestInProcess::testConfigMonitor()
     // do not cal setop->exec(), this must not block as the signalspy already blocks
     QVERIFY(monitorSpy.wait(500));
 }
-
 
 QTEST_GUILESS_MAIN(TestInProcess)
 

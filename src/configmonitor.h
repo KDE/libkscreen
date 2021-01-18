@@ -27,7 +27,6 @@
 
 namespace KScreen
 {
-
 class AbstractBackend;
 class BackendManager;
 
@@ -36,7 +35,7 @@ class KSCREEN_EXPORT ConfigMonitor : public QObject
     Q_OBJECT
 
 public:
-    static ConfigMonitor* instance();
+    static ConfigMonitor *instance();
 
     void addConfig(const KScreen::ConfigPtr &config);
     void removeConfig(const KScreen::ConfigPtr &config);
@@ -54,8 +53,7 @@ private:
     void connectInProcessBackend(KScreen::AbstractBackend *backend);
 
     class Private;
-    Private * const d;
-
+    Private *const d;
 };
 
 } /* namespace KScreen */

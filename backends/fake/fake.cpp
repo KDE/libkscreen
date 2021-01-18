@@ -28,9 +28,9 @@
 #include <QFile>
 #include <QTimer>
 
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QJsonArray>
 
 #include <QDBusConnection>
 
@@ -45,7 +45,6 @@ Fake::Fake()
 {
     QLoggingCategory::setFilterRules(QStringLiteral("kscreen.fake.debug = true"));
 
-
     if (qgetenv("KSCREEN_BACKEND_INPROCESS") != QByteArray("1")) {
         QTimer::singleShot(0, this, &Fake::delayedInit);
     }
@@ -59,7 +58,6 @@ void Fake::init(const QVariantMap &arguments)
 
     mConfigFile = arguments[QStringLiteral("TEST_DATA")].toString();
     qCDebug(KSCREEN_FAKE) << "Fake profile file:" << mConfigFile;
-
 }
 
 void Fake::delayedInit()
@@ -113,7 +111,7 @@ QByteArray Fake::edid(int outputId) const
     const QJsonObject json = jsonDoc.object();
 
     const QJsonArray outputs = json[QStringLiteral("outputs")].toArray();
-    Q_FOREACH(const QJsonValue &value, outputs) {
+    Q_FOREACH (const QJsonValue &value, outputs) {
         const QVariantMap output = value.toObject().toVariantMap();
         if (output[QStringLiteral("id")].toInt() != outputId) {
             continue;

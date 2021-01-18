@@ -17,16 +17,16 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 
-#include <QtTest>
-#include <QObject>
 #include <QElapsedTimer>
+#include <QObject>
+#include <QtTest>
 
+#include "../src/backendmanager_p.h"
 #include "../src/config.h"
-#include "../src/output.h"
-#include "../src/mode.h"
 #include "../src/edid.h"
 #include "../src/getconfigoperation.h"
-#include "../src/backendmanager_p.h"
+#include "../src/mode.h"
+#include "../src/output.h"
 
 Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.qscreen")
 
@@ -93,7 +93,6 @@ void testQScreenBackend::verifyScreen()
     QVERIFY(m_config->screen()->maxActiveOutputsCount() > 0);
 }
 
-
 void testQScreenBackend::verifyOutputs()
 {
     bool primaryFound = false;
@@ -111,9 +110,8 @@ void testQScreenBackend::verifyOutputs()
     const KScreen::OutputPtr primary = m_config->primaryOutput();
     QVERIFY(primary->isEnabled());
     QVERIFY(primary->isConnected());
-    //qDebug() << "Primary geometry? " << primary->geometry();
-    //qDebug() << " prim modes: " << primary->modes();
-
+    // qDebug() << "Primary geometry? " << primary->geometry();
+    // qDebug() << " prim modes: " << primary->modes();
 
     QList<int> ids;
     foreach (const KScreen::OutputPtr &output, m_config->outputs()) {
@@ -127,7 +125,7 @@ void testQScreenBackend::verifyOutputs()
         QVERIFY(output->id() > -1);
         QVERIFY(output->isConnected());
         QVERIFY(output->isEnabled());
-        QVERIFY(output->geometry() != QRectF(1,1,1,1));
+        QVERIFY(output->geometry() != QRectF(1, 1, 1, 1));
         QVERIFY(output->geometry() != QRectF());
 
         // Pass, but leave a note, when the x server doesn't report physical size
@@ -166,7 +164,7 @@ void testQScreenBackend::commonUsagePattern()
     const KScreen::OutputList outputs = op->config()->outputs();
 
     QVariantList outputList;
-    Q_FOREACH(const KScreen::OutputPtr &output, outputs) {
+    Q_FOREACH (const KScreen::OutputPtr &output, outputs) {
         if (!output->isConnected()) {
             continue;
         }
@@ -185,7 +183,7 @@ void testQScreenBackend::commonUsagePattern()
         if (output->isEnabled()) {
             const KScreen::ModePtr mode = output->currentMode();
             if (!mode) {
-                //qWarning() << "CurrentMode is null" << output->name();
+                // qWarning() << "CurrentMode is null" << output->name();
                 return;
             }
 
@@ -219,7 +217,6 @@ void testQScreenBackend::verifyFeatures()
     QVERIFY(!config->supportedFeatures().testFlag(Config::Feature::Writable));
     QVERIFY(!config->supportedFeatures().testFlag(Config::Feature::PrimaryDisplay));
 }
-
 
 QTEST_MAIN(testQScreenBackend)
 

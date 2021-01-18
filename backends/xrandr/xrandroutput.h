@@ -19,11 +19,11 @@
 
 #include "output.h"
 
-#include "xrandrmode.h"
 #include "../xcbwrapper.h"
+#include "xrandrmode.h"
 
-#include <QObject>
 #include <QMap>
+#include <QObject>
 #include <QVariant>
 
 class XRandRConfig;
@@ -39,7 +39,7 @@ class XRandROutput : public QObject
     Q_OBJECT
 
 public:
-    typedef QMap<xcb_randr_output_t, XRandROutput*> Map;
+    typedef QMap<xcb_randr_output_t, XRandROutput *> Map;
 
     explicit XRandROutput(xcb_randr_output_t id, XRandRConfig *config);
     ~XRandROutput() override;
@@ -48,8 +48,7 @@ public:
     void disconnected();
 
     void update();
-    void update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_connection_t conn,
-                bool primary);
+    void update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_connection_t conn, bool primary);
 
     void setIsPrimary(bool primary);
 
@@ -65,13 +64,13 @@ public:
 
     QString currentModeId() const;
     XRandRMode::Map modes() const;
-    XRandRMode* currentMode() const;
+    XRandRMode *currentMode() const;
 
     KScreen::Output::Rotation rotation() const;
     bool isHorizontal() const;
 
     QByteArray edid() const;
-    XRandRCrtc* crtc() const;
+    XRandRCrtc *crtc() const;
 
     KScreen::OutputPtr toKScreenOutput() const;
 

@@ -17,8 +17,8 @@
  *************************************************************************************/
 
 #include <QCoreApplication>
-#include <QtTest>
 #include <QObject>
+#include <QtTest>
 
 #include "../src/edid.h"
 
@@ -69,7 +69,7 @@ void TestEdid::testEdidParser_data()
     QTest::addColumn<QQuaternion>("green");
     QTest::addColumn<QQuaternion>("blue");
     QTest::addColumn<QQuaternion>("white");
-
+    // clang-format off
     QTest::addRow("cor")
         << QByteArray::fromBase64("AP///////wAN8iw0AAAAABwVAQOAHRB4CoPVlFdSjCccUFQAAAABAQEBAQEBAQEBAQEBAQEBEhtWWlAAGTAwIDYAJaQQAAAYEhtWWlAAGTAwIDYAJaQQAAAYAAAA/gBBVU8KICAgICAgICAgAAAA/gBCMTMzWFcwMyBWNCAKAIc=")
         << QStringLiteral("xrandr-unknown")
@@ -128,6 +128,7 @@ void TestEdid::testEdidParser_data()
         << QQuaternion(1, QVector3D(0.299805, 0.599609, 0))
         << QQuaternion(1, QVector3D(0.149414, 0.0595703, 0))
         << QQuaternion(1, QVector3D(0.3125, 0.328125, 0));
+    // clang-format on
 }
 
 void TestEdid::testEdidParser()
@@ -156,7 +157,7 @@ void TestEdid::testEdidParser()
     QCOMPARE(e->name(), name);
     QCOMPARE(e->pnpId(), pnpId);
     // FIXME: needs to return at least the short ID
-//    QVERIFY2(vendor.contains(e->vendor()), qPrintable(QString::fromLatin1("%1 not in list").arg(e->vendor())));
+    //    QVERIFY2(vendor.contains(e->vendor()), qPrintable(QString::fromLatin1("%1 not in list").arg(e->vendor())));
     QCOMPARE(e->serial(), serial);
     QCOMPARE(e->eisaId(), eisaId);
     QCOMPARE(e->hash(), hash);

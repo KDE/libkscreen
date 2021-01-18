@@ -22,9 +22,9 @@
 #include "config.h"
 #include "screen.h"
 
+#include <QLoggingCategory>
 #include <QScreen>
 #include <QSize>
-#include <QLoggingCategory>
 
 namespace KScreen
 {

@@ -18,8 +18,8 @@
  */
 
 #include "backendloader.h"
-#include "backendloaderadaptor.h"
 #include "backenddbuswrapper.h"
+#include "backendloaderadaptor.h"
 #include "kscreen_backendLauncher_debug.h"
 #include "src/abstractbackend.h"
 #include "src/backendmanager_p.h"
@@ -112,11 +112,10 @@ bool BackendLoader::requestBackend(const QString &backendName, const QVariantMap
     return true;
 }
 
-KScreen::AbstractBackend *BackendLoader::loadBackend(const QString &name,
-                                                     const QVariantMap &arguments)
+KScreen::AbstractBackend *BackendLoader::loadBackend(const QString &name, const QVariantMap &arguments)
 {
     if (mLoader == nullptr) {
-        std::unique_ptr<QPluginLoader, void(*)(QPluginLoader *)> loader(new QPluginLoader(), pluginDeleter);
+        std::unique_ptr<QPluginLoader, void (*)(QPluginLoader *)> loader(new QPluginLoader(), pluginDeleter);
         mLoader = loader.release();
     }
     return KScreen::BackendManager::loadBackendPlugin(mLoader, name, arguments);

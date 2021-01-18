@@ -18,29 +18,27 @@
  */
 
 #include "backenddbuswrapper.h"
-#include "backendloader.h"
 #include "backendadaptor.h"
+#include "backendloader.h"
 #include "kscreen_backendLauncher_debug.h"
 
-#include "src/configserializer_p.h"
-#include "src/config.h"
 #include "src/abstractbackend.h"
+#include "src/config.h"
+#include "src/configserializer_p.h"
 
 #include <QDBusConnection>
 #include <QDBusError>
 
-BackendDBusWrapper::BackendDBusWrapper(KScreen::AbstractBackend* backend)
+BackendDBusWrapper::BackendDBusWrapper(KScreen::AbstractBackend *backend)
     : QObject()
     , mBackend(backend)
 {
-    connect(mBackend, &KScreen::AbstractBackend::configChanged,
-            this, &BackendDBusWrapper::backendConfigChanged);
+    connect(mBackend, &KScreen::AbstractBackend::configChanged, this, &BackendDBusWrapper::backendConfigChanged);
 
     mChangeCollector.setSingleShot(true);
     mChangeCollector.setInterval(200); // wait for 200 msecs without any change
                                        // before actually emitting configChanged
-    connect(&mChangeCollector, &QTimer::timeout,
-            this, &BackendDBusWrapper::doEmitConfigChanged);
+    connect(&mChangeCollector, &QTimer::timeout, this, &BackendDBusWrapper::doEmitConfigChanged);
 }
 
 BackendDBusWrapper::~BackendDBusWrapper()
@@ -95,7 +93,7 @@ QVariantMap BackendDBusWrapper::setConfig(const QVariantMap &configMap)
 
 QByteArray BackendDBusWrapper::getEdid(int output) const
 {
-    const QByteArray edidData =  mBackend->edid(output);
+    const QByteArray edidData = mBackend->edid(output);
     if (edidData.isEmpty()) {
         return QByteArray();
     }
@@ -128,4 +126,3 @@ void BackendDBusWrapper::doEmitConfigChanged()
     mCurrentConfig.clear();
     mChangeCollector.stop();
 }
-

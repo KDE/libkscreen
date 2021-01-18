@@ -26,10 +26,10 @@
 
 #include <KWayland/Client/connection_thread.h>
 #include <KWayland/Client/dpms.h>
-#include <KWayland/Client/registry.h>
 #include <KWayland/Client/output.h>
+#include <KWayland/Client/registry.h>
 
-//static const QString s_socketName = QStringLiteral("libkscreen-test-wayland-backend-0");
+// static const QString s_socketName = QStringLiteral("libkscreen-test-wayland-backend-0");
 static const QString s_socketName = QStringLiteral("wayland-0");
 
 Q_LOGGING_CATEGORY(KSCREEN_DPMS, "kscreen.dpms")
@@ -43,7 +43,6 @@ DpmsClient::DpmsClient(QObject *parent)
     , m_thread(nullptr)
     , m_registry(new KWayland::Client::Registry)
 {
-
 }
 
 DpmsClient::~DpmsClient()
@@ -79,28 +78,25 @@ void DpmsClient::connected()
 {
     qDebug() << "Connected!";
     m_registry->create(m_connection);
-    QObject::connect(m_registry, &Registry::interfacesAnnounced, this,
-        [this] {
-            const bool hasDpms = m_registry->hasInterface(Registry::Interface::Dpms);
-           // QLabel *hasDpmsLabel = new QLabel(&window);
-            if (hasDpms) {
-                qDebug() << QStringLiteral("Compositor provides a DpmsManager");
-            } else {
-                qDebug() << QStringLiteral("Compositor does not provid a DpmsManager");
-            }
+    QObject::connect(m_registry, &Registry::interfacesAnnounced, this, [this] {
+        const bool hasDpms = m_registry->hasInterface(Registry::Interface::Dpms);
+        // QLabel *hasDpmsLabel = new QLabel(&window);
+        if (hasDpms) {
+            qDebug() << QStringLiteral("Compositor provides a DpmsManager");
+        } else {
+            qDebug() << QStringLiteral("Compositor does not provid a DpmsManager");
+        }
 
-            if (hasDpms) {
-                const auto dpmsData = m_registry->interface(Registry::Interface::Dpms);
-                m_dpmsManager = m_registry->createDpmsManager(dpmsData.name, dpmsData.version);
-            }
+        if (hasDpms) {
+            const auto dpmsData = m_registry->interface(Registry::Interface::Dpms);
+            m_dpmsManager = m_registry->createDpmsManager(dpmsData.name, dpmsData.version);
+        }
 
-
-            emit this->ready();
-        });
+        emit this->ready();
+    });
     m_registry->setup();
 
-    //QVERIFY(dpmsSpy.wait(100));
-
+    // QVERIFY(dpmsSpy.wait(100));
 }
 
 void KScreen::DpmsClient::changeMode(KWayland::Client::Dpms::Mode mode)
@@ -115,7 +111,10 @@ void KScreen::DpmsClient::changeMode(KWayland::Client::Dpms::Mode mode)
         }
 
         if (dpms) {
-            QObject::connect(dpms, &Dpms::supportedChanged, this,
+            QObject::connect(
+                dpms,
+                &Dpms::supportedChanged,
+                this,
                 [dpms, mode, output, this] {
                     if (m_excludedOutputNames.contains(output->model())) {
                         qDebug() << "Skipping" << output->model() << output->manufacturer();
@@ -123,15 +122,13 @@ void KScreen::DpmsClient::changeMode(KWayland::Client::Dpms::Mode mode)
                     }
 
                     if (dpms->isSupported()) {
-                        QObject::connect(dpms, &Dpms::modeChanged, this,
-                            &DpmsClient::modeChanged, Qt::QueuedConnection);
+                        QObject::connect(dpms, &Dpms::modeChanged, this, &DpmsClient::modeChanged, Qt::QueuedConnection);
                         qDebug() << "Switching" << output->model() << output->manufacturer() << (mode == Dpms::Mode::On ? "on" : "off");
                         m_modeChanges++;
                         dpms->requestMode(mode);
                     }
-
-                }, Qt::QueuedConnection
-            );
+                },
+                Qt::QueuedConnection);
         }
     }
 }
@@ -148,11 +145,11 @@ void DpmsClient::modeChanged()
 void DpmsClient::on()
 {
     changeMode(Dpms::Mode::On);
-    //emit finished();
+    // emit finished();
 }
 
 void KScreen::DpmsClient::off()
 {
     changeMode(Dpms::Mode::Off);
-    //emit finished();
+    // emit finished();
 }

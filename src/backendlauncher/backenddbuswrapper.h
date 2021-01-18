@@ -45,7 +45,10 @@ public:
     QVariantMap setConfig(const QVariantMap &config);
     QByteArray getEdid(int output) const;
 
-    inline KScreen::AbstractBackend *backend() const { return mBackend; }
+    inline KScreen::AbstractBackend *backend() const
+    {
+        return mBackend;
+    }
 
 Q_SIGNALS:
     void configChanged(const QVariantMap &config);
@@ -54,12 +57,10 @@ private Q_SLOTS:
     void backendConfigChanged(const KScreen::ConfigPtr &config);
     void doEmitConfigChanged();
 
-
 private:
     KScreen::AbstractBackend *mBackend = nullptr;
     QTimer mChangeCollector;
     KScreen::ConfigPtr mCurrentConfig;
-
 };
 
 #endif // BACKENDDBUSWRAPPER_H

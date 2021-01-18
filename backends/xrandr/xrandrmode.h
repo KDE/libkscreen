@@ -17,13 +17,13 @@
  *************************************************************************************/
 #pragma once
 
-#include <QObject>
 #include <QMap>
-#include <QVariant>
+#include <QObject>
 #include <QSize>
+#include <QVariant>
 
-#include "types.h"
 #include "../xcbwrapper.h"
+#include "types.h"
 
 class XRandROutput;
 namespace KScreen
@@ -37,7 +37,7 @@ class XRandRMode : public QObject
     Q_OBJECT
 
 public:
-    typedef QMap<xcb_randr_mode_t, XRandRMode*> Map;
+    typedef QMap<xcb_randr_mode_t, XRandRMode *> Map;
 
     explicit XRandRMode(const xcb_randr_mode_info_t &modeInfo, XRandROutput *output);
     ~XRandRMode() override;

@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 static xcb_connection_t *sXRandR11XCBConnection = nullptr;
 
-xcb_connection_t* XCB::connection()
+xcb_connection_t *XCB::connection()
 {
     // Use our own connection to make sure that we won't mess up Qt's connection
     // if something goes wrong on our side.
@@ -41,11 +41,9 @@ void XCB::closeConnection()
     }
 }
 
-xcb_screen_t* XCB::screenOfDisplay(xcb_connection_t* c, int screen)
+xcb_screen_t *XCB::screenOfDisplay(xcb_connection_t *c, int screen)
 {
-    for (auto iter = xcb_setup_roots_iterator(xcb_get_setup(c));
-         iter.rem; --screen, xcb_screen_next(&iter))
-    {
+    for (auto iter = xcb_setup_roots_iterator(xcb_get_setup(c)); iter.rem; --screen, xcb_screen_next(&iter)) {
         if (screen == 0) {
             return iter.data;
         }
@@ -53,7 +51,6 @@ xcb_screen_t* XCB::screenOfDisplay(xcb_connection_t* c, int screen)
 
     return nullptr;
 }
-
 
 XCB::GrabServer::GrabServer()
 {

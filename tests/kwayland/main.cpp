@@ -18,8 +18,8 @@
 
 #include "waylandtestserver.h"
 
-#include <QCoreApplication>
 #include <QCommandLineParser>
+#include <QCoreApplication>
 
 int main(int argc, char **argv)
 {
@@ -27,8 +27,8 @@ int main(int argc, char **argv)
 
     KScreen::WaylandTestServer server;
 
-    QCommandLineOption config = QCommandLineOption(QStringList() << QStringLiteral("c") << QStringLiteral("config"),
-                                                  QStringLiteral("Config file"), QStringLiteral("config"));
+    QCommandLineOption config =
+        QCommandLineOption(QStringList() << QStringLiteral("c") << QStringLiteral("config"), QStringLiteral("Config file"), QStringLiteral("config"));
     QCommandLineParser parser;
     parser.addHelpOption();
     parser.addOption(config);

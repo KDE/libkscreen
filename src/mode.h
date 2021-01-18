@@ -23,13 +23,13 @@
 #include "kscreen_export.h"
 #include "types.h"
 
+#include <QDebug>
+#include <QMetaType>
 #include <QObject>
 #include <QSize>
-#include <QMetaType>
-#include <QDebug>
 
-namespace KScreen {
-
+namespace KScreen
+{
 class KSCREEN_EXPORT Mode : public QObject
 {
     Q_OBJECT
@@ -38,40 +38,40 @@ class KSCREEN_EXPORT Mode : public QObject
     Q_PROPERTY(QSize size READ size WRITE setSize NOTIFY modeChanged)
     Q_PROPERTY(float refreshRate READ refreshRate WRITE setRefreshRate NOTIFY modeChanged)
 
-    public:
-        explicit Mode();
-        ~Mode() override;
+public:
+    explicit Mode();
+    ~Mode() override;
 
-        ModePtr clone() const;
+    ModePtr clone() const;
 
-        const QString id() const;
-        void setId(const QString &id);
+    const QString id() const;
+    void setId(const QString &id);
 
-        QString name() const;
-        void setName(const QString& name);
+    QString name() const;
+    void setName(const QString &name);
 
-        QSize size() const;
-        void setSize(const QSize& size);
+    QSize size() const;
+    void setSize(const QSize &size);
 
-        float refreshRate() const;
-        void setRefreshRate(float refresh);
+    float refreshRate() const;
+    void setRefreshRate(float refresh);
 
-    Q_SIGNALS:
-        void modeChanged();
+Q_SIGNALS:
+    void modeChanged();
 
-    private:
-        Q_DISABLE_COPY(Mode)
+private:
+    Q_DISABLE_COPY(Mode)
 
-        class Private;
-        Private * const d;
+    class Private;
+    Private *const d;
 
-        Mode(Private *dd);
+    Mode(Private *dd);
 };
 
-} //KSCreen namespace
+} // KSCreen namespace
 
 KSCREEN_EXPORT QDebug operator<<(QDebug dbg, const KScreen::ModePtr &mode);
 
 Q_DECLARE_METATYPE(KScreen::ModeList)
 
-#endif //MODE_H
+#endif // MODE_H

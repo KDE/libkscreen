@@ -22,13 +22,12 @@
 
 #include <QObject>
 
-#include "configoperation.h"
 #include "abstractbackend.h"
 #include "backendinterface.h"
+#include "configoperation.h"
 
 namespace KScreen
 {
-
 class ConfigOperationPrivate : public QObject
 {
     Q_OBJECT
@@ -42,7 +41,7 @@ public:
     virtual void backendReady(org::kde::kscreen::Backend *backend);
 
     // For in-process
-    KScreen::AbstractBackend* loadBackend();
+    KScreen::AbstractBackend *loadBackend();
 
 public Q_SLOTS:
     void doEmitResult();
@@ -52,11 +51,9 @@ private:
     bool isExec;
 
 protected:
-    ConfigOperation * const q_ptr;
+    ConfigOperation *const q_ptr;
     Q_DECLARE_PUBLIC(ConfigOperation)
-
 };
 
 }
 #endif
-

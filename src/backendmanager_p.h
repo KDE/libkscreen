@@ -27,22 +27,22 @@
 #ifndef KSCREEN_BACKENDMANAGER_H
 #define KSCREEN_BACKENDMANAGER_H
 
+#include <QDBusServiceWatcher>
+#include <QEventLoop>
+#include <QFileInfoList>
 #include <QObject>
 #include <QPluginLoader>
 #include <QProcess>
-#include <QDBusServiceWatcher>
-#include <QFileInfoList>
 #include <QTimer>
-#include <QEventLoop>
 
-#include "types.h"
 #include "kscreen_export.h"
+#include "types.h"
 
 class QDBusPendingCallWatcher;
 class OrgKdeKscreenBackendInterface;
 
-namespace KScreen {
-
+namespace KScreen
+{
 class AbstractBackend;
 
 class KSCREEN_EXPORT BackendManager : public QObject
@@ -52,7 +52,7 @@ class KSCREEN_EXPORT BackendManager : public QObject
 public:
     enum Method {
         InProcess,
-        OutOfProcess
+        OutOfProcess,
     };
 
     static BackendManager *instance();
@@ -93,9 +93,7 @@ public:
      * @return a pointer to the backend loaded from the plugin
      * @since 5.6
      */
-    static KScreen::AbstractBackend *loadBackendPlugin(QPluginLoader *loader,
-                                                 const QString &name,
-                                                 const QVariantMap &arguments);
+    static KScreen::AbstractBackend *loadBackendPlugin(QPluginLoader *loader, const QString &name, const QVariantMap &arguments);
 
     KScreen::AbstractBackend *loadBackendInProcess(const QString &name);
 
@@ -112,8 +110,7 @@ Q_SIGNALS:
 private Q_SLOTS:
     void emitBackendReady();
 
-    void startBackend(const QString &backend = QString(),
-                      const QVariantMap &arguments = QVariantMap());
+    void startBackend(const QString &backend = QString(), const QVariantMap &arguments = QVariantMap());
     void onBackendRequestDone(QDBusPendingCallWatcher *watcher);
 
     void backendServiceUnregistered(const QString &serviceName);
@@ -147,7 +144,7 @@ private:
 
     // For in-process operation
     QPluginLoader *mLoader;
-    QPair<KScreen::AbstractBackend*, QVariantMap> m_inProcessBackend;
+    QPair<KScreen::AbstractBackend *, QVariantMap> m_inProcessBackend;
 
     Method mMethod;
 };

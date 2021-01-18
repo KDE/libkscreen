@@ -26,8 +26,8 @@
 #include "kscreen_export.h"
 #include "types.h"
 
-namespace KScreen {
-
+namespace KScreen
+{
 class ConfigOperationPrivate;
 
 class KSCREEN_EXPORT ConfigOperation : public QObject
@@ -37,7 +37,7 @@ class KSCREEN_EXPORT ConfigOperation : public QObject
 public:
     enum Option {
         NoOptions,
-        NoEDID
+        NoEDID,
     };
     Q_DECLARE_FLAGS(Options, Option)
 
@@ -63,7 +63,7 @@ protected Q_SLOTS:
     virtual void start() = 0;
 
 protected:
-    ConfigOperationPrivate * const d_ptr;
+    ConfigOperationPrivate *const d_ptr;
     Q_DECLARE_PRIVATE(ConfigOperation)
 };
 }

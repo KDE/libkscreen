@@ -16,12 +16,12 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA       *
  *************************************************************************************/
 #include "waylandoutput.h"
+#include "../utils.h"
 #include "waylandbackend.h"
 #include "waylandconfig.h"
-#include "../utils.h"
 
-#include <mode.h>
 #include <edid.h>
+#include <mode.h>
 
 #include <KWayland/Client/outputconfiguration.h>
 #include <KWayland/Client/outputdevice.h>
@@ -29,17 +29,15 @@
 using namespace KScreen;
 namespace Wl = KWayland::Client;
 
-const QMap<Wl::OutputDevice::Transform, Output::Rotation>
-s_rotationMap = {
-    {Wl::OutputDevice::Transform::Normal, Output::None},
-    {Wl::OutputDevice::Transform::Rotated90, Output::Right},
-    {Wl::OutputDevice::Transform::Rotated180, Output::Inverted},
-    {Wl::OutputDevice::Transform::Rotated270, Output::Left},
-    {Wl::OutputDevice::Transform::Flipped, Output::None},
-    {Wl::OutputDevice::Transform::Flipped90, Output::Right},
-    {Wl::OutputDevice::Transform::Flipped180, Output::Inverted},
-    {Wl::OutputDevice::Transform::Flipped270, Output::Left}
-};
+const QMap<Wl::OutputDevice::Transform, Output::Rotation> s_rotationMap = //
+    {{Wl::OutputDevice::Transform::Normal, Output::None},
+     {Wl::OutputDevice::Transform::Rotated90, Output::Right},
+     {Wl::OutputDevice::Transform::Rotated180, Output::Inverted},
+     {Wl::OutputDevice::Transform::Rotated270, Output::Left},
+     {Wl::OutputDevice::Transform::Flipped, Output::None},
+     {Wl::OutputDevice::Transform::Flipped90, Output::Right},
+     {Wl::OutputDevice::Transform::Flipped180, Output::Inverted},
+     {Wl::OutputDevice::Transform::Flipped270, Output::Left}};
 
 Output::Rotation toKScreenRotation(const Wl::OutputDevice::Transform transform)
 {
@@ -69,7 +67,7 @@ bool WaylandOutput::enabled() const
     return m_device != nullptr;
 }
 
-Wl::OutputDevice* WaylandOutput::outputDevice() const
+Wl::OutputDevice *WaylandOutput::outputDevice() const
 {
     return m_device;
 }
@@ -81,8 +79,8 @@ void WaylandOutput::createOutputDevice(Wl::Registry *registry, quint32 name, qui
 
     connect(m_device, &Wl::OutputDevice::removed, this, &WaylandOutput::deviceRemoved);
     connect(m_device, &Wl::OutputDevice::done, this, [this]() {
-                Q_EMIT complete();
-                connect(m_device, &Wl::OutputDevice::changed, this, &WaylandOutput::changed);
+        Q_EMIT complete();
+        connect(m_device, &Wl::OutputDevice::changed, this, &WaylandOutput::changed);
     });
 }
 
@@ -120,8 +118,7 @@ void WaylandOutput::updateKScreenOutput(OutputPtr &output)
 
         QString modeId = QString::number(wlMode.id);
         if (modeId.isEmpty()) {
-            qCDebug(KSCREEN_WAYLAND) << "Could not create mode id from"
-                                     << wlMode.id << ", using" << name << "instead.";
+            qCDebug(KSCREEN_WAYLAND) << "Could not create mode id from" << wlMode.id << ", using" << name << "instead.";
             modeId = name;
         }
 
@@ -161,17 +158,14 @@ void WaylandOutput::updateKScreenOutput(OutputPtr &output)
     output->setType(Utils::guessOutputType(m_device->model(), m_device->model()));
 }
 
-bool WaylandOutput::setWlConfig(Wl::OutputConfiguration *wlConfig,
-                                const KScreen::OutputPtr &output)
+bool WaylandOutput::setWlConfig(Wl::OutputConfiguration *wlConfig, const KScreen::OutputPtr &output)
 {
     bool changed = false;
 
     // enabled?
-    if ((m_device->enabled() == Wl::OutputDevice::Enablement::Enabled)
-            != output->isEnabled()) {
+    if ((m_device->enabled() == Wl::OutputDevice::Enablement::Enabled) != output->isEnabled()) {
         changed = true;
-        const auto enablement = output->isEnabled() ? Wl::OutputDevice::Enablement::Enabled :
-                                                      Wl::OutputDevice::Enablement::Disabled;
+        const auto enablement = output->isEnabled() ? Wl::OutputDevice::Enablement::Enabled : Wl::OutputDevice::Enablement::Disabled;
         wlConfig->setEnabled(m_device, enablement);
     }
 
@@ -201,17 +195,15 @@ bool WaylandOutput::setWlConfig(Wl::OutputConfiguration *wlConfig,
             wlConfig->setMode(m_device, newModeId);
         }
     } else {
-        qCWarning(KSCREEN_WAYLAND) << "Invalid kscreen mode id:" << output->currentModeId()
-                                   << "\n\n" << m_modeIdMap;
+        qCWarning(KSCREEN_WAYLAND) << "Invalid kscreen mode id:" << output->currentModeId() << "\n\n" << m_modeIdMap;
     }
     return changed;
 }
 
 QString WaylandOutput::modeName(const Wl::OutputDevice::Mode &m) const
 {
-    return QString::number(m.size.width()) + QLatin1Char('x') +
-           QString::number(m.size.height()) + QLatin1Char('@') +
-           QString::number(qRound(m.refreshRate/1000.0));
+    return QString::number(m.size.width()) + QLatin1Char('x') + QString::number(m.size.height()) + QLatin1Char('@')
+        + QString::number(qRound(m.refreshRate / 1000.0));
 }
 
 QString WaylandOutput::name() const
@@ -222,8 +214,7 @@ QString WaylandOutput::name() const
 
 QDebug operator<<(QDebug dbg, const WaylandOutput *output)
 {
-    dbg << "WaylandOutput(Id:" << output->id() <<", Name:" << \
-        QString(output->outputDevice()->manufacturer() + QLatin1Char(' ') + \
-        output->outputDevice()->model())  << ")";
+    dbg << "WaylandOutput(Id:" << output->id()
+        << ", Name:" << QString(output->outputDevice()->manufacturer() + QLatin1Char(' ') + output->outputDevice()->model()) << ")";
     return dbg;
 }

@@ -34,8 +34,7 @@ QScreenBackend::QScreenBackend()
 {
     if (s_internalConfig == nullptr) {
         s_internalConfig = new QScreenConfig();
-        connect(s_internalConfig, &QScreenConfig::configChanged,
-                this, &QScreenBackend::configChanged);
+        connect(s_internalConfig, &QScreenConfig::configChanged, this, &QScreenBackend::configChanged);
     }
 }
 
@@ -52,7 +51,6 @@ QString QScreenBackend::serviceName() const
 {
     return QStringLiteral("org.kde.KScreen.Backend.QScreen");
 }
-
 
 ConfigPtr QScreenBackend::config() const
 {

@@ -17,18 +17,18 @@
  *************************************************************************************/
 
 #include <QCoreApplication>
-#include <QtTest>
 #include <QObject>
 #include <QSignalSpy>
+#include <QtTest>
 
 #include "backendmanager_p.h"
-#include "getconfigoperation.h"
-#include "setconfigoperation.h"
 #include "config.h"
 #include "configmonitor.h"
-#include "output.h"
-#include "mode.h"
 #include "edid.h"
+#include "getconfigoperation.h"
+#include "mode.h"
+#include "output.h"
+#include "setconfigoperation.h"
 
 #include "waylandtestserver.h"
 
@@ -56,9 +56,7 @@ private Q_SLOTS:
     void testApplyOnPending();
 
 private:
-
     WaylandTestServer *m_server;
-
 };
 
 TestKWaylandConfig::TestKWaylandConfig(QObject *parent)
@@ -99,7 +97,6 @@ void TestKWaylandConfig::changeConfig()
     KScreen::ConfigMonitor *monitor = KScreen::ConfigMonitor::instance();
     monitor->addConfig(config);
     QSignalSpy configSpy(monitor, &KScreen::ConfigMonitor::configurationChanged);
-
 
     // The first output is currently disabled, let's try to enable it
     auto output = config->outputs().first();
@@ -196,7 +193,6 @@ void TestKWaylandConfig::testRotationChange()
 
     auto newoutput = newconfig->outputs().first();
     QCOMPARE(newoutput->rotation(), rotation);
-
 }
 
 void TestKWaylandConfig::testScaleChange()
@@ -319,7 +315,6 @@ void TestKWaylandConfig::testApplyOnPending()
     QCOMPARE(configSpy.count(), 2);
     QCOMPARE(output2->scale(), 3.0);
 }
-
 
 QTEST_GUILESS_MAIN(TestKWaylandConfig)
 

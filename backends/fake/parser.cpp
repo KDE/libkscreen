@@ -23,16 +23,16 @@
 #include "output.h"
 
 #include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QLoggingCategory>
 #include <QMetaObject>
 #include <QMetaProperty>
-#include <QLoggingCategory>
-#include <QJsonDocument>
-#include <QJsonArray>
-#include <QJsonObject>
 
 using namespace KScreen;
 
-ConfigPtr Parser::fromJson(const QByteArray& data)
+ConfigPtr Parser::fromJson(const QByteArray &data)
 {
     ConfigPtr config(new Config);
 
@@ -47,7 +47,7 @@ ConfigPtr Parser::fromJson(const QByteArray& data)
     }
 
     OutputList outputList;
-    Q_FOREACH(const QVariant &value, outputs) {
+    Q_FOREACH (const QVariant &value, outputs) {
         const OutputPtr output = Parser::outputFromJson(value.toMap());
         outputList.insert(output->id(), output);
     }
@@ -56,7 +56,7 @@ ConfigPtr Parser::fromJson(const QByteArray& data)
     return config;
 }
 
-ConfigPtr Parser::fromJson(const QString& path)
+ConfigPtr Parser::fromJson(const QString &path)
 {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly)) {
@@ -86,12 +86,12 @@ void Parser::qvariant2qobject(const QVariantMap &variant, QObject *object)
     for (QVariantMap::const_iterator iter = variant.begin(); iter != variant.end(); ++iter) {
         const int propertyIndex = metaObject->indexOfProperty(qPrintable(iter.key()));
         if (propertyIndex == -1) {
-            //qWarning() << "Skipping non-existent property" << iter.key();
+            // qWarning() << "Skipping non-existent property" << iter.key();
             continue;
         }
         const QMetaProperty metaProperty = metaObject->property(propertyIndex);
         if (!metaProperty.isWritable()) {
-            //qWarning() << "Skipping read-only property" << iter.key();
+            // qWarning() << "Skipping read-only property" << iter.key();
             continue;
         }
 
@@ -109,14 +109,14 @@ void Parser::qvariant2qobject(const QVariantMap &variant, QObject *object)
     }
 }
 
-OutputPtr Parser::outputFromJson(QMap< QString, QVariant > map)
+OutputPtr Parser::outputFromJson(QMap<QString, QVariant> map)
 {
     OutputPtr output(new Output);
     output->setId(map[QStringLiteral("id")].toInt());
 
     QStringList preferredModes;
     const QVariantList prefModes = map[QStringLiteral("preferredModes")].toList();
-    Q_FOREACH(const QVariant &mode, prefModes) {
+    Q_FOREACH (const QVariant &mode, prefModes) {
         preferredModes.append(mode.toString());
     }
     output->setPreferredModes(preferredModes);
@@ -124,16 +124,16 @@ OutputPtr Parser::outputFromJson(QMap< QString, QVariant > map)
 
     ModeList modelist;
     const QVariantList modes = map[QStringLiteral("modes")].toList();
-    Q_FOREACH(const QVariant &modeValue, modes) {
+    Q_FOREACH (const QVariant &modeValue, modes) {
         const ModePtr mode = Parser::modeFromJson(modeValue);
         modelist.insert(mode->id(), mode);
     }
     output->setModes(modelist);
     map.remove(QStringLiteral("modes"));
 
-    if(map.contains(QStringLiteral("clones"))) {
+    if (map.contains(QStringLiteral("clones"))) {
         QList<int> clones;
-        Q_FOREACH(const QVariant &id, map[QStringLiteral("clones")].toList()) {
+        Q_FOREACH (const QVariant &id, map[QStringLiteral("clones")].toList()) {
             clones.append(id.toInt());
         }
 
@@ -196,14 +196,14 @@ OutputPtr Parser::outputFromJson(QMap< QString, QVariant > map)
         map.remove(scale);
     }
 
-    //Remove some extra properties that we do not want or need special treatment
+    // Remove some extra properties that we do not want or need special treatment
     map.remove(QStringLiteral("edid"));
 
     Parser::qvariant2qobject(map, output.data());
     return output;
 }
 
-ModePtr Parser::modeFromJson(const QVariant& data)
+ModePtr Parser::modeFromJson(const QVariant &data)
 {
     const QVariantMap map = data.toMap();
     ModePtr mode(new Mode);
@@ -214,7 +214,7 @@ ModePtr Parser::modeFromJson(const QVariant& data)
     return mode;
 }
 
-QSize Parser::sizeFromJson(const QVariant& data)
+QSize Parser::sizeFromJson(const QVariant &data)
 {
     const QVariantMap map = data.toMap();
 
@@ -225,7 +225,7 @@ QSize Parser::sizeFromJson(const QVariant& data)
     return size;
 }
 
-QPoint Parser::pointFromJson(const QVariant& data)
+QPoint Parser::pointFromJson(const QVariant &data)
 {
     const QVariantMap map = data.toMap();
 
@@ -236,7 +236,7 @@ QPoint Parser::pointFromJson(const QVariant& data)
     return point;
 }
 
-QRect Parser::rectFromJson(const QVariant& data)
+QRect Parser::rectFromJson(const QVariant &data)
 {
     QRect rect;
     rect.setSize(Parser::sizeFromJson(data));
@@ -245,13 +245,13 @@ QRect Parser::rectFromJson(const QVariant& data)
     return rect;
 }
 
-bool Parser::validate(const QByteArray& data)
+bool Parser::validate(const QByteArray &data)
 {
     Q_UNUSED(data);
     return true;
 }
 
-bool Parser::validate(const QString& data)
+bool Parser::validate(const QString &data)
 {
     Q_UNUSED(data);
     return true;

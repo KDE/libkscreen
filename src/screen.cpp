@@ -23,18 +23,19 @@ using namespace KScreen;
 
 class Q_DECL_HIDDEN Screen::Private
 {
-  public:
-    Private():
-      id(0),
-      maxActiveOutputsCount(0)
-    { }
+public:
+    Private()
+        : id(0)
+        , maxActiveOutputsCount(0)
+    {
+    }
 
-    Private(const Private &other):
-        id(other.id),
-        maxActiveOutputsCount(other.maxActiveOutputsCount),
-        currentSize(other.currentSize),
-        minSize(other.minSize),
-        maxSize(other.maxSize)
+    Private(const Private &other)
+        : id(other.id)
+        , maxActiveOutputsCount(other.maxActiveOutputsCount)
+        , currentSize(other.currentSize)
+        , minSize(other.minSize)
+        , maxSize(other.maxSize)
     {
     }
 
@@ -46,17 +47,16 @@ class Q_DECL_HIDDEN Screen::Private
 };
 
 Screen::Screen()
- : QObject(nullptr)
- , d(new Private())
+    : QObject(nullptr)
+    , d(new Private())
 {
 }
 
 Screen::Screen(Screen::Private *dd)
- : QObject()
- , d(dd)
+    : QObject()
+    , d(dd)
 {
 }
-
 
 Screen::~Screen()
 {
@@ -67,7 +67,6 @@ ScreenPtr Screen::clone() const
 {
     return ScreenPtr(new Screen(new Private(*d)));
 }
-
 
 int Screen::id() const
 {
@@ -84,7 +83,7 @@ QSize Screen::currentSize() const
     return d->currentSize;
 }
 
-void Screen::setCurrentSize(const QSize& currentSize)
+void Screen::setCurrentSize(const QSize &currentSize)
 {
     if (d->currentSize == currentSize) {
         return;
@@ -100,7 +99,7 @@ QSize Screen::maxSize() const
     return d->maxSize;
 }
 
-void Screen::setMaxSize(const QSize& maxSize)
+void Screen::setMaxSize(const QSize &maxSize)
 {
     d->maxSize = maxSize;
 }
@@ -110,7 +109,7 @@ QSize Screen::minSize() const
     return d->minSize;
 }
 
-void Screen::setMinSize(const QSize& minSize)
+void Screen::setMinSize(const QSize &minSize)
 {
     d->minSize = minSize;
 }

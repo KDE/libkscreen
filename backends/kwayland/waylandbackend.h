@@ -25,7 +25,6 @@
 
 namespace KScreen
 {
-
 class WaylandConfig;
 
 class WaylandBackend : public KScreen::AbstractBackend

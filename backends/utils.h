@@ -21,8 +21,8 @@
 
 #include "output.h"
 
-namespace Utils {
-
+namespace Utils
+{
 KScreen::Output::Type guessOutputType(const QString &type, const QString &name);
 
 }

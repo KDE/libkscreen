@@ -17,9 +17,9 @@
  *************************************************************************************/
 
 #include <QCoreApplication>
-#include <QtTest>
 #include <QObject>
 #include <QSignalSpy>
+#include <QtTest>
 
 #include "../src/backendmanager_p.h"
 
@@ -77,6 +77,7 @@ void TestBackendLoader::testEnv_data()
     QTest::addColumn<QString>("var");
     QTest::addColumn<QString>("backend");
 
+    // clang-format off
     QTest::newRow("all lower") << "kwayland" << "KSC_KWayland";
     QTest::newRow("camel case") << "KWayland" << "KSC_KWayland";
     QTest::newRow("all upper") << "KWAYLAND" << "KSC_KWayland";
@@ -85,6 +86,7 @@ void TestBackendLoader::testEnv_data()
     QTest::newRow("xrandr 1.1") << "xrandr11" << "KSC_XRandR11";
     QTest::newRow("qscreen") << "qscreen" << "KSC_QScreen";
     QTest::newRow("mixed") << "fake" << "KSC_Fake";
+    // clang-format on
 }
 
 void TestBackendLoader::testEnv()

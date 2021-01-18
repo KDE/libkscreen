@@ -34,8 +34,7 @@ class XRandRCrtc : public QObject
     Q_OBJECT
 
 public:
-    typedef QMap<xcb_randr_crtc_t, XRandRCrtc*> Map;
-
+    typedef QMap<xcb_randr_crtc_t, XRandRCrtc *> Map;
 
     XRandRCrtc(xcb_randr_crtc_t crtc, XRandRConfig *config);
 

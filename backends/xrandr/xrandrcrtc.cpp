@@ -70,8 +70,7 @@ bool XRandRCrtc::connectOutput(xcb_randr_output_t output)
     qCDebug(KSCREEN_XRANDR) << "Connected output" << output << "to CRTC" << m_crtc;
 
     if (!m_possibleOutputs.contains(output)) {
-        qCDebug(KSCREEN_XRANDR) << "Output" << output
-                                << "is not an allowed output for CRTC" << m_crtc;
+        qCDebug(KSCREEN_XRANDR) << "Output" << output << "is not an allowed output for CRTC" << m_crtc;
         return false;
     }
 
@@ -103,7 +102,7 @@ void XRandRCrtc::update()
     m_mode = crtcInfo->mode;
 
     m_geometry = QRect(crtcInfo->x, crtcInfo->y, crtcInfo->width, crtcInfo->height);
-    m_rotation = (xcb_randr_rotation_t) crtcInfo->rotation;
+    m_rotation = (xcb_randr_rotation_t)crtcInfo->rotation;
 
     m_possibleOutputs.clear();
     m_possibleOutputs.reserve(crtcInfo->num_possible_outputs);
@@ -126,4 +125,3 @@ void XRandRCrtc::update(xcb_randr_mode_t mode, xcb_randr_rotation_t rotation, co
     m_geometry = geom;
     m_rotation = rotation;
 }
-

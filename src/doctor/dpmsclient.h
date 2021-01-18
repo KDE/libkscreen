@@ -19,25 +19,25 @@
 #ifndef KSCREEN_DPMSCLIENT_H
 #define KSCREEN_DPMSCLIENT_H
 
+#include "../config.h"
 #include <QObject>
 #include <QRect>
-#include "../config.h"
 
-#include <KWayland/Client/registry.h>
 #include <KWayland/Client/dpms.h>
+#include <KWayland/Client/registry.h>
 
 class QThread;
 
 namespace KWayland
 {
-    namespace Client {
-        class ConnectionThread;
-    }
+namespace Client
+{
+class ConnectionThread;
+}
 }
 
 namespace KScreen
 {
-
 class DpmsClient : public QObject
 {
     Q_OBJECT
@@ -46,7 +46,8 @@ public:
     explicit DpmsClient(QObject *parent = nullptr);
     ~DpmsClient() override;
 
-    void setExcludedOutputNames(const QStringList &excluded) {
+    void setExcludedOutputNames(const QStringList &excluded)
+    {
         m_excludedOutputNames = excluded;
     }
 

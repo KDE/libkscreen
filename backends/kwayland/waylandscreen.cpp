@@ -39,7 +39,7 @@ ScreenPtr WaylandScreen::toKScreenScreen(KScreen::ConfigPtr &parent) const
     return kscreenScreen;
 }
 
-void WaylandScreen::setOutputs(const QList<WaylandOutput*> &outputs)
+void WaylandScreen::setOutputs(const QList<WaylandOutput *> &outputs)
 {
     m_outputCount = outputs.count();
 
@@ -63,4 +63,3 @@ void WaylandScreen::updateKScreenScreen(KScreen::ScreenPtr &screen) const
     screen->setCurrentSize(m_size);
     screen->setMaxActiveOutputsCount(m_outputCount);
 }
-

@@ -21,28 +21,27 @@
 
 #include "abstractbackend.h"
 #include "backendmanager_p.h"
-#include "configoperation_p.h"
 #include "config.h"
+#include "configoperation_p.h"
 #include "configserializer_p.h"
 #include "kscreen_debug.h"
 #include "output.h"
 
-#include <QDBusPendingCallWatcher>
 #include <QDBusPendingCall>
+#include <QDBusPendingCallWatcher>
 
 using namespace KScreen;
 
 namespace KScreen
 {
-
 class SetConfigOperationPrivate : public ConfigOperationPrivate
 {
     Q_OBJECT
 
 public:
-    explicit SetConfigOperationPrivate(const KScreen::ConfigPtr &config, ConfigOperation* qq);
+    explicit SetConfigOperationPrivate(const KScreen::ConfigPtr &config, ConfigOperation *qq);
 
-    void backendReady(org::kde::kscreen::Backend* backend) override;
+    void backendReady(org::kde::kscreen::Backend *backend) override;
     void onConfigSet(QDBusPendingCallWatcher *watcher);
     void normalizeOutputPositions();
 
@@ -54,13 +53,13 @@ private:
 
 }
 
-SetConfigOperationPrivate::SetConfigOperationPrivate(const ConfigPtr &config, ConfigOperation* qq)
+SetConfigOperationPrivate::SetConfigOperationPrivate(const ConfigPtr &config, ConfigOperation *qq)
     : ConfigOperationPrivate(qq)
     , config(config)
 {
 }
 
-void SetConfigOperationPrivate::backendReady(org::kde::kscreen::Backend* backend)
+void SetConfigOperationPrivate::backendReady(org::kde::kscreen::Backend *backend)
 {
     ConfigOperationPrivate::backendReady(backend);
 
@@ -80,8 +79,7 @@ void SetConfigOperationPrivate::backendReady(org::kde::kscreen::Backend* backend
     }
 
     QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(backend->setConfig(map), this);
-    connect(watcher, &QDBusPendingCallWatcher::finished,
-            this, &SetConfigOperationPrivate::onConfigSet);
+    connect(watcher, &QDBusPendingCallWatcher::finished, this, &SetConfigOperationPrivate::onConfigSet);
 }
 
 void SetConfigOperationPrivate::onConfigSet(QDBusPendingCallWatcher *watcher)
@@ -105,7 +103,7 @@ void SetConfigOperationPrivate::onConfigSet(QDBusPendingCallWatcher *watcher)
     q->emitResult();
 }
 
-SetConfigOperation::SetConfigOperation(const ConfigPtr &config, QObject* parent)
+SetConfigOperation::SetConfigOperation(const ConfigPtr &config, QObject *parent)
     : ConfigOperation(new SetConfigOperationPrivate(config, this), parent)
 {
 }

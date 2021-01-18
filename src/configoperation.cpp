@@ -19,14 +19,14 @@
  */
 
 #include "configoperation.h"
-#include "configoperation_p.h"
 #include "backendmanager_p.h"
+#include "configoperation_p.h"
 
 #include "kscreen_debug.h"
 
 using namespace KScreen;
 
-ConfigOperationPrivate::ConfigOperationPrivate(ConfigOperation* qq)
+ConfigOperationPrivate::ConfigOperationPrivate(ConfigOperation *qq)
     : QObject()
     , isExec(false)
     , q_ptr(qq)
@@ -40,8 +40,7 @@ ConfigOperationPrivate::~ConfigOperationPrivate()
 void ConfigOperationPrivate::requestBackend()
 {
     Q_ASSERT(BackendManager::instance()->method() == BackendManager::OutOfProcess);
-    connect(BackendManager::instance(), &BackendManager::backendReady,
-            this, &ConfigOperationPrivate::backendReady);
+    connect(BackendManager::instance(), &BackendManager::backendReady, this, &ConfigOperationPrivate::backendReady);
     BackendManager::instance()->requestBackend();
 }
 
@@ -50,8 +49,7 @@ void ConfigOperationPrivate::backendReady(org::kde::kscreen::Backend *backend)
     Q_ASSERT(BackendManager::instance()->method() == BackendManager::OutOfProcess);
     Q_UNUSED(backend);
 
-    disconnect(BackendManager::instance(), &BackendManager::backendReady,
-               this, &ConfigOperationPrivate::backendReady);
+    disconnect(BackendManager::instance(), &BackendManager::backendReady, this, &ConfigOperationPrivate::backendReady);
 }
 
 void ConfigOperationPrivate::doEmitResult()
@@ -71,7 +69,7 @@ void ConfigOperationPrivate::doEmitResult()
     }
 }
 
-ConfigOperation::ConfigOperation(ConfigOperationPrivate* dd, QObject* parent)
+ConfigOperation::ConfigOperation(ConfigOperationPrivate *dd, QObject *parent)
     : QObject(parent)
     , d_ptr(dd)
 {
@@ -97,7 +95,7 @@ QString ConfigOperation::errorString() const
     return d->error;
 }
 
-void ConfigOperation::setError(const QString& error)
+void ConfigOperation::setError(const QString &error)
 {
     Q_D(ConfigOperation);
     d->error = error;
@@ -116,11 +114,10 @@ bool ConfigOperation::exec()
     Q_D(ConfigOperation);
 
     QEventLoop loop;
-    connect(this, &ConfigOperation::finished, this,
-            [&](ConfigOperation *op) {
-                Q_UNUSED(op);
-                loop.quit();
-            });
+    connect(this, &ConfigOperation::finished, this, [&](ConfigOperation *op) {
+        Q_UNUSED(op);
+        loop.quit();
+    });
 
     d->isExec = true;
     loop.exec(QEventLoop::ExcludeUserInputEvents);
@@ -130,7 +127,7 @@ bool ConfigOperation::exec()
     return !hasError();
 }
 
-KScreen::AbstractBackend* ConfigOperationPrivate::loadBackend()
+KScreen::AbstractBackend *ConfigOperationPrivate::loadBackend()
 {
     Q_ASSERT(BackendManager::instance()->method() == BackendManager::InProcess);
     Q_Q(ConfigOperation);

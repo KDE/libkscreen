@@ -20,8 +20,8 @@
 #ifndef BACKENDLAUNCHER_H
 #define BACKENDLAUNCHER_H
 
-#include <QObject>
 #include <QDBusContext>
+#include <QObject>
 
 namespace KScreen
 {
@@ -31,8 +31,7 @@ class AbstractBackend;
 class QPluginLoader;
 class BackendDBusWrapper;
 
-class BackendLoader : public QObject
-                    , protected QDBusContext
+class BackendLoader : public QObject, protected QDBusContext
 {
     Q_OBJECT
     Q_CLASSINFO("D-Bus Interface", "org.kde.KScreen")

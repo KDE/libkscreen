@@ -18,18 +18,18 @@
  *************************************************************************************/
 #include "xrandroutput.h"
 
+#include "../utils.h"
 #include "config.h"
 #include "xrandr.h"
 #include "xrandrconfig.h"
 #include "xrandrmode.h"
-#include "../utils.h"
 
 #include <xcb/render.h>
 
 Q_DECLARE_METATYPE(QList<int>)
 
-#define DOUBLE_TO_FIXED(d) ((xcb_render_fixed_t) ((d) * 65536))
-#define FIXED_TO_DOUBLE(f) ((double) ((f) / 65536.0))
+#define DOUBLE_TO_FIXED(d) ((xcb_render_fixed_t)((d)*65536))
+#define FIXED_TO_DOUBLE(f) ((double)((f) / 65536.0))
 
 xcb_render_fixed_t fOne = DOUBLE_TO_FIXED(1);
 xcb_render_fixed_t fZero = DOUBLE_TO_FIXED(0);
@@ -89,7 +89,7 @@ QString XRandROutput::currentModeId() const
     return m_crtc ? QString::number(m_crtc->mode()) : QString();
 }
 
-XRandRMode* XRandROutput::currentMode() const
+XRandRMode *XRandROutput::currentMode() const
 {
     if (!m_crtc) {
         return nullptr;
@@ -105,8 +105,7 @@ XRandRMode* XRandROutput::currentMode() const
 
 KScreen::Output::Rotation XRandROutput::rotation() const
 {
-    return static_cast<KScreen::Output::Rotation>(m_crtc ? m_crtc->rotation() :
-                                                           XCB_RANDR_ROTATION_ROTATE_0);
+    return static_cast<KScreen::Output::Rotation>(m_crtc ? m_crtc->rotation() : XCB_RANDR_ROTATION_ROTATE_0);
 }
 
 bool XRandROutput::isHorizontal() const
@@ -123,7 +122,7 @@ QByteArray XRandROutput::edid() const
     return m_edid;
 }
 
-XRandRCrtc* XRandROutput::crtc() const
+XRandRCrtc *XRandROutput::crtc() const
 {
     return m_crtc;
 }
@@ -133,10 +132,10 @@ void XRandROutput::update()
     init();
 }
 
-void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_connection_t conn,
-                          bool primary)
+void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_connection_t conn, bool primary)
 {
-    qCDebug(KSCREEN_XRANDR) << "XRandROutput" << m_id << "update" << "\n"
+    qCDebug(KSCREEN_XRANDR) << "XRandROutput" << m_id << "update"
+                            << "\n"
                             << "\tm_connected:" << m_connected << "\n"
                             << "\tm_crtc" << m_crtc << "\n"
                             << "\tCRTC:" << crtc << "\n"
@@ -197,7 +196,6 @@ void XRandROutput::setIsPrimary(bool primary)
     m_primary = primary;
 }
 
-
 void XRandROutput::init()
 {
     XCB::OutputInfo outputInfo(m_id, XCB_TIME_CURRENT_TIME);
@@ -208,11 +206,10 @@ void XRandROutput::init()
 
     XCB::PrimaryOutput primary(XRandR::rootWindow());
 
-    m_name = QString::fromUtf8((const char *) xcb_randr_get_output_info_name(outputInfo.data()),
-                               outputInfo->name_len);
+    m_name = QString::fromUtf8((const char *)xcb_randr_get_output_info_name(outputInfo.data()), outputInfo->name_len);
     m_type = fetchOutputType(m_id, m_name);
     m_icon = QString();
-    m_connected = (xcb_randr_connection_t) outputInfo->connection;
+    m_connected = (xcb_randr_connection_t)outputInfo->connection;
     m_primary = (primary->output == m_id);
 
     xcb_randr_output_t *clones = xcb_randr_get_output_info_clones(outputInfo.data());
@@ -235,8 +232,7 @@ void XRandROutput::init()
 void XRandROutput::updateModes(const XCB::OutputInfo &outputInfo)
 {
     /* Init modes */
-    XCB::ScopedPointer<xcb_randr_get_screen_resources_reply_t>
-            screenResources(XRandR::screenResources());
+    XCB::ScopedPointer<xcb_randr_get_screen_resources_reply_t> screenResources(XRandR::screenResources());
 
     Q_ASSERT(screenResources);
     if (!screenResources) {
@@ -267,8 +263,7 @@ void XRandROutput::updateModes(const XCB::OutputInfo &outputInfo)
     }
 }
 
-KScreen::Output::Type XRandROutput::fetchOutputType(xcb_randr_output_t outputId,
-                                                    const QString &name)
+KScreen::Output::Type XRandROutput::fetchOutputType(xcb_randr_output_t outputId, const QString &name)
 {
     QString type = QString::fromUtf8(typeFromProperty(outputId));
     if (type.isEmpty()) {
@@ -287,10 +282,8 @@ QByteArray XRandROutput::typeFromProperty(xcb_randr_output_t outputId)
         return type;
     }
 
-    auto cookie = xcb_randr_get_output_property(XCB::connection(), outputId, atomType->atom,
-                                                XCB_ATOM_ANY, 0, 100, false, false);
-    XCB::ScopedPointer<xcb_randr_get_output_property_reply_t>
-            reply(xcb_randr_get_output_property_reply(XCB::connection(), cookie, nullptr));
+    auto cookie = xcb_randr_get_output_property(XCB::connection(), outputId, atomType->atom, XCB_ATOM_ANY, 0, 100, false, false);
+    XCB::ScopedPointer<xcb_randr_get_output_property_reply_t> reply(xcb_randr_get_output_property_reply(XCB::connection(), cookie, nullptr));
     if (!reply) {
         return type;
     }
@@ -300,7 +293,7 @@ QByteArray XRandROutput::typeFromProperty(xcb_randr_output_t outputId)
     }
 
     const uint8_t *prop = xcb_randr_get_output_property_data(reply.data());
-    XCB::AtomName atomName(*reinterpret_cast<const xcb_atom_t*>(prop));
+    XCB::AtomName atomName(*reinterpret_cast<const xcb_atom_t *>(prop));
     if (!atomName) {
         return type;
     }
@@ -316,23 +309,34 @@ QByteArray XRandROutput::typeFromProperty(xcb_randr_output_t outputId)
 
 bool isScaling(const xcb_render_transform_t &tr)
 {
-    return tr.matrix11 != fZero && tr.matrix12 == fZero && tr.matrix13 == fZero &&
-           tr.matrix21 == fZero && tr.matrix22 != fZero && tr.matrix23 == fZero &&
-           tr.matrix31 == fZero && tr.matrix32 == fZero && tr.matrix33 == fOne;
+    return tr.matrix11 != fZero && tr.matrix12 == fZero && tr.matrix13 == fZero && tr.matrix21 == fZero && tr.matrix22 != fZero && tr.matrix23 == fZero
+        && tr.matrix31 == fZero && tr.matrix32 == fZero && tr.matrix33 == fOne;
 }
 
 xcb_render_transform_t zeroTransform()
 {
-    return { DOUBLE_TO_FIXED(0), DOUBLE_TO_FIXED(0), DOUBLE_TO_FIXED(0),
-             DOUBLE_TO_FIXED(0), DOUBLE_TO_FIXED(0), DOUBLE_TO_FIXED(0),
-             DOUBLE_TO_FIXED(0), DOUBLE_TO_FIXED(0), DOUBLE_TO_FIXED(0) };
+    return {DOUBLE_TO_FIXED(0),
+            DOUBLE_TO_FIXED(0),
+            DOUBLE_TO_FIXED(0),
+            DOUBLE_TO_FIXED(0),
+            DOUBLE_TO_FIXED(0),
+            DOUBLE_TO_FIXED(0),
+            DOUBLE_TO_FIXED(0),
+            DOUBLE_TO_FIXED(0),
+            DOUBLE_TO_FIXED(0)};
 }
 
 xcb_render_transform_t unityTransform()
 {
-    return { DOUBLE_TO_FIXED(1), DOUBLE_TO_FIXED(0), DOUBLE_TO_FIXED(0),
-             DOUBLE_TO_FIXED(0), DOUBLE_TO_FIXED(1), DOUBLE_TO_FIXED(0),
-             DOUBLE_TO_FIXED(0), DOUBLE_TO_FIXED(0), DOUBLE_TO_FIXED(1) };
+    return {DOUBLE_TO_FIXED(1),
+            DOUBLE_TO_FIXED(0),
+            DOUBLE_TO_FIXED(0),
+            DOUBLE_TO_FIXED(0),
+            DOUBLE_TO_FIXED(1),
+            DOUBLE_TO_FIXED(0),
+            DOUBLE_TO_FIXED(0),
+            DOUBLE_TO_FIXED(0),
+            DOUBLE_TO_FIXED(1)};
 }
 
 xcb_render_transform_t XRandROutput::currentTransform() const
@@ -375,7 +379,7 @@ void XRandROutput::updateLogicalSize(const KScreen::OutputPtr &output, XRandRCrt
     xcb_render_transform_t transform = unityTransform();
 
     KScreen::ModePtr mode = output->currentMode() ? output->currentMode() : output->preferredMode();
-    if(mode && logicalSize.isValid()) {
+    if (mode && logicalSize.isValid()) {
         QSize modeSize = mode->size();
         if (!output->isHorizontal()) {
             modeSize.transpose();
@@ -389,11 +393,7 @@ void XRandROutput::updateLogicalSize(const KScreen::OutputPtr &output, XRandRCrt
 
     QByteArray filterName(isScaling(transform) ? "bilinear" : "nearest");
 
-    auto cookie = xcb_randr_set_crtc_transform_checked(XCB::connection(),
-                                                       crtc->crtc(),
-                                                       transform,
-                                                       filterName.size(), filterName.data(),
-                                                       0, nullptr);
+    auto cookie = xcb_randr_set_crtc_transform_checked(XCB::connection(), crtc->crtc(), transform, filterName.size(), filterName.data(), 0, nullptr);
     xcb_generic_error_t *error = xcb_request_check(XCB::connection(), cookie);
     if (error) {
         qCDebug(KSCREEN_XRANDR) << "Error on logical size transformation!";
@@ -413,8 +413,8 @@ KScreen::OutputPtr XRandROutput::toKScreenOutput() const
     kscreenOutput->setName(m_name);
     kscreenOutput->setIcon(m_icon);
 
-    //See https://bugzilla.redhat.com/show_bug.cgi?id=1290586
-    //QXL will be creating a new mode we need to jump to every time the display is resized
+    // See https://bugzilla.redhat.com/show_bug.cgi?id=1290586
+    // QXL will be creating a new mode we need to jump to every time the display is resized
     kscreenOutput->setFollowPreferredMode(m_hotplugModeUpdate);
 
     kscreenOutput->setConnected(isConnected());
