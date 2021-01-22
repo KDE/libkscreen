@@ -28,7 +28,20 @@ XRandRMode::XRandRMode(const xcb_randr_mode_info_t &modeInfo, XRandROutput *outp
     // FIXME XCB
     // m_name = QString::fromUtf8(modeInfo->name);
     m_size = QSize(modeInfo.width, modeInfo.height);
-    m_refreshRate = (float)modeInfo.dot_clock / ((float)modeInfo.htotal * (float)modeInfo.vtotal);
+
+    double vTotal = modeInfo.vtotal;
+    if (modeInfo.mode_flags & XCB_RANDR_MODE_FLAG_DOUBLE_SCAN) {
+        /* doublescan doubles the number of lines */
+        vTotal *= 2;
+    }
+
+    if (modeInfo.mode_flags & XCB_RANDR_MODE_FLAG_INTERLACE) {
+        /* interlace splits the frame into two fields */
+        /* the field rate is what is typically reported by monitors */
+        vTotal /= 2;
+    }
+
+    m_refreshRate = (float)modeInfo.dot_clock / ((float)modeInfo.htotal * vTotal);
 }
 
 XRandRMode::~XRandRMode()
