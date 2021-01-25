@@ -29,24 +29,48 @@
 using namespace KScreen;
 namespace Wl = KWayland::Client;
 
-const QMap<Wl::OutputDevice::Transform, Output::Rotation> s_rotationMap = //
-    {{Wl::OutputDevice::Transform::Normal, Output::None},
-     {Wl::OutputDevice::Transform::Rotated90, Output::Right},
-     {Wl::OutputDevice::Transform::Rotated180, Output::Inverted},
-     {Wl::OutputDevice::Transform::Rotated270, Output::Left},
-     {Wl::OutputDevice::Transform::Flipped, Output::None},
-     {Wl::OutputDevice::Transform::Flipped90, Output::Right},
-     {Wl::OutputDevice::Transform::Flipped180, Output::Inverted},
-     {Wl::OutputDevice::Transform::Flipped270, Output::Left}};
-
 Output::Rotation toKScreenRotation(const Wl::OutputDevice::Transform transform)
 {
-    return s_rotationMap.value(transform);
+    switch (transform) {
+    case KWayland::Client::OutputDevice::Transform::Normal:
+        return Output::None;
+    case KWayland::Client::OutputDevice::Transform::Rotated90:
+        return Output::Left;
+    case KWayland::Client::OutputDevice::Transform::Rotated180:
+        return Output::Inverted;
+    case KWayland::Client::OutputDevice::Transform::Rotated270:
+        return Output::Right;
+    case KWayland::Client::OutputDevice::Transform::Flipped:
+        qCWarning(KSCREEN_WAYLAND) << "flipped transform is unsupported by kscreen";
+        return Output::None;
+    case KWayland::Client::OutputDevice::Transform::Flipped90:
+        qCWarning(KSCREEN_WAYLAND) << "flipped-90 transform is unsupported by kscreen";
+        return Output::Left;
+    case KWayland::Client::OutputDevice::Transform::Flipped180:
+        qCWarning(KSCREEN_WAYLAND) << "flipped-180 transform is unsupported by kscreen";
+        return Output::Inverted;
+    case KWayland::Client::OutputDevice::Transform::Flipped270:
+        qCWarning(KSCREEN_WAYLAND) << "flipped-270 transform is unsupported by kscreen";
+        return Output::Right;
+    default:
+        Q_UNREACHABLE();
+    }
 }
 
 Wl::OutputDevice::Transform toKWaylandTransform(const Output::Rotation rotation)
 {
-    return s_rotationMap.key(rotation);
+    switch (rotation) {
+    case Output::None:
+        return KWayland::Client::OutputDevice::Transform::Normal;
+    case Output::Left:
+        return KWayland::Client::OutputDevice::Transform::Rotated90;
+    case Output::Inverted:
+        return KWayland::Client::OutputDevice::Transform::Rotated180;
+    case Output::Right:
+        return KWayland::Client::OutputDevice::Transform::Rotated270;
+    default:
+        Q_UNREACHABLE();
+    }
 }
 
 WaylandOutput::WaylandOutput(quint32 id, WaylandConfig *parent)
@@ -102,7 +126,7 @@ void WaylandOutput::updateKScreenOutput(OutputPtr &output)
     output->setName(name());
     output->setSizeMm(m_device->physicalSize());
     output->setPos(m_device->globalPosition());
-    output->setRotation(s_rotationMap[m_device->transform()]);
+    output->setRotation(toKScreenRotation(m_device->transform()));
     if (!output->edid()) {
         output->setEdid(m_device->edid());
     }
