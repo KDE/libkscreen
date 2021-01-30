@@ -7,7 +7,7 @@ macro(KSCREEN_ADD_TEST)
         set(test_SRCS ${_testname}.cpp ${KSCREEN_WAYLAND_SRCS})
         qt5_add_dbus_interface(test_SRCS ${CMAKE_SOURCE_DIR}/interfaces/org.kde.KScreen.FakeBackend.xml fakebackendinterface)
         add_executable(${_testname} ${test_SRCS})
-        target_link_libraries(${_testname} Qt5::Core Qt5::Gui Qt5::Test Qt5::DBus KF5::Screen ${KSCREEN_WAYLAND_LIBS})
+        target_link_libraries(${_testname} Qt::Core Qt::Gui Qt::Test Qt::DBus KF5::Screen ${KSCREEN_WAYLAND_LIBS})
         add_test(NAME kscreen-${_testname}
                  COMMAND dbus-launch $<TARGET_FILE:${_testname}>
         )

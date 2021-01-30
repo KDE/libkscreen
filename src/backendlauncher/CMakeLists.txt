@@ -24,10 +24,10 @@ add_executable(kscreen_backend_launcher ${backendlauncher_SRCS})
 
 target_link_libraries(kscreen_backend_launcher
     KF5Screen
-    Qt5::Core
-    Qt5::Gui
-    Qt5::X11Extras
-    Qt5::DBus
+    Qt::Core
+    Qt::Gui
+    Qt::X11Extras
+    Qt::DBus
 )
 
 install(TARGETS kscreen_backend_launcher

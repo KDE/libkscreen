@@ -16,9 +16,9 @@ add_library(KSC_XRandR11 MODULE ${xrandr11_SRCS})
 
 set_target_properties(KSC_XRandR11 PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/kf5/kscreen")
 set_target_properties(KSC_XRandR11 PROPERTIES PREFIX "")
-target_link_libraries(KSC_XRandR11 Qt5::Core
-                                   Qt5::Gui
-                                   Qt5::X11Extras
+target_link_libraries(KSC_XRandR11 Qt::Core
+                                   Qt::Gui
+                                   Qt::X11Extras
                                    ${XCB_LIBRARIES}
                                    KF5::Screen
 )

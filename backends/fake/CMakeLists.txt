@@ -17,8 +17,8 @@ add_library(KSC_Fake MODULE ${fake_SRCS})
 set_target_properties(KSC_Fake PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/kf5/kscreen")
 set_target_properties(KSC_Fake PROPERTIES PREFIX "")
 target_link_libraries(KSC_Fake
-    Qt5::Core
-    Qt5::DBus
+    Qt::Core
+    Qt::DBus
     KF5::Screen
 )
 

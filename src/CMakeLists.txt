@@ -38,11 +38,11 @@ generate_export_header(KF5Screen BASE_NAME KScreen)
 
 target_link_libraries(KF5Screen
     PUBLIC
-    Qt5::Core
-    Qt5::Gui
+    Qt::Core
+    Qt::Gui
     PRIVATE
-    Qt5::DBus
-    Qt5::X11Extras
+    Qt::DBus
+    Qt::X11Extras
 )
 
 set_target_properties(KF5Screen PROPERTIES
