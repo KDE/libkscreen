@@ -20,7 +20,6 @@ include(ECMGenerateHeaders)
 include(ECMQtDeclareLoggingCategory)
 include(ECMAddQch)
 include(FeatureSummary)
-include(CheckCXXCompilerFlag)
 include(CMakePackageConfigHelpers)
 include(GenerateExportHeader)
 include(KDEClangFormat)
@@ -50,16 +49,6 @@ ecm_setup_version(${PROJECT_VERSION} VARIABLE_PREFIX KSCREEN
                         VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/kscreen_version.h"
                         PACKAGE_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/KF5ScreenConfigVersion.cmake"
                         SOVERSION 7)
-
-check_cxx_compiler_flag(-fvisibility=hidden _HAVE_VISIBILITY)
-if (_HAVE_VISIBILITY AND NOT WIN32)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
-
-  check_cxx_compiler_flag(-fvisibility-inlines-hidden _HAVE_VISIBILITY_INLINES)
-  if (_HAVE_VISIBILITY_INLINES)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility-inlines-hidden")
-  endif (_HAVE_VISIBILITY_INLINES)
-endif (_HAVE_VISIBILITY AND NOT WIN32)
 
 add_subdirectory(src)
 add_subdirectory(backends)
