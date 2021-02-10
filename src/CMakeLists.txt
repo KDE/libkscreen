@@ -1,5 +1,3 @@
-include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${QT_INCLUDES})
-
 add_subdirectory(backendlauncher)
 add_subdirectory(doctor)
 set(libkscreen_SRCS

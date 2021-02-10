@@ -23,7 +23,7 @@
 #include <QObject>
 #include <QTimer>
 
-#include "src/types.h"
+#include "types.h"
 
 namespace KScreen
 {

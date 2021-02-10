@@ -18,11 +18,11 @@
  */
 
 #include "backendloader.h"
+#include "abstractbackend.h"
 #include "backenddbuswrapper.h"
 #include "backendloaderadaptor.h"
+#include "backendmanager_p.h"
 #include "kscreen_backendLauncher_debug.h"
-#include "src/abstractbackend.h"
-#include "src/backendmanager_p.h"
 
 #include <QCoreApplication>
 #include <QDBusConnectionInterface>
