@@ -69,7 +69,7 @@ void Doctor::start(QCommandLineParser *parser)
     if (m_parser->isSet(QStringLiteral("info"))) {
         showBackends();
     }
-    if (parser->isSet(QStringLiteral("json")) || parser->isSet(QStringLiteral("outputs")) || !m_positionalArgs.isEmpty()) {
+    if (parser->isSet(QStringLiteral("json")) || parser->isSet(QStringLiteral("outputs")) || !m_outputArgs.isEmpty()) {
         KScreen::GetConfigOperation *op = new KScreen::GetConfigOperation();
         connect(op, &KScreen::GetConfigOperation::finished, this, [this](KScreen::ConfigOperation *op) {
             configReceived(op);
@@ -167,15 +167,15 @@ void Doctor::showBackends() const
     cout << Qt::endl;
 }
 
-void Doctor::setOptionList(const QStringList &positionalArgs)
+void Doctor::setOptionList(const QStringList &outputArgs)
 {
-    m_positionalArgs = positionalArgs;
+    m_outputArgs = outputArgs;
 }
 
-void Doctor::parsePositionalArgs()
+void Doctor::parseOutputArgs()
 {
     // qCDebug(KSCREEN_DOCTOR) << "POSARGS" << m_positionalArgs;
-    for (const QString &op : qAsConst(m_positionalArgs)) {
+    for (const QString &op : qAsConst(m_outputArgs)) {
         auto ops = op.split(QLatin1Char('.'));
         if (ops.count() > 2) {
             bool ok;
@@ -278,6 +278,25 @@ void Doctor::parsePositionalArgs()
                         qApp->exit(9);
                         return;
                     }
+                } else if (ops.count() == 4 && ops[2] == QLatin1String("vrrpolicy")) {
+                    const QString _policy = ops[3].toLower();
+                    KScreen::Output::VrrPolicy policy;
+                    if (_policy == QStringLiteral("never")) {
+                        policy = KScreen::Output::VrrPolicy::Never;
+                    } else if (_policy == QStringLiteral("always")) {
+                        policy = KScreen::Output::VrrPolicy::Always;
+                    } else if (_policy == QStringLiteral("automatic")) {
+                        policy = KScreen::Output::VrrPolicy::Automatic;
+                    } else {
+                        qCDebug(KSCREEN_DOCTOR) << "Wrong input: Only allowed values are \"never\", \"always\" and \"automatic\"";
+                        qApp->exit(9);
+                        return;
+                    }
+                    if (!setVrrPolicy(output_id, policy)) {
+                        qCDebug(KSCREEN_DOCTOR) << "Could not set vrr policy " << policy << " to output " << output_id;
+                        qApp->exit(9);
+                        return;
+                    }
                 } else {
                     cerr << "Unable to parse arguments: " << op << Qt::endl;
                     qApp->exit(2);
@@ -301,7 +320,7 @@ void Doctor::configReceived(KScreen::ConfigOperation *op)
         qApp->quit();
     }
 
-    parsePositionalArgs();
+    parseOutputArgs();
 
     if (m_changed) {
         applyConfig();
@@ -366,6 +385,21 @@ void Doctor::showOutputs() const
         cout << yellow << "Scale: " << cr << output->scale() << " ";
         cout << yellow << "Rotation: " << cr << output->rotation() << " ";
         cout << yellow << "Overscan: " << cr << output->overscan() << " ";
+        cout << yellow << "Vrr: ";
+        if (output->capabilities() & Output::Capability::Vrr) {
+            switch (output->vrrPolicy()) {
+            case Output::VrrPolicy::Never:
+                cout << cr << "Never ";
+                break;
+            case Output::VrrPolicy::Automatic:
+                cout << cr << "Automatic ";
+                break;
+            case Output::VrrPolicy::Always:
+                cout << cr << "Always ";
+            }
+        } else {
+            cout << cr << "incapable ";
+        }
         if (output->isPrimary()) {
             cout << blue << "primary";
         }
@@ -496,6 +530,24 @@ bool Doctor::setOverscan(int id, uint32_t overscan)
         }
     }
     cout << "Output overscan " << id << " invalid." << Qt::endl;
+    return false;
+}
+
+bool Doctor::setVrrPolicy(int id, KScreen::Output::VrrPolicy policy)
+{
+    if (!m_config) {
+        qCWarning(KSCREEN_DOCTOR) << "Invalid config.";
+        return false;
+    }
+
+    for (const auto &output : m_config->outputs()) {
+        if (output->id() == id) {
+            output->setVrrPolicy(policy);
+            m_changed = true;
+            return true;
+        }
+    }
+    cout << "Output VrrPolicy " << id << " invalid." << Qt::endl;
     return false;
 }
 

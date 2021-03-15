@@ -95,6 +95,10 @@ QJsonObject ConfigSerializer::serializeOutput(const OutputPtr &output)
         obj[QLatin1String("overscan")] = static_cast<int>(output->overscan());
     }
 
+    if (output->capabilities() & Output::Capability::Vrr) {
+        obj[QLatin1String("vrrPolicy")] = static_cast<int>(output->vrrPolicy());
+    }
+
     return obj;
 }
 
@@ -275,6 +279,8 @@ OutputPtr ConfigSerializer::deserializeOutput(const QDBusArgument &arg)
             output->setModes(modes);
         } else if (key == QLatin1String("overscan")) {
             output->setOverscan(value.toUInt());
+        } else if (key == QLatin1String("vrrPolicy")) {
+            output->setVrrPolicy(static_cast<Output::VrrPolicy>(value.toInt()));
         } else {
             qCWarning(KSCREEN) << "Invalid key in Output map: " << key;
             return OutputPtr();

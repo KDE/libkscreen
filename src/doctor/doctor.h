@@ -44,6 +44,7 @@ public:
     bool setScale(int id, qreal scale);
     bool setRotation(int id, KScreen::Output::Rotation rot);
     bool setOverscan(int id, uint32_t overscan);
+    bool setVrrPolicy(int id, KScreen::Output::VrrPolicy policy);
 
 Q_SIGNALS:
     void outputsChanged();
@@ -53,11 +54,11 @@ Q_SIGNALS:
 private:
     // static QString modeString(KWayland::Server::OutputDeviceInterface* outputdevice, int mid);
     void applyConfig();
-    void parsePositionalArgs();
+    void parseOutputArgs();
     KScreen::ConfigPtr m_config;
     QCommandLineParser *m_parser;
     bool m_changed;
-    QStringList m_positionalArgs;
+    QStringList m_outputArgs;
     DpmsClient *m_dpmsClient;
 };
 

@@ -50,6 +50,7 @@ public:
     Q_PROPERTY(QSizeF logicalSize READ logicalSize WRITE setLogicalSize NOTIFY logicalSizeChanged)
     Q_PROPERTY(Capabilities capabilities READ capabilities NOTIFY capabilitiesChanged)
     Q_PROPERTY(uint32_t overscan READ overscan WRITE setOverscan NOTIFY overscanChanged)
+    Q_PROPERTY(VrrPolicy vrrPolicy READ vrrPolicy WRITE setVrrPolicy NOTIFY vrrPolicyChanged)
 
     enum Type {
         Unknown,
@@ -80,10 +81,18 @@ public:
 
     enum class Capability {
         Overscan = 0x1,
+        Vrr = 0x2,
     };
     Q_ENUM(Capability)
     Q_DECLARE_FLAGS(Capabilities, Capability)
     Q_FLAG(Capabilities)
+
+    enum class VrrPolicy {
+        Never = 0,
+        Always = 1,
+        Automatic = 2,
+    };
+    Q_ENUM(VrrPolicy)
 
     explicit Output();
     ~Output() override;
@@ -363,6 +372,20 @@ public:
      */
     void setOverscan(uint32_t overscan);
 
+    /**
+     * @returns when variable refresh rate should be used on this output
+     *
+     * @since 5.22
+     */
+    VrrPolicy vrrPolicy() const;
+
+    /**
+     * Set when variable refresh rate should be used on this output
+     *
+     * @since 5.22
+     */
+    void setVrrPolicy(VrrPolicy policy);
+
     void apply(const OutputPtr &other);
 Q_SIGNALS:
     void outputChanged();
@@ -380,6 +403,7 @@ Q_SIGNALS:
     void followPreferredModeChanged(bool followPreferredMode);
     void capabilitiesChanged(Capabilities capabilities);
     void overscanChanged(uint32_t overscan);
+    void vrrPolicyChanged();
 
     /** The mode list changed.
      *

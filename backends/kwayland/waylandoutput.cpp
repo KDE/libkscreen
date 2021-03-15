@@ -171,6 +171,7 @@ void WaylandOutput::updateKScreenOutput(OutputPtr &output)
     output->setType(Utils::guessOutputType(m_device->model(), m_device->model()));
     output->setCapabilities(static_cast<Output::Capabilities>(static_cast<uint32_t>(m_device->capabilities())));
     output->setOverscan(m_device->overscan());
+    output->setVrrPolicy(static_cast<Output::VrrPolicy>(m_device->vrrPolicy()));
 }
 
 bool WaylandOutput::setWlConfig(Wl::OutputConfiguration *wlConfig, const KScreen::OutputPtr &output)
@@ -216,6 +217,12 @@ bool WaylandOutput::setWlConfig(Wl::OutputConfiguration *wlConfig, const KScreen
     // overscan
     if ((output->capabilities() & Output::Capability::Overscan) && m_device->overscan() != output->overscan()) {
         wlConfig->setOverscan(m_device, output->overscan());
+        changed = true;
+    }
+
+    // vrr
+    if ((output->capabilities() & Output::Capability::Vrr) && m_device->vrrPolicy() != static_cast<Wl::OutputDevice::VrrPolicy>(output->vrrPolicy())) {
+        wlConfig->setVrrPolicy(m_device, static_cast<Wl::OutputDevice::VrrPolicy>(output->vrrPolicy()));
         changed = true;
     }
 

@@ -57,6 +57,7 @@ public:
         , followPreferredMode(other.followPreferredMode)
         , capabilities(other.capabilities)
         , overscan(other.overscan)
+        , vrrPolicy(other.vrrPolicy)
     {
         const auto otherModeList = other.modeList;
         for (const ModePtr &otherMode : otherModeList) {
@@ -92,6 +93,7 @@ public:
     bool followPreferredMode = false;
     Capabilities capabilities;
     uint32_t overscan = 0;
+    VrrPolicy vrrPolicy = VrrPolicy::Automatic;
 
     QScopedPointer<Edid> edid;
 };
@@ -618,6 +620,19 @@ void Output::setOverscan(uint32_t overscan)
     if (d->overscan != overscan) {
         d->overscan = overscan;
         Q_EMIT overscanChanged(overscan);
+    }
+}
+
+Output::VrrPolicy Output::vrrPolicy() const
+{
+    return d->vrrPolicy;
+}
+
+void Output::setVrrPolicy(VrrPolicy policy)
+{
+    if (d->vrrPolicy != policy) {
+        d->vrrPolicy = policy;
+        Q_EMIT vrrPolicyChanged();
     }
 }
 
