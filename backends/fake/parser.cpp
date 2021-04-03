@@ -35,7 +35,7 @@ ConfigPtr Parser::fromJson(const QByteArray &data)
     }
 
     OutputList outputList;
-    Q_FOREACH (const QVariant &value, outputs) {
+    for (const QVariant &value : outputs) {
         const OutputPtr output = Parser::outputFromJson(value.toMap());
         outputList.insert(output->id(), output);
     }
@@ -104,7 +104,7 @@ OutputPtr Parser::outputFromJson(QMap<QString, QVariant> map)
 
     QStringList preferredModes;
     const QVariantList prefModes = map[QStringLiteral("preferredModes")].toList();
-    Q_FOREACH (const QVariant &mode, prefModes) {
+    for (const QVariant &mode : prefModes) {
         preferredModes.append(mode.toString());
     }
     output->setPreferredModes(preferredModes);
@@ -112,7 +112,7 @@ OutputPtr Parser::outputFromJson(QMap<QString, QVariant> map)
 
     ModeList modelist;
     const QVariantList modes = map[QStringLiteral("modes")].toList();
-    Q_FOREACH (const QVariant &modeValue, modes) {
+    for (const QVariant &modeValue : modes) {
         const ModePtr mode = Parser::modeFromJson(modeValue);
         modelist.insert(mode->id(), mode);
     }
@@ -121,7 +121,7 @@ OutputPtr Parser::outputFromJson(QMap<QString, QVariant> map)
 
     if (map.contains(QStringLiteral("clones"))) {
         QList<int> clones;
-        Q_FOREACH (const QVariant &id, map[QStringLiteral("clones")].toList()) {
+        for (const QVariant &id : map[QStringLiteral("clones")].toList()) {
             clones.append(id.toInt());
         }
 

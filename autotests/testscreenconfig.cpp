@@ -211,7 +211,7 @@ void testScreenConfig::configCanBeApplied()
     QVERIFY(!brokenConfig2.isNull());
 
     int enabledOutputsCount = 0;
-    Q_FOREACH (const OutputPtr &output, brokenConfig2->outputs()) {
+    for (const OutputPtr &output : brokenConfig2->outputs()) {
         if (output->isEnabled()) {
             ++enabledOutputsCount;
         }

@@ -115,7 +115,7 @@ void testWaylandBackend::verifyScreen()
 void testWaylandBackend::verifyOutputs()
 {
     bool primaryFound = false;
-    Q_FOREACH (const KScreen::OutputPtr op, m_config->outputs()) {
+    for (const KScreen::OutputPtr op : m_config->outputs()) {
         if (op->isPrimary()) {
             primaryFound = true;
         }
@@ -130,7 +130,7 @@ void testWaylandBackend::verifyOutputs()
     QVERIFY(primary->isConnected());
 
     QList<int> ids;
-    Q_FOREACH (const auto &output, m_config->outputs()) {
+    for (const auto &output : m_config->outputs()) {
         QVERIFY(!output->name().isEmpty());
         QVERIFY(output->id() > -1);
         QVERIFY(output->isConnected());
@@ -151,8 +151,8 @@ void testWaylandBackend::verifyModes()
     QVERIFY(primary);
     QVERIFY(primary->modes().count() > 0);
 
-    Q_FOREACH (const auto &output, m_config->outputs()) {
-        Q_FOREACH (auto mode, output->modes()) {
+    for (const auto &output : m_config->outputs()) {
+        for (const auto &mode : output->modes()) {
             QVERIFY(!mode->name().isEmpty());
             QVERIFY(mode->refreshRate() > 0);
             QVERIFY(mode->size().isValid());
@@ -163,7 +163,7 @@ void testWaylandBackend::verifyModes()
 void testWaylandBackend::verifyIds()
 {
     QList<quint32> ids;
-    Q_FOREACH (const auto &output, m_config->outputs()) {
+    for (const auto &output : m_config->outputs()) {
         QVERIFY(ids.contains(output->id()) == false);
         QVERIFY(output->id() > 0);
         ids << output->id();

@@ -25,7 +25,7 @@ KSCREEN_EXPORT QJsonObject serializeSize(const QSize &size);
 template<typename T> KSCREEN_EXPORT QJsonArray serializeList(const QList<T> &list)
 {
     QJsonArray arr;
-    Q_FOREACH (const T &t, list) {
+    for (const T &t : list) {
         arr.append(t);
     }
     return arr;

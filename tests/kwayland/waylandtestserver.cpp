@@ -66,9 +66,7 @@ void WaylandTestServer::start()
 
 void WaylandTestServer::stop()
 {
-    Q_FOREACH (const auto &o, m_outputs) {
-        delete o;
-    }
+    qDeleteAll(m_outputs);
     m_outputs.clear();
     // actually stop the Wayland server
     delete m_display;
@@ -153,7 +151,7 @@ void WaylandTestServer::configurationChangeRequested(KWayland::Server::OutputCon
 void WaylandTestServer::showOutputs()
 {
     qCDebug(KSCREEN_WAYLAND_TESTSERVER) << "******** Wayland server running: " << m_outputs.count() << " outputs. ********";
-    foreach (auto o, m_outputs) {
+    for (const auto &o : qAsConst(m_outputs)) {
         bool enabled = (o->enabled() == KWayland::Server::OutputDeviceInterface::Enablement::Enabled);
         qCDebug(KSCREEN_WAYLAND_TESTSERVER) << "  * Output id: " << o->uuid();
         qCDebug(KSCREEN_WAYLAND_TESTSERVER) << "      Enabled: " << (enabled ? "enabled" : "disabled");
@@ -171,7 +169,7 @@ QString WaylandTestServer::modeString(KWayland::Server::OutputDeviceInterface *o
     QString s;
     QString ids;
     int _i = 0;
-    Q_FOREACH (const auto &_m, outputdevice->modes()) {
+    for (const auto &_m : outputdevice->modes()) {
         _i++;
         if (_i < 6) {
             ids.append(QString::number(_m.id) + QLatin1String(", "));

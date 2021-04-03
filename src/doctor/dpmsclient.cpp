@@ -80,7 +80,7 @@ void DpmsClient::connected()
             m_dpmsManager = m_registry->createDpmsManager(dpmsData.name, dpmsData.version);
         }
 
-        emit this->ready();
+        Q_EMIT this->ready();
     });
     m_registry->setup();
 
@@ -125,7 +125,7 @@ void DpmsClient::modeChanged()
 {
     m_modeChanges = m_modeChanges - 1;
     if (m_modeChanges <= 0) {
-        emit finished();
+        Q_EMIT finished();
         m_modeChanges = 0;
     }
 }
@@ -133,11 +133,11 @@ void DpmsClient::modeChanged()
 void DpmsClient::on()
 {
     changeMode(Dpms::Mode::On);
-    // emit finished();
+    // Q_EMIT finished();
 }
 
 void KScreen::DpmsClient::off()
 {
     changeMode(Dpms::Mode::Off);
-    // emit finished();
+    // Q_EMIT finished();
 }

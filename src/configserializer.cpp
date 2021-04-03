@@ -48,7 +48,7 @@ QJsonObject ConfigSerializer::serializeConfig(const ConfigPtr &config)
     obj[QLatin1String("features")] = static_cast<int>(config->supportedFeatures());
 
     QJsonArray outputs;
-    Q_FOREACH (const OutputPtr &output, config->outputs()) {
+    for (const OutputPtr &output : config->outputs()) {
         outputs.append(serializeOutput(output));
     }
     obj[QLatin1String("outputs")] = outputs;
@@ -86,7 +86,7 @@ QJsonObject ConfigSerializer::serializeOutput(const OutputPtr &output)
     obj[QLatin1String("replicationSource")] = output->replicationSource();
 
     QJsonArray modes;
-    Q_FOREACH (const ModePtr &mode, output->modes()) {
+    for (const ModePtr &mode : output->modes()) {
         modes.append(serializeMode(mode));
     }
     obj[QLatin1String("modes")] = modes;

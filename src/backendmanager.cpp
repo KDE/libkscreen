@@ -143,7 +143,8 @@ QFileInfo BackendManager::preferredBackend(const QString &backend)
         }
     }
     QFileInfo fallback;
-    Q_FOREACH (const QFileInfo &f, listBackends()) {
+    const auto backends = listBackends();
+    for (const QFileInfo &f : backends) {
         // Here's the part where we do the match case-insensitive
         if (f.baseName().toLower() == QStringLiteral("ksc_%1").arg(backendFilter.toLower())) {
             return f;
@@ -249,8 +250,8 @@ void BackendManager::requestBackend()
     const QByteArray args = qgetenv("KSCREEN_BACKEND_ARGS");
     QVariantMap arguments;
     if (!args.isEmpty()) {
-        QList<QByteArray> arglist = args.split(';');
-        Q_FOREACH (const QByteArray &arg, arglist) {
+        const QList<QByteArray> arglist = args.split(';');
+        for (const QByteArray &arg : arglist) {
             const int pos = arg.indexOf('=');
             if (pos == -1) {
                 continue;

@@ -81,7 +81,7 @@ void Fake::setConfig(const ConfigPtr &config)
 {
     qCDebug(KSCREEN_FAKE) << "set config" << config->outputs();
     mConfig = config->clone();
-    emit configChanged(mConfig);
+    Q_EMIT configChanged(mConfig);
 }
 
 bool Fake::isValid() const
@@ -99,7 +99,7 @@ QByteArray Fake::edid(int outputId) const
     const QJsonObject json = jsonDoc.object();
 
     const QJsonArray outputs = json[QStringLiteral("outputs")].toArray();
-    Q_FOREACH (const QJsonValue &value, outputs) {
+    for (const QJsonValue &value : outputs) {
         const QVariantMap output = value.toObject().toVariantMap();
         if (output[QStringLiteral("id")].toInt() != outputId) {
             continue;
@@ -140,7 +140,7 @@ void Fake::setPrimary(int outputId, bool primary)
         return;
     }
 
-    Q_FOREACH (KScreen::OutputPtr output, config()->outputs()) {
+    for (KScreen::OutputPtr output : config()->outputs()) {
         if (output->id() == outputId) {
             output->setPrimary(primary);
         } else {

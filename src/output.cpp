@@ -56,7 +56,8 @@ public:
         , primary(other.primary)
         , followPreferredMode(other.followPreferredMode)
     {
-        Q_FOREACH (const ModePtr &otherMode, other.modeList) {
+        const auto otherModeList = other.modeList;
+        for (const ModePtr &otherMode : otherModeList) {
             modeList.insert(otherMode->id(), otherMode->clone());
         }
         if (other.edid) {
@@ -125,7 +126,7 @@ QString Output::Private::biggestMode(const ModeList &modes) const
 {
     int area, total = 0;
     KScreen::ModePtr biggest;
-    Q_FOREACH (const KScreen::ModePtr &mode, modes) {
+    for (const KScreen::ModePtr &mode : modes) {
         area = mode->size().width() * mode->size().height();
         if (area < total) {
             continue;
@@ -272,8 +273,8 @@ void Output::setModes(const ModeList &modes)
     bool changed = !d->compareModeList(d->modeList, modes);
     d->modeList = modes;
     if (changed) {
-        emit modesChanged();
-        emit outputChanged();
+        Q_EMIT modesChanged();
+        Q_EMIT outputChanged();
     }
 }
 
@@ -321,7 +322,7 @@ QString Output::preferredModeId() const
     int total = 0;
     KScreen::ModePtr biggest;
     KScreen::ModePtr candidateMode;
-    Q_FOREACH (const QString &modeId, d->preferredModes) {
+    for (const QString &modeId : qAsConst(d->preferredModes)) {
         candidateMode = mode(modeId);
         const int area = candidateMode->size().width() * candidateMode->size().height();
         if (area < total) {
@@ -410,7 +411,7 @@ void Output::setScale(qreal factor)
         return;
     }
     d->scale = factor;
-    emit scaleChanged();
+    Q_EMIT scaleChanged();
 }
 
 QSizeF Output::logicalSize() const
@@ -657,7 +658,7 @@ void Output::apply(const OutputPtr &other)
 
     setPreferredModes(other->d->preferredModes);
     ModeList modes;
-    Q_FOREACH (const ModePtr &otherMode, other->modes()) {
+    for (const ModePtr &otherMode : other->modes()) {
         modes.insert(otherMode->id(), otherMode->clone());
     }
     setModes(modes);

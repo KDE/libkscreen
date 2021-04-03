@@ -84,7 +84,7 @@ void testQScreenBackend::verifyScreen()
 void testQScreenBackend::verifyOutputs()
 {
     bool primaryFound = false;
-    foreach (const KScreen::OutputPtr &op, m_config->outputs()) {
+    for (const KScreen::OutputPtr &op : m_config->outputs()) {
         if (op->isPrimary()) {
             primaryFound = true;
         }
@@ -102,7 +102,7 @@ void testQScreenBackend::verifyOutputs()
     // qDebug() << " prim modes: " << primary->modes();
 
     QList<int> ids;
-    foreach (const KScreen::OutputPtr &output, m_config->outputs()) {
+    for (const KScreen::OutputPtr &output : m_config->outputs()) {
         qDebug() << " _____________________ Output: " << output;
         qDebug() << "   output name: " << output->name();
         qDebug() << "   output modes: " << output->modes().count() << output->modes();
@@ -134,8 +134,8 @@ void testQScreenBackend::verifyModes()
     QVERIFY(primary);
     QVERIFY(primary->modes().count() > 0);
 
-    foreach (const KScreen::OutputPtr &output, m_config->outputs()) {
-        foreach (const KScreen::ModePtr &mode, output->modes()) {
+    for (const KScreen::OutputPtr &output : m_config->outputs()) {
+        for (const KScreen::ModePtr &mode : output->modes()) {
             qDebug() << "   Mode   : " << mode->name();
             QVERIFY(!mode->name().isEmpty());
             QVERIFY(mode->refreshRate() > 0);
@@ -152,7 +152,7 @@ void testQScreenBackend::commonUsagePattern()
     const KScreen::OutputList outputs = op->config()->outputs();
 
     QVariantList outputList;
-    Q_FOREACH (const KScreen::OutputPtr &output, outputs) {
+    for (const KScreen::OutputPtr &output : outputs) {
         if (!output->isConnected()) {
             continue;
         }

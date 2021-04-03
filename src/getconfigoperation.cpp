@@ -100,7 +100,8 @@ void GetConfigOperationPrivate::onConfigReceived(QDBusPendingCallWatcher *watche
         q->emitResult();
         return;
     }
-    Q_FOREACH (const OutputPtr &output, config->outputs()) {
+    const auto outputs = config->outputs();
+    for (const OutputPtr &output : outputs) {
         if (!output->isConnected()) {
             continue;
         }
@@ -174,7 +175,9 @@ void GetConfigOperationPrivate::loadEdid(KScreen::AbstractBackend *backend)
     if (!config) {
         return;
     }
-    Q_FOREACH (auto output, config->outputs()) {
+    auto outputs = config->outputs();
+    for (auto it = outputs.begin(); it != outputs.end(); ++it) {
+        auto output = *it;
         if (output->edid() == nullptr) {
             const QByteArray edidData = backend->edid(output->id());
             output->setEdid(edidData);

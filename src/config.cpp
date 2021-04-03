@@ -108,7 +108,7 @@ bool Config::canBeApplied(const ConfigPtr &config, ValidityFlags flags)
     OutputPtr currentOutput;
     const OutputList outputs = config->outputs();
     int enabledOutputsCount = 0;
-    Q_FOREACH (const OutputPtr &output, outputs) {
+    for (const OutputPtr &output : outputs) {
         if (!output->isEnabled()) {
             continue;
         }
@@ -280,7 +280,7 @@ OutputList Config::outputs() const
 OutputList Config::connectedOutputs() const
 {
     OutputList outputs;
-    Q_FOREACH (const OutputPtr &output, d->outputs) {
+    for (const OutputPtr &output : qAsConst(d->outputs)) {
         if (!output->isConnected()) {
             continue;
         }
@@ -366,13 +366,15 @@ void Config::apply(const ConfigPtr &other)
     d->screen->apply(other->screen());
 
     // Remove removed outputs
-    Q_FOREACH (const OutputPtr &output, d->outputs) {
-        if (!other->d->outputs.contains(output->id())) {
-            removeOutput(output->id());
+    for (auto it = d->outputs.begin(); it != d->outputs.end();) {
+        if (!other->d->outputs.contains((*it)->id())) {
+            it = d->removeOutput(it);
+        } else {
+            ++it;
         }
     }
 
-    Q_FOREACH (const OutputPtr &otherOutput, other->d->outputs) {
+    for (const OutputPtr &otherOutput : qAsConst(other->d->outputs)) {
         // Add new outputs
         if (!d->outputs.contains(otherOutput->id())) {
             addOutput(otherOutput->clone());
@@ -393,7 +395,7 @@ QDebug operator<<(QDebug dbg, const KScreen::ConfigPtr &config)
         const auto outputs = config->outputs();
         for (const auto &output : outputs) {
             if (output->isConnected()) {
-                dbg << endl << output;
+                dbg << Qt::endl << output;
             }
         }
         dbg << ")";

@@ -104,7 +104,7 @@ void TestPnp::print()
     qDebug() << "\tcurrentSize:" << m_config->screen()->currentSize();
 
     const OutputList outputs = m_config->outputs();
-    Q_FOREACH (const OutputPtr &output, outputs) {
+    for (const OutputPtr &output : outputs) {
         qDebug() << "\n-----------------------------------------------------\n";
         qDebug() << "Id: " << output->id();
         qDebug() << "Name: " << output->name();
@@ -133,7 +133,7 @@ void TestPnp::print()
         qDebug() << "Modes: ";
 
         const ModeList modes = output->modes();
-        Q_FOREACH (const ModePtr &mode, modes) {
+        for (const ModePtr &mode : modes) {
             qDebug() << "\t" << mode->id() << "  " << mode->name() << " " << mode->size() << " " << mode->refreshRate();
         }
 

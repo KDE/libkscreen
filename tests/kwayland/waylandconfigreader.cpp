@@ -32,7 +32,7 @@ void WaylandConfigReader::outputsFromConfig(const QString &configfile,
     QJsonObject json = jsonDoc.object();
 
     QJsonArray omap = json[QStringLiteral("outputs")].toArray();
-    Q_FOREACH (const QJsonValue &value, omap) {
+    for (const QJsonValue &value : omap) {
         const QVariantMap &output = value.toObject().toVariantMap();
         if (output[QStringLiteral("connected")].toBool()) {
             outputs << createOutputDevice(output, display);
@@ -94,7 +94,7 @@ OutputDeviceInterface *WaylandConfigReader::createOutputDevice(const QVariantMap
     QVariantList preferredModes = outputConfig[QStringLiteral("preferredModes")].toList();
 
     int mode_id = 0;
-    Q_FOREACH (const QVariant &_mode, outputConfig[QStringLiteral("modes")].toList()) {
+    for (const QVariant &_mode : outputConfig[QStringLiteral("modes")].toList()) {
         mode_id++;
         const QVariantMap &mode = _mode.toMap();
         OutputDeviceInterface::Mode m0;
@@ -150,7 +150,7 @@ QList<KWayland::Server::OutputInterface *> KScreen::WaylandConfigReader::createO
     };
 
     QList<KWayland::Server::OutputInterface *> outputs;
-    Q_FOREACH (const auto outputdevice, outputdevices) {
+    for (const auto outputdevice : outputdevices) {
         qDebug() << "New Output!";
         KWayland::Server::OutputInterface *output = display->createOutput(display);
 
@@ -159,7 +159,7 @@ QList<KWayland::Server::OutputInterface *> KScreen::WaylandConfigReader::createO
         output->setModel(outputdevice->model());
         // output->setUuid(outputdevice->uuid());
 
-        Q_FOREACH (const auto mode, outputdevice->modes()) {
+        for (const auto mode : outputdevice->modes()) {
             bool isCurrent = mode.flags.testFlag(OutputDeviceInterface::ModeFlag::Current);
             bool isPreferred = mode.flags.testFlag(OutputDeviceInterface::ModeFlag::Current);
             OutputInterface::ModeFlags flags;

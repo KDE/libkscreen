@@ -84,7 +84,7 @@ void TestDpmsClient::initTestCase()
         } else {
             qDebug() << QStringLiteral("Compositor does not provid a DpmsManager");
         }
-        emit this->dpmsAnnounced();
+        Q_EMIT  this->dpmsAnnounced();
     });
     m_registry->setup();
 
