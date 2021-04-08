@@ -5,3 +5,5 @@ build-overlay
 .clang-format
 cmake-build-debug*
 .idea
+/compile_commands.json
+.clangd
