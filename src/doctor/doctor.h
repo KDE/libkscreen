@@ -43,6 +43,7 @@ public:
     bool setMode(int id, const QString &mode_id);
     bool setScale(int id, qreal scale);
     bool setRotation(int id, KScreen::Output::Rotation rot);
+    bool setOverscan(int id, uint32_t overscan);
 
 Q_SIGNALS:
     void outputsChanged();

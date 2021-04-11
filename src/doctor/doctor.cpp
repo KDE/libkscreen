@@ -266,6 +266,18 @@ void Doctor::parsePositionalArgs()
                         qApp->exit(9);
                         return;
                     }
+                } else if (ops.count() == 4 && ops[2] == QLatin1String("overscan")) {
+                    const uint32_t overscan = ops[3].toInt();
+                    if (overscan > 100) {
+                        qCWarning(KSCREEN_DOCTOR) << "Wrong input: allowed values for overscan are from 0 to 100";
+                        qApp->exit(9);
+                        return;
+                    }
+                    if (!setOverscan(output_id, overscan)) {
+                        qCDebug(KSCREEN_DOCTOR) << "Could not set overscan " << overscan << " to output " << output_id;
+                        qApp->exit(9);
+                        return;
+                    }
                 } else {
                     cerr << "Unable to parse arguments: " << op << Qt::endl;
                     qApp->exit(2);
@@ -353,6 +365,7 @@ void Doctor::showOutputs() const
         cout << yellow << "Geometry: " << cr << g.x() << "," << g.y() << " " << g.width() << "x" << g.height() << " ";
         cout << yellow << "Scale: " << cr << output->scale() << " ";
         cout << yellow << "Rotation: " << cr << output->rotation() << " ";
+        cout << yellow << "Overscan: " << cr << output->overscan() << " ";
         if (output->isPrimary()) {
             cout << blue << "primary";
         }
@@ -465,6 +478,24 @@ bool Doctor::setRotation(int id, KScreen::Output::Rotation rot)
         }
     }
     cout << "Output rotation " << id << " invalid." << Qt::endl;
+    return false;
+}
+
+bool Doctor::setOverscan(int id, uint32_t overscan)
+{
+    if (!m_config) {
+        qCWarning(KSCREEN_DOCTOR) << "Invalid config.";
+        return false;
+    }
+
+    for (const auto &output : m_config->outputs()) {
+        if (output->id() == id) {
+            output->setOverscan(overscan);
+            m_changed = true;
+            return true;
+        }
+    }
+    cout << "Output overscan " << id << " invalid." << Qt::endl;
     return false;
 }
 

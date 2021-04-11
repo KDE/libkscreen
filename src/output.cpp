@@ -55,6 +55,8 @@ public:
         , enabled(other.enabled)
         , primary(other.primary)
         , followPreferredMode(other.followPreferredMode)
+        , capabilities(other.capabilities)
+        , overscan(other.overscan)
     {
         const auto otherModeList = other.modeList;
         for (const ModePtr &otherMode : otherModeList) {
@@ -88,6 +90,8 @@ public:
     bool enabled;
     bool primary;
     bool followPreferredMode = false;
+    Capabilities capabilities;
+    uint32_t overscan = 0;
 
     QScopedPointer<Edid> edid;
 };
@@ -589,6 +593,32 @@ QRect Output::geometry() const
     }
 
     return QRect(d->pos, size);
+}
+
+Output::Capabilities Output::capabilities() const
+{
+    return d->capabilities;
+}
+
+void Output::setCapabilities(Capabilities capabilities)
+{
+    if (d->capabilities != capabilities) {
+        d->capabilities = capabilities;
+        Q_EMIT capabilitiesChanged(capabilities);
+    }
+}
+
+uint32_t Output::overscan() const
+{
+    return d->overscan;
+}
+
+void Output::setOverscan(uint32_t overscan)
+{
+    if (d->overscan != overscan) {
+        d->overscan = overscan;
+        Q_EMIT overscanChanged(overscan);
+    }
 }
 
 void Output::apply(const OutputPtr &other)

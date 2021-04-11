@@ -169,6 +169,8 @@ void WaylandOutput::updateKScreenOutput(OutputPtr &output)
     output->setModes(modeList);
     output->setScale(m_device->scaleF());
     output->setType(Utils::guessOutputType(m_device->model(), m_device->model()));
+    output->setCapabilities(static_cast<Output::Capabilities>(static_cast<uint32_t>(m_device->capabilities())));
+    output->setOverscan(m_device->overscan());
 }
 
 bool WaylandOutput::setWlConfig(Wl::OutputConfiguration *wlConfig, const KScreen::OutputPtr &output)
@@ -210,6 +212,13 @@ bool WaylandOutput::setWlConfig(Wl::OutputConfiguration *wlConfig, const KScreen
     } else {
         qCWarning(KSCREEN_WAYLAND) << "Invalid kscreen mode id:" << output->currentModeId() << "\n\n" << m_modeIdMap;
     }
+
+    // overscan
+    if ((output->capabilities() & Output::Capability::Overscan) && m_device->overscan() != output->overscan()) {
+        wlConfig->setOverscan(m_device, output->overscan());
+        changed = true;
+    }
+
     return changed;
 }
 

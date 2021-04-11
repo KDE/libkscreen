@@ -48,6 +48,8 @@ public:
     Q_PROPERTY(qreal scale READ scale WRITE setScale NOTIFY scaleChanged)
     Q_PROPERTY(bool followPreferredMode READ followPreferredMode WRITE setFollowPreferredMode NOTIFY followPreferredModeChanged)
     Q_PROPERTY(QSizeF logicalSize READ logicalSize WRITE setLogicalSize NOTIFY logicalSizeChanged)
+    Q_PROPERTY(Capabilities capabilities READ capabilities NOTIFY capabilitiesChanged)
+    Q_PROPERTY(uint32_t overscan READ overscan WRITE setOverscan NOTIFY overscanChanged)
 
     enum Type {
         Unknown,
@@ -75,6 +77,13 @@ public:
         Right = 8,
     };
     Q_ENUM(Rotation)
+
+    enum class Capability {
+        Overscan = 0x1,
+    };
+    Q_ENUM(Capability)
+    Q_DECLARE_FLAGS(Capabilities, Capability)
+    Q_FLAG(Capabilities)
 
     explicit Output();
     ~Output() override;
@@ -329,6 +338,31 @@ public:
      */
     void setFollowPreferredMode(bool follow);
 
+    /**
+     * @returns the capabilities of this output
+     * @since 5.22
+     */
+    Capabilities capabilities() const;
+
+    /**
+     * sets the capabilities of this output
+     * @since 5.22
+     */
+    void setCapabilities(Capabilities capabilities);
+
+    /**
+     * @returns the overscan value of this output in %
+     * @since 5.22
+     */
+    uint32_t overscan() const;
+
+    /**
+     * Set the overscan for this output
+     * @param overscan the overscan value in %
+     * @since 5.22
+     */
+    void setOverscan(uint32_t overscan);
+
     void apply(const OutputPtr &other);
 Q_SIGNALS:
     void outputChanged();
@@ -344,6 +378,8 @@ Q_SIGNALS:
     void scaleChanged();
     void logicalSizeChanged();
     void followPreferredModeChanged(bool followPreferredMode);
+    void capabilitiesChanged(Capabilities capabilities);
+    void overscanChanged(uint32_t overscan);
 
     /** The mode list changed.
      *
