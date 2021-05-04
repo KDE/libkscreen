@@ -44,7 +44,7 @@ target_link_libraries(KF5Screen
 )
 
 set_target_properties(KF5Screen PROPERTIES
-    VERSION "${KSCREEN_VERSION_STRING}"
+    VERSION "${KSCREEN_VERSION}"
     SOVERSION "${KSCREEN_SOVERSION}"
     EXPORT_NAME Screen
 )
