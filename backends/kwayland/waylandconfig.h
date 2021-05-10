@@ -14,7 +14,6 @@
 #include <QScreen>
 #include <QSize>
 #include <QSocketNotifier>
-#include <QThread>
 
 namespace KWayland
 {
@@ -81,8 +80,6 @@ private:
     void tryPendingConfig();
 
     KWayland::Client::ConnectionThread *m_connection;
-    KWayland::Client::EventQueue *m_queue;
-    QThread *m_thread;
 
     KWayland::Client::Registry *m_registry;
     KWayland::Client::OutputManagement *m_outputManagement;

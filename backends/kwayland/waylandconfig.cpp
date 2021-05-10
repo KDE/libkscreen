@@ -41,10 +41,8 @@ WaylandConfig::WaylandConfig(QObject *parent)
     connect(this, &WaylandConfig::initialized, &m_syncLoop, &QEventLoop::quit);
     QTimer::singleShot(3000, this, [this] {
         if (m_syncLoop.isRunning()) {
-            qCWarning(KSCREEN_WAYLAND) << "Connection to Wayland server at socket:" << m_connection->socketName() << "timed out.";
+            qCWarning(KSCREEN_WAYLAND) << "Connection to Wayland server timed out.";
             m_syncLoop.quit();
-            m_thread->quit();
-            m_thread->wait();
         }
     });
 
@@ -54,8 +52,6 @@ WaylandConfig::WaylandConfig(QObject *parent)
 
 WaylandConfig::~WaylandConfig()
 {
-    m_thread->quit();
-    m_thread->wait();
     m_syncLoop.quit();
 }
 
@@ -94,23 +90,8 @@ void WaylandConfig::initKWinTabletMode()
 
 void WaylandConfig::initConnection()
 {
-    m_thread = new QThread(this);
-    m_connection = new KWayland::Client::ConnectionThread;
-
-    connect(m_connection, &KWayland::Client::ConnectionThread::connected, this, &WaylandConfig::setupRegistry, Qt::QueuedConnection);
-
-    connect(m_connection, &KWayland::Client::ConnectionThread::connectionDied, this, &WaylandConfig::disconnected, Qt::QueuedConnection);
-
-    connect(m_connection, &KWayland::Client::ConnectionThread::failed, this, [this] {
-        qCWarning(KSCREEN_WAYLAND) << "Failed to connect to Wayland server at socket:" << m_connection->socketName();
-        m_syncLoop.quit();
-        m_thread->quit();
-        m_thread->wait();
-    });
-
-    m_thread->start();
-    m_connection->moveToThread(m_thread);
-    m_connection->initConnection();
+    m_connection = KWayland::Client::ConnectionThread::fromApplication(this);
+    setupRegistry();
 }
 
 void WaylandConfig::blockSignals()
@@ -125,38 +106,11 @@ void WaylandConfig::unblockSignals()
     m_blockSignals = false;
 }
 
-void WaylandConfig::disconnected()
-{
-    qCWarning(KSCREEN_WAYLAND) << "Wayland disconnected, cleaning up.";
-    qDeleteAll(m_outputMap);
-    m_outputMap.clear();
-
-    // Clean up
-    if (m_queue) {
-        delete m_queue;
-        m_queue = nullptr;
-    }
-
-    m_connection->deleteLater();
-    m_connection = nullptr;
-
-    if (m_thread) {
-        m_thread->quit();
-        if (!m_thread->wait(3000)) {
-            m_thread->terminate();
-            m_thread->wait();
-        }
-        delete m_thread;
-        m_thread = nullptr;
-    }
-
-    Q_EMIT configChanged();
-}
-
 void WaylandConfig::setupRegistry()
 {
-    m_queue = new KWayland::Client::EventQueue(this);
-    m_queue->setup(m_connection);
+    if (!m_connection) {
+        return;
+    }
 
     m_registry = new KWayland::Client::Registry(this);
 
@@ -174,7 +128,6 @@ void WaylandConfig::setupRegistry()
     });
 
     m_registry->create(m_connection);
-    m_registry->setEventQueue(m_queue);
     m_registry->setup();
 }
 
