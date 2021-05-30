@@ -8,7 +8,7 @@ set(fake_SRCS
     parser.cpp
 )
 
-qt5_add_dbus_adaptor(fake_SRCS ${CMAKE_SOURCE_DIR}/interfaces/org.kde.KScreen.FakeBackend.xml
+qt_add_dbus_adaptor(fake_SRCS ${CMAKE_SOURCE_DIR}/interfaces/org.kde.KScreen.FakeBackend.xml
                      fake.h Fake
 )
 

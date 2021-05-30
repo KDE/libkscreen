@@ -6,7 +6,7 @@ set(wayland_SRCS
     waylandscreen.cpp
     ../utils.cpp
 )
-qt5_add_dbus_interface(wayland_SRCS org.kde.KWin.TabletModeManager.xml tabletmodemanager_interface)
+qt_add_dbus_interface(wayland_SRCS org.kde.KWin.TabletModeManager.xml tabletmodemanager_interface)
 
 add_library(KSC_KWayland MODULE ${wayland_SRCS})
 

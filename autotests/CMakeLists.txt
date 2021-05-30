@@ -5,7 +5,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}/tests/kwayla
 macro(KSCREEN_ADD_TEST)
     foreach(_testname ${ARGN})
         set(test_SRCS ${_testname}.cpp ${KSCREEN_WAYLAND_SRCS})
-        qt5_add_dbus_interface(test_SRCS ${CMAKE_SOURCE_DIR}/interfaces/org.kde.KScreen.FakeBackend.xml fakebackendinterface)
+        qt_add_dbus_interface(test_SRCS ${CMAKE_SOURCE_DIR}/interfaces/org.kde.KScreen.FakeBackend.xml fakebackendinterface)
         add_executable(${_testname} ${test_SRCS})
         target_link_libraries(${_testname} Qt::Core Qt::Gui Qt::Test Qt::DBus KF5::Screen ${KSCREEN_WAYLAND_LIBS})
         add_test(NAME kscreen-${_testname}

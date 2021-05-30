@@ -16,7 +16,7 @@ set(libkscreen_SRCS
     log.cpp
 )
 
-qt5_add_dbus_interface(libkscreen_SRCS ${CMAKE_SOURCE_DIR}/interfaces/org.kde.KScreen.Backend.xml backendinterface)
+qt_add_dbus_interface(libkscreen_SRCS ${CMAKE_SOURCE_DIR}/interfaces/org.kde.KScreen.Backend.xml backendinterface)
 
 ecm_qt_declare_logging_category(libkscreen_SRCS
                                 HEADER kscreen_debug.h
