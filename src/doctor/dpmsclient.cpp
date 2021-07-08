@@ -17,9 +17,6 @@
 #include <KWayland/Client/output.h>
 #include <KWayland/Client/registry.h>
 
-// static const QString s_socketName = QStringLiteral("libkscreen-test-wayland-backend-0");
-static const QString s_socketName = QStringLiteral("wayland-0");
-
 Q_LOGGING_CATEGORY(KSCREEN_DPMS, "kscreen.dpms")
 
 using namespace KScreen;
@@ -47,7 +44,6 @@ void DpmsClient::connect()
 {
     // setup connection
     m_connection = new ConnectionThread;
-    m_connection->setSocketName(s_socketName);
     QObject::connect(m_connection, &ConnectionThread::connected, this, &DpmsClient::connected);
     QObject::connect(m_connection, &ConnectionThread::failed, this, [=]() {
         qCDebug(KSCREEN_DPMS) << "Connection failed";
