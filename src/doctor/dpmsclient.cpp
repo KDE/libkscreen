@@ -25,7 +25,6 @@ using namespace KWayland::Client;
 
 DpmsClient::DpmsClient(QObject *parent)
     : QObject(parent)
-    , m_thread(nullptr)
     , m_registry(new KWayland::Client::Registry)
 {
 }
@@ -33,29 +32,14 @@ DpmsClient::DpmsClient(QObject *parent)
 DpmsClient::~DpmsClient()
 {
     delete m_registry;
-
-    m_thread->exit();
-    m_thread->wait();
-    delete m_thread;
     delete m_connection;
 }
 
 void DpmsClient::connect()
 {
     // setup connection
-    m_connection = new ConnectionThread;
-    QObject::connect(m_connection, &ConnectionThread::connected, this, &DpmsClient::connected);
-    QObject::connect(m_connection, &ConnectionThread::failed, this, [=]() {
-        qCDebug(KSCREEN_DPMS) << "Connection failed";
-    });
-
-    m_thread = new QThread(this);
-    m_connection->moveToThread(m_thread);
-    m_thread->start();
-
-    m_connection->initConnection();
-
-    qDebug() << "init";
+    m_connection = KWayland::Client::ConnectionThread::fromApplication(this);
+    connected();
 }
 
 void DpmsClient::connected()
