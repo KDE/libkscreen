@@ -71,9 +71,7 @@ void Doctor::start(QCommandLineParser *parser)
     }
     if (parser->isSet(QStringLiteral("json")) || parser->isSet(QStringLiteral("outputs")) || parser->isSet(QStringLiteral("hash")) || !m_outputArgs.isEmpty()) {
         KScreen::GetConfigOperation *op = new KScreen::GetConfigOperation();
-        connect(op, &KScreen::GetConfigOperation::finished, this, [this](KScreen::ConfigOperation *op) {
-            configReceived(op);
-        });
+        connect(op, &KScreen::GetConfigOperation::finished, this, &Doctor::configReceived);
         return;
     }
     if (m_parser->isSet(QStringLiteral("dpms"))) {
