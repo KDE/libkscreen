@@ -79,6 +79,7 @@ int main(int argc, char **argv)
     QCommandLineOption outputs = QCommandLineOption(QStringList() << QStringLiteral("o") << QStringLiteral("outputs"), QStringLiteral("Show outputs"));
     QCommandLineOption json =
         QCommandLineOption(QStringList() << QStringLiteral("j") << QStringLiteral("json"), QStringLiteral("Show configuration in JSON format"));
+    QCommandLineOption currentHash({QStringLiteral("hash")}, QStringLiteral("Prints the hash of the current configuration"));
     QCommandLineOption dpms = QCommandLineOption(QStringList() << QStringLiteral("d") << QStringLiteral("dpms"),
                                                  QStringLiteral("Display power management (wayland only)"),
                                                  QStringLiteral("off"));
@@ -96,6 +97,7 @@ int main(int argc, char **argv)
     parser.addOption(info);
     parser.addOption(json);
     parser.addOption(outputs);
+    parser.addOption(currentHash);
     parser.addOption(dpms);
     parser.addOption(log);
     parser.addOption(dpmsExcluded);

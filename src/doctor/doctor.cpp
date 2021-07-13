@@ -69,7 +69,7 @@ void Doctor::start(QCommandLineParser *parser)
     if (m_parser->isSet(QStringLiteral("info"))) {
         showBackends();
     }
-    if (parser->isSet(QStringLiteral("json")) || parser->isSet(QStringLiteral("outputs")) || !m_outputArgs.isEmpty()) {
+    if (parser->isSet(QStringLiteral("json")) || parser->isSet(QStringLiteral("outputs")) || parser->isSet(QStringLiteral("hash")) || !m_outputArgs.isEmpty()) {
         KScreen::GetConfigOperation *op = new KScreen::GetConfigOperation();
         connect(op, &KScreen::GetConfigOperation::finished, this, [this](KScreen::ConfigOperation *op) {
             configReceived(op);
@@ -317,6 +317,10 @@ void Doctor::configReceived(KScreen::ConfigOperation *op)
     }
     if (m_parser->isSet(QStringLiteral("outputs"))) {
         showOutputs();
+        qApp->quit();
+    }
+    if (m_parser->isSet(QStringLiteral("hash"))) {
+        cout << m_config->connectedOutputsHash() << Qt::endl;
         qApp->quit();
     }
 
