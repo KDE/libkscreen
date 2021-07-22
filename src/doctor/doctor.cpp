@@ -7,6 +7,7 @@
 #include "doctor.h"
 #include "dpmsclient.h"
 
+#include <QCollator>
 #include <QCommandLineParser>
 #include <QCoreApplication>
 #include <QDateTime>
@@ -360,6 +361,9 @@ void Doctor::showOutputs() const
     typeString[KScreen::Output::TVC4] = QStringLiteral("TVC4");
     typeString[KScreen::Output::DisplayPort] = QStringLiteral("DisplayPort");
 
+    QCollator collator;
+    collator.setNumericMode(true);
+
     for (const auto &output : m_config->outputs()) {
         cout << green << "Output: " << cr << output->id() << " " << output->name();
         cout << " " << (output->isEnabled() ? green + QLatin1String("enabled") : red + QLatin1String("disabled"));
@@ -368,7 +372,14 @@ void Doctor::showOutputs() const
         auto _type = typeString[output->type()];
         cout << " " << yellow << (_type.isEmpty() ? QStringLiteral("UnmappedOutputType") : _type);
         cout << blue << " Modes: " << cr;
-        for (const auto &mode : output->modes()) {
+
+        const auto modes = output->modes();
+        auto modeKeys = modes.keys();
+        std::sort(modeKeys.begin(), modeKeys.end(), collator);
+
+        for (const auto &key : modeKeys) {
+            auto mode = *modes.find(key);
+
             auto name = QStringLiteral("%1x%2@%3")
                             .arg(QString::number(mode->size().width()), QString::number(mode->size().height()), QString::number(qRound(mode->refreshRate())));
             if (mode == output->currentMode()) {
