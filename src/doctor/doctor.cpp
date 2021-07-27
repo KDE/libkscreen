@@ -144,12 +144,11 @@ void Doctor::showDpms()
 void Doctor::showBackends() const
 {
     cout << "Environment: " << Qt::endl;
-    auto env_kscreen_backend = (qgetenv("KSCREEN_BACKEND").isEmpty()) ? QStringLiteral("[not set]") : QString::fromUtf8(qgetenv("KSCREEN_BACKEND"));
+    auto env_kscreen_backend = qEnvironmentVariable("KSCREEN_BACKEND", QStringLiteral("[not set]"));
     cout << "  * KSCREEN_BACKEND           : " << env_kscreen_backend << Qt::endl;
-    auto env_kscreen_backend_inprocess =
-        (qgetenv("KSCREEN_BACKEND_INPROCESS").isEmpty()) ? QStringLiteral("[not set]") : QString::fromUtf8(qgetenv("KSCREEN_BACKEND_INPROCESS"));
+    auto env_kscreen_backend_inprocess = qEnvironmentVariable("KSCREEN_BACKEND_INPROCESS", QStringLiteral("[not set]"));
     cout << "  * KSCREEN_BACKEND_INPROCESS : " << env_kscreen_backend_inprocess << Qt::endl;
-    auto env_kscreen_logging = (qgetenv("KSCREEN_LOGGING").isEmpty()) ? QStringLiteral("[not set]") : QString::fromUtf8(qgetenv("KSCREEN_LOGGING"));
+    auto env_kscreen_logging = qEnvironmentVariable("KSCREEN_LOGGING", QStringLiteral("[not set]"));
     cout << "  * KSCREEN_LOGGING           : " << env_kscreen_logging << Qt::endl;
 
     cout << "Logging to                : " << (Log::instance()->enabled() ? Log::instance()->logFile() : QStringLiteral("[logging disabled]")) << Qt::endl;
