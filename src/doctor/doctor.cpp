@@ -297,6 +297,25 @@ void Doctor::parseOutputArgs()
                         qApp->exit(9);
                         return;
                     }
+                } else if (ops.count() == 4 && ops[2] == QLatin1String("rgbrange")) {
+                    const QString _range = ops[3].toLower();
+                    KScreen::Output::RgbRange range;
+                    if (_range == QStringLiteral("automatic")) {
+                        range = KScreen::Output::RgbRange::Automatic;
+                    } else if (_range == QStringLiteral("full")) {
+                        range = KScreen::Output::RgbRange::Full;
+                    } else if (_range == QStringLiteral("limited")) {
+                        range = KScreen::Output::RgbRange::Limited;
+                    } else {
+                        qCDebug(KSCREEN_DOCTOR) << "Wrong input: Only allowed values for rgbrange are \"automatic\", \"full\" and \"limited\"";
+                        qApp->exit(9);
+                        return;
+                    }
+                    if (!setRgbRange(output_id, range)) {
+                        qCDebug(KSCREEN_DOCTOR) << "Could not set rgb range " << range << " to output " << output_id;
+                        qApp->exit(9);
+                        return;
+                    }
                 } else {
                     cerr << "Unable to parse arguments: " << op << Qt::endl;
                     qApp->exit(2);
@@ -409,6 +428,21 @@ void Doctor::showOutputs() const
             }
         } else {
             cout << cr << "incapable ";
+        }
+        cout << yellow << "RgbRange: ";
+        if (output->capabilities() & Output::Capability::RgbRange) {
+            switch (output->rgbRange()) {
+            case Output::RgbRange::Automatic:
+                cout << cr << "Automatic ";
+                break;
+            case Output::RgbRange::Full:
+                cout << cr << "Full ";
+                break;
+            case Output::RgbRange::Limited:
+                cout << cr << "Limited ";
+            }
+        } else {
+            cout << cr << "unknown ";
         }
         if (output->isPrimary()) {
             cout << blue << "primary";
@@ -558,6 +592,24 @@ bool Doctor::setVrrPolicy(int id, KScreen::Output::VrrPolicy policy)
         }
     }
     cout << "Output VrrPolicy " << id << " invalid." << Qt::endl;
+    return false;
+}
+
+bool Doctor::setRgbRange(int id, KScreen::Output::RgbRange rgbRange)
+{
+    if (!m_config) {
+        qCWarning(KSCREEN_DOCTOR) << "Invalid config.";
+        return false;
+    }
+
+    for (const auto &output : m_config->outputs()) {
+        if (output->id() == id) {
+            output->setRgbRange(rgbRange);
+            m_changed = true;
+            return true;
+        }
+    }
+    cout << "Output RgbRange " << id << " invalid." << Qt::endl;
     return false;
 }
 

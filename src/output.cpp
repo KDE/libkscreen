@@ -58,6 +58,7 @@ public:
         , capabilities(other.capabilities)
         , overscan(other.overscan)
         , vrrPolicy(other.vrrPolicy)
+        , rgbRange(other.rgbRange)
     {
         const auto otherModeList = other.modeList;
         for (const ModePtr &otherMode : otherModeList) {
@@ -94,6 +95,7 @@ public:
     Capabilities capabilities;
     uint32_t overscan = 0;
     VrrPolicy vrrPolicy = VrrPolicy::Automatic;
+    RgbRange rgbRange = RgbRange::Automatic;
 
     QScopedPointer<Edid> edid;
 };
@@ -633,6 +635,19 @@ void Output::setVrrPolicy(VrrPolicy policy)
     if (d->vrrPolicy != policy) {
         d->vrrPolicy = policy;
         Q_EMIT vrrPolicyChanged();
+    }
+}
+
+Output::RgbRange Output::rgbRange() const
+{
+    return d->rgbRange;
+}
+
+void Output::setRgbRange(Output::RgbRange rgbRange)
+{
+    if (d->rgbRange != rgbRange) {
+        d->rgbRange = rgbRange;
+        Q_EMIT rgbRangeChanged(rgbRange);
     }
 }
 

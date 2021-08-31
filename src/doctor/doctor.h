@@ -45,6 +45,7 @@ public:
     bool setRotation(int id, KScreen::Output::Rotation rot);
     bool setOverscan(int id, uint32_t overscan);
     bool setVrrPolicy(int id, KScreen::Output::VrrPolicy policy);
+    bool setRgbRange(int id, KScreen::Output::RgbRange rgbRange);
 
 Q_SIGNALS:
     void outputsChanged();

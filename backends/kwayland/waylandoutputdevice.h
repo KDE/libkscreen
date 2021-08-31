@@ -41,6 +41,7 @@ public:
     uint32_t vrrPolicy() const;
     uint32_t overscan() const;
     uint32_t capabilities() const;
+    uint32_t rgbRange() const;
 
     OutputPtr toKScreenOutput();
     void updateKScreenOutput(OutputPtr &output);
@@ -74,6 +75,7 @@ protected:
     void kde_output_device_v2_capabilities(uint32_t flags) override;
     void kde_output_device_v2_overscan(uint32_t overscan) override;
     void kde_output_device_v2_vrr_policy(uint32_t vrr_policy) override;
+    void kde_output_device_v2_rgb_range(uint32_t rgb_range) override;
 
 private:
     QString modeName(const WaylandOutputDeviceMode *m) const;
@@ -98,6 +100,7 @@ private:
     uint32_t m_flags;
     uint32_t m_overscan;
     uint32_t m_vrr_policy;
+    uint32_t m_rgbRange;
 };
 
 }

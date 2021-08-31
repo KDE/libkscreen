@@ -99,6 +99,9 @@ QJsonObject ConfigSerializer::serializeOutput(const OutputPtr &output)
         obj[QLatin1String("vrrPolicy")] = static_cast<int>(output->vrrPolicy());
     }
 
+    if (output->capabilities() & Output::Capability::RgbRange) {
+        obj[QLatin1String("rgbRange")] = static_cast<int>(output->rgbRange());
+    }
     return obj;
 }
 
@@ -281,6 +284,8 @@ OutputPtr ConfigSerializer::deserializeOutput(const QDBusArgument &arg)
             output->setOverscan(value.toUInt());
         } else if (key == QLatin1String("vrrPolicy")) {
             output->setVrrPolicy(static_cast<Output::VrrPolicy>(value.toInt()));
+        } else if (key == QLatin1String("rgbRange")) {
+            output->setRgbRange(static_cast<Output::RgbRange>(value.toInt()));
         } else {
             qCWarning(KSCREEN) << "Invalid key in Output map: " << key;
             return OutputPtr();

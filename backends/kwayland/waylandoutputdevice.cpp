@@ -186,6 +186,7 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output)
     output->setCapabilities(static_cast<Output::Capabilities>(static_cast<uint32_t>(m_flags)));
     output->setOverscan(m_overscan);
     output->setVrrPolicy(static_cast<Output::VrrPolicy>(m_vrr_policy));
+    output->setRgbRange(static_cast<Output::RgbRange>(m_rgbRange));
 
     updateKScreenModes(output);
 }
@@ -248,6 +249,11 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputConfiguration *wlConfig, cons
     // vrr
     if ((output->capabilities() & Output::Capability::Vrr) && vrrPolicy() != static_cast<uint32_t>(output->vrrPolicy())) {
         wlConfig->set_vrr_policy(object(), static_cast<uint32_t>(output->vrrPolicy()));
+        changed = true;
+    }
+
+    if ((output->capabilities() & Output::Capability::RgbRange) && rgbRange() != static_cast<uint32_t>(output->rgbRange())) {
+        wlConfig->set_rgb_range(object(), static_cast<uint32_t>(output->rgbRange()));
         changed = true;
     }
 
@@ -321,6 +327,11 @@ void WaylandOutputDevice::kde_output_device_v2_vrr_policy(uint32_t vrr_policy)
     m_vrr_policy = vrr_policy;
 }
 
+void WaylandOutputDevice::kde_output_device_v2_rgb_range(uint32_t rgb_range)
+{
+    m_rgbRange = rgb_range;
+}
+
 QByteArray WaylandOutputDevice::edid() const
 {
     return m_edid;
@@ -379,6 +390,11 @@ uint32_t WaylandOutputDevice::overscan() const
 uint32_t WaylandOutputDevice::capabilities() const
 {
     return m_flags;
+}
+
+uint32_t WaylandOutputDevice::rgbRange() const
+{
+    return m_rgbRange;
 }
 
 #include "waylandoutputdevice.moc"

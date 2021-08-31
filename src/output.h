@@ -26,7 +26,7 @@ class Edid;
 class KSCREEN_EXPORT Output : public QObject
 {
     Q_OBJECT
-
+    Q_CLASSINFO("RegisterEnumClassesUnscoped", "false")
 public:
     Q_PROPERTY(int id READ id CONSTANT)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY outputChanged)
@@ -51,6 +51,7 @@ public:
     Q_PROPERTY(Capabilities capabilities READ capabilities NOTIFY capabilitiesChanged)
     Q_PROPERTY(uint32_t overscan READ overscan WRITE setOverscan NOTIFY overscanChanged)
     Q_PROPERTY(VrrPolicy vrrPolicy READ vrrPolicy WRITE setVrrPolicy NOTIFY vrrPolicyChanged)
+    Q_PROPERTY(RgbRange rgbRange READ rgbRange WRITE setRgbRange NOTIFY rgbRangeChanged)
 
     enum Type {
         Unknown,
@@ -82,6 +83,7 @@ public:
     enum class Capability {
         Overscan = 0x1,
         Vrr = 0x2,
+        RgbRange = 0x4,
     };
     Q_ENUM(Capability)
     Q_DECLARE_FLAGS(Capabilities, Capability)
@@ -93,6 +95,13 @@ public:
         Automatic = 2,
     };
     Q_ENUM(VrrPolicy)
+
+    enum class RgbRange {
+        Automatic = 0,
+        Full = 1,
+        Limited = 2,
+    };
+    Q_ENUM(RgbRange)
 
     explicit Output();
     ~Output() override;
@@ -386,6 +395,18 @@ public:
      */
     void setVrrPolicy(VrrPolicy policy);
 
+    /**
+     * @returns which rgb range the output is using
+     * @since 5.23
+     */
+    RgbRange rgbRange() const;
+
+    /**
+     * Set which rgb range the output should use
+     * @since 5.23
+     */
+    void setRgbRange(RgbRange rgbRange);
+
     void apply(const OutputPtr &other);
 Q_SIGNALS:
     void outputChanged();
@@ -404,6 +425,7 @@ Q_SIGNALS:
     void capabilitiesChanged(Capabilities capabilities);
     void overscanChanged(uint32_t overscan);
     void vrrPolicyChanged();
+    void rgbRangeChanged(RgbRange rgbRange);
 
     /** The mode list changed.
      *
