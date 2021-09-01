@@ -1,24 +1,29 @@
 /*
  *  SPDX-FileCopyrightText: 2014-2015 Sebastian Kügler <sebas@kde.org>
  *  SPDX-FileCopyrightText: 2013 Martin Gräßlin <mgraesslin@kde.org>
+ *  SPDX-FileCopyrightText: 2021 Méven Car <meven.car@enioka.com>
  *
  *  SPDX-License-Identifier: LGPL-2.1-or-later
  */
 #include "waylandconfig.h"
 
+#include "kscreen_kwayland_logging.h"
+
 #include "waylandbackend.h"
-#include "waylandoutput.h"
+#include "waylandoutputdevice.h"
+#include "waylandoutputmanagement.h"
 #include "waylandscreen.h"
+
+#include "output.h"
 
 #include "tabletmodemanager_interface.h"
 
+#include <QThread>
 #include <configmonitor.h>
 #include <mode.h>
 
 #include <KWayland/Client/connection_thread.h>
 #include <KWayland/Client/event_queue.h>
-#include <KWayland/Client/outputconfiguration.h>
-#include <KWayland/Client/outputmanagement.h>
 #include <KWayland/Client/registry.h>
 
 #include <QTimer>
@@ -114,11 +119,13 @@ void WaylandConfig::setupRegistry()
 
     m_registry = new KWayland::Client::Registry(this);
 
-    connect(m_registry, &KWayland::Client::Registry::outputDeviceAnnounced, this, &WaylandConfig::addOutput);
-
-    connect(m_registry, &KWayland::Client::Registry::outputManagementAnnounced, this, [this](quint32 name, quint32 version) {
-        m_outputManagement = m_registry->createOutputManagement(name, version, m_registry);
-        checkInitialized();
+    connect(m_registry, &KWayland::Client::Registry::interfaceAnnounced, this, [this](const QByteArray &interface, quint32 name, quint32 version) {
+        if (interface == WaylandOutputDevice::interface()->name) {
+            addOutput(name, version);
+        }
+        if (interface == WaylandOutputManagement::interface()->name) {
+            m_outputManagement = new WaylandOutputManagement(m_registry->registry(), name, version);
+        }
     });
 
     connect(m_registry, &KWayland::Client::Registry::interfacesAnnounced, this, [this] {
@@ -135,36 +142,46 @@ int s_outputId = 0;
 
 void WaylandConfig::addOutput(quint32 name, quint32 version)
 {
-    WaylandOutput *waylandoutput = new WaylandOutput(++s_outputId, this);
-    m_initializingOutputs << waylandoutput;
+    qCDebug(KSCREEN_WAYLAND) << "adding output" << name;
 
-    connect(waylandoutput, &WaylandOutput::deviceRemoved, this, [this, waylandoutput]() {
-        removeOutput(waylandoutput);
-    });
-    waylandoutput->createOutputDevice(m_registry, name, version);
+    auto device = new WaylandOutputDevice(++s_outputId);
+    m_initializingOutputs << device;
 
-    // finalize: when the output is done, we put it in the known outputs map,
-    // remove if from the list of initializing outputs, and emit configChanged()
-    connect(waylandoutput, &WaylandOutput::complete, this, [this, waylandoutput] {
-        m_outputMap.insert(waylandoutput->id(), waylandoutput);
-        m_initializingOutputs.removeOne(waylandoutput);
-        checkInitialized();
-
-        if (!m_blockSignals && m_initializingOutputs.empty()) {
-            m_screen->setOutputs(m_outputMap.values());
-            Q_EMIT configChanged();
+    connect(m_registry, &KWayland::Client::Registry::interfaceRemoved, this, [name, device, this](const quint32 &interfaceName) {
+        if (name == interfaceName) {
+            removeOutput(device);
         }
+    });
 
-        connect(waylandoutput, &WaylandOutput::changed, this, [this]() {
+    QMetaObject::Connection *const connection = new QMetaObject::Connection;
+    *connection = connect(device, &WaylandOutputDevice::done, this, [this, connection, device]() {
+        QObject::disconnect(*connection);
+        delete connection;
+
+        m_initializingOutputs.removeOne(device);
+        m_outputMap.insert(device->id(), device);
+
+        if (m_initialized) {
+            Q_EMIT configChanged();
+        } else {
+            checkInitialized();
+        };
+
+        connect(device, &WaylandOutputDevice::done, this, [this]() {
+            // output got update must update current config
             if (!m_blockSignals) {
                 Q_EMIT configChanged();
             }
         });
     });
+
+    device->init(*m_registry, name, version);
 }
 
-void WaylandConfig::removeOutput(WaylandOutput *output)
+void WaylandConfig::removeOutput(WaylandOutputDevice *output)
 {
+    qCDebug(KSCREEN_WAYLAND) << "removing output" << output->name();
+
     if (m_initializingOutputs.removeOne(output)) {
         // output was not yet fully initialized, just remove here and return
         delete output;
@@ -183,7 +200,7 @@ void WaylandConfig::removeOutput(WaylandOutput *output)
     }
 }
 
-bool WaylandConfig::isInitialized() const
+bool WaylandConfig::isReady() const
 {
     // clang-format off
     return !m_blockSignals
@@ -196,7 +213,8 @@ bool WaylandConfig::isInitialized() const
 
 void WaylandConfig::checkInitialized()
 {
-    if (isInitialized()) {
+    if (!m_initialized && isReady()) {
+        m_initialized = true;
         m_screen->setOutputs(m_outputMap.values());
         Q_EMIT initialized();
     }
@@ -244,7 +262,7 @@ KScreen::ConfigPtr WaylandConfig::currentConfig()
     return m_kscreenConfig;
 }
 
-QMap<int, WaylandOutput *> WaylandConfig::outputMap() const
+QMap<int, WaylandOutputDevice *> WaylandConfig::outputMap() const
 {
     return m_outputMap;
 }
@@ -266,7 +284,7 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
     bool changed = false;
 
     if (m_blockSignals) {
-        /* Last apply still pending, remember new changes and apply afterwards */
+        // Last apply still pending, remember new changes and apply afterwards
         m_kscreenPendingConfig = newConfig;
         return;
     }
@@ -282,13 +300,13 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
     // We now block changes in order to compress events while the compositor is doing its thing
     // once it's done or failed, we'll trigger configChanged() only once, and not per individual
     // property change.
-    connect(wlConfig, &OutputConfiguration::applied, this, [this, wlConfig] {
+    connect(wlConfig, &WaylandOutputConfiguration::applied, this, [this, wlConfig] {
         wlConfig->deleteLater();
         unblockSignals();
         Q_EMIT configChanged();
         tryPendingConfig();
     });
-    connect(wlConfig, &OutputConfiguration::failed, this, [this, wlConfig] {
+    connect(wlConfig, &WaylandOutputConfiguration::failed, this, [this, wlConfig] {
         wlConfig->deleteLater();
         unblockSignals();
         Q_EMIT configChanged();

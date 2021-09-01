@@ -2,13 +2,16 @@
  *  SPDX-FileCopyrightText: 2012 Alejandro Fiestas Olivares <afiestas@kde.org>
  *  SPDX-FileCopyrightText: 2012, 2013 Daniel Vrátil <dvratil@redhat.com>
  *  SPDX-FileCopyrightText: 2014-2015 Sebastian Kügler <sebas@kde.org>
+ *  SPDX-FileCopyrightText: 2021 Méven Car <meven.car@enioka.com>
  *
  *  SPDX-License-Identifier: LGPL-2.1-or-later
  */
 #include "waylandbackend.h"
 
 #include "waylandconfig.h"
-#include "waylandoutput.h"
+#include "waylandoutputdevice.h"
+
+#include "kscreen_kwayland_logging.h"
 
 #include <configmonitor.h>
 #include <mode.h>
@@ -17,8 +20,6 @@
 #include <QStandardPaths>
 
 using namespace KScreen;
-
-Q_LOGGING_CATEGORY(KSCREEN_WAYLAND, "kscreen.kwayland")
 
 WaylandBackend::WaylandBackend()
     : KScreen::AbstractBackend()
@@ -57,14 +58,14 @@ void WaylandBackend::setConfig(const KScreen::ConfigPtr &newconfig)
 
 QByteArray WaylandBackend::edid(int outputId) const
 {
-    WaylandOutput *output = m_internalConfig->outputMap().value(outputId);
+    WaylandOutputDevice *output = m_internalConfig->outputMap().value(outputId);
     if (!output) {
         return QByteArray();
     }
-    return output->outputDevice()->edid();
+    return output->edid();
 }
 
 bool WaylandBackend::isValid() const
 {
-    return m_internalConfig->isInitialized();
+    return m_internalConfig->isReady();
 }

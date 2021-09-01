@@ -15,7 +15,7 @@
 namespace KScreen
 {
 class WaylandConfig;
-class WaylandOutput;
+class WaylandOutputDevice;
 
 class WaylandScreen : public QObject
 {
@@ -27,7 +27,7 @@ public:
 
     KScreen::ScreenPtr toKScreenScreen(KScreen::ConfigPtr &parent) const;
     void updateKScreenScreen(KScreen::ScreenPtr &screen) const;
-    void setOutputs(const QList<WaylandOutput *> &outputs);
+    void setOutputs(const QList<WaylandOutputDevice *> &outputs);
 
 private:
     QSize m_size;

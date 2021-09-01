@@ -29,8 +29,9 @@ class OutputManagement;
 namespace KScreen
 {
 class Output;
-class WaylandOutput;
+class WaylandOutputDevice;
 class WaylandScreen;
+class WaylandOutputManagement;
 
 /**
  * @class WaylandConfig
@@ -54,11 +55,11 @@ public:
     ~WaylandConfig() override;
 
     KScreen::ConfigPtr currentConfig();
-    QMap<int, WaylandOutput *> outputMap() const;
+    QMap<int, WaylandOutputDevice *> outputMap() const;
 
     void applyConfig(const KScreen::ConfigPtr &newConfig);
 
-    bool isInitialized() const;
+    bool isReady() const;
 
 Q_SIGNALS:
     void configChanged();
@@ -73,7 +74,7 @@ private:
     void initConnection();
 
     void addOutput(quint32 name, quint32 version);
-    void removeOutput(WaylandOutput *output);
+    void removeOutput(WaylandOutputDevice *output);
 
     void blockSignals();
     void unblockSignals();
@@ -82,13 +83,13 @@ private:
     KWayland::Client::ConnectionThread *m_connection;
 
     KWayland::Client::Registry *m_registry;
-    KWayland::Client::OutputManagement *m_outputManagement;
+    WaylandOutputManagement *m_outputManagement = nullptr;
 
     // KWayland names as keys
-    QMap<int, WaylandOutput *> m_outputMap;
+    QMap<int, WaylandOutputDevice *> m_outputMap;
 
     // KWayland names
-    QList<WaylandOutput *> m_initializingOutputs;
+    QList<WaylandOutputDevice *> m_initializingOutputs;
     int m_lastOutputId = -1;
 
     bool m_registryInitialized;
@@ -100,6 +101,7 @@ private:
 
     bool m_tabletModeAvailable;
     bool m_tabletModeEngaged;
+    bool m_initialized = false;
 };
 
 }

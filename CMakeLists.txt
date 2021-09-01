@@ -27,10 +27,24 @@ include(KDEClangFormat)
 include(KDEGitCommitHooks)
 
 find_package(Qt5 ${QT_MIN_VERSION} CONFIG REQUIRED Core DBus Gui Test X11Extras)
+find_package(QtWaylandScanner REQUIRED)
+find_package(WaylandScanner)
 
 # Wayland backend
 find_package(KF5Wayland ${KF5_MIN_VERSION} CONFIG REQUIRED)
 add_feature_info("KF5Wayland" KF5Wayland_FOUND "Required for building libkscreen's KWayland backend")
+
+find_package(PlasmaWaylandProtocols 1.4.0 CONFIG)
+set_package_properties(PlasmaWaylandProtocols PROPERTIES TYPE REQUIRED)
+
+# Wayland backend
+find_package(KF5Wayland ${KF5_MIN_VERSION} CONFIG REQUIRED)
+add_feature_info("KF5Wayland" KF5Wayland_FOUND "Required for building libkscreen's KWayland backend")
+
+find_package(Wayland 1.15 COMPONENTS Client)
+set_package_properties(Wayland PROPERTIES
+                       TYPE REQUIRED
+                      )
 
 # xrandr backend
 

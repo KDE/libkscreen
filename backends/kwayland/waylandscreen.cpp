@@ -6,7 +6,7 @@
 #include "waylandscreen.h"
 
 #include "waylandconfig.h"
-#include "waylandoutput.h"
+#include "waylandoutputdevice.h"
 
 #include <mode.h>
 
@@ -27,15 +27,14 @@ ScreenPtr WaylandScreen::toKScreenScreen(KScreen::ConfigPtr &parent) const
     return kscreenScreen;
 }
 
-void WaylandScreen::setOutputs(const QList<WaylandOutput *> &outputs)
+void WaylandScreen::setOutputs(const QList<WaylandOutputDevice *> &outputs)
 {
     m_outputCount = outputs.count();
 
     QRect r;
     for (const auto *out : outputs) {
         if (out->enabled()) {
-            const auto *dev = out->outputDevice();
-            r |= QRect(dev->globalPosition(), dev->pixelSize() / dev->scaleF());
+            r |= QRect(out->globalPosition(), out->pixelSize() / out->scale());
         }
     }
     m_size = r.size();
