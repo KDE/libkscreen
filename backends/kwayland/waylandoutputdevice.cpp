@@ -224,7 +224,7 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputConfiguration *wlConfig, cons
     }
 
     // rotation
-    if (toKScreenRotation(transform()) != output->rotation()) {
+    if (toKScreenRotation(m_transform) != output->rotation()) {
         changed = true;
         wlConfig->transform(object(), toKWaylandTransform(output->rotation()));
     }
