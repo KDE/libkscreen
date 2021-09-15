@@ -9,7 +9,6 @@
 #include "config.h"
 
 #include <QDir>
-#include <QEventLoop>
 #include <QLoggingCategory>
 #include <QScreen>
 #include <QSize>
@@ -63,7 +62,6 @@ public:
 
 Q_SIGNALS:
     void configChanged();
-    void initialized();
 
 private:
     void setupRegistry();
@@ -94,7 +92,6 @@ private:
 
     bool m_registryInitialized;
     bool m_blockSignals;
-    QEventLoop m_syncLoop;
     KScreen::ConfigPtr m_kscreenConfig;
     KScreen::ConfigPtr m_kscreenPendingConfig;
     WaylandScreen *m_screen;

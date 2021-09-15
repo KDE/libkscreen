@@ -42,22 +42,11 @@ WaylandConfig::WaylandConfig(QObject *parent)
     , m_tabletModeEngaged(false)
 {
     initKWinTabletMode();
-
-    connect(this, &WaylandConfig::initialized, &m_syncLoop, &QEventLoop::quit);
-    QTimer::singleShot(3000, this, [this] {
-        if (m_syncLoop.isRunning()) {
-            qCWarning(KSCREEN_WAYLAND) << "Connection to Wayland server timed out.";
-            m_syncLoop.quit();
-        }
-    });
-
     initConnection();
-    m_syncLoop.exec();
 }
 
 WaylandConfig::~WaylandConfig()
 {
-    m_syncLoop.quit();
 }
 
 void WaylandConfig::initKWinTabletMode()
@@ -136,6 +125,7 @@ void WaylandConfig::setupRegistry()
 
     m_registry->create(m_connection);
     m_registry->setup();
+    m_connection->roundtrip();
 }
 
 int s_outputId = 0;
@@ -216,7 +206,6 @@ void WaylandConfig::checkInitialized()
     if (!m_initialized && isReady()) {
         m_initialized = true;
         m_screen->setOutputs(m_outputMap.values());
-        Q_EMIT initialized();
     }
 }
 
