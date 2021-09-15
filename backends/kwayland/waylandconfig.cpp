@@ -160,12 +160,12 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
 
         m_initializingOutputs.removeOne(device);
         m_outputMap.insert(device->id(), device);
+        checkInitialized();
 
-        if (m_initialized) {
+        if (!m_blockSignals && m_initializingOutputs.isEmpty()) {
+            m_screen->setOutputs(m_outputMap.values());
             Q_EMIT configChanged();
-        } else {
-            checkInitialized();
-        };
+        }
 
         connect(device, &WaylandOutputDevice::done, this, [this]() {
             // output got update must update current config
