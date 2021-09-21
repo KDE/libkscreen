@@ -422,10 +422,10 @@ Q_SIGNALS:
     void scaleChanged();
     void logicalSizeChanged();
     void followPreferredModeChanged(bool followPreferredMode);
-    void capabilitiesChanged(Capabilities capabilities);
-    void overscanChanged(uint32_t overscan);
+    void capabilitiesChanged();
+    void overscanChanged();
     void vrrPolicyChanged();
-    void rgbRangeChanged(RgbRange rgbRange);
+    void rgbRangeChanged();
 
     /** The mode list changed.
      *
