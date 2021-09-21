@@ -608,7 +608,7 @@ void Output::setCapabilities(Capabilities capabilities)
 {
     if (d->capabilities != capabilities) {
         d->capabilities = capabilities;
-        Q_EMIT capabilitiesChanged(capabilities);
+        Q_EMIT capabilitiesChanged();
     }
 }
 
@@ -621,7 +621,7 @@ void Output::setOverscan(uint32_t overscan)
 {
     if (d->overscan != overscan) {
         d->overscan = overscan;
-        Q_EMIT overscanChanged(overscan);
+        Q_EMIT overscanChanged();
     }
 }
 
@@ -647,7 +647,7 @@ void Output::setRgbRange(Output::RgbRange rgbRange)
 {
     if (d->rgbRange != rgbRange) {
         d->rgbRange = rgbRange;
-        Q_EMIT rgbRangeChanged(rgbRange);
+        Q_EMIT rgbRangeChanged();
     }
 }
 
@@ -704,12 +704,10 @@ void Output::apply(const OutputPtr &other)
     if (d->clones != other->d->clones) {
         changes << &Output::clonesChanged;
         setClones(other->d->clones);
-        ;
     }
     if (d->replicationSource != other->d->replicationSource) {
         changes << &Output::replicationSourceChanged;
         setReplicationSource(other->d->replicationSource);
-        ;
     }
     if (!d->compareModeList(d->modeList, other->d->modeList)) {
         changes << &Output::outputChanged;
@@ -722,6 +720,23 @@ void Output::apply(const OutputPtr &other)
         modes.insert(otherMode->id(), otherMode->clone());
     }
     setModes(modes);
+
+    if (d->capabilities != other->d->capabilities) {
+        changes << &Output::capabilitiesChanged;
+        setCapabilities(other->d->capabilities);
+    }
+    if (d->vrrPolicy != other->d->vrrPolicy) {
+        changes << &Output::vrrPolicyChanged;
+        setVrrPolicy(other->d->vrrPolicy);
+    }
+    if (d->overscan != other->d->overscan) {
+        changes << &Output::overscanChanged;
+        setOverscan(other->d->overscan);
+    }
+    if (d->rgbRange != other->d->rgbRange) {
+        changes << &Output::rgbRangeChanged;
+        setRgbRange(other->d->rgbRange);
+    }
 
     // Non-notifyable changes
     if (other->d->edid) {
