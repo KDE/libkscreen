@@ -16,6 +16,8 @@ XRandRCrtc::XRandRCrtc(xcb_randr_crtc_t crtc, XRandRConfig *config)
     , m_crtc(crtc)
     , m_mode(0)
     , m_rotation(XCB_RANDR_ROTATION_ROTATE_0)
+    , m_timestamp(XCB_CURRENT_TIME)
+    , m_configTimestamp(XCB_CURRENT_TIME)
 {
     update();
 }
@@ -110,4 +112,25 @@ void XRandRCrtc::update(xcb_randr_mode_t mode, xcb_randr_rotation_t rotation, co
     m_mode = mode;
     m_geometry = geom;
     m_rotation = rotation;
+}
+
+void XRandRCrtc::updateTimestamp(const xcb_timestamp_t tmstamp)
+{
+    if (tmstamp > m_timestamp) {
+        qCDebug(KSCREEN_XRANDR) << "XRandRCrtc " << m_crtc << " m_timestamp update " << m_timestamp << " => " << tmstamp;
+        m_timestamp = tmstamp;
+    }
+}
+
+void XRandRCrtc::updateConfigTimestamp(const xcb_timestamp_t tmstamp)
+{
+    if (tmstamp > m_configTimestamp) {
+        qCDebug(KSCREEN_XRANDR) << "XRandRCrtc " << m_crtc << " m_configTimestamp update" << m_configTimestamp << " => " << tmstamp;
+        m_configTimestamp = tmstamp;
+    }
+}
+
+bool XRandRCrtc::isChangedFromOutside() const
+{
+    return m_configTimestamp > m_timestamp;
 }

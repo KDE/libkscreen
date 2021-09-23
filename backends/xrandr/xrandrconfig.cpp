@@ -504,6 +504,8 @@ bool XRandRConfig::disableOutput(const OutputPtr &kscreenOutput) const
                         XCB_NONE,
                         xOutput->isConnected() ? XCB_RANDR_CONNECTION_CONNECTED : XCB_RANDR_CONNECTION_DISCONNECTED,
                         kscreenOutput->isPrimary());
+        if (xOutput->crtc())
+            xOutput->crtc()->updateTimestamp(reply->timestamp);
     }
     return (reply->status == XCB_RANDR_SET_CONFIG_SUCCESS);
 }
@@ -573,7 +575,7 @@ bool XRandRConfig::changeOutput(const KScreen::OutputPtr &kscreenOutput) const
                             << "\n"
                             << "\tCRTC:" << xOutput->crtc()->crtc() << "\n"
                             << "\tPos:" << kscreenOutput->pos() << "\n"
-                            << "\tMode:" << modeId << kscreenOutput->currentMode() << "\n"
+                            << "\tMode:" << kscreenOutput->currentMode() << "Preferred:" << kscreenOutput->preferredModeId() << "\n"
                             << "\tRotation:" << kscreenOutput->rotation();
 
     if (!sendConfig(kscreenOutput, xOutput->crtc())) {
@@ -605,6 +607,9 @@ bool XRandRConfig::sendConfig(const KScreen::OutputPtr &kscreenOutput, XRandRCrt
         qCDebug(KSCREEN_XRANDR) << "\tResult: unknown (error)";
         return false;
     }
-    qCDebug(KSCREEN_XRANDR) << "\tResult: " << reply->status;
+
+    crtc->updateTimestamp(reply->timestamp);
+
+    qCDebug(KSCREEN_XRANDR) << "\tResult: " << reply->status << " timestamp: " << reply->timestamp;
     return (reply->status == XCB_RANDR_SET_CONFIG_SUCCESS);
 }

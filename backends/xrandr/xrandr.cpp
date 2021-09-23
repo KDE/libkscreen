@@ -45,6 +45,7 @@ XRandR::XRandR()
     qRegisterMetaType<xcb_randr_mode_t>("xcb_randr_mode_t");
     qRegisterMetaType<xcb_randr_connection_t>("xcb_randr_connection_t");
     qRegisterMetaType<xcb_randr_rotation_t>("xcb_randr_rotation_t");
+    qRegisterMetaType<xcb_timestamp_t>("xcb_timestamp_t");
 
     // Use our own connection to make sure that we won't mess up Qt's connection
     // if something goes wrong on our side.
@@ -143,7 +144,7 @@ void XRandR::outputChanged(xcb_randr_output_t output, xcb_randr_crtc_t crtc, xcb
     qCDebug(KSCREEN_XRANDR) << "Output" << xOutput->id() << ": connected =" << xOutput->isConnected() << ", enabled =" << xOutput->isEnabled();
 }
 
-void XRandR::crtcChanged(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_rotation_t rotation, const QRect &geom)
+void XRandR::crtcChanged(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_rotation_t rotation, const QRect &geom, xcb_timestamp_t timestamp)
 {
     XRandRCrtc *xCrtc = s_internalConfig->crtc(crtc);
     if (!xCrtc) {
@@ -152,6 +153,7 @@ void XRandR::crtcChanged(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr
         xCrtc->update(mode, rotation, geom);
     }
 
+    xCrtc->updateConfigTimestamp(timestamp);
     m_configChangeCompressor->start();
 }
 

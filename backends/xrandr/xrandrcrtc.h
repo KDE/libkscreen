@@ -41,6 +41,10 @@ public:
     void update();
     void update(xcb_randr_crtc_t mode, xcb_randr_rotation_t rotation, const QRect &geom);
 
+    void updateTimestamp(const xcb_timestamp_t tmstamp);
+    void updateConfigTimestamp(const xcb_timestamp_t tmstamp);
+    bool isChangedFromOutside() const;
+
 private:
     xcb_randr_crtc_t m_crtc;
     xcb_randr_mode_t m_mode;
@@ -50,4 +54,7 @@ private:
 
     QVector<xcb_randr_output_t> m_possibleOutputs;
     QVector<xcb_randr_output_t> m_outputs;
+
+    xcb_timestamp_t m_timestamp;
+    xcb_timestamp_t m_configTimestamp;
 };

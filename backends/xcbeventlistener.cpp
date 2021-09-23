@@ -139,6 +139,8 @@ void XCBEventListener::handleScreenChange(xcb_generic_event_t *e)
     }
 
     qCDebug(KSCREEN_XCB_HELPER) << "RRScreenChangeNotify";
+    qCDebug(KSCREEN_XCB_HELPER) << "\tTimestamp: " << e2->timestamp;
+    qCDebug(KSCREEN_XCB_HELPER) << "\tConfig_timestamp: " << e2->config_timestamp;
     qCDebug(KSCREEN_XCB_HELPER) << "\tWindow:" << e2->request_window;
     qCDebug(KSCREEN_XCB_HELPER) << "\tRoot:" << e2->root;
     qCDebug(KSCREEN_XCB_HELPER) << "\tRotation: " << rotationToString((xcb_randr_rotation_t)e2->rotation);
@@ -157,15 +159,17 @@ void XCBEventListener::handleXRandRNotify(xcb_generic_event_t *e)
     if (randrEvent->subCode == XCB_RANDR_NOTIFY_CRTC_CHANGE) {
         xcb_randr_crtc_change_t crtc = randrEvent->u.cc;
         qCDebug(KSCREEN_XCB_HELPER) << "RRNotify_CrtcChange";
+        qCDebug(KSCREEN_XCB_HELPER) << "\tTimestamp: " << crtc.timestamp;
         qCDebug(KSCREEN_XCB_HELPER) << "\tCRTC: " << crtc.crtc;
         qCDebug(KSCREEN_XCB_HELPER) << "\tMode: " << crtc.mode;
         qCDebug(KSCREEN_XCB_HELPER) << "\tRotation: " << rotationToString((xcb_randr_rotation_t)crtc.rotation);
         qCDebug(KSCREEN_XCB_HELPER) << "\tGeometry: " << crtc.x << crtc.y << crtc.width << crtc.height;
-        Q_EMIT crtcChanged(crtc.crtc, crtc.mode, (xcb_randr_rotation_t)crtc.rotation, QRect(crtc.x, crtc.y, crtc.width, crtc.height));
+        Q_EMIT crtcChanged(crtc.crtc, crtc.mode, (xcb_randr_rotation_t)crtc.rotation, QRect(crtc.x, crtc.y, crtc.width, crtc.height), crtc.timestamp);
 
     } else if (randrEvent->subCode == XCB_RANDR_NOTIFY_OUTPUT_CHANGE) {
         xcb_randr_output_change_t output = randrEvent->u.oc;
         qCDebug(KSCREEN_XCB_HELPER) << "RRNotify_OutputChange";
+        qCDebug(KSCREEN_XCB_HELPER) << "\tTimestamp: " << output.timestamp;
         qCDebug(KSCREEN_XCB_HELPER) << "\tOutput: " << output.output;
         qCDebug(KSCREEN_XCB_HELPER) << "\tCRTC: " << output.crtc;
         qCDebug(KSCREEN_XCB_HELPER) << "\tMode: " << output.mode;
@@ -181,6 +185,7 @@ void XCBEventListener::handleXRandRNotify(xcb_generic_event_t *e)
             xcb_get_atom_name_reply(QX11Info::connection(), xcb_get_atom_name(QX11Info::connection(), property.atom), nullptr));
 
         qCDebug(KSCREEN_XCB_HELPER) << "RRNotify_OutputProperty (ignored)";
+        qCDebug(KSCREEN_XCB_HELPER) << "\tTimestamp: " << property.timestamp;
         qCDebug(KSCREEN_XCB_HELPER) << "\tOutput: " << property.output;
         qCDebug(KSCREEN_XCB_HELPER) << "\tProperty: " << xcb_get_atom_name_name(reply.data());
         qCDebug(KSCREEN_XCB_HELPER) << "\tState (newValue, Deleted): " << property.status;

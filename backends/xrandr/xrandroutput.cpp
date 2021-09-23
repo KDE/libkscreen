@@ -403,7 +403,7 @@ KScreen::OutputPtr XRandROutput::toKScreenOutput() const
 
     // See https://bugzilla.redhat.com/show_bug.cgi?id=1290586
     // QXL will be creating a new mode we need to jump to every time the display is resized
-    kscreenOutput->setFollowPreferredMode(m_hotplugModeUpdate);
+    kscreenOutput->setFollowPreferredMode(m_hotplugModeUpdate && m_crtc && m_crtc->isChangedFromOutside());
 
     kscreenOutput->setConnected(isConnected());
     if (isConnected()) {

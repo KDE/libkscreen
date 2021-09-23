@@ -30,7 +30,7 @@ Q_SIGNALS:
     void outputsChanged();
 
     /* Emitted only when XRandR 1.2 or newer is available */
-    void crtcChanged(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_rotation_t rotation, const QRect &geom);
+    void crtcChanged(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_rotation_t rotation, const QRect &geom, xcb_timestamp_t timestamp);
     void outputChanged(xcb_randr_output_t output, xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_connection_t connection);
     void outputPropertyChanged(xcb_randr_output_t output);
 
