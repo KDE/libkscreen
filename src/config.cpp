@@ -365,6 +365,9 @@ void Config::apply(const ConfigPtr &other)
 {
     d->screen->apply(other->screen());
 
+    setTabletModeAvailable(other->tabletModeAvailable());
+    setTabletModeEngaged(other->tabletModeEngaged());
+
     // Remove removed outputs
     for (auto it = d->outputs.begin(); it != d->outputs.end();) {
         if (!other->d->outputs.contains((*it)->id())) {
