@@ -15,6 +15,8 @@
 #include <QSize>
 #include <QSocketNotifier>
 
+struct kde_output_device_v2;
+
 namespace KWayland
 {
 namespace Client
@@ -29,6 +31,7 @@ class OutputManagement;
 namespace KScreen
 {
 class Output;
+class WaylandPrimaryOutput;
 class WaylandOutputDevice;
 class WaylandScreen;
 class WaylandOutputManagement;
@@ -58,6 +61,7 @@ public:
     QMap<int, WaylandOutputDevice *> outputMap() const;
 
     void applyConfig(const KScreen::ConfigPtr &newConfig);
+    WaylandOutputDevice *findOutputDevice(struct ::kde_output_device_v2 *outputdevice) const;
 
     bool isReady() const;
 
@@ -84,9 +88,11 @@ private:
 
     KWayland::Client::Registry *m_registry;
     WaylandOutputManagement *m_outputManagement = nullptr;
+    QScopedPointer<WaylandPrimaryOutput> m_primaryOutput;
 
     // KWayland names as keys
     QMap<int, WaylandOutputDevice *> m_outputMap;
+    QString m_primaryOutputName;
 
     // KWayland names
     QList<WaylandOutputDevice *> m_initializingOutputs;

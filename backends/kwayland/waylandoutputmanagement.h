@@ -8,12 +8,16 @@
 #define WAYLANDOUTPUTMANAGEMENT_H
 
 #include "qwayland-kde-output-management-v2.h"
+#include "qwayland-kde-primary-output-v1.h"
 
 #include <QObject>
 #include <QSize>
 
 namespace KScreen
 {
+class WaylandConfig;
+class WaylandOutputDevice;
+
 class WaylandOutputConfiguration : public QObject, public QtWayland::kde_output_configuration_v2
 {
     Q_OBJECT
@@ -38,6 +42,18 @@ public:
     WaylandOutputConfiguration *createConfiguration();
 };
 
+class WaylandPrimaryOutput : public QObject, public QtWayland::kde_primary_output_v1
+{
+    Q_OBJECT
+public:
+    WaylandPrimaryOutput(struct ::wl_registry *registry, int id, int version);
+
+Q_SIGNALS:
+    void primaryOutputChanged(const QString &outputName);
+
+protected:
+    void kde_primary_output_v1_primary_output(const QString &outputName) override;
+};
 }
 
 #endif // WAYLANDOUTPUTMANAGEMENT_H

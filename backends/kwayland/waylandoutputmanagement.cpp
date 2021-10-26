@@ -5,15 +5,15 @@
  *  SPDX-License-Identifier: LGPL-2.1-or-later
  */
 #include "waylandoutputmanagement.h"
+#include "waylandconfig.h"
 #include <QDebug>
 
 namespace KScreen
 {
 WaylandOutputManagement::WaylandOutputManagement(struct ::wl_registry *registry, int id, int version)
     : QObject()
-    , QtWayland::kde_output_management_v2()
+    , QtWayland::kde_output_management_v2(registry, id, version)
 {
-    init(registry, id, version);
 }
 
 WaylandOutputConfiguration *WaylandOutputManagement::createConfiguration()
@@ -37,4 +37,14 @@ void WaylandOutputConfiguration::kde_output_configuration_v2_failed()
     Q_EMIT failed();
 }
 
+WaylandPrimaryOutput::WaylandPrimaryOutput(struct ::wl_registry *registry, int id, int version)
+    : QObject()
+    , QtWayland::kde_primary_output_v1(registry, id, version)
+{
+}
+
+void WaylandPrimaryOutput::kde_primary_output_v1_primary_output(const QString &outputName)
+{
+    Q_EMIT primaryOutputChanged(outputName);
+}
 }

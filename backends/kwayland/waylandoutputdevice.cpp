@@ -170,7 +170,7 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output)
     output->setId(m_id);
     output->setEnabled(enabled());
     output->setConnected(true);
-    output->setPrimary(true); // FIXME: wayland doesn't have the concept of a primary display
+    output->setPrimary(m_isPrimary);
     output->setName(name());
     output->setSizeMm(m_physicalSize);
     output->setPos(m_pos);
@@ -257,6 +257,11 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputConfiguration *wlConfig, cons
         changed = true;
     }
 
+    if (output->isPrimary()) {
+        wlConfig->set_primary_output(object());
+        changed = true;
+    }
+
     return changed;
 }
 
@@ -271,10 +276,25 @@ QString WaylandOutputDevice::name() const
     return QStringLiteral("%1 %2").arg(m_manufacturer, m_model);
 }
 
+QString WaylandOutputDevice::outputName() const
+{
+    return m_outputName;
+}
+
 QDebug operator<<(QDebug dbg, const WaylandOutputDevice *output)
 {
     dbg << "WaylandOutput(Id:" << output->id() << ", Name:" << QString(output->manufacturer() + QLatin1Char(' ') + output->model()) << ")";
     return dbg;
+}
+
+bool WaylandOutputDevice::isPrimary() const
+{
+    return m_isPrimary;
+}
+
+void WaylandOutputDevice::setPrimary(bool primary)
+{
+    m_isPrimary = primary;
 }
 
 void WaylandOutputDevice::kde_output_device_v2_done()
@@ -330,6 +350,11 @@ void WaylandOutputDevice::kde_output_device_v2_vrr_policy(uint32_t vrr_policy)
 void WaylandOutputDevice::kde_output_device_v2_rgb_range(uint32_t rgb_range)
 {
     m_rgbRange = rgb_range;
+}
+
+void WaylandOutputDevice::kde_output_device_v2_name(const QString &outputName)
+{
+    m_outputName = outputName;
 }
 
 QByteArray WaylandOutputDevice::edid() const
@@ -396,5 +421,3 @@ uint32_t WaylandOutputDevice::rgbRange() const
 {
     return m_rgbRange;
 }
-
-#include "waylandoutputdevice.moc"

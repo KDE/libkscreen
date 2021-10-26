@@ -126,6 +126,15 @@ void WaylandConfig::setupRegistry()
         if (interface == WaylandOutputManagement::interface()->name) {
             m_outputManagement = new WaylandOutputManagement(m_registry->registry(), name, version);
         }
+        if (interface == WaylandPrimaryOutput::interface()->name) {
+            m_primaryOutput.reset(new WaylandPrimaryOutput(m_registry->registry(), name, version));
+            connect(m_primaryOutput.data(), &WaylandPrimaryOutput::primaryOutputChanged, this, [this](const QString &name) {
+                m_primaryOutputName = name;
+                for (auto output : qAsConst(m_outputMap)) {
+                    output->setPrimary(output->outputName() == name);
+                }
+            });
+        }
     });
 
     connect(m_registry, &KWayland::Client::Registry::interfacesAnnounced, this, [this] {
@@ -158,6 +167,7 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
         QObject::disconnect(*connection);
         delete connection;
 
+        device->setPrimary(m_primaryOutputName == device->outputName());
         m_initializingOutputs.removeOne(device);
         m_outputMap.insert(device->id(), device);
         checkInitialized();
@@ -224,7 +234,8 @@ KScreen::ConfigPtr WaylandConfig::currentConfig()
 {
     m_kscreenConfig->setScreen(m_screen->toKScreenScreen(m_kscreenConfig));
 
-    const auto features = Config::Feature::Writable | Config::Feature::PerOutputScaling | Config::Feature::AutoRotation | Config::Feature::TabletMode;
+    const auto features = Config::Feature::Writable | Config::Feature::PerOutputScaling | Config::Feature::AutoRotation | Config::Feature::TabletMode
+        | Config::Feature::PrimaryDisplay;
     m_kscreenConfig->setSupportedFeatures(features);
     m_kscreenConfig->setValid(m_connection->display());
 
@@ -239,20 +250,15 @@ KScreen::ConfigPtr WaylandConfig::currentConfig()
         }
     }
 
-    // Add KScreen::Outputs that aren't in the list yet, handle primaryOutput
+    // Add KScreen::Outputs that aren't in the list yet
     KScreen::OutputList kscreenOutputs = m_kscreenConfig->outputs();
     for (const auto &output : m_outputMap) {
-        KScreen::OutputPtr kscreenOutput = kscreenOutputs[output->id()];
+        KScreen::OutputPtr &kscreenOutput = kscreenOutputs[output->id()];
         if (!kscreenOutput) {
             kscreenOutput = output->toKScreenOutput();
-            kscreenOutputs.insert(kscreenOutput->id(), kscreenOutput);
+        } else {
+            output->updateKScreenOutput(kscreenOutput);
         }
-        if (kscreenOutput && m_outputMap.count() == 1) {
-            kscreenOutput->setPrimary(true);
-        } else if (m_outputMap.count() > 1) {
-            // primaryScreen concept doesn't exist in kwayland, so we don't set one
-        }
-        output->updateKScreenOutput(kscreenOutput);
     }
     m_kscreenConfig->setOutputs(kscreenOutputs);
 
@@ -274,6 +280,16 @@ void WaylandConfig::tryPendingConfig()
     }
     applyConfig(m_kscreenPendingConfig);
     m_kscreenPendingConfig = nullptr;
+}
+
+WaylandOutputDevice *WaylandConfig::findOutputDevice(struct ::kde_output_device_v2 *outputdevice) const
+{
+    for (WaylandOutputDevice *device : m_outputMap) {
+        if (device->object() == outputdevice) {
+            return device;
+        }
+    }
+    return nullptr;
 }
 
 void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)

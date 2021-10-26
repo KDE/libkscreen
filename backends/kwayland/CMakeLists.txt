@@ -26,6 +26,10 @@ ecm_add_qtwayland_client_protocol(wayland_SRCS
     BASENAME kde-output-management-v2
 )
 
+ecm_add_qtwayland_client_protocol(wayland_SRCS
+    PROTOCOL ${PLASMA_WAYLAND_PROTOCOLS_DIR}/kde-primary-output-v1.xml
+    BASENAME kde-primary-output-v1
+)
 
 add_library(KSC_KWayland MODULE ${wayland_SRCS})
 

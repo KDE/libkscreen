@@ -32,6 +32,7 @@ public:
     bool enabled() const;
     int id() const;
     QString name() const;
+    QString outputName() const;
     QString model() const;
     QString manufacturer() const;
     qreal scale() const;
@@ -47,9 +48,15 @@ public:
     void updateKScreenOutput(OutputPtr &output);
     void updateKScreenModes(OutputPtr &output);
 
+    bool isPrimary() const;
+    void setPrimary(bool primary);
     bool setWlConfig(WaylandOutputConfiguration *wlConfig, const KScreen::OutputPtr &output);
 
     QString modeId() const;
+    QString uuid() const
+    {
+        return m_uuid;
+    }
 
 Q_SIGNALS:
     void done();
@@ -76,6 +83,7 @@ protected:
     void kde_output_device_v2_overscan(uint32_t overscan) override;
     void kde_output_device_v2_vrr_policy(uint32_t vrr_policy) override;
     void kde_output_device_v2_rgb_range(uint32_t rgb_range) override;
+    void kde_output_device_v2_name(const QString &name) override;
 
 private:
     QString modeName(const WaylandOutputDeviceMode *m) const;
@@ -96,11 +104,13 @@ private:
     int32_t m_enabled;
     QString m_uuid;
     QString m_serialNumber;
+    QString m_outputName;
     QString m_eisaId;
     uint32_t m_flags;
     uint32_t m_overscan;
     uint32_t m_vrr_policy;
     uint32_t m_rgbRange;
+    bool m_isPrimary = false;
 };
 
 }
