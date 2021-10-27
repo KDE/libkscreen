@@ -194,7 +194,12 @@ void Doctor::parseOutputArgs()
                         return;
                     }
                 }
-                if (ops.count() == 3 && ops[2] == QLatin1String("enable")) {
+                if (ops.count() == 3 && ops[2] == QLatin1String("primary")) {
+                    if (!setPrimary(output_id, true)) {
+                        qApp->exit(1);
+                        return;
+                    };
+                } else if (ops.count() == 3 && ops[2] == QLatin1String("enable")) {
                     if (!setEnabled(output_id, true)) {
                         qApp->exit(1);
                         return;
@@ -611,6 +616,32 @@ bool Doctor::setRgbRange(int id, KScreen::Output::RgbRange rgbRange)
     }
     cout << "Output RgbRange " << id << " invalid." << Qt::endl;
     return false;
+}
+
+bool KScreen::Doctor::setPrimary(int id, bool primary)
+{
+    if (!m_config) {
+        qCWarning(KSCREEN_DOCTOR) << "Invalid config.";
+        return false;
+    }
+
+    bool found = false;
+    for (const auto &output : m_config->outputs()) {
+        if (output->id() == id) {
+            output->setPrimary(true);
+            m_changed = true;
+            found = true;
+        }
+    }
+    if (found) {
+        for (const auto &output : m_config->outputs()) {
+            if (output->id() != id) {
+                output->setPrimary(false);
+                m_changed = true;
+            }
+        }
+    }
+    return found;
 }
 
 void Doctor::applyConfig()
