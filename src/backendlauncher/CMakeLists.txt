@@ -35,3 +35,10 @@ configure_file(org.kde.kscreen.service.cmake
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/org.kde.kscreen.service
         DESTINATION ${KDE_INSTALL_DBUSSERVICEDIR}
 )
+
+configure_file(plasma-kscreen.service.cmake
+               ${CMAKE_CURRENT_BINARY_DIR}/plasma-kscreen.service @ONLY
+)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/plasma-kscreen.service
+        DESTINATION ${KDE_INSTALL_SYSTEMDUSERUNITDIR}
+)
