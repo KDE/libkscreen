@@ -261,12 +261,12 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputConfiguration *wlConfig, cons
         changed = true;
     }
 
-    if ((output->capabilities() & Output::Capability::Bpc) && bpc() != output->bpc()) {
+    if ((output->capabilities() & Output::Capability::Bpc) && bpc() != output->bpc() && wlConfig->interface()->version >= 3) {
         wlConfig->set_bits_per_color(object(), output->bpc());
         changed = true;
     }
 
-    if (output->isPrimary()) {
+    if (output->isPrimary() && wlConfig->interface()->version >= 2) {
         wlConfig->set_primary_output(object());
         changed = true;
     }
