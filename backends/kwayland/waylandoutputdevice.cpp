@@ -187,6 +187,10 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output)
     output->setOverscan(m_overscan);
     output->setVrrPolicy(static_cast<Output::VrrPolicy>(m_vrr_policy));
     output->setRgbRange(static_cast<Output::RgbRange>(m_rgbRange));
+    output->setMinBpc(m_minBpc);
+    output->setMaxBpc(m_maxBpc);
+    qWarning() << "BPC of WOD is" << m_bpc;
+    output->setBpc(m_bpc);
 
     updateKScreenModes(output);
 }
@@ -254,6 +258,11 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputConfiguration *wlConfig, cons
 
     if ((output->capabilities() & Output::Capability::RgbRange) && rgbRange() != static_cast<uint32_t>(output->rgbRange())) {
         wlConfig->set_rgb_range(object(), static_cast<uint32_t>(output->rgbRange()));
+        changed = true;
+    }
+
+    if ((output->capabilities() & Output::Capability::Bpc) && bpc() != output->bpc()) {
+        wlConfig->set_bits_per_color(object(), output->bpc());
         changed = true;
     }
 
@@ -357,6 +366,18 @@ void WaylandOutputDevice::kde_output_device_v2_name(const QString &outputName)
     m_outputName = outputName;
 }
 
+void WaylandOutputDevice::kde_output_device_v2_supported_bits_per_color(uint32_t min, uint32_t max)
+{
+    m_minBpc = min;
+    m_maxBpc = max;
+}
+
+void WaylandOutputDevice::kde_output_device_v2_used_bits_per_color(uint32_t bpc)
+{
+    qWarning() << __func__ << "called with" << bpc;
+    m_bpc = bpc;
+}
+
 QByteArray WaylandOutputDevice::edid() const
 {
     return m_edid;
@@ -420,4 +441,19 @@ uint32_t WaylandOutputDevice::capabilities() const
 uint32_t WaylandOutputDevice::rgbRange() const
 {
     return m_rgbRange;
+}
+
+uint32_t WaylandOutputDevice::minBpc() const
+{
+    return m_minBpc;
+}
+
+uint32_t WaylandOutputDevice::maxBpc() const
+{
+    return m_maxBpc;
+}
+
+uint32_t WaylandOutputDevice::bpc() const
+{
+    return m_bpc;
 }

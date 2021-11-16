@@ -52,6 +52,9 @@ public:
     Q_PROPERTY(uint32_t overscan READ overscan WRITE setOverscan NOTIFY overscanChanged)
     Q_PROPERTY(VrrPolicy vrrPolicy READ vrrPolicy WRITE setVrrPolicy NOTIFY vrrPolicyChanged)
     Q_PROPERTY(RgbRange rgbRange READ rgbRange WRITE setRgbRange NOTIFY rgbRangeChanged)
+    Q_PROPERTY(uint32_t minBpc READ minBpc NOTIFY minBpcChanged)
+    Q_PROPERTY(uint32_t maxBpc READ maxBpc NOTIFY maxBpcChanged)
+    Q_PROPERTY(uint32_t bpc READ bpc NOTIFY bpcChanged)
 
     enum Type {
         Unknown,
@@ -84,6 +87,7 @@ public:
         Overscan = 0x1,
         Vrr = 0x2,
         RgbRange = 0x4,
+        Bpc = 0x8,
     };
     Q_ENUM(Capability)
     Q_DECLARE_FLAGS(Capabilities, Capability)
@@ -407,6 +411,13 @@ public:
      */
     void setRgbRange(RgbRange rgbRange);
 
+    uint32_t minBpc() const;
+    void setMinBpc(uint32_t min);
+    uint32_t maxBpc() const;
+    void setMaxBpc(uint32_t max);
+    uint32_t bpc() const;
+    void setBpc(uint32_t bpc);
+
     void apply(const OutputPtr &other);
 Q_SIGNALS:
     void outputChanged();
@@ -426,6 +437,9 @@ Q_SIGNALS:
     void overscanChanged();
     void vrrPolicyChanged();
     void rgbRangeChanged();
+    void bpcChanged();
+    void minBpcChanged();
+    void maxBpcChanged();
 
     /** The mode list changed.
      *

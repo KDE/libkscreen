@@ -43,6 +43,9 @@ public:
     uint32_t overscan() const;
     uint32_t capabilities() const;
     uint32_t rgbRange() const;
+    uint32_t minBpc() const;
+    uint32_t maxBpc() const;
+    uint32_t bpc() const;
 
     OutputPtr toKScreenOutput();
     void updateKScreenOutput(OutputPtr &output);
@@ -84,6 +87,8 @@ protected:
     void kde_output_device_v2_vrr_policy(uint32_t vrr_policy) override;
     void kde_output_device_v2_rgb_range(uint32_t rgb_range) override;
     void kde_output_device_v2_name(const QString &name) override;
+    void kde_output_device_v2_supported_bits_per_color(uint32_t min, uint32_t max) override;
+    void kde_output_device_v2_used_bits_per_color(uint32_t bpc) override;
 
 private:
     QString modeName(const WaylandOutputDeviceMode *m) const;
@@ -111,6 +116,9 @@ private:
     uint32_t m_vrr_policy;
     uint32_t m_rgbRange;
     bool m_isPrimary = false;
+    uint32_t m_minBpc = 8;
+    uint32_t m_maxBpc = 8;
+    uint32_t m_bpc = 8;
 };
 
 }

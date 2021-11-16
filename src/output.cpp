@@ -59,6 +59,9 @@ public:
         , overscan(other.overscan)
         , vrrPolicy(other.vrrPolicy)
         , rgbRange(other.rgbRange)
+        , minBpc(other.minBpc)
+        , maxBpc(other.maxBpc)
+        , bpc(other.bpc)
     {
         const auto otherModeList = other.modeList;
         for (const ModePtr &otherMode : otherModeList) {
@@ -96,6 +99,9 @@ public:
     uint32_t overscan = 0;
     VrrPolicy vrrPolicy = VrrPolicy::Automatic;
     RgbRange rgbRange = RgbRange::Automatic;
+    uint32_t minBpc = 8;
+    uint32_t maxBpc = 8;
+    uint32_t bpc = 8;
 
     QScopedPointer<Edid> edid;
 };
@@ -651,6 +657,45 @@ void Output::setRgbRange(Output::RgbRange rgbRange)
     }
 }
 
+uint32_t Output::minBpc() const
+{
+    return d->minBpc;
+}
+
+void Output::setMinBpc(uint32_t min)
+{
+    if (d->minBpc != min) {
+        d->minBpc = min;
+        Q_EMIT minBpcChanged();
+    }
+}
+
+uint32_t Output::maxBpc() const
+{
+    return d->maxBpc;
+}
+
+void Output::setMaxBpc(uint32_t max)
+{
+    if (d->maxBpc != max) {
+        d->maxBpc = max;
+        Q_EMIT maxBpcChanged();
+    }
+}
+
+uint32_t Output::bpc() const
+{
+    return d->bpc;
+}
+
+void Output::setBpc(uint32_t bpc)
+{
+    if (d->bpc != bpc) {
+        d->bpc = bpc;
+        Q_EMIT bpcChanged();
+    }
+}
+
 void Output::apply(const OutputPtr &other)
 {
     typedef void (KScreen::Output::*ChangeSignal)();
@@ -736,6 +781,10 @@ void Output::apply(const OutputPtr &other)
     if (d->rgbRange != other->d->rgbRange) {
         changes << &Output::rgbRangeChanged;
         setRgbRange(other->d->rgbRange);
+    }
+    if (d->bpc != other->d->bpc) {
+        changes << &Output::bpcChanged;
+        setBpc(other->d->bpc);
     }
 
     // Non-notifyable changes
