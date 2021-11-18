@@ -129,9 +129,16 @@ void WaylandConfig::setupRegistry()
         if (interface == WaylandPrimaryOutput::interface()->name) {
             m_primaryOutput.reset(new WaylandPrimaryOutput(m_registry->registry(), name, std::min(1u, version)));
             connect(m_primaryOutput.data(), &WaylandPrimaryOutput::primaryOutputChanged, this, [this](const QString &name) {
+                if (m_primaryOutputName == name) {
+                    return;
+                }
+
                 m_primaryOutputName = name;
                 for (auto output : qAsConst(m_outputMap)) {
                     output->setPrimary(output->outputName() == name);
+                }
+                if (!m_blockSignals) {
+                    Q_EMIT configChanged();
                 }
             });
         }
