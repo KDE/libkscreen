@@ -32,6 +32,7 @@ public:
     void backendReady(org::kde::kscreen::Backend *backend) override;
     void onConfigSet(QDBusPendingCallWatcher *watcher);
     void normalizeOutputPositions();
+    void fixPrimaryOutput();
 
     KScreen::ConfigPtr config;
 
@@ -110,6 +111,7 @@ void SetConfigOperation::start()
 {
     Q_D(SetConfigOperation);
     d->normalizeOutputPositions();
+    d->fixPrimaryOutput();
     if (BackendManager::instance()->method() == BackendManager::InProcess) {
         auto backend = d->loadBackend();
         backend->setConfig(d->config);
@@ -146,6 +148,43 @@ void SetConfigOperationPrivate::normalizeOutputPositions()
         QPoint newPos = QPoint(output->pos().x() - offsetX, output->pos().y() - offsetY);
         qCDebug(KSCREEN) << "Moved output from" << output->pos() << "to" << newPos;
         output->setPos(newPos);
+    }
+}
+
+void SetConfigOperationPrivate::fixPrimaryOutput()
+{
+    if (!config || !(config->supportedFeatures() & Config::Feature::PrimaryDisplay)) {
+        return;
+    }
+    const auto outputs = config->outputs();
+    if (outputs.isEmpty()) {
+        return;
+    }
+
+    // Here we make sure that:
+    // - that our primary is enabled
+    // - we have at least a primary
+    // - we have exactly 1 primary
+    // - we have a primary at all
+    bool found = false;
+    KScreen::OutputPtr candidate;
+    for (const KScreen::OutputPtr &output : outputs) {
+        if (!output->isEnabled() && output->isPrimary()) {
+            qCDebug(KSCREEN) << "can't be primary if disabled!!" << output;
+            output->setPrimary(false);
+        } else if (output->isPrimary() && !found) {
+            found = true;
+        } else if (output->isPrimary() && found) {
+            qCDebug(KSCREEN) << "can only have 1 primary" << output;
+            output->setPrimary(false);
+        } else if (output->isEnabled()) {
+            candidate = output;
+        }
+    }
+
+    if (!found && candidate) {
+        qCDebug(KSCREEN) << "setting primary instead" << candidate;
+        candidate->setPrimary(true);
     }
 }
 
