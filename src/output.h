@@ -139,6 +139,7 @@ public:
     QString hashMd5() const;
 
     Type type() const;
+    QString typeName() const;
     void setType(Type type);
 
     QString icon() const;
