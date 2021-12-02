@@ -47,7 +47,7 @@ public:
     Q_PROPERTY(QSize sizeMm READ sizeMm CONSTANT)
     Q_PROPERTY(qreal scale READ scale WRITE setScale NOTIFY scaleChanged)
     Q_PROPERTY(bool followPreferredMode READ followPreferredMode WRITE setFollowPreferredMode NOTIFY followPreferredModeChanged)
-    Q_PROPERTY(QSizeF logicalSize READ logicalSize WRITE setLogicalSize NOTIFY logicalSizeChanged)
+    Q_PROPERTY(QSizeF explicitLogicalSize READ explicitLogicalSize WRITE setExplicitLogicalSize NOTIFY explicitLogicalSizeChanged)
     Q_PROPERTY(Capabilities capabilities READ capabilities NOTIFY capabilitiesChanged)
     Q_PROPERTY(uint32_t overscan READ overscan WRITE setOverscan NOTIFY overscanChanged)
     Q_PROPERTY(VrrPolicy vrrPolicy READ vrrPolicy WRITE setVrrPolicy NOTIFY vrrPolicyChanged)
@@ -315,16 +315,6 @@ public:
      * The logical size is the output's representation internal to the display server and its
      * overall screen geometry.
      *
-     * returns the logical size of this output
-     *
-     * @since 5.18
-     */
-    QSizeF logicalSize() const;
-
-    /**
-     * The logical size is the output's representation internal to the display server and its
-     * overall screen geometry.
-     *
      * returns the explicitly set logical size of this output, is an invalid size if not set
      *
      * @since 5.18
@@ -338,9 +328,9 @@ public:
      *
      * @param size of this output in logical space
      *
-     * @since 5.18
+     * @since 5.24
      */
-    void setLogicalSize(const QSizeF &size);
+    void setExplicitLogicalSize(const QSizeF &size);
 
     /**
      * @returns whether the mode should be changed to the new preferred mode
@@ -421,7 +411,7 @@ Q_SIGNALS:
     void clonesChanged();
     void replicationSourceChanged();
     void scaleChanged();
-    void logicalSizeChanged();
+    void explicitLogicalSizeChanged();
     void followPreferredModeChanged(bool followPreferredMode);
     void capabilitiesChanged();
     void overscanChanged();

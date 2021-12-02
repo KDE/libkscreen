@@ -13,6 +13,7 @@
 #include "mode.h"
 
 #include <QCryptographicHash>
+#include <QGuiApplication>
 #include <QRect>
 #include <QScopedPointer>
 #include <QStringList>
@@ -28,7 +29,7 @@ public:
         , replicationSource(0)
         , rotation(None)
         , scale(1.0)
-        , logicalSize(QSizeF())
+        , explicitLogicalSize(QSizeF())
         , connected(false)
         , enabled(false)
         , primary(false)
@@ -87,7 +88,7 @@ public:
     QSize size;
     Rotation rotation;
     qreal scale;
-    QSizeF logicalSize;
+    QSizeF explicitLogicalSize;
     bool connected;
     bool enabled;
     bool primary;
@@ -459,40 +460,18 @@ void Output::setScale(qreal factor)
     Q_EMIT scaleChanged();
 }
 
-QSizeF Output::logicalSize() const
-{
-    if (d->logicalSize.isValid()) {
-        return d->logicalSize;
-    }
-
-    QSizeF size = enforcedModeSize();
-    if (!size.isValid()) {
-        return QSizeF();
-    }
-    size = size / d->scale;
-
-    // We can't use d->size, because d->size does not reflect the actual rotation() set by caller.
-    // It is only updated when we get update from KScreen, but not when user changes mode or
-    // rotation manually.
-
-    if (!isHorizontal()) {
-        size = size.transposed();
-    }
-    return size;
-}
-
 QSizeF Output::explicitLogicalSize() const
 {
-    return d->logicalSize;
+    return d->explicitLogicalSize;
 }
 
-void Output::setLogicalSize(const QSizeF &size)
+void Output::setExplicitLogicalSize(const QSizeF &size)
 {
-    if (qFuzzyCompare(d->logicalSize.width(), size.width()) && qFuzzyCompare(d->logicalSize.height(), size.height())) {
+    if (qFuzzyCompare(d->explicitLogicalSize.width(), size.width()) && qFuzzyCompare(d->explicitLogicalSize.height(), size.height())) {
         return;
     }
-    d->logicalSize = size;
-    Q_EMIT logicalSizeChanged();
+    d->explicitLogicalSize = size;
+    Q_EMIT explicitLogicalSizeChanged();
 }
 
 bool Output::isConnected() const
@@ -628,7 +607,7 @@ QSize Output::enforcedModeSize() const
 
 QRect Output::geometry() const
 {
-    QSize size = logicalSize().toSize();
+    QSize size = explicitLogicalSize().toSize();
     if (!size.isValid()) {
         return QRect();
     }
