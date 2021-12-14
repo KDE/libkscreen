@@ -243,7 +243,7 @@ void Doctor::parseOutputArgs()
                     // be lenient about . vs. comma as separator
                     qreal scale = ops[3].replace(QLatin1Char(','), QLatin1Char('.')).toDouble(&ok);
                     if (ops.count() == 5) {
-                        const QString dbl = ops[3] + QLatin1String(".") + ops[4];
+                        const QString dbl = ops[3] + QStringLiteral(".") + ops[4];
                         scale = dbl.toDouble(&ok);
                     };
                     // set scale
@@ -390,9 +390,9 @@ void Doctor::showOutputs() const
 
     for (const auto &output : m_config->outputs()) {
         cout << green << "Output: " << cr << output->id() << " " << output->name();
-        cout << " " << (output->isEnabled() ? green + QLatin1String("enabled") : red + QLatin1String("disabled"));
-        cout << " " << (output->isConnected() ? green + QLatin1String("connected") : red + QLatin1String("disconnected"));
-        cout << " " << (output->isPrimary() ? green + QLatin1String("primary") : QString());
+        cout << " " << (output->isEnabled() ? green + QStringLiteral("enabled") : red + QStringLiteral("disabled"));
+        cout << " " << (output->isConnected() ? green + QStringLiteral("connected") : red + QStringLiteral("disconnected"));
+        cout << " " << (output->isPrimary() ? green + QStringLiteral("primary") : QString());
         auto _type = typeString[output->type()];
         cout << " " << yellow << (_type.isEmpty() ? QStringLiteral("UnmappedOutputType") : _type);
         cout << blue << " Modes: " << cr;
@@ -511,7 +511,7 @@ bool Doctor::setMode(int id, const QString &mode_id)
     for (const auto &output : m_config->outputs()) {
         if (output->id() == id) {
             // find mode
-            for (const KScreen::ModePtr mode : output->modes()) {
+            for (const KScreen::ModePtr &mode : output->modes()) {
                 auto name =
                     QStringLiteral("%1x%2@%3")
                         .arg(QString::number(mode->size().width()), QString::number(mode->size().height()), QString::number(qRound(mode->refreshRate())));
