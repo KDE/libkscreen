@@ -1,18 +1,17 @@
 find_package(XCB REQUIRED COMPONENTS XCB RANDR)
 
 include_directories(${CMAKE_SOURCE_DIR}/src
-                    ${KDE4_INCLUDES}
                     ${CMAKE_BUILD_DIR}
                     ${QT_INCLUDES}
 )
 
-set(xrandr11_SRCS
+
+add_library(KSC_XRandR11 MODULE)
+target_sources(KSC_XRandR11 PRIVATE
     xrandr11.cpp
     ../xcbeventlistener.cpp
     ../xcbwrapper.cpp
 )
-
-add_library(KSC_XRandR11 MODULE ${xrandr11_SRCS})
 
 set_target_properties(KSC_XRandR11 PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/kf5/kscreen")
 set_target_properties(KSC_XRandR11 PROPERTIES PREFIX "")

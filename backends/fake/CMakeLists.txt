@@ -6,6 +6,8 @@ include_directories(${CMAKE_SOURCE_DIR}/src
 set(fake_SRCS
     fake.cpp
     parser.cpp
+    fake.h
+    parser.h
 )
 
 qt_add_dbus_adaptor(fake_SRCS ${CMAKE_SOURCE_DIR}/interfaces/org.kde.KScreen.FakeBackend.xml

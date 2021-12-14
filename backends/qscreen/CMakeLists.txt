@@ -2,14 +2,18 @@ include_directories(${CMAKE_SOURCE_DIR}/src
                     ${CMAKE_BUILD_DIR}
 )
 
-set(qscreen_SRCS
+
+add_library(KSC_QScreen MODULE)
+target_sources(KSC_QScreen PRIVATE
     qscreenbackend.cpp
     qscreenconfig.cpp
     qscreenscreen.cpp
     qscreenoutput.cpp
+    qscreenbackend.h
+    qscreenconfig.h
+    qscreenscreen.h
+    qscreenoutput.h
 )
-
-add_library(KSC_QScreen MODULE ${qscreen_SRCS})
 
 set_target_properties(KSC_QScreen PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/kf5/kscreen")
 set_target_properties(KSC_QScreen PROPERTIES PREFIX "")

@@ -2,7 +2,9 @@ include_directories(${CMAKE_SOURCE_DIR}/src
                     ${CMAKE_BUILD_DIR}
 )
 
-set(xrandr_SRCS
+
+add_library(KSC_XRandR MODULE)
+target_sources(KSC_XRandR PRIVATE
     xrandr.cpp
     xrandrconfig.cpp
     xrandrcrtc.cpp
@@ -13,8 +15,6 @@ set(xrandr_SRCS
     ../xcbeventlistener.cpp
     ../utils.cpp
 )
-
-add_library(KSC_XRandR MODULE ${xrandr_SRCS})
 
 set_target_properties(KSC_XRandR PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/kf5/kscreen")
 set_target_properties(KSC_XRandR PROPERTIES PREFIX "")
