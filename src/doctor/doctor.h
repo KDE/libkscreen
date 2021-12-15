@@ -46,7 +46,7 @@ public:
     bool setOverscan(int id, uint32_t overscan);
     bool setVrrPolicy(int id, KScreen::Output::VrrPolicy policy);
     bool setRgbRange(int id, KScreen::Output::RgbRange rgbRange);
-    bool setPrimary(int id, bool primary);
+    bool setPrimary(int id);
 
 Q_SIGNALS:
     void outputsChanged();

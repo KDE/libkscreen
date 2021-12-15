@@ -195,7 +195,7 @@ void Doctor::parseOutputArgs()
                     }
                 }
                 if (ops.count() == 3 && ops[2] == QLatin1String("primary")) {
-                    if (!setPrimary(output_id, true)) {
+                    if (!setPrimary(output_id)) {
                         qApp->exit(1);
                         return;
                     };
@@ -618,7 +618,7 @@ bool Doctor::setRgbRange(int id, KScreen::Output::RgbRange rgbRange)
     return false;
 }
 
-bool KScreen::Doctor::setPrimary(int id, bool primary)
+bool KScreen::Doctor::setPrimary(int id)
 {
     if (!m_config) {
         qCWarning(KSCREEN_DOCTOR) << "Invalid config.";
