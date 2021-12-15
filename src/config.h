@@ -50,12 +50,13 @@ public:
      */
     enum class Feature {
         None = 0, ///< None of the mentioned features are supported.
-        PrimaryDisplay = 1, ///< The backend knows about the concept of a primary display, this is mostly limited to X11.
+        PrimaryDisplay = 1, ///< The backend knows about the concept of a primary display
         Writable = 1 << 1, ///< The backend supports setting the config, it's not read-only.
         PerOutputScaling = 1 << 2, ///< The backend supports scaling each output individually.
         OutputReplication = 1 << 3, ///< The backend supports replication of outputs.
         AutoRotation = 1 << 4, ///< The backend supports automatic rotation of outputs.
         TabletMode = 1 << 5, ///< The backend supports querying if a device is in tablet mode.
+        SynchronousOutputChanges = 1 << 6, ///< The backend supports blocking until the output setting changes are applied
     };
     Q_DECLARE_FLAGS(Features, Feature)
 
