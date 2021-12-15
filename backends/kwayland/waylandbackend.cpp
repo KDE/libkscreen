@@ -53,7 +53,13 @@ void WaylandBackend::setConfig(const KScreen::ConfigPtr &newconfig)
     if (!newconfig) {
         return;
     }
+    // wait for KWin reply
+    QEventLoop loop;
+
+    connect(m_internalConfig, &WaylandConfig::configChanged, &loop, &QEventLoop::quit);
     m_internalConfig->applyConfig(newconfig);
+
+    loop.exec();
 }
 
 QByteArray WaylandBackend::edid(int outputId) const
