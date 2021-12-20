@@ -203,13 +203,13 @@ ConfigPtr Config::clone() const
 {
     ConfigPtr newConfig(new Config());
     newConfig->d->screen = d->screen->clone();
-    for (const OutputPtr &ourOutput : d->outputs) {
-        newConfig->addOutput(ourOutput->clone());
-    }
-    newConfig->d->primaryOutput = newConfig->d->findPrimaryOutput();
     newConfig->setSupportedFeatures(supportedFeatures());
     newConfig->setTabletModeAvailable(tabletModeAvailable());
     newConfig->setTabletModeEngaged(tabletModeEngaged());
+    for (const OutputPtr &ourOutput : qAsConst(d->outputs)) {
+        newConfig->addOutput(ourOutput->clone());
+    }
+    newConfig->d->primaryOutput = newConfig->d->findPrimaryOutput();
     return newConfig;
 }
 
@@ -385,6 +385,7 @@ void Config::apply(const ConfigPtr &other)
         } else {
             // Update existing outputs
             d->outputs[otherOutput->id()]->apply(otherOutput);
+            d->outputs[otherOutput->id()]->setExplicitLogicalSize(logicalSizeForOutput(*d->outputs[otherOutput->id()]));
         }
     }
 
