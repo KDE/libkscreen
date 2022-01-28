@@ -182,7 +182,7 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output)
     QSize currentSize = m_mode->size();
     output->setSize(output->isHorizontal() ? currentSize : currentSize.transposed());
     output->setScale(m_factor);
-    output->setType(Utils::guessOutputType(m_model, m_model));
+    output->setType(Utils::guessOutputType(m_outputName, m_outputName));
     output->setCapabilities(static_cast<Output::Capabilities>(static_cast<uint32_t>(m_flags)));
     output->setOverscan(m_overscan);
     output->setVrrPolicy(static_cast<Output::VrrPolicy>(m_vrr_policy));
