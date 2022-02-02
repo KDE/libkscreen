@@ -52,7 +52,6 @@ public:
         , size(other.size)
         , rotation(other.rotation)
         , scale(other.scale)
-        , explicitLogicalSize(other.explicitLogicalSize)
         , connected(other.connected)
         , enabled(other.enabled)
         , primary(other.primary)
