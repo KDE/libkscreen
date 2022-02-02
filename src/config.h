@@ -191,10 +191,6 @@ public:
      */
     void setTabletModeEngaged(bool engaged);
 
-    QRect outputGeometryForOutput(const KScreen::Output &output) const;
-
-    QSizeF logicalSizeForOutput(const KScreen::Output &output) const;
-
 Q_SIGNALS:
     void outputAdded(const KScreen::OutputPtr &output);
     void outputRemoved(int outputId);

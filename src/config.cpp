@@ -325,7 +325,6 @@ void Config::setPrimaryOutput(const OutputPtr &newPrimary)
 void Config::addOutput(const OutputPtr &output)
 {
     d->outputs.insert(output->id(), output);
-    output->setExplicitLogicalSize(logicalSizeForOutput(*output));
     connect(output.data(), &KScreen::Output::isPrimaryChanged, d, &KScreen::Config::Private::onPrimaryOutputChanged);
 
     Q_EMIT outputAdded(output);
@@ -390,37 +389,6 @@ void Config::apply(const ConfigPtr &other)
 
     // Update validity
     setValid(other->isValid());
-}
-
-QRect Config::outputGeometryForOutput(const KScreen::Output &output) const
-{
-    QSize size = logicalSizeForOutput(output).toSize();
-    if (!size.isValid()) {
-        return QRect();
-    }
-
-    return QRect(output.pos(), size);
-}
-
-QSizeF Config::logicalSizeForOutput(const KScreen::Output &output) const
-{
-    QSizeF size = output.enforcedModeSize();
-    if (!size.isValid()) {
-        return QSizeF();
-    }
-    // ignore scale where scaling is not per-output
-    if (supportedFeatures().testFlag(Feature::PerOutputScaling)) {
-        size = size / output.scale();
-    }
-
-    // We can't use output.size(), because it does not reflect the actual rotation() set by caller.
-    // It is only updated when we get update from KScreen, but not when user changes mode or
-    // rotation manually.
-
-    if (!output.isHorizontal()) {
-        size = size.transposed();
-    }
-    return size;
 }
 
 QDebug operator<<(QDebug dbg, const KScreen::ConfigPtr &config)
