@@ -9,6 +9,7 @@
 #define KSCREEN_CONFIG_H
 
 #include "kscreen_export.h"
+#include "output.h"
 #include "screen.h"
 #include "types.h"
 

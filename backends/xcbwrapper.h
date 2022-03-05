@@ -15,7 +15,11 @@
 #include <type_traits>
 
 #include <QScopedPointer>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <private/qtx11extras_p.h>
+#else
 #include <QX11Info>
+#endif
 
 #include <xcb/randr.h>
 #include <xcb/xcb.h>

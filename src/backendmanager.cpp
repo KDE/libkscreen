@@ -25,7 +25,11 @@
 #include <QGuiApplication>
 #include <QStandardPaths>
 #include <QThread>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#include <private/qtx11extras_p.h>
+#else
 #include <QX11Info>
+#endif
 
 #include <memory>
 
@@ -227,7 +231,7 @@ KScreen::AbstractBackend *BackendManager::loadBackendInProcess(const QString &na
     }
     // qCDebug(KSCREEN) << "Connecting ConfigMonitor to backend.";
     ConfigMonitor::instance()->connectInProcessBackend(backend);
-    m_inProcessBackend = qMakePair<KScreen::AbstractBackend *, QVariantMap>(backend, arguments);
+    m_inProcessBackend = qMakePair<KScreen::AbstractBackend *, QVariantMap>(static_cast<KScreen::AbstractBackend *>(backend), QVariantMap(arguments));
     setConfig(backend->config());
     return backend;
 }

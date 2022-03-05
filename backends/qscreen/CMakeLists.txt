@@ -19,8 +19,10 @@ set_target_properties(KSC_QScreen PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_B
 set_target_properties(KSC_QScreen PROPERTIES PREFIX "")
 target_link_libraries(KSC_QScreen Qt::Core
                                  Qt::Gui
-                                 Qt::X11Extras
                                  KF5::Screen
 )
+if (TARGET Qt::X11Extras)
+    target_link_libraries(KSC_QScreen Qt::X11Extras)
+endif()
 
 install(TARGETS KSC_QScreen DESTINATION ${KDE_INSTALL_PLUGINDIR}/kf5/kscreen/)

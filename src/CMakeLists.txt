@@ -40,8 +40,12 @@ target_link_libraries(KF5Screen
     Qt::Gui
     PRIVATE
     Qt::DBus
-    Qt::X11Extras
 )
+if (QT_MAJOR_VERSION EQUAL "5")
+    target_link_libraries(KF5Screen PRIVATE Qt::X11Extras)
+else()
+    target_link_libraries(KF5Screen PRIVATE Qt::GuiPrivate)
+endif()
 
 set_target_properties(KF5Screen PROPERTIES
     VERSION "${KSCREEN_VERSION}"
@@ -49,7 +53,7 @@ set_target_properties(KF5Screen PROPERTIES
     EXPORT_NAME Screen
 )
 
-target_include_directories(KF5Screen PUBLIC "$<INSTALL_INTERFACE:${KF5_INCLUDE_INSTALL_DIR}/KScreen>")
+target_include_directories(KF5Screen PUBLIC "$<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR_KF}/KScreen>")
 
 install(TARGETS KF5Screen EXPORT KF5ScreenTargets ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 add_library(KF5::Screen ALIAS KF5Screen)
@@ -72,12 +76,12 @@ ecm_generate_headers(KScreen_HEADERS
 )
 
 install(FILES ${KScreen_HEADERS}
-        DESTINATION ${KF5_INCLUDE_INSTALL_DIR}/KScreen/KScreen
+        DESTINATION ${KDE_INSTALL_INCLUDEDIR_KF}/KScreen/KScreen
         COMPONENT Devel)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/kscreen_export.h
               backendmanager_p.h # needed for unit-tests in KScreen
               ${KScreen_REQ_HEADERS}
-        DESTINATION ${KF5_INCLUDE_INSTALL_DIR}/KScreen/kscreen)
+        DESTINATION ${KDE_INSTALL_INCLUDEDIR_KF}/KScreen/kscreen)
 
 if(NOT WIN32)
    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/kscreen2.pc.in ${CMAKE_CURRENT_BINARY_DIR}/kscreen2.pc @ONLY)

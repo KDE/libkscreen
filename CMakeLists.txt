@@ -4,7 +4,7 @@ project(libkscreen)
 set(PROJECT_VERSION "5.24.80")
 
 set(QT_MIN_VERSION "5.15.0")
-set(KF5_MIN_VERSION "5.86")
+set(KF5_MIN_VERSION "5.91")
 set(KDE_COMPILERSETTINGS_LEVEL "5.82")
 
 set(CMAKE_CXX_STANDARD 17)
@@ -26,8 +26,11 @@ include(GenerateExportHeader)
 include(KDEClangFormat)
 include(KDEGitCommitHooks)
 
-find_package(Qt5 ${QT_MIN_VERSION} CONFIG REQUIRED Core DBus Gui Test X11Extras)
-find_package(QtWaylandScanner REQUIRED)
+find_package(Qt${QT_MAJOR_VERSION} ${QT_MIN_VERSION} CONFIG REQUIRED Core DBus Gui Test WaylandClient)
+if (QT_MAJOR_VERSION EQUAL "5")
+  find_package(Qt5 CONFIG REQUIRED X11Extras)
+  find_package(QtWaylandScanner REQUIRED)
+endif()
 find_package(WaylandScanner)
 
 # Wayland backend
@@ -70,7 +73,7 @@ if(BUILD_TESTING)
    add_subdirectory(tests)
 endif()
 
-set(CMAKECONFIG_INSTALL_DIR "${CMAKECONFIG_INSTALL_PREFIX}/KF5Screen")
+set(CMAKECONFIG_INSTALL_DIR "${KDE_INSTALL_CMAKEPACKAGEDIR}/KF5Screen")
 
 # add clang-format target for all our real source files
 file(GLOB_RECURSE ALL_CLANG_FORMAT_SOURCE_FILES *.cpp *.h)
@@ -110,7 +113,7 @@ install(EXPORT
 
 install(FILES
   "${CMAKE_CURRENT_BINARY_DIR}/kscreen_version.h"
-  DESTINATION "${KF5_INCLUDE_INSTALL_DIR}"
+  DESTINATION "${KDE_INSTALL_INCLUDEDIR_KF}"
   COMPONENT Devel
 )
 install(FILES libkscreen.categories  DESTINATION  ${KDE_INSTALL_LOGGINGCATEGORIESDIR})

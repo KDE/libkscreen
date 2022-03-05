@@ -10,6 +10,7 @@
 
 #include <QObject>
 #include <QTimer>
+#include <QVariant>
 
 #include "types.h"
 
