@@ -34,6 +34,9 @@ find_package(WaylandScanner)
 find_package(KF5Wayland ${KF5_MIN_VERSION} CONFIG REQUIRED)
 add_feature_info("KF5Wayland" KF5Wayland_FOUND "Required for building libkscreen's KWayland backend")
 
+find_package(KF5Config ${KF5_MIN_VERSION} CONFIG)
+set_package_properties(KF5Config PROPERTIES DESCRIPTION "Required for building libkscreen's KWayland backend" TYPE REQUIRED)
+
 find_package(PlasmaWaylandProtocols 1.6.0 CONFIG)
 set_package_properties(PlasmaWaylandProtocols PROPERTIES TYPE REQUIRED)
 

@@ -22,6 +22,9 @@
 #include <configmonitor.h>
 #include <mode.h>
 
+#include <KConfigGroup>
+#include <KSharedConfig>
+
 #include <KWayland/Client/connection_thread.h>
 #include <KWayland/Client/event_queue.h>
 #include <KWayland/Client/registry.h>
@@ -40,6 +43,8 @@ WaylandConfig::WaylandConfig(QObject *parent)
     , m_screen(new WaylandScreen(this))
     , m_tabletModeAvailable(false)
     , m_tabletModeEngaged(false)
+    , m_supportedFeatures(Config::Feature::Writable | Config::Feature::AutoRotation | Config::Feature::TabletMode | Config::Feature::PrimaryDisplay
+                          | Config::Feature::SynchronousOutputChanges)
 {
     initKWinTabletMode();
 
@@ -51,12 +56,17 @@ WaylandConfig::WaylandConfig(QObject *parent)
         }
     });
 
+    m_outputScalingDisabled = KSharedConfig::openConfig(QStringLiteral("kdeglobals"))->group("KScreen").readEntry("PreferGlobalScale", false);
+    m_supportedFeatures.setFlag(Config::Feature::PerOutputScaling, !m_outputScalingDisabled);
+    m_supportedFeatures.setFlag(Config::Feature::DisabledPerOutputScaling, m_outputScalingDisabled);
+
     initConnection();
     m_syncLoop.exec();
 }
 
 WaylandConfig::~WaylandConfig()
 {
+    Q_EMIT configChanged();
     m_syncLoop.quit();
 }
 
@@ -241,9 +251,7 @@ KScreen::ConfigPtr WaylandConfig::currentConfig()
 {
     m_kscreenConfig->setScreen(m_screen->toKScreenScreen(m_kscreenConfig));
 
-    const auto features = Config::Feature::Writable | Config::Feature::PerOutputScaling | Config::Feature::AutoRotation | Config::Feature::TabletMode
-        | Config::Feature::PrimaryDisplay | Config::Feature::SynchronousOutputChanges;
-    m_kscreenConfig->setSupportedFeatures(features);
+    m_kscreenConfig->setSupportedFeatures(m_supportedFeatures);
     m_kscreenConfig->setValid(m_connection->display());
 
     KScreen::ScreenPtr screen = m_kscreenConfig->screen();
@@ -313,7 +321,10 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
     }
 
     for (const auto &output : newConfig->outputs()) {
-        changed |= m_outputMap[output->id()]->setWlConfig(wlConfig, output);
+        // Intentionally create a copy to delay applying a scale until next login if per output scaling was disabled.
+        KScreen::OutputPtr copy = output->clone();
+        //         copy->setScale(m_outputScalingDisabled ? 1 : copy->scale());
+        changed |= m_outputMap[copy->id()]->setWlConfig(wlConfig, copy);
     }
 
     if (!changed) {
@@ -323,7 +334,7 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
     // We now block changes in order to compress events while the compositor is doing its thing
     // once it's done or failed, we'll trigger configChanged() only once, and not per individual
     // property change.
-    connect(wlConfig, &WaylandOutputConfiguration::applied, this, [this, wlConfig] {
+    connect(wlConfig, &WaylandOutputConfiguration::applied, this, [this, wlConfig, newConfig] {
         wlConfig->deleteLater();
         unblockSignals();
         Q_EMIT configChanged();

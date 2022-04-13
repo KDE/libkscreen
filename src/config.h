@@ -57,6 +57,7 @@ public:
         AutoRotation = 1 << 4, ///< The backend supports automatic rotation of outputs.
         TabletMode = 1 << 5, ///< The backend supports querying if a device is in tablet mode.
         SynchronousOutputChanges = 1 << 6, ///< The backend supports blocking until the output setting changes are applied
+        DisabledPerOutputScaling = 1 << 7 ///< The backend supports per output scaling but disabled it
     };
     Q_DECLARE_FLAGS(Features, Feature)
 

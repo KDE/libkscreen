@@ -108,6 +108,9 @@ private:
     bool m_tabletModeAvailable;
     bool m_tabletModeEngaged;
     bool m_initialized = false;
+    bool m_outputScalingDisabled;
+
+    KScreen::Config::Features m_supportedFeatures;
 };
 
 }

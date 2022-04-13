@@ -38,6 +38,7 @@ set_target_properties(KSC_KWayland PROPERTIES PREFIX "")
 target_link_libraries(KSC_KWayland Qt::Core
                                   Qt::DBus
                                   Qt::Gui
+                                  KF5::ConfigCore
                                   KF5::Screen
                                   KF5::WaylandClient
                                   Wayland::Client
