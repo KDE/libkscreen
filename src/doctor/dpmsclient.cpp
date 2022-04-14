@@ -13,15 +13,64 @@
 #include <QThread>
 
 #include <KWayland/Client/connection_thread.h>
-#include <KWayland/Client/dpms.h>
 #include <KWayland/Client/output.h>
 #include <KWayland/Client/registry.h>
+
+#include "qwayland-dpms.h"
+#include <QtWaylandClient/qwaylandclientextension.h>
 
 Q_LOGGING_CATEGORY(KSCREEN_DPMS, "kscreen.dpms")
 
 using namespace KScreen;
 
-using namespace KWayland::Client;
+class DpmsManager : public QWaylandClientExtensionTemplate<DpmsManager>, public QtWayland::org_kde_kwin_dpms_manager
+{
+public:
+    DpmsManager()
+        : QWaylandClientExtensionTemplate<DpmsManager>(1)
+    {
+    }
+};
+
+class Dpms : public QObject, public QtWayland::org_kde_kwin_dpms
+{
+    Q_OBJECT
+public:
+    Dpms(struct ::org_kde_kwin_dpms *object, QObject *parent)
+        : QObject(parent)
+        , org_kde_kwin_dpms(object)
+    {
+    }
+
+    bool isSupported() const
+    {
+        return m_supported;
+    }
+
+    Q_SIGNAL void supportedChanged();
+    Q_SIGNAL void modeChanged();
+
+private:
+    bool m_supported = false;
+    bool m_pendingSupported = false;
+
+    void org_kde_kwin_dpms_supported(uint32_t supported) override
+    {
+        m_pendingSupported = supported;
+    }
+
+    void org_kde_kwin_dpms_mode(uint32_t mode) override
+    {
+        Q_UNUSED(mode);
+    }
+
+    void org_kde_kwin_dpms_done() override
+    {
+        m_supported = m_pendingSupported;
+        Q_EMIT supportedChanged();
+        Q_EMIT modeChanged();
+    }
+};
 
 DpmsClient::DpmsClient(QObject *parent)
     : QObject(parent)
@@ -39,65 +88,49 @@ void DpmsClient::connect()
 {
     // setup connection
     m_connection = KWayland::Client::ConnectionThread::fromApplication(this);
-    connected();
-}
 
-void DpmsClient::connected()
-{
     qDebug() << "Connected!";
     m_registry->create(m_connection);
-    QObject::connect(m_registry, &Registry::interfacesAnnounced, this, [this] {
-        const bool hasDpms = m_registry->hasInterface(Registry::Interface::Dpms);
-        // QLabel *hasDpmsLabel = new QLabel(&window);
+
+    m_registry->setup();
+
+    m_manager = new DpmsManager;
+
+    QObject::connect(m_manager, &DpmsManager::activeChanged, this, [this] {
+        const bool hasDpms = m_manager->isActive();
         if (hasDpms) {
             qDebug() << QStringLiteral("Compositor provides a DpmsManager");
         } else {
             qDebug() << QStringLiteral("Compositor does not provid a DpmsManager");
         }
 
-        if (hasDpms) {
-            const auto dpmsData = m_registry->interface(Registry::Interface::Dpms);
-            m_dpmsManager = m_registry->createDpmsManager(dpmsData.name, dpmsData.version);
-        }
-
         Q_EMIT this->ready();
     });
-    m_registry->setup();
 
     // QVERIFY(dpmsSpy.wait(100));
 }
 
-void KScreen::DpmsClient::changeMode(KWayland::Client::Dpms::Mode mode)
+void KScreen::DpmsClient::changeMode(Mode mode)
 {
-    const auto outputs = m_registry->interfaces(Registry::Interface::Output);
+    const auto outputs = m_registry->interfaces(KWayland::Client::Registry::Interface::Output);
     for (auto outputInterface : outputs) {
         KWayland::Client::Output *output = m_registry->createOutput(outputInterface.name, outputInterface.version, m_registry);
 
-        Dpms *dpms = nullptr;
-        if (m_dpmsManager) {
-            dpms = m_dpmsManager->getDpms(output, output);
-        }
+        Dpms *dpms = new Dpms(m_manager->get(output->output()), output);
 
-        if (dpms) {
-            QObject::connect(
-                dpms,
-                &Dpms::supportedChanged,
-                this,
-                [dpms, mode, output, this] {
-                    if (m_excludedOutputNames.contains(output->model())) {
-                        qDebug() << "Skipping" << output->model() << output->manufacturer();
-                        return;
-                    }
+        QObject::connect(dpms, &Dpms::supportedChanged, this, [dpms, mode, output, this] {
+            if (m_excludedOutputNames.contains(output->model())) {
+                qDebug() << "Skipping" << output->model() << output->manufacturer();
+                return;
+            }
 
-                    if (dpms->isSupported()) {
-                        QObject::connect(dpms, &Dpms::modeChanged, this, &DpmsClient::modeChanged, Qt::QueuedConnection);
-                        qDebug() << "Switching" << output->model() << output->manufacturer() << (mode == Dpms::Mode::On ? "on" : "off");
-                        m_modeChanges++;
-                        dpms->requestMode(mode);
-                    }
-                },
-                Qt::QueuedConnection);
-        }
+            if (dpms->isSupported()) {
+                QObject::connect(dpms, &Dpms::modeChanged, this, &DpmsClient::modeChanged, Qt::QueuedConnection);
+                qDebug() << "Switching" << output->model() << output->manufacturer() << (mode == Mode::On ? "on" : "off");
+                m_modeChanges++;
+                dpms->set(mode);
+            }
+        });
     }
 }
 
@@ -112,12 +145,14 @@ void DpmsClient::modeChanged()
 
 void DpmsClient::on()
 {
-    changeMode(Dpms::Mode::On);
+    changeMode(Mode::On);
     // Q_EMIT finished();
 }
 
 void KScreen::DpmsClient::off()
 {
-    changeMode(Dpms::Mode::Off);
+    changeMode(Mode::Off);
     // Q_EMIT finished();
 }
+
+#include "dpmsclient.moc"
