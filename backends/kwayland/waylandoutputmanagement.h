@@ -47,6 +47,7 @@ class WaylandPrimaryOutput : public QObject, public QtWayland::kde_primary_outpu
     Q_OBJECT
 public:
     WaylandPrimaryOutput(struct ::wl_registry *registry, int id, int version);
+    ~WaylandPrimaryOutput();
 
 Q_SIGNALS:
     void primaryOutputChanged(const QString &outputName);

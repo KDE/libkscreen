@@ -43,6 +43,13 @@ WaylandPrimaryOutput::WaylandPrimaryOutput(struct ::wl_registry *registry, int i
 {
 }
 
+WaylandPrimaryOutput::~WaylandPrimaryOutput()
+{
+    if (kde_primary_output_v1_get_version(object()) >= KDE_PRIMARY_OUTPUT_V1_DESTROY_SINCE_VERSION) {
+        destroy();
+    }
+}
+
 void WaylandPrimaryOutput::kde_primary_output_v1_primary_output(const QString &outputName)
 {
     Q_EMIT primaryOutputChanged(outputName);
