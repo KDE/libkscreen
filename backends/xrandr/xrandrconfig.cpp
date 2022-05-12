@@ -129,9 +129,6 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
     // we initially set such screen size, that it can take the current as well
     // as the new configuration, then we apply the output changes, and finally then
     // (if necessary) we reduce the screen size to fix the new configuration precisely.
-    const QSize intermediateScreenSize =
-        QSize(qMax(newScreenSize.width(), currentScreenSize.width()), qMax(newScreenSize.height(), currentScreenSize.height()));
-
     int neededCrtcs = 0;
     xcb_randr_output_t primaryOutput = 0;
     xcb_randr_output_t oldPrimaryOutput = 0;
@@ -242,7 +239,6 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
     qCDebug(KSCREEN_XRANDR) << "\tChange Screen Size:" << (newScreenSize != currentScreenSize);
     if (newScreenSize != currentScreenSize) {
         qCDebug(KSCREEN_XRANDR) << "\t\tOld:" << currentScreenSize << "\n"
-                                << "\t\tIntermediate:" << intermediateScreenSize << "\n"
                                 << "\t\tNew:" << newScreenSize;
     }
 
@@ -277,22 +273,12 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
         disableOutput(output);
     }
 
-    if (intermediateScreenSize != currentScreenSize) {
-        setScreenSize(intermediateScreenSize);
-    }
-
     bool forceScreenSizeUpdate = false;
 
-    for (const KScreen::OutputPtr &output : toChange) {
-        if (!changeOutput(output)) {
-            /* If we disabled the output before changing it and XRandR failed
-             * to re-enable it, then update screen size too */
-            if (toDisable.contains(output->id())) {
-                output->setEnabled(false);
-                qCDebug(KSCREEN_XRANDR) << "Output failed to change: " << output->name();
-                forceScreenSizeUpdate = true;
-            }
-        }
+    if (currentScreenSize != newScreenSize || forceScreenSizeUpdate) {
+	    for (const KScreen::OutputPtr &output : toChange) {
+	      disableOutput(output);
+	    }
     }
 
     for (const KScreen::OutputPtr &output : toEnable) {
@@ -306,7 +292,7 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
         setPrimaryOutput(primaryOutput);
     }
 
-    if (forceScreenSizeUpdate || intermediateScreenSize != newScreenSize) {
+    if (forceScreenSizeUpdate || currentScreenSize != newScreenSize) {
         QSize newSize = newScreenSize;
         if (forceScreenSizeUpdate) {
             newSize = screenSize(config);
@@ -314,6 +300,19 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
         }
         setScreenSize(newSize);
     }
+
+    for (const KScreen::OutputPtr &output : toChange) {
+        if (!changeOutput(output)) {
+            /* If we disabled the output before changing it and XRandR failed
+             * to re-enable it, then update screen size too */
+            if (toDisable.contains(output->id())) {
+                output->setEnabled(false);
+                qCDebug(KSCREEN_XRANDR) << "Output failed to change: " << output->name();
+                forceScreenSizeUpdate = true;
+            }
+        }
+    }
+
 }
 
 void XRandRConfig::printConfig(const ConfigPtr &config) const
