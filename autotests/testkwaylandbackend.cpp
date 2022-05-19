@@ -115,7 +115,7 @@ void testWaylandBackend::verifyScreen()
 void testWaylandBackend::verifyOutputs()
 {
     bool primaryFound = false;
-    for (const KScreen::OutputPtr op : m_config->outputs()) {
+    for (const KScreen::OutputPtr &op : m_config->outputs()) {
         if (op->isPrimary()) {
             primaryFound = true;
         }
