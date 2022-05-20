@@ -6,4 +6,3 @@ Dependencies:
   'require':
     'frameworks/extra-cmake-modules': '@latest'
     'frameworks/kwayland': '@latest'
-    'plasma/kwayland-server': '@same'
