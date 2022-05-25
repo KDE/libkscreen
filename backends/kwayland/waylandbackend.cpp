@@ -16,8 +16,12 @@
 #include <configmonitor.h>
 #include <mode.h>
 
+#include <QProcess>
 #include <QSettings>
 #include <QStandardPaths>
+
+#include <KConfig>
+#include <KConfigGroup>
 
 using namespace KScreen;
 
@@ -28,7 +32,31 @@ WaylandBackend::WaylandBackend()
     qCDebug(KSCREEN_WAYLAND) << "Loading Wayland backend.";
 
     connect(m_internalConfig, &WaylandConfig::configChanged, this, [this]() {
-        Q_EMIT configChanged(m_internalConfig->currentConfig());
+        const auto newConfig = m_internalConfig->currentConfig();
+
+        KConfig cfg(QStringLiteral("kdeglobals"));
+
+        KConfigGroup kscreenGroup = cfg.group("KScreen");
+        const bool xwaylandClientsScale = kscreenGroup.readEntry("XwaylandClientsScale", false);
+
+        KConfig kwinCfg(QStringLiteral("kwinrc"));
+        KConfigGroup xwaylandGroup = kwinCfg.group("Xwayland");
+        if (xwaylandClientsScale) {
+            qreal scaleFactor = 1;
+            const auto outputs = newConfig->outputs();
+            for (auto output : outputs) {
+                scaleFactor = std::max(scaleFactor, output->scale());
+            }
+
+            xwaylandGroup.writeEntry("Scale", scaleFactor, KConfig::Notify);
+
+        } else {
+            xwaylandGroup.deleteEntry("Scale", KConfig::Notify);
+        }
+        // here we rerun the fonts kcm init that does the appropriate xrdb call with the new settings
+        QProcess::startDetached("kcminit", {"kcm_fonts"});
+
+        Q_EMIT configChanged(newConfig);
     });
 }
 

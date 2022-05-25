@@ -6,3 +6,4 @@ Dependencies:
   'require':
     'frameworks/extra-cmake-modules': '@latest'
     'frameworks/kwayland': '@latest'
+    'frameworks/kconfig': '@latest'

@@ -42,6 +42,7 @@ public:
         None = 0x0,
         RequireAtLeastOneEnabledScreen = 0x1,
     };
+    Q_ENUM(ValidityFlag)
     Q_DECLARE_FLAGS(ValidityFlags, ValidityFlag)
 
     /** This indicates which features the used backend supports.
@@ -58,7 +59,9 @@ public:
         AutoRotation = 1 << 4, ///< The backend supports automatic rotation of outputs.
         TabletMode = 1 << 5, ///< The backend supports querying if a device is in tablet mode.
         SynchronousOutputChanges = 1 << 6, ///< The backend supports blocking until the output setting changes are applied
+        XwaylandScales = 1 << 7, ///< The backend supports adapting Xwayland clients to a certain scale
     };
+    Q_ENUM(Feature)
     Q_DECLARE_FLAGS(Features, Feature)
 
     /**
