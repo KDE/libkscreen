@@ -7,3 +7,5 @@ Dependencies:
     'frameworks/extra-cmake-modules': '@latest'
     'frameworks/kwayland': '@latest'
     'frameworks/kconfig': '@latest'
+Options:
+  require-passing-tests-on: [ 'Linux', 'FreeBSD']
