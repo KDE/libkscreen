@@ -13,7 +13,6 @@
 
 #include <QGuiApplication>
 #include <QRect>
-#include <QScreen>
 
 using namespace KScreen;
 

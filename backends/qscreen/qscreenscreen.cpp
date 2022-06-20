@@ -13,7 +13,6 @@
 #include <mode.h>
 
 #include <QGuiApplication>
-#include <QScreen>
 
 using namespace KScreen;
 

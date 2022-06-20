@@ -8,7 +8,6 @@
 #include "dpmsclient.h"
 
 #include <QCollator>
-#include <QCommandLineParser>
 #include <QCoreApplication>
 #include <QDateTime>
 #include <QFile>
@@ -21,7 +20,6 @@
 #include <QStandardPaths>
 
 #include "../backendmanager_p.h"
-#include "../config.h"
 #include "../configoperation.h"
 #include "../edid.h"
 #include "../getconfigoperation.h"

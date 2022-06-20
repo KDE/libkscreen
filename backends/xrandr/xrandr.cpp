@@ -7,7 +7,6 @@
 #include "xrandr.h"
 
 #include "../xcbeventlistener.h"
-#include "../xcbwrapper.h"
 #include "xrandrconfig.h"
 #include "xrandrscreen.h"
 

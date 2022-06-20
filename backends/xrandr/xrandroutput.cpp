@@ -10,7 +10,6 @@
 #include "config.h"
 #include "xrandr.h"
 #include "xrandrconfig.h"
-#include "xrandrmode.h"
 
 #include <xcb/render.h>
 

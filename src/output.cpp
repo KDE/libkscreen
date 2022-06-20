@@ -10,13 +10,11 @@
 #include "backendmanager_p.h"
 #include "edid.h"
 #include "kscreen_debug.h"
-#include "mode.h"
 
 #include <QCryptographicHash>
 #include <QGuiApplication>
 #include <QRect>
 #include <QScopedPointer>
-#include <QStringList>
 
 using namespace KScreen;
 

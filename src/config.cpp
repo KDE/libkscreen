@@ -9,7 +9,6 @@
 #include "abstractbackend.h"
 #include "backendmanager_p.h"
 #include "kscreen_debug.h"
-#include "output.h"
 
 #include <QCryptographicHash>
 #include <QDebug>

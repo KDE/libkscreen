@@ -8,13 +8,11 @@
 
 #include <QCommandLineParser>
 #include <QLoggingCategory>
-#include <QRect>
 #include <QStandardPaths>
 #include <QThread>
 
 #include <KWayland/Client/connection_thread.h>
 #include <KWayland/Client/output.h>
-#include <KWayland/Client/registry.h>
 
 #include "qwayland-dpms.h"
 #include <QtWaylandClient/qwaylandclientextension.h>

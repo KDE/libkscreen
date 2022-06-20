@@ -8,10 +8,7 @@
 #include "config.h"
 #include "edid.h"
 #include "output.h"
-#include "xrandr.h"
-#include "xrandrcrtc.h"
 #include "xrandrmode.h"
-#include "xrandroutput.h"
 #include "xrandrscreen.h"
 
 #include "../xcbwrapper.h"

@@ -13,8 +13,6 @@
 #include <QX11Info>
 #endif
 
-#include <QRect>
-
 Q_LOGGING_CATEGORY(KSCREEN_XCB_HELPER, "kscreen.xcb.helper")
 
 XCBEventListener::XCBEventListener()
