@@ -25,6 +25,11 @@ kscreen_add_test(testlog)
 kscreen_add_test(testmodelistchange)
 kscreen_add_test(testedid)
 
+if (NOT TARGET KF5::WaylandServer)
+    message(WARNING "Skipping KF5::WaylandServer based unit tests!")
+    return()
+endif()
+
 set(KSCREEN_WAYLAND_LIBS
     KF5::WaylandServer KF5::WaylandClient
 )

@@ -1,3 +1,7 @@
+if (NOT TARGET KF5::WaylandServer)
+    message(WARNING "Skipping KF5::WaylandServer based tests!")
+    return()
+endif()
 
 add_definitions(-DTEST_DATA="${CMAKE_SOURCE_DIR}/autotests/configs/")
 
