@@ -37,7 +37,7 @@ WaylandBackend::WaylandBackend()
         KConfig cfg(QStringLiteral("kdeglobals"));
 
         KConfigGroup kscreenGroup = cfg.group("KScreen");
-        const bool xwaylandClientsScale = kscreenGroup.readEntry("XwaylandClientsScale", true);
+        const bool xwaylandClientsScale = kscreenGroup.readEntry("XwaylandClientsScale", false);
 
         KConfig kwinCfg(QStringLiteral("kwinrc"));
         KConfigGroup xwaylandGroup = kwinCfg.group("Xwayland");
