@@ -45,7 +45,9 @@ WaylandBackend::WaylandBackend()
             qreal scaleFactor = 1;
             const auto outputs = newConfig->outputs();
             for (auto output : outputs) {
-                scaleFactor = std::max(scaleFactor, output->scale());
+                if (output->isEnabled()) {
+                    scaleFactor = std::max(scaleFactor, output->scale());
+                }
             }
 
             xwaylandGroup.writeEntry("Scale", scaleFactor, KConfig::Notify);
