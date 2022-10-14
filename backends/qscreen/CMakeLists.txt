@@ -15,7 +15,7 @@ target_sources(KSC_QScreen PRIVATE
     qscreenoutput.h
 )
 
-set_target_properties(KSC_QScreen PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/kf5/kscreen")
+set_target_properties(KSC_QScreen PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/kf${QT_MAJOR_VERSION}/kscreen")
 set_target_properties(KSC_QScreen PROPERTIES PREFIX "")
 target_link_libraries(KSC_QScreen Qt::Core
                                  Qt::Gui
@@ -25,4 +25,4 @@ if (TARGET Qt::X11Extras)
     target_link_libraries(KSC_QScreen Qt::X11Extras)
 endif()
 
-install(TARGETS KSC_QScreen DESTINATION ${KDE_INSTALL_PLUGINDIR}/kf5/kscreen/)
+install(TARGETS KSC_QScreen DESTINATION ${KDE_INSTALL_PLUGINDIR}/kf${QT_MAJOR_VERSION}/kscreen/)

@@ -169,7 +169,10 @@ QFileInfoList BackendManager::listBackends()
     const QStringList paths = QCoreApplication::libraryPaths();
     QFileInfoList finfos;
     for (const QString &path : paths) {
-        const QDir dir(path + QLatin1String("/kf5/kscreen/"), backendFilter, QDir::SortFlags(QDir::QDir::Name), QDir::NoDotAndDotDot | QDir::Files);
+        const QDir dir(path + QStringLiteral("/kf" QT_STRINGIFY(QT_VERSION_MAJOR) "/kscreen/"),
+                       backendFilter,
+                       QDir::SortFlags(QDir::QDir::Name),
+                       QDir::NoDotAndDotDot | QDir::Files);
         finfos.append(dir.entryInfoList());
     }
     return finfos;
