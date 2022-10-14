@@ -34,7 +34,9 @@ XRandRScreen::~XRandRScreen()
 
 void XRandRScreen::update()
 {
-    xcb_screen_t *screen = XCB::screenOfDisplay(XCB::connection(), QX11Info::appScreen());
+    const int appScreen = QX11Info::appScreen();
+    m_id = appScreen;
+    xcb_screen_t *screen = XCB::screenOfDisplay(XCB::connection(), appScreen);
     m_currentSize = QSize(screen->width_in_pixels, screen->height_in_pixels);
 }
 
