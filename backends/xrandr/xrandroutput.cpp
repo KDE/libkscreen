@@ -287,13 +287,7 @@ QByteArray XRandROutput::typeFromProperty(xcb_randr_output_t outputId)
         return type;
     }
 
-    char *connectorType = xcb_get_atom_name_name(atomName);
-    if (!connectorType) {
-        return type;
-    }
-
-    type = connectorType;
-    return type;
+    return QByteArray(xcb_get_atom_name_name(atomName), xcb_get_atom_name_name_length(atomName));
 }
 
 bool isScaling(const xcb_render_transform_t &tr)
