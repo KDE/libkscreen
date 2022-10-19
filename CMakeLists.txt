@@ -20,6 +20,7 @@ include(ECMMarkAsTest)
 include(ECMGenerateHeaders)
 include(ECMQtDeclareLoggingCategory)
 include(ECMAddQch)
+include(ECMPoQmTools)
 include(FeatureSummary)
 include(CMakePackageConfigHelpers)
 include(GenerateExportHeader)
@@ -69,6 +70,8 @@ if(BUILD_TESTING)
    add_subdirectory(autotests)
    add_subdirectory(tests)
 endif()
+
+ecm_install_po_files_as_qm(poqm)
 
 set(CMAKECONFIG_INSTALL_DIR "${KDE_INSTALL_CMAKEPACKAGEDIR}/KF5Screen")
 
