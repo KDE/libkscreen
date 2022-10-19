@@ -34,6 +34,8 @@ ecm_qt_declare_logging_category(libkscreen_SRCS
 add_library(KF5Screen SHARED ${libkscreen_SRCS})
 generate_export_header(KF5Screen BASE_NAME KScreen)
 
+ecm_create_qm_loader(KF5Screen libkscreen5_qt)
+
 target_link_libraries(KF5Screen
     PUBLIC
     Qt::Core
