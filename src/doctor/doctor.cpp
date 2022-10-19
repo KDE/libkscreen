@@ -5,7 +5,7 @@
  */
 
 #include "doctor.h"
-#include "dpmsclient.h"
+#include <dpms.h>
 
 #include <QCollator>
 #include <QCoreApplication>
@@ -17,6 +17,7 @@
 #include <QJsonObject>
 #include <QLoggingCategory>
 #include <QRect>
+#include <QScreen>
 #include <QStandardPaths>
 
 #include "../backendmanager_p.h"
@@ -83,19 +84,45 @@ void Doctor::start(QCommandLineParser *parser)
             return;
         }
 
-        m_dpmsClient = new DpmsClient(this);
+        m_dpmsClient = new Dpms(this);
+        auto screens = qGuiApp->screens();
         if (m_parser->isSet(QStringLiteral("dpms-excluded"))) {
             const auto excludedConnectors = m_parser->values(QStringLiteral("dpms-excluded"));
-            m_dpmsClient->setExcludedOutputNames(excludedConnectors);
+            auto it = std::remove_if(screens.begin(), screens.end(), [&excludedConnectors](QScreen *screen) {
+                return excludedConnectors.contains(screen->name());
+            });
+            screens.erase(it, screens.end());
         }
 
-        connect(m_dpmsClient, &DpmsClient::finished, qApp, &QCoreApplication::quit);
+        connect(m_dpmsClient, &Dpms::hasPendingChangesChanged, qGuiApp, [](bool hasChanges) {
+            if (!hasChanges) {
+                qGuiApp->quit();
+            }
+        });
 
         const QString dpmsArg = m_parser->value(QStringLiteral("dpms"));
         if (dpmsArg == QLatin1String("show")) {
-            showDpms();
         } else {
-            setDpms(dpmsArg);
+            auto performSwitch = [this, dpmsArg, screens](bool supported) {
+                if (!supported) {
+                    cerr << "DPMS not supported in this system";
+                    qGuiApp->quit();
+                    return;
+                }
+
+                if (dpmsArg == QLatin1String("off")) {
+                    m_dpmsClient->switchMode(KScreen::Dpms::Off, screens);
+                } else if (dpmsArg == QLatin1String("on")) {
+                    m_dpmsClient->switchMode(KScreen::Dpms::On, screens);
+                } else {
+                    cerr << "--dpms argument not understood (" << dpmsArg << ")";
+                }
+            };
+            if (m_dpmsClient->isSupported()) {
+                performSwitch(m_dpmsClient->isSupported());
+            } else {
+                connect(m_dpmsClient, &Dpms::supportedChanged, this, performSwitch);
+            }
         }
         return;
     }
@@ -110,34 +137,6 @@ void Doctor::start(QCommandLineParser *parser)
     }
     // We need to kick the event loop, otherwise .quit() hangs
     QTimer::singleShot(0, qApp->quit);
-}
-
-void KScreen::Doctor::setDpms(const QString &dpmsArg)
-{
-    qDebug() << "SetDpms: " << dpmsArg;
-    connect(m_dpmsClient, &DpmsClient::ready, this, [this, dpmsArg]() {
-        cout << "DPMS.ready()";
-        if (dpmsArg == QLatin1String("off")) {
-            m_dpmsClient->off();
-        } else if (dpmsArg == QLatin1String("on")) {
-            m_dpmsClient->on();
-        } else {
-            cout << "--dpms argument not understood (" << dpmsArg << ")";
-        }
-    });
-
-    m_dpmsClient->connect();
-}
-
-void Doctor::showDpms()
-{
-    m_dpmsClient = new DpmsClient(this);
-
-    connect(m_dpmsClient, &DpmsClient::ready, this, []() {
-        cout << "DPMS.ready()";
-    });
-
-    m_dpmsClient->connect();
 }
 
 void Doctor::showBackends() const

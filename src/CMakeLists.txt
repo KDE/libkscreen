@@ -1,5 +1,6 @@
 add_subdirectory(backendlauncher)
 add_subdirectory(doctor)
+add_subdirectory(libdpms)
 set(libkscreen_SRCS
     abstractbackend.cpp
     backendmanager.cpp

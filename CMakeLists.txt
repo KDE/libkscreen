@@ -49,7 +49,7 @@ set_package_properties(Wayland PROPERTIES
 
 # xrandr backend
 
-find_package(XCB COMPONENTS XCB RANDR)
+find_package(XCB COMPONENTS XCB RANDR DPMS)
 set_package_properties(XCB PROPERTIES
                        TYPE OPTIONAL
                        PURPOSE "Required for building XRandR backends"
@@ -116,7 +116,6 @@ install(FILES
   DESTINATION "${KDE_INSTALL_INCLUDEDIR_KF}"
   COMPONENT Devel
 )
-install(FILES libkscreen.categories  DESTINATION  ${KDE_INSTALL_LOGGINGCATEGORIESDIR})
-
+ecm_qt_install_logging_categories(EXPORT KSCREEN KSCREEN_DPMS KSCREEN_EDID FILE kscreen.categories DESTINATION ${KDE_INSTALL_LOGGINGCATEGORIESDIR})
 
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
