@@ -119,10 +119,10 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
     const QSize newScreenSize = screenSize(config);
     const QSize currentScreenSize = m_screen->currentSize();
 
-    // Previously we initially set such screen size, that it can take the current 
-    // as well  as the new configuration, then we apply the output changes, 
-    // and finally then (if necessary) we reduce the screen size to 
-    // fix the new configuration precisely.Now we initially disable the output, 
+    // Previously we initially set such screen size, that it can take the current
+    // as well  as the new configuration, then we apply the output changes,
+    // and finally then (if necessary) we reduce the screen size to
+    // fix the new configuration precisely.Now we initially disable the output,
     // then set the target screen size, and finally we apply the output changes.
     int neededCrtcs = 0;
     xcb_randr_output_t primaryOutput = 0;
@@ -214,12 +214,13 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
         return;
     }
 
-    qCDebug(KSCREEN_XRANDR) << "Needed CRTCs: " << neededCrtcs;
+    qCDebug(KSCREEN_XRANDR) << "Needed CRTCs:" << neededCrtcs;
 
     XCB::ScopedPointer<xcb_randr_get_screen_resources_reply_t> screenResources(XRandR::screenResources());
 
     if (neededCrtcs > screenResources->num_crtcs) {
-        qCDebug(KSCREEN_XRANDR) << "We need more CRTCs than we have available - requested: " << neededCrtcs << ", available: " << screenResources->num_crtcs;
+        qCDebug(KSCREEN_XRANDR).nospace() << "We need more CRTCs than we have available - requested: " << neededCrtcs
+                                          << ", available: " << screenResources->num_crtcs;
         return;
     }
 
@@ -269,8 +270,8 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
     }
 
     if (currentScreenSize != newScreenSize) {
-	for (const KScreen::OutputPtr &output : toChange) {
-             disableOutput(output);
+        for (const KScreen::OutputPtr &output : toChange) {
+            disableOutput(output);
         }
     }
 
@@ -306,7 +307,6 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
             }
         }
     }
-
 }
 
 void XRandRConfig::printConfig(const ConfigPtr &config) const
