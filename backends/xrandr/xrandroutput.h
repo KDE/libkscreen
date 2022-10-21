@@ -80,6 +80,7 @@ private:
     mutable QByteArray m_edid;
 
     xcb_randr_connection_t m_connected;
+    xcb_atom_t m_screen_index_atom;
     bool m_primary;
     KScreen::Output::Type m_type;
 

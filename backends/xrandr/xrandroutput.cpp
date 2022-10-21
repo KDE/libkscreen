@@ -11,7 +11,10 @@
 #include "xrandr.h"
 #include "xrandrconfig.h"
 
+#include <cstdint>
 #include <xcb/render.h>
+#include <xcb/xcb.h>
+#include <xcb/xproto.h>
 
 Q_DECLARE_METATYPE(QList<int>)
 
@@ -29,6 +32,8 @@ XRandROutput::XRandROutput(xcb_randr_output_t id, XRandRConfig *config)
     , m_type(KScreen::Output::Unknown)
     , m_crtc(nullptr)
 {
+    m_screen_index_atom = XCB::InternAtom(false, 17, "_KDE_SCREEN_INDEX")->atom;
+
     init();
 }
 
@@ -175,12 +180,25 @@ void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_rand
     }
 
     // Primary has changed
-    m_primary = primary;
+    setIsPrimary(primary);
 }
 
 void XRandROutput::setIsPrimary(bool primary)
 {
     m_primary = primary;
+
+    // This mapping is expected to become more elaborate than simply 0/1.
+    const uint8_t data[1] = {primary ? (uint8_t)1 : (uint8_t)0};
+    constexpr uint8_t format = 8;
+
+    xcb_randr_change_output_property(XCB::connection(),
+                                     m_id,
+                                     m_screen_index_atom,
+                                     XCB_ATOM_INTEGER,
+                                     format,
+                                     XCB_PROP_MODE_REPLACE,
+                                     sizeof(data) / sizeof(*data),
+                                     data);
 }
 
 void XRandROutput::init()
