@@ -12,6 +12,7 @@
 #include <QRect>
 
 #include <KWayland/Client/registry.h>
+#include <memory>
 
 class QThread;
 
@@ -69,7 +70,7 @@ private:
     bool m_supportedOututCount = 0;
     int m_modeChanges = 0;
     QStringList m_excludedOutputNames;
-    DpmsManager *m_manager;
+    std::unique_ptr<DpmsManager> m_manager;
 };
 
 } // namespace

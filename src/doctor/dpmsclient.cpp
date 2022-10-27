@@ -93,9 +93,9 @@ void DpmsClient::connect()
 
     m_registry->setup();
 
-    m_manager = new DpmsManager;
+    m_manager = std::make_unique<DpmsManager>();
 
-    QObject::connect(m_manager, &DpmsManager::activeChanged, this, [this] {
+    QObject::connect(m_manager.get(), &DpmsManager::activeChanged, this, [this] {
         const bool hasDpms = m_manager->isActive();
         if (hasDpms) {
             qDebug() << QStringLiteral("Compositor provides a DpmsManager");
@@ -111,6 +111,10 @@ void DpmsClient::connect()
 
 void KScreen::DpmsClient::changeMode(Mode mode)
 {
+    if (!m_manager) {
+        qDebug() << "DPMS client must connect() first";
+        return;
+    }
     const auto outputs = m_registry->interfaces(KWayland::Client::Registry::Interface::Output);
     for (auto outputInterface : outputs) {
         KWayland::Client::Output *output = m_registry->createOutput(outputInterface.name, outputInterface.version, m_registry);
