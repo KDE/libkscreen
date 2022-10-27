@@ -7,6 +7,7 @@
  */
 
 #include "configoperation.h"
+
 #include "backendmanager_p.h"
 #include "configoperation_p.h"
 

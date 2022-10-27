@@ -5,10 +5,11 @@
  */
 #pragma once
 
-#include "output.h"
+#include "xrandrmode.h"
 
 #include "../xcbwrapper.h"
-#include "xrandrmode.h"
+
+#include "output.h"
 
 #include <QMap>
 #include <QObject>

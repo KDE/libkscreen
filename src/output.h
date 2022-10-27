@@ -9,7 +9,6 @@
 #define OUTPUT_CONFIG_H
 
 #include "kscreen_export.h"
-#include "mode.h"
 #include "types.h"
 
 #include <QDebug>
@@ -22,6 +21,7 @@
 namespace KScreen
 {
 class Edid;
+class Mode;
 
 class KSCREEN_EXPORT Output : public QObject
 {

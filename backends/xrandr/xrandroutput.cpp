@@ -6,10 +6,12 @@
  */
 #include "xrandroutput.h"
 
-#include "../utils.h"
-#include "config.h"
 #include "xrandr.h"
 #include "xrandrconfig.h"
+
+#include "../utils.h"
+
+#include "mode.h"
 
 #include <xcb/render.h>
 

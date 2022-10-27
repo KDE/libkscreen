@@ -6,10 +6,12 @@
  */
 #include "xrandrscreen.h"
 
-#include "../xcbwrapper.h"
-#include "config.h"
-#include "screen.h"
+#include "xrandr.h"
 #include "xrandrconfig.h"
+
+#include "../xcbwrapper.h"
+
+#include "screen.h"
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <private/qtx11extras_p.h>

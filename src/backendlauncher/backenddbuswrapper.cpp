@@ -7,7 +7,6 @@
 
 #include "backenddbuswrapper.h"
 #include "backendadaptor.h"
-#include "backendloader.h"
 #include "kscreen_backendLauncher_debug.h"
 
 #include "abstractbackend.h"

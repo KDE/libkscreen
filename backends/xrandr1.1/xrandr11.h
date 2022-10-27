@@ -7,11 +7,12 @@
 #ifndef XRANDR11_BACKEND_H
 #define XRANDR11_BACKEND_H
 
-#include "../xcbwrapper.h"
 #include "abstractbackend.h"
 
 #include <QLoggingCategory>
 #include <QObject>
+
+#include <xcb/xcb.h>
 
 class XCBEventListener;
 

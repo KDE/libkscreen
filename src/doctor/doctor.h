@@ -7,11 +7,11 @@
 #ifndef KSCREEN_DOCTOR_H
 #define KSCREEN_DOCTOR_H
 
-#include "../config.h"
 #include <QCommandLineParser>
 #include <QObject>
 
 #include "output.h"
+#include "types.h"
 
 namespace KScreen
 {

@@ -15,6 +15,7 @@
 #include "../src/getconfigoperation.h"
 #include "../src/mode.h"
 #include "../src/output.h"
+#include "../src/screen.h"
 
 Q_LOGGING_CATEGORY(KSCREEN_QSCREEN, "kscreen.qscreen")
 

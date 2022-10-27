@@ -10,7 +10,9 @@
 #include <QSize>
 #include <QVariant>
 
-#include "../xcbwrapper.h"
+#include <xcb/randr.h>
+#include <xcb/xcb.h>
+
 #include "types.h"
 
 class XRandROutput;

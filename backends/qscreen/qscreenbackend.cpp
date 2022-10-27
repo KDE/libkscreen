@@ -8,7 +8,8 @@
 
 #include "qscreenbackend.h"
 #include "qscreenconfig.h"
-#include "qscreenoutput.h"
+
+#include <config.h>
 
 using namespace KScreen;
 

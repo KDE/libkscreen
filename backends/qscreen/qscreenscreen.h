@@ -7,8 +7,8 @@
 #ifndef QSCREEN_SCREEN_H
 #define QSCREEN_SCREEN_H
 
-#include "config.h"
-#include "screen.h"
+#include "qscreenconfig.h"
+#include "types.h"
 
 #include <QLoggingCategory>
 #include <QScreen>

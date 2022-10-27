@@ -12,7 +12,8 @@
 #include <QObject>
 #include <QRect>
 
-#include "xcbwrapper.h"
+#include <xcb/randr.h>
+#include <xcb/xcb.h>
 
 class XCBEventListener : public QObject, public QAbstractNativeEventFilter
 {

@@ -5,10 +5,14 @@
  *  SPDX-License-Identifier: LGPL-2.1-or-later
  */
 #include "waylandoutputdevice.h"
-#include "../utils.h"
 #include "waylandoutputmanagement.h"
 
 #include "kscreen_kwayland_logging.h"
+
+#include "../utils.h"
+
+#include <mode.h>
+#include <output.h>
 
 #include <wayland-server-protocol.h>
 

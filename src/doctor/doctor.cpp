@@ -5,6 +5,7 @@
  */
 
 #include "doctor.h"
+#include "mode.h"
 #include <dpms.h>
 
 #include <QCollator>
@@ -21,8 +22,8 @@
 #include <QStandardPaths>
 
 #include "../backendmanager_p.h"
+#include "../config.h"
 #include "../configoperation.h"
-#include "../edid.h"
 #include "../getconfigoperation.h"
 #include "../log.h"
 #include "../output.h"

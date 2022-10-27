@@ -9,7 +9,9 @@
 #include "qscreenoutput.h"
 #include "qscreenscreen.h"
 
+#include <config.h>
 #include <mode.h>
+#include <output.h>
 
 #include <QGuiApplication>
 #include <QRect>

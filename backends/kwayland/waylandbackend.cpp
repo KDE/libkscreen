@@ -15,6 +15,7 @@
 
 #include <configmonitor.h>
 #include <mode.h>
+#include <output.h>
 
 #include <QProcess>
 #include <QSettings>

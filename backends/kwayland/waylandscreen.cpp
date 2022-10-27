@@ -9,6 +9,7 @@
 #include "waylandoutputdevice.h"
 
 #include <mode.h>
+#include <screen.h>
 
 using namespace KScreen;
 

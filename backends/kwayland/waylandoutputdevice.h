@@ -7,10 +7,12 @@
 #ifndef WAYLANDOUTPUTDEVICE_H
 #define WAYLANDOUTPUTDEVICE_H
 
-#include "output.h"
 #include "waylandoutputdevicemode.h"
 
 #include "qwayland-kde-output-device-v2.h"
+
+#include "kscreen_export.h"
+#include "types.h"
 
 #include <QPoint>
 #include <QSize>

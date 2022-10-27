@@ -13,7 +13,6 @@
 #include "../src/getconfigoperation.h"
 #include "../src/mode.h"
 #include "../src/output.h"
-#include "../src/setconfigoperation.h"
 
 using namespace KScreen;
 

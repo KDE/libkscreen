@@ -7,11 +7,7 @@
 #ifndef QSCREEN_OUTPUT_H
 #define QSCREEN_OUTPUT_H
 
-#include "qscreenconfig.h"
-
-#include "config.h"
-#include "edid.h"
-#include "output.h"
+#include "types.h"
 
 #include <QScreen>
 

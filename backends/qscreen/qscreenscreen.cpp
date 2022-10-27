@@ -4,13 +4,11 @@
  *  SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
-#include "qscreenbackend.h"
-#include "qscreenoutput.h"
-
 #include "qscreenscreen.h"
 
 #include <configmonitor.h>
 #include <mode.h>
+#include <screen.h>
 
 #include <QGuiApplication>
 

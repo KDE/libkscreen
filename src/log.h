@@ -8,7 +8,6 @@
 #define KSCREEN_LOG_H
 
 #include "kscreen_export.h"
-#include "types.h"
 
 #include <QLoggingCategory>
 #include <QObject>

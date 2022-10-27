@@ -5,10 +5,10 @@
  */
 
 #include "qscreenoutput.h"
-#include "qscreenbackend.h"
 
 #include <edid.h>
 #include <mode.h>
+#include <output.h>
 
 #include <QGuiApplication>
 

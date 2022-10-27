@@ -5,11 +5,14 @@
  */
 
 #include "xrandr11.h"
+
 #include "../xcbeventlistener.h"
+#include "../xcbwrapper.h"
 
 #include "config.h"
-#include "edid.h"
+#include "mode.h"
 #include "output.h"
+#include "screen.h"
 
 #include <xcb/randr.h>
 #include <xcb/xcb.h>

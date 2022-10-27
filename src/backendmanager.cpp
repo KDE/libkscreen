@@ -10,7 +10,6 @@
 
 #include "abstractbackend.h"
 #include "backendinterface.h"
-#include "config.h"
 #include "configmonitor.h"
 #include "configserializer_p.h"
 #include "getconfigoperation.h"

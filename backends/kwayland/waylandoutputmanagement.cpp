@@ -5,7 +5,6 @@
  *  SPDX-License-Identifier: LGPL-2.1-or-later
  */
 #include "waylandoutputmanagement.h"
-#include "waylandconfig.h"
 #include <QDebug>
 
 namespace KScreen

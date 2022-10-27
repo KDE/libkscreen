@@ -16,6 +16,7 @@
 #include "../src/getconfigoperation.h"
 #include "../src/mode.h"
 #include "../src/output.h"
+#include "../src/screen.h"
 #include "../src/setconfigoperation.h"
 
 // KWayland

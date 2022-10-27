@@ -6,13 +6,13 @@
  */
 #include "xrandr.h"
 
-#include "../xcbeventlistener.h"
 #include "xrandrconfig.h"
 #include "xrandrscreen.h"
 
-#include "config.h"
-#include "edid.h"
-#include "output.h"
+#include "../xcbeventlistener.h"
+#include "../xcbwrapper.h"
+
+#include "types.h"
 
 #include <QRect>
 #include <QTime>

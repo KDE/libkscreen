@@ -5,9 +5,7 @@
  */
 #pragma once
 
-#include "abstractbackend.h"
-#include "config.h"
-#include "screen.h"
+#include "types.h"
 
 #include <QObject>
 #include <QSize>

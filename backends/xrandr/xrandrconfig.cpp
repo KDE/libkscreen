@@ -5,13 +5,18 @@
  *  SPDX-License-Identifier: LGPL-2.1-or-later
  */
 #include "xrandrconfig.h"
-#include "config.h"
-#include "edid.h"
-#include "output.h"
+
+#include "xrandr.h"
 #include "xrandrmode.h"
 #include "xrandrscreen.h"
 
 #include "../xcbwrapper.h"
+
+#include "config.h"
+#include "edid.h"
+#include "mode.h"
+#include "output.h"
+#include "screen.h"
 
 #include <QRect>
 #include <QScopedPointer>
@@ -119,10 +124,10 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
     const QSize newScreenSize = screenSize(config);
     const QSize currentScreenSize = m_screen->currentSize();
 
-    // Previously we initially set such screen size, that it can take the current 
-    // as well  as the new configuration, then we apply the output changes, 
-    // and finally then (if necessary) we reduce the screen size to 
-    // fix the new configuration precisely.Now we initially disable the output, 
+    // Previously we initially set such screen size, that it can take the current
+    // as well  as the new configuration, then we apply the output changes,
+    // and finally then (if necessary) we reduce the screen size to
+    // fix the new configuration precisely.Now we initially disable the output,
     // then set the target screen size, and finally we apply the output changes.
     int neededCrtcs = 0;
     xcb_randr_output_t primaryOutput = 0;

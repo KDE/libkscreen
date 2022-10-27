@@ -8,7 +8,9 @@
 #include "fake.h"
 
 #include "config.h"
+#include "mode.h"
 #include "output.h"
+#include "screen.h"
 
 #include <QFile>
 #include <QJsonArray>

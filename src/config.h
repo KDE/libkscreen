@@ -19,6 +19,8 @@
 
 namespace KScreen
 {
+class Output;
+
 /**
  * Represents a (or the) screen configuration.
  *

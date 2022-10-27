@@ -12,9 +12,7 @@
 #include "backendmanager_p.h"
 #include "config.h"
 #include "configmonitor.h"
-#include "edid.h"
 #include "getconfigoperation.h"
-#include "mode.h"
 #include "output.h"
 #include "setconfigoperation.h"
 

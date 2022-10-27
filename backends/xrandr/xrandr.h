@@ -11,7 +11,8 @@
 #include <QLoggingCategory>
 #include <QSize>
 
-#include "../xcbwrapper.h"
+#include <xcb/randr.h>
+#include <xcb/xcb.h>
 
 class QRect;
 class QTimer;

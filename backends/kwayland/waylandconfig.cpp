@@ -14,13 +14,12 @@
 #include "waylandoutputmanagement.h"
 #include "waylandscreen.h"
 
-#include "output.h"
-
 #include "tabletmodemanager_interface.h"
 
 #include <QThread>
 #include <configmonitor.h>
 #include <mode.h>
+#include <output.h>
 
 #include <KWayland/Client/connection_thread.h>
 #include <KWayland/Client/event_queue.h>

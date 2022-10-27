@@ -13,7 +13,6 @@
 #include "../src/backendmanager_p.h"
 #include "../src/config.h"
 #include "../src/configmonitor.h"
-#include "../src/edid.h"
 #include "../src/getconfigoperation.h"
 #include "../src/mode.h"
 #include "../src/output.h"

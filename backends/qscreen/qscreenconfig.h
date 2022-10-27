@@ -7,7 +7,7 @@
 #ifndef QSCREEN_CONFIG_H
 #define QSCREEN_CONFIG_H
 
-#include "config.h"
+#include "types.h"
 
 #include <QScreen>
 

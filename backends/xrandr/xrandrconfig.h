@@ -7,7 +7,6 @@
 
 #include <QObject>
 
-#include "xrandr.h"
 #include "xrandrcrtc.h"
 #include "xrandroutput.h"
 

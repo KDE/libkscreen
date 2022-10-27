@@ -6,10 +6,8 @@
  */
 
 #include "output.h"
-#include "abstractbackend.h"
-#include "backendmanager_p.h"
 #include "edid.h"
-#include "kscreen_debug.h"
+#include "mode.h"
 
 #include <QCryptographicHash>
 #include <QGuiApplication>
