@@ -45,8 +45,9 @@ public:
         return m_supported;
     }
 
-    Q_SIGNAL void supportedChanged();
-    Q_SIGNAL void modeChanged();
+Q_SIGNALS:
+    void supportedChanged();
+    void modeChanged();
 
 private:
     bool m_supported = false;
