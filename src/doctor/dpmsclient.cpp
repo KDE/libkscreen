@@ -99,7 +99,7 @@ void DpmsClient::connect()
         if (hasDpms) {
             qDebug() << QStringLiteral("Compositor provides a DpmsManager");
         } else {
-            qDebug() << QStringLiteral("Compositor does not provid a DpmsManager");
+            qDebug() << QStringLiteral("Compositor does not provide a DpmsManager");
         }
 
         Q_EMIT this->ready();
