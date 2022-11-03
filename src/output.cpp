@@ -773,10 +773,22 @@ QDebug operator<<(QDebug dbg, const KScreen::OutputPtr &output)
         return dbg;
     }
 
-    dbg.nospace() << "KScreen::Output(" << output->id() << ", " << output->name() << ", " << (output->isConnected() ? "connected " : "disconnected ")
-                  << (output->isEnabled() ? "enabled" : "disabled") << (output->isPrimary() ? " primary" : "") << ", pos: " << output->pos()
-                  << ", res: " << output->size() << ", modeId: " << output->currentModeId() << ", scale: " << output->scale()
-                  << ", clone: " << (output->clones().isEmpty() ? "no" : "yes") << ", rotation: " << output->rotation()
-                  << ", followPreferredMode: " << output->followPreferredMode() << ")";
+    // clang-format off
+    dbg.nospace()
+        << "KScreen::Output("
+            << output->id() << ", "
+            << output->name() << ", "
+            << (output->isConnected() ? "connected " : "disconnected ")
+            << (output->isEnabled() ? "enabled" : "disabled")
+            << (output->isPrimary() ? " primary" : "")
+            << ", pos: " << output->pos()
+            << ", res: " << output->size()
+            << ", modeId: " << output->currentModeId()
+            << ", scale: " << output->scale()
+            << ", clone: " << (output->clones().isEmpty() ? "no" : "yes")
+            << ", rotation: " << output->rotation()
+            << ", followPreferredMode: " << output->followPreferredMode()
+        << ")";
+    // clang-format on
     return dbg;
 }

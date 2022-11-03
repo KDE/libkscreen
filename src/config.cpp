@@ -174,16 +174,16 @@ bool Config::canBeApplied(const ConfigPtr &config, ValidityFlags flags)
 
     const int maxEnabledOutputsCount = config->screen()->maxActiveOutputsCount();
     if (enabledOutputsCount > maxEnabledOutputsCount) {
-        qCDebug(KSCREEN) << "canBeApplied: Too many active screens. Requested: " << enabledOutputsCount << ", Max: " << maxEnabledOutputsCount;
+        qCDebug(KSCREEN).nospace() << "canBeApplied: Too many active screens. Requested: " << enabledOutputsCount << ", Max: " << maxEnabledOutputsCount;
         return false;
     }
 
     if (rect.width() > config->screen()->maxSize().width()) {
-        qCDebug(KSCREEN) << "canBeApplied: The configuration is too wide:" << rect.width();
+        qCDebug(KSCREEN).nospace() << "canBeApplied: The configuration is too wide: " << rect.width() << ", Max: " << config->screen()->maxSize().width();
         return false;
     }
     if (rect.height() > config->screen()->maxSize().height()) {
-        qCDebug(KSCREEN) << "canBeApplied: The configuration is too high:" << rect.height();
+        qCDebug(KSCREEN).nospace() << "canBeApplied: The configuration is too high: " << rect.height() << ", Max: " << config->screen()->maxSize().height();
         return false;
     }
 

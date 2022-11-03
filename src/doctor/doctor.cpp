@@ -388,9 +388,11 @@ void Doctor::showOutputs() const
 
     for (const auto &output : m_config->outputs()) {
         cout << green << "Output: " << cr << output->id() << " " << output->name();
-        cout << " " << (output->isEnabled() ? green + QStringLiteral("enabled") : red + QStringLiteral("disabled"));
-        cout << " " << (output->isConnected() ? green + QStringLiteral("connected") : red + QStringLiteral("disconnected"));
-        cout << " " << (output->isPrimary() ? green + QStringLiteral("primary") : QString());
+        cout << " " << (output->isEnabled() ? green + QStringLiteral("enabled") : red + QStringLiteral("disabled")) << cr;
+        cout << " " << (output->isConnected() ? green + QStringLiteral("connected") : red + QStringLiteral("disconnected")) << cr;
+        if (output->isPrimary()) {
+            cout << " " << green + QStringLiteral("primary") << cr;
+        }
         auto _type = typeString[output->type()];
         cout << " " << yellow << (_type.isEmpty() ? QStringLiteral("UnmappedOutputType") : _type);
         cout << blue << " Modes: " << cr;
@@ -436,19 +438,16 @@ void Doctor::showOutputs() const
         if (output->capabilities() & Output::Capability::RgbRange) {
             switch (output->rgbRange()) {
             case Output::RgbRange::Automatic:
-                cout << cr << "Automatic ";
+                cout << cr << "Automatic";
                 break;
             case Output::RgbRange::Full:
-                cout << cr << "Full ";
+                cout << cr << "Full";
                 break;
             case Output::RgbRange::Limited:
-                cout << cr << "Limited ";
+                cout << cr << "Limited";
             }
         } else {
-            cout << cr << "unknown ";
-        }
-        if (output->isPrimary()) {
-            cout << blue << "primary";
+            cout << cr << "unknown";
         }
         cout << cr << Qt::endl;
     }
