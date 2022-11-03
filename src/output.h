@@ -219,7 +219,7 @@ public:
     /**
      * @brief Immutable clones because of hardware restrictions
      *
-     * Clones are set symmetcally on all outputs. The list contains ids
+     * Clones are set symmetrically on all outputs. The list contains ids
      * for all other outputs being clones of this output.
      *
      * @return List of output ids being clones of each other.
