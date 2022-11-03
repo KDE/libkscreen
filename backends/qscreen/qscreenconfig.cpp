@@ -16,6 +16,8 @@
 #include <QGuiApplication>
 #include <QRect>
 
+#include <utility>
+
 using namespace KScreen;
 
 QScreenConfig::QScreenConfig(QObject *parent)
@@ -46,7 +48,7 @@ ConfigPtr QScreenConfig::toKScreenConfig() const
 
 int QScreenConfig::outputId(const QScreen *qscreen)
 {
-    for (auto output : qAsConst(m_outputMap)) {
+    for (auto output : std::as_const(m_outputMap)) {
         if (qscreen == output->qscreen()) {
             return output->id();
         }

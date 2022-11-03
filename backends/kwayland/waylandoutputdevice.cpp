@@ -16,6 +16,8 @@
 
 #include <wayland-server-protocol.h>
 
+#include <utility>
+
 using namespace KScreen;
 
 WaylandOutputDevice::WaylandOutputDevice(int id)
@@ -141,7 +143,7 @@ void KScreen::WaylandOutputDevice::updateKScreenModes(OutputPtr &output)
     QString currentModeId = QStringLiteral("-1");
     int modeId = 0;
 
-    for (const WaylandOutputDeviceMode *wlMode : qAsConst(m_modes)) {
+    for (const WaylandOutputDeviceMode *wlMode : std::as_const(m_modes)) {
         ModePtr mode(new Mode());
 
         const QString modeIdStr = QString::number(modeId);

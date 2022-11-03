@@ -21,6 +21,8 @@
 #include <QScreen>
 #include <QStandardPaths>
 
+#include <utility>
+
 #include "../backendmanager_p.h"
 #include "../config.h"
 #include "../configoperation.h"
@@ -173,7 +175,7 @@ void Doctor::setOptionList(const QStringList &outputArgs)
 void Doctor::parseOutputArgs()
 {
     // qCDebug(KSCREEN_DOCTOR) << "POSARGS" << m_positionalArgs;
-    for (const QString &op : qAsConst(m_outputArgs)) {
+    for (const QString &op : std::as_const(m_outputArgs)) {
         auto ops = op.split(QLatin1Char('.'));
         if (ops.count() > 2) {
             bool ok;

@@ -17,6 +17,7 @@
 #include "tabletmodemanager_interface.h"
 
 #include <QThread>
+#include <QTimer>
 #include <configmonitor.h>
 #include <mode.h>
 #include <output.h>
@@ -25,7 +26,7 @@
 #include <KWayland/Client/event_queue.h>
 #include <KWayland/Client/registry.h>
 
-#include <QTimer>
+#include <utility>
 
 using namespace KScreen;
 
@@ -133,7 +134,7 @@ void WaylandConfig::setupRegistry()
                 }
 
                 m_primaryOutputName = name;
-                for (auto output : qAsConst(m_outputMap)) {
+                for (auto output : std::as_const(m_outputMap)) {
                     output->setPrimary(output->outputName() == name);
                 }
                 if (!m_blockSignals) {

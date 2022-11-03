@@ -14,6 +14,8 @@
 #include <QRect>
 #include <QScopedPointer>
 
+#include <utility>
+
 using namespace KScreen;
 
 class Q_DECL_HIDDEN Output::Private
@@ -365,7 +367,7 @@ QString Output::preferredModeId() const
     int total = 0;
     KScreen::ModePtr biggest;
     KScreen::ModePtr candidateMode;
-    for (const QString &modeId : qAsConst(d->preferredModes)) {
+    for (const QString &modeId : std::as_const(d->preferredModes)) {
         candidateMode = mode(modeId);
         const int area = candidateMode->size().width() * candidateMode->size().height();
         if (area < total) {

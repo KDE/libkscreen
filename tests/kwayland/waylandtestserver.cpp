@@ -15,6 +15,8 @@
 #include <QLoggingCategory>
 #include <QStandardPaths>
 
+#include <utility>
+
 #include "../src/edid.h"
 
 Q_LOGGING_CATEGORY(KSCREEN_WAYLAND_TESTSERVER, "kscreen.kwayland.testserver")
@@ -151,7 +153,7 @@ void WaylandTestServer::configurationChangeRequested(KWayland::Server::OutputCon
 void WaylandTestServer::showOutputs()
 {
     qCDebug(KSCREEN_WAYLAND_TESTSERVER) << "******** Wayland server running: " << m_outputs.count() << " outputs. ********";
-    for (const auto &o : qAsConst(m_outputs)) {
+    for (const auto &o : std::as_const(m_outputs)) {
         bool enabled = (o->enabled() == KWayland::Server::OutputDeviceInterface::Enablement::Enabled);
         qCDebug(KSCREEN_WAYLAND_TESTSERVER) << "  * Output id: " << o->uuid();
         qCDebug(KSCREEN_WAYLAND_TESTSERVER) << "      Enabled: " << (enabled ? "enabled" : "disabled");

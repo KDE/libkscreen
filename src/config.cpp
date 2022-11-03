@@ -18,6 +18,8 @@
 #include <QRect>
 #include <QStringList>
 
+#include <utility>
+
 using namespace KScreen;
 
 class Q_DECL_HIDDEN Config::Private : public QObject
@@ -208,7 +210,7 @@ ConfigPtr Config::clone() const
     newConfig->setSupportedFeatures(supportedFeatures());
     newConfig->setTabletModeAvailable(tabletModeAvailable());
     newConfig->setTabletModeEngaged(tabletModeEngaged());
-    for (const OutputPtr &ourOutput : qAsConst(d->outputs)) {
+    for (const OutputPtr &ourOutput : std::as_const(d->outputs)) {
         newConfig->addOutput(ourOutput->clone());
     }
     newConfig->d->primaryOutput = newConfig->d->findPrimaryOutput();
@@ -282,7 +284,7 @@ OutputList Config::outputs() const
 OutputList Config::connectedOutputs() const
 {
     OutputList outputs;
-    for (const OutputPtr &output : qAsConst(d->outputs)) {
+    for (const OutputPtr &output : std::as_const(d->outputs)) {
         if (!output->isConnected()) {
             continue;
         }
@@ -380,7 +382,7 @@ void Config::apply(const ConfigPtr &other)
         }
     }
 
-    for (const OutputPtr &otherOutput : qAsConst(other->d->outputs)) {
+    for (const OutputPtr &otherOutput : std::as_const(other->d->outputs)) {
         // Add new outputs
         if (!d->outputs.contains(otherOutput->id())) {
             addOutput(otherOutput->clone());
