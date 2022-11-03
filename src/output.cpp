@@ -672,8 +672,7 @@ void Output::apply(const OutputPtr &other)
     // We block all signals, and emit them only after we have set up everything
     // This is necessary in order to prevent clients from accessing inconsistent
     // outputs from intermediate change signals
-    const bool keepBlocked = signalsBlocked();
-    blockSignals(true);
+    const bool keepBlocked = blockSignals(true);
     if (d->name != other->d->name) {
         changes << &Output::outputChanged;
         setName(other->d->name);
