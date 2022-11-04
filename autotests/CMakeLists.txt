@@ -50,5 +50,5 @@ set(KSCREEN_WAYLAND_SRCS "")
 
 
 if (ENABLE_XRANDR_TESTS)
-    kscreen_add_test(textxrandr)
+    kscreen_add_test(testxrandr)
 endif()
