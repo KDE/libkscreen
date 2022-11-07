@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: kdeorg\n"
-"PO-Revision-Date: 2022-10-30 07:49\n"
+"PO-Revision-Date: 2022-11-06 01:07\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
@@ -18,29 +18,29 @@ msgstr ""
 #: getconfigoperation.cpp:62
 msgctxt "KScreen::GetConfigOperationPrivate|"
 msgid "Failed to prepare backend"
-msgstr ""
+msgstr "准备后端失败"
 
 #: getconfigoperation.cpp:87
 msgctxt "KScreen::GetConfigOperationPrivate|"
 msgid "Failed to deserialize backend response"
-msgstr ""
+msgstr "反序列化后端响应失败"
 
 #: getconfigoperation.cpp:99
 msgctxt "KScreen::GetConfigOperationPrivate|"
 msgid "Backend invalidated"
-msgstr ""
+msgstr "后端无效"
 
 #: setconfigoperation.cpp:58
 msgctxt "KScreen::SetConfigOperationPrivate|"
 msgid "Failed to prepare backend"
-msgstr ""
+msgstr "准备后端失败"
 
 #: setconfigoperation.cpp:65
 msgctxt "KScreen::SetConfigOperationPrivate|"
 msgid "Failed to serialize request"
-msgstr ""
+msgstr "序列化请求失败"
 
 #: setconfigoperation.cpp:89
 msgctxt "KScreen::SetConfigOperationPrivate|"
 msgid "Failed to deserialize backend response"
-msgstr ""
+msgstr "反序列化后端响应失败"
