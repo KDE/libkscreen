@@ -106,8 +106,8 @@ KScreen::ConfigPtr XRandRConfig::toKScreenConfig() const
 
     KScreen::OutputList kscreenOutputs;
 
-    for (auto iter = m_outputs.constBegin(); iter != m_outputs.constEnd(); ++iter) {
-        KScreen::OutputPtr kscreenOutput = (*iter)->toKScreenOutput();
+    for (const XRandROutput *output : std::as_const(m_outputs)) {
+        KScreen::OutputPtr kscreenOutput = output->toKScreenOutput();
         kscreenOutputs.insert(kscreenOutput->id(), kscreenOutput);
     }
 
