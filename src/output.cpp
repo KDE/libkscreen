@@ -190,9 +190,7 @@ void Output::setId(int id)
     if (d->id == id) {
         return;
     }
-
     d->id = id;
-
     Q_EMIT outputChanged();
 }
 
@@ -206,9 +204,7 @@ void Output::setName(const QString &name)
     if (d->name == name) {
         return;
     }
-
     d->name = name;
-
     Q_EMIT outputChanged();
 }
 
@@ -240,9 +236,7 @@ void Output::setType(Type type)
     if (d->type == type) {
         return;
     }
-
     d->type = type;
-
     Q_EMIT outputChanged();
 }
 
@@ -293,9 +287,7 @@ void Output::setIcon(const QString &icon)
     if (d->icon == icon) {
         return;
     }
-
     d->icon = icon;
-
     Q_EMIT outputChanged();
 }
 
@@ -333,9 +325,7 @@ void Output::setCurrentModeId(const QString &mode)
     if (d->currentMode == mode) {
         return;
     }
-
     d->currentMode = mode;
-
     Q_EMIT currentModeIdChanged();
 }
 
@@ -406,9 +396,7 @@ void Output::setPos(const QPoint &pos)
     if (d->pos == pos) {
         return;
     }
-
     d->pos = pos;
-
     Q_EMIT posChanged();
 }
 
@@ -422,9 +410,7 @@ void Output::setSize(const QSize &size)
     if (d->size == size) {
         return;
     }
-
     d->size = size;
-
     Q_EMIT sizeChanged();
 }
 
@@ -439,9 +425,7 @@ void Output::setRotation(Output::Rotation rotation)
     if (d->rotation == rotation) {
         return;
     }
-
     d->rotation = rotation;
-
     Q_EMIT rotationChanged();
 }
 
@@ -483,9 +467,7 @@ void Output::setConnected(bool connected)
     if (d->connected == connected) {
         return;
     }
-
     d->connected = connected;
-
     Q_EMIT isConnectedChanged();
 }
 
@@ -499,9 +481,7 @@ void Output::setEnabled(bool enabled)
     if (d->enabled == enabled) {
         return;
     }
-
     d->enabled = enabled;
-
     Q_EMIT isEnabledChanged();
 }
 
@@ -515,9 +495,7 @@ void Output::setPrimary(bool primary)
     if (d->primary == primary) {
         return;
     }
-
     d->primary = primary;
-
     Q_EMIT isPrimaryChanged();
 }
 
@@ -531,9 +509,7 @@ void Output::setClones(const QList<int> &outputlist)
     if (d->clones == outputlist) {
         return;
     }
-
     d->clones = outputlist;
-
     Q_EMIT clonesChanged();
 }
 
@@ -547,9 +523,7 @@ void Output::setReplicationSource(int source)
     if (d->replicationSource == source) {
         return;
     }
-
     d->replicationSource = source;
-
     Q_EMIT replicationSourceChanged();
 }
 
@@ -581,10 +555,11 @@ bool KScreen::Output::followPreferredMode() const
 
 void KScreen::Output::setFollowPreferredMode(bool follow)
 {
-    if (follow != d->followPreferredMode) {
-        d->followPreferredMode = follow;
-        Q_EMIT followPreferredModeChanged(follow);
+    if (follow == d->followPreferredMode) {
+        return;
     }
+    d->followPreferredMode = follow;
+    Q_EMIT followPreferredModeChanged(follow);
 }
 
 bool Output::isPositionable() const
@@ -621,10 +596,11 @@ Output::Capabilities Output::capabilities() const
 
 void Output::setCapabilities(Capabilities capabilities)
 {
-    if (d->capabilities != capabilities) {
-        d->capabilities = capabilities;
-        Q_EMIT capabilitiesChanged();
+    if (d->capabilities == capabilities) {
+        return;
     }
+    d->capabilities = capabilities;
+    Q_EMIT capabilitiesChanged();
 }
 
 uint32_t Output::overscan() const
@@ -634,10 +610,11 @@ uint32_t Output::overscan() const
 
 void Output::setOverscan(uint32_t overscan)
 {
-    if (d->overscan != overscan) {
-        d->overscan = overscan;
-        Q_EMIT overscanChanged();
+    if (d->overscan == overscan) {
+        return;
     }
+    d->overscan = overscan;
+    Q_EMIT overscanChanged();
 }
 
 Output::VrrPolicy Output::vrrPolicy() const
@@ -647,10 +624,11 @@ Output::VrrPolicy Output::vrrPolicy() const
 
 void Output::setVrrPolicy(VrrPolicy policy)
 {
-    if (d->vrrPolicy != policy) {
-        d->vrrPolicy = policy;
-        Q_EMIT vrrPolicyChanged();
+    if (d->vrrPolicy == policy) {
+        return;
     }
+    d->vrrPolicy = policy;
+    Q_EMIT vrrPolicyChanged();
 }
 
 Output::RgbRange Output::rgbRange() const
@@ -660,10 +638,11 @@ Output::RgbRange Output::rgbRange() const
 
 void Output::setRgbRange(Output::RgbRange rgbRange)
 {
-    if (d->rgbRange != rgbRange) {
-        d->rgbRange = rgbRange;
-        Q_EMIT rgbRangeChanged();
+    if (d->rgbRange == rgbRange) {
+        return;
     }
+    d->rgbRange = rgbRange;
+    Q_EMIT rgbRangeChanged();
 }
 
 void Output::apply(const OutputPtr &other)
