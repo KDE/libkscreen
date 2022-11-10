@@ -34,7 +34,6 @@ public:
     void showBackends() const;
     void showOutputs() const;
     void showJson() const;
-    int outputCount() const;
 
     bool setEnabled(int id, bool enabled);
     bool setPosition(int id, const QPoint &pos);

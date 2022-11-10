@@ -368,15 +368,6 @@ void Doctor::configReceived(KScreen::ConfigOperation *op)
     }
 }
 
-int Doctor::outputCount() const
-{
-    if (!m_config) {
-        qCWarning(KSCREEN_DOCTOR) << "Invalid config.";
-        return 0;
-    }
-    return m_config->outputs().count();
-}
-
 void Doctor::showOutputs() const
 {
     if (!m_config) {
