@@ -172,6 +172,29 @@ void Doctor::setOptionList(const QStringList &outputArgs)
     m_outputArgs = outputArgs;
 }
 
+OutputPtr Doctor::findOutput(const QString &query)
+{
+    // try as an output name or ID
+    for (const auto &output : m_config->outputs()) {
+        if (output->name() == query) {
+            return output;
+        }
+    }
+    bool ok;
+    int id = query.toInt(&ok);
+    if (!ok) {
+        cerr << "Output with name " << query << " not found." << Qt::endl;
+        return OutputPtr();
+    }
+
+    if (m_config->outputs().contains(id)) {
+        return m_config->outputs()[id];
+    } else {
+        cerr << "Output with id " << id << " not found." << Qt::endl;
+        return OutputPtr();
+    }
+}
+
 void Doctor::parseOutputArgs()
 {
     // qCDebug(KSCREEN_DOCTOR) << "POSARGS" << m_positionalArgs;
@@ -179,21 +202,14 @@ void Doctor::parseOutputArgs()
         auto ops = op.split(QLatin1Char('.'));
         if (ops.count() > 2) {
             bool ok;
-            int output_id = -1;
             if (ops[0] == QLatin1String("output")) {
-                for (const auto &output : m_config->outputs()) {
-                    if (output->name() == ops[1]) {
-                        output_id = output->id();
-                    }
+                OutputPtr output = findOutput(ops[1]);
+                if (!output) {
+                    qApp->exit(3);
+                    return;
                 }
-                if (output_id == -1) {
-                    output_id = ops[1].toInt(&ok);
-                    if (!ok) {
-                        cerr << "Unable to parse output id: " << ops[1] << Qt::endl;
-                        qApp->exit(3);
-                        return;
-                    }
-                }
+                int output_id = output->id();
+
                 if (ops.count() == 3 && ops[2] == QLatin1String("primary")) {
                     if (!setPrimary(output_id)) {
                         qApp->exit(1);
