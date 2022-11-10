@@ -176,7 +176,6 @@ void KScreen::WaylandOutputDevice::updateKScreenModes(OutputPtr &output)
 void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output)
 {
     // Initialize primary output
-    output->setId(m_id);
     output->setEnabled(enabled());
     output->setConnected(true);
     output->setPrimary(m_isPrimary);
