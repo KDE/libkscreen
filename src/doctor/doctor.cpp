@@ -210,22 +210,24 @@ void Doctor::parseOutputArgs()
                 }
                 int output_id = output->id();
 
-                if (ops.count() == 3 && ops[2] == QLatin1String("primary")) {
+                const QString subcmd = ops.length() > 2 ? ops[2] : QString();
+
+                if (ops.count() == 3 && subcmd == QLatin1String("primary")) {
                     if (!setPrimary(output_id)) {
                         qApp->exit(1);
                         return;
                     };
-                } else if (ops.count() == 3 && ops[2] == QLatin1String("enable")) {
+                } else if (ops.count() == 3 && subcmd == QLatin1String("enable")) {
                     if (!setEnabled(output_id, true)) {
                         qApp->exit(1);
                         return;
                     };
-                } else if (ops.count() == 3 && ops[2] == QLatin1String("disable")) {
+                } else if (ops.count() == 3 && subcmd == QLatin1String("disable")) {
                     if (!setEnabled(output_id, false)) {
                         qApp->exit(1);
                         return;
                     };
-                } else if (ops.count() == 4 && ops[2] == QLatin1String("mode")) {
+                } else if (ops.count() == 4 && subcmd == QLatin1String("mode")) {
                     QString mode_id = ops[3];
                     // set mode
                     if (!setMode(output_id, mode_id)) {
@@ -234,7 +236,7 @@ void Doctor::parseOutputArgs()
                     }
                     qCDebug(KSCREEN_DOCTOR) << "Output" << output_id << "set mode" << mode_id;
 
-                } else if (ops.count() == 4 && ops[2] == QLatin1String("position")) {
+                } else if (ops.count() == 4 && subcmd == QLatin1String("position")) {
                     QStringList _pos = ops[3].split(QLatin1Char(','));
                     if (_pos.count() != 2) {
                         qCWarning(KSCREEN_DOCTOR) << "Invalid position:" << ops[3];
@@ -255,7 +257,7 @@ void Doctor::parseOutputArgs()
                         qApp->exit(1);
                         return;
                     }
-                } else if ((ops.count() == 4 || ops.count() == 5) && ops[2] == QLatin1String("scale")) {
+                } else if ((ops.count() == 4 || ops.count() == 5) && subcmd == QLatin1String("scale")) {
                     // be lenient about . vs. comma as separator
                     qreal scale = ops[3].replace(QLatin1Char(','), QLatin1Char('.')).toDouble(&ok);
                     if (ops.count() == 5) {
@@ -268,7 +270,7 @@ void Doctor::parseOutputArgs()
                         qApp->exit(9);
                         return;
                     }
-                } else if ((ops.count() == 4) && (ops[2] == QLatin1String("orientation") || ops[2] == QStringLiteral("rotation"))) {
+                } else if ((ops.count() == 4) && (subcmd == QLatin1String("orientation") || subcmd == QStringLiteral("rotation"))) {
                     const QString _rotation = ops[3].toLower();
                     bool ok = false;
                     const QHash<QString, KScreen::Output::Rotation> rotationMap({{QStringLiteral("none"), KScreen::Output::None},
@@ -287,7 +289,7 @@ void Doctor::parseOutputArgs()
                         qApp->exit(9);
                         return;
                     }
-                } else if (ops.count() == 4 && ops[2] == QLatin1String("overscan")) {
+                } else if (ops.count() == 4 && subcmd == QLatin1String("overscan")) {
                     const uint32_t overscan = ops[3].toInt();
                     if (overscan > 100) {
                         qCWarning(KSCREEN_DOCTOR) << "Wrong input: allowed values for overscan are from 0 to 100";
@@ -299,7 +301,7 @@ void Doctor::parseOutputArgs()
                         qApp->exit(9);
                         return;
                     }
-                } else if (ops.count() == 4 && ops[2] == QLatin1String("vrrpolicy")) {
+                } else if (ops.count() == 4 && subcmd == QLatin1String("vrrpolicy")) {
                     const QString _policy = ops[3].toLower();
                     KScreen::Output::VrrPolicy policy;
                     if (_policy == QStringLiteral("never")) {
@@ -318,7 +320,7 @@ void Doctor::parseOutputArgs()
                         qApp->exit(9);
                         return;
                     }
-                } else if (ops.count() == 4 && ops[2] == QLatin1String("rgbrange")) {
+                } else if (ops.count() == 4 && subcmd == QLatin1String("rgbrange")) {
                     const QString _range = ops[3].toLower();
                     KScreen::Output::RgbRange range;
                     if (_range == QStringLiteral("automatic")) {
