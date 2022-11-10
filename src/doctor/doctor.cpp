@@ -351,6 +351,11 @@ void Doctor::configReceived(KScreen::ConfigOperation *op)
 {
     m_config = op->config();
 
+    if (!m_config) {
+        qCWarning(KSCREEN_DOCTOR) << "Invalid config.";
+        return;
+    }
+
     if (m_parser->isSet(QStringLiteral("json"))) {
         showJson();
         qApp->quit();
@@ -370,11 +375,6 @@ void Doctor::configReceived(KScreen::ConfigOperation *op)
 
 void Doctor::showOutputs() const
 {
-    if (!m_config) {
-        qCWarning(KSCREEN_DOCTOR) << "Invalid config.";
-        return;
-    }
-
     QHash<KScreen::Output::Type, QString> typeString;
     typeString[KScreen::Output::Unknown] = QStringLiteral("Unknown");
     typeString[KScreen::Output::VGA] = QStringLiteral("VGA");
@@ -470,11 +470,6 @@ void Doctor::showJson() const
 
 bool Doctor::setEnabled(int id, bool enabled = true)
 {
-    if (!m_config) {
-        qCWarning(KSCREEN_DOCTOR) << "Invalid config.";
-        return false;
-    }
-
     for (const auto &output : m_config->outputs()) {
         if (output->id() == id) {
             cout << (enabled ? "Enabling " : "Disabling ") << "output " << id << Qt::endl;
@@ -490,11 +485,6 @@ bool Doctor::setEnabled(int id, bool enabled = true)
 
 bool Doctor::setPosition(int id, const QPoint &pos)
 {
-    if (!m_config) {
-        qCWarning(KSCREEN_DOCTOR) << "Invalid config.";
-        return false;
-    }
-
     for (const auto &output : m_config->outputs()) {
         if (output->id() == id) {
             qCDebug(KSCREEN_DOCTOR) << "Set output position" << pos;
@@ -509,11 +499,6 @@ bool Doctor::setPosition(int id, const QPoint &pos)
 
 bool Doctor::setMode(int id, const QString &mode_id)
 {
-    if (!m_config) {
-        qCWarning(KSCREEN_DOCTOR) << "Invalid config.";
-        return false;
-    }
-
     for (const auto &output : m_config->outputs()) {
         if (output->id() == id) {
             // find mode
@@ -536,11 +521,6 @@ bool Doctor::setMode(int id, const QString &mode_id)
 
 bool Doctor::setScale(int id, qreal scale)
 {
-    if (!m_config) {
-        qCWarning(KSCREEN_DOCTOR) << "Invalid config.";
-        return false;
-    }
-
     for (const auto &output : m_config->outputs()) {
         if (output->id() == id) {
             output->setScale(scale);
@@ -554,11 +534,6 @@ bool Doctor::setScale(int id, qreal scale)
 
 bool Doctor::setRotation(int id, KScreen::Output::Rotation rot)
 {
-    if (!m_config) {
-        qCWarning(KSCREEN_DOCTOR) << "Invalid config.";
-        return false;
-    }
-
     for (const auto &output : m_config->outputs()) {
         if (output->id() == id) {
             output->setRotation(rot);
@@ -572,11 +547,6 @@ bool Doctor::setRotation(int id, KScreen::Output::Rotation rot)
 
 bool Doctor::setOverscan(int id, uint32_t overscan)
 {
-    if (!m_config) {
-        qCWarning(KSCREEN_DOCTOR) << "Invalid config.";
-        return false;
-    }
-
     for (const auto &output : m_config->outputs()) {
         if (output->id() == id) {
             output->setOverscan(overscan);
@@ -590,11 +560,6 @@ bool Doctor::setOverscan(int id, uint32_t overscan)
 
 bool Doctor::setVrrPolicy(int id, KScreen::Output::VrrPolicy policy)
 {
-    if (!m_config) {
-        qCWarning(KSCREEN_DOCTOR) << "Invalid config.";
-        return false;
-    }
-
     for (const auto &output : m_config->outputs()) {
         if (output->id() == id) {
             output->setVrrPolicy(policy);
@@ -608,11 +573,6 @@ bool Doctor::setVrrPolicy(int id, KScreen::Output::VrrPolicy policy)
 
 bool Doctor::setRgbRange(int id, KScreen::Output::RgbRange rgbRange)
 {
-    if (!m_config) {
-        qCWarning(KSCREEN_DOCTOR) << "Invalid config.";
-        return false;
-    }
-
     for (const auto &output : m_config->outputs()) {
         if (output->id() == id) {
             output->setRgbRange(rgbRange);
@@ -626,11 +586,6 @@ bool Doctor::setRgbRange(int id, KScreen::Output::RgbRange rgbRange)
 
 bool KScreen::Doctor::setPrimary(int id)
 {
-    if (!m_config) {
-        qCWarning(KSCREEN_DOCTOR) << "Invalid config.";
-        return false;
-    }
-
     bool found = false;
     for (const auto &output : m_config->outputs()) {
         if (output->id() == id) {
