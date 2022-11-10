@@ -40,21 +40,21 @@ public:
         , name(other.name)
         , type(other.type)
         , icon(other.icon)
-        , clones(other.clones)
-        , replicationSource(other.replicationSource)
-        , currentMode(other.currentMode)
-        , preferredMode(other.preferredMode)
-        , preferredModes(other.preferredModes)
-        , sizeMm(other.sizeMm)
         , pos(other.pos)
         , size(other.size)
         , rotation(other.rotation)
-        , scale(other.scale)
-        , explicitLogicalSize(other.explicitLogicalSize)
+        , currentMode(other.currentMode)
+        , preferredMode(other.preferredMode)
+        , preferredModes(other.preferredModes)
         , connected(other.connected)
         , enabled(other.enabled)
         , primary(other.primary)
+        , clones(other.clones)
+        , replicationSource(other.replicationSource)
+        , sizeMm(other.sizeMm)
+        , scale(other.scale)
         , followPreferredMode(other.followPreferredMode)
+        , explicitLogicalSize(other.explicitLogicalSize)
         , capabilities(other.capabilities)
         , overscan(other.overscan)
         , vrrPolicy(other.vrrPolicy)
@@ -72,32 +72,34 @@ public:
     QString biggestMode(const ModeList &modes) const;
     bool compareModeList(const ModeList &before, const ModeList &after);
 
+    // please keep them consistent with order of Q_PROPERTY declarations
     int id;
     QString name;
     Type type;
     QString icon;
     ModeList modeList;
-    QList<int> clones;
-    int replicationSource;
-    QString currentMode;
-    QString preferredMode;
-    QStringList preferredModes;
-    QSize sizeMm;
     QPoint pos;
     QSize size;
     Rotation rotation;
-    qreal scale;
-    QSizeF explicitLogicalSize;
+    // next three don't exactly match properties by name, but keep them close to each other anyway
+    QString currentMode;
+    QString preferredMode;
+    QStringList preferredModes;
+    //
     bool connected;
     bool enabled;
     bool primary;
+    QList<int> clones;
+    int replicationSource;
+    QScopedPointer<Edid> edid;
+    QSize sizeMm;
+    qreal scale;
     bool followPreferredMode = false;
+    QSizeF explicitLogicalSize;
     Capabilities capabilities;
     uint32_t overscan = 0;
     VrrPolicy vrrPolicy = VrrPolicy::Automatic;
     RgbRange rgbRange = RgbRange::Automatic;
-
-    QScopedPointer<Edid> edid;
 };
 
 bool Output::Private::compareModeList(const ModeList &before, const ModeList &after)
