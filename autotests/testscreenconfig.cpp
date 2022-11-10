@@ -193,8 +193,6 @@ void testScreenConfig::configCanBeApplied()
     QVERIFY(!currentPrimary.isNull());
 
     QVERIFY(!Config::canBeApplied(brokenConfig));
-    primaryBroken->setId(currentPrimary->id());
-    QVERIFY(!Config::canBeApplied(brokenConfig));
     primaryBroken->setConnected(currentPrimary->isConnected());
     QVERIFY(!Config::canBeApplied(brokenConfig));
     primaryBroken->setCurrentModeId(QStringLiteral("42"));
