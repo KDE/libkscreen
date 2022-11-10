@@ -222,7 +222,7 @@ ConfigPtr ConfigSerializer::deserializeConfig(const QVariantMap &map)
 
 OutputPtr ConfigSerializer::deserializeOutput(const QDBusArgument &arg)
 {
-    OutputPtr output(new Output);
+    Output::Builder builder;
 
     arg.beginMap();
     while (!arg.atEnd()) {
@@ -231,42 +231,41 @@ OutputPtr ConfigSerializer::deserializeOutput(const QDBusArgument &arg)
         arg.beginMapEntry();
         arg >> key >> value;
         if (key == QLatin1String("id")) {
-            output->setId(value.toInt());
+            builder.id = value.toInt();
         } else if (key == QLatin1String("name")) {
-            output->setName(value.toString());
+            builder.name = value.toString();
         } else if (key == QLatin1String("type")) {
-            output->setType(static_cast<Output::Type>(value.toInt()));
+            builder.type = static_cast<Output::Type>(value.toInt());
         } else if (key == QLatin1String("icon")) {
-            output->setIcon(value.toString());
+            builder.icon = value.toString();
         } else if (key == QLatin1String("pos")) {
-            output->setPos(deserializePoint(value.value<QDBusArgument>()));
+            builder.pos = deserializePoint(value.value<QDBusArgument>());
         } else if (key == QLatin1String("scale")) {
-            output->setScale(value.toDouble());
+            builder.scale = value.toDouble();
         } else if (key == QLatin1String("size")) {
-            output->setSize(deserializeSize(value.value<QDBusArgument>()));
+            builder.size = deserializeSize(value.value<QDBusArgument>());
         } else if (key == QLatin1String("rotation")) {
-            output->setRotation(static_cast<Output::Rotation>(value.toInt()));
+            builder.rotation = static_cast<Output::Rotation>(value.toInt());
         } else if (key == QLatin1String("currentModeId")) {
-            output->setCurrentModeId(value.toString());
+            builder.currentModeId = value.toString();
         } else if (key == QLatin1String("preferredModes")) {
-            output->setPreferredModes(deserializeList<QString>(value.value<QDBusArgument>()));
+            builder.preferredModes = deserializeList<QString>(value.value<QDBusArgument>());
         } else if (key == QLatin1String("connected")) {
-            output->setConnected(value.toBool());
+            builder.connected = value.toBool();
         } else if (key == QLatin1String("followPreferredMode")) {
-            output->setFollowPreferredMode(value.toBool());
+            builder.followPreferredMode = value.toBool();
         } else if (key == QLatin1String("enabled")) {
-            output->setEnabled(value.toBool());
+            builder.enabled = value.toBool();
         } else if (key == QLatin1String("primary")) {
-            output->setPrimary(value.toBool());
+            builder.primary = value.toBool();
         } else if (key == QLatin1String("clones")) {
-            output->setClones(deserializeList<int>(value.value<QDBusArgument>()));
+            builder.clones = deserializeList<int>(value.value<QDBusArgument>());
         } else if (key == QLatin1String("replicationSource")) {
-            output->setReplicationSource(value.toInt());
+            builder.replicationSource = value.toInt();
         } else if (key == QLatin1String("sizeMM")) {
-            output->setSizeMm(deserializeSize(value.value<QDBusArgument>()));
+            builder.sizeMm = deserializeSize(value.value<QDBusArgument>());
         } else if (key == QLatin1String("modes")) {
             const QDBusArgument arg = value.value<QDBusArgument>();
-            ModeList modes;
             arg.beginArray();
             while (!arg.atEnd()) {
                 QVariant value;
@@ -275,16 +274,15 @@ OutputPtr ConfigSerializer::deserializeOutput(const QDBusArgument &arg)
                 if (!mode) {
                     return OutputPtr();
                 }
-                modes.insert(mode->id(), mode);
+                builder.modes.insert(mode->id(), mode);
             }
             arg.endArray();
-            output->setModes(modes);
         } else if (key == QLatin1String("overscan")) {
-            output->setOverscan(value.toUInt());
+            builder.overscan = value.toUInt();
         } else if (key == QLatin1String("vrrPolicy")) {
-            output->setVrrPolicy(static_cast<Output::VrrPolicy>(value.toInt()));
+            builder.vrrPolicy = static_cast<Output::VrrPolicy>(value.toInt());
         } else if (key == QLatin1String("rgbRange")) {
-            output->setRgbRange(static_cast<Output::RgbRange>(value.toInt()));
+            builder.rgbRange = static_cast<Output::RgbRange>(value.toInt());
         } else {
             qCWarning(KSCREEN) << "Invalid key in Output map: " << key;
             return OutputPtr();
@@ -292,7 +290,7 @@ OutputPtr ConfigSerializer::deserializeOutput(const QDBusArgument &arg)
         arg.endMapEntry();
     }
     arg.endMap();
-    return output;
+    return OutputPtr(new Output(std::move(builder)));
 }
 
 ModePtr ConfigSerializer::deserializeMode(const QDBusArgument &arg)

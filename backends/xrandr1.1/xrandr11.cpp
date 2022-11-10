@@ -14,6 +14,7 @@
 #include "output.h"
 #include "screen.h"
 
+#include <utility>
 #include <xcb/randr.h>
 #include <xcb/xcb.h>
 
@@ -104,23 +105,17 @@ KScreen::ConfigPtr XRandR11::config() const
 
     config->setScreen(screen);
 
-    KScreen::OutputList outputs;
-    KScreen::OutputPtr output(new KScreen::Output);
-    output->setId(1);
-
-    output->setConnected(true);
-    output->setEnabled(true);
-    output->setName(QStringLiteral("Default"));
-    output->setPos(QPoint(0, 0));
-    output->setPrimary(true);
-    output->setRotation((KScreen::Output::Rotation)info->rotation);
-    output->setSizeMm(QSize(xcbScreen->width_in_millimeters, xcbScreen->height_in_millimeters));
-
-    outputs.insert(1, output);
-    config->setOutputs(outputs);
-
-    KScreen::ModePtr mode;
-    KScreen::ModeList modes;
+    KScreen::Output::Builder builder;
+    {
+        builder.id = 1;
+        builder.connected = true;
+        builder.enabled = true;
+        builder.name = QStringLiteral("Default");
+        builder.pos = QPoint(0, 0);
+        builder.primary = true;
+        builder.rotation = (KScreen::Output::Rotation)info->rotation;
+        builder.sizeMm = QSize(xcbScreen->width_in_millimeters, xcbScreen->height_in_millimeters);
+    }
 
     auto iter = xcb_randr_get_screen_info_rates_iterator(info);
     xcb_randr_screen_size_t *sizes = xcb_randr_get_screen_info_sizes(info);
@@ -131,23 +126,28 @@ KScreen::ConfigPtr XRandR11::config() const
 
         for (int j = 0; j < nrates; j++) {
             float rate = rates[j];
-            mode = KScreen::ModePtr(new KScreen::Mode);
+            KScreen::ModePtr mode = KScreen::ModePtr(new KScreen::Mode);
             mode->setId(QStringLiteral("%1-%2").arg(x).arg(j));
             mode->setSize(QSize(size.width, size.height));
             mode->setRefreshRate(rate);
             mode->setName(QStringLiteral("%1x%2").arg(size.width).arg(size.height));
 
             if (x == info->sizeID && rate == info->rate) {
-                output->setCurrentModeId(mode->id());
-                output->setSize(mode->size());
+                builder.currentModeId = mode->id();
+                builder.size = mode->size();
             }
-            modes.insert(mode->id(), mode);
+            builder.modes.insert(mode->id(), mode);
         }
 
         xcb_randr_refresh_rates_next(&iter);
     }
 
-    output->setModes(modes);
+    KScreen::OutputPtr output(new KScreen::Output(std::move(builder)));
+
+    KScreen::OutputList outputs;
+    outputs.insert(output->id(), output);
+    config->setOutputs(outputs);
+
     return config;
 }
 

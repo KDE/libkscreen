@@ -19,6 +19,7 @@
 #include <QLoggingCategory>
 #include <QMetaObject>
 #include <QMetaProperty>
+#include <utility>
 
 using namespace KScreen;
 
@@ -101,15 +102,16 @@ void Parser::qvariant2qobject(const QVariantMap &variant, QObject *object)
 
 OutputPtr Parser::outputFromJson(QMap<QString, QVariant> map)
 {
-    OutputPtr output(new Output);
-    output->setId(map[QStringLiteral("id")].toInt());
+    Output::Builder builder;
+
+    builder.id = map[QStringLiteral("id")].toInt();
 
     QStringList preferredModes;
     const QVariantList prefModes = map[QStringLiteral("preferredModes")].toList();
     for (const QVariant &mode : prefModes) {
         preferredModes.append(mode.toString());
     }
-    output->setPreferredModes(preferredModes);
+    builder.preferredModes = preferredModes;
     map.remove(QStringLiteral("preferredModes"));
 
     ModeList modelist;
@@ -118,7 +120,7 @@ OutputPtr Parser::outputFromJson(QMap<QString, QVariant> map)
         const ModePtr mode = Parser::modeFromJson(modeValue);
         modelist.insert(mode->id(), mode);
     }
-    output->setModes(modelist);
+    builder.modes = modelist;
     map.remove(QStringLiteral("modes"));
 
     if (map.contains(QStringLiteral("clones"))) {
@@ -127,55 +129,55 @@ OutputPtr Parser::outputFromJson(QMap<QString, QVariant> map)
             clones.append(id.toInt());
         }
 
-        output->setClones(clones);
+        builder.clones = clones;
         map.remove(QStringLiteral("clones"));
     }
 
     const QByteArray type = map[QStringLiteral("type")].toByteArray().toUpper();
     if (type.contains("LVDS") || type.contains("EDP") || type.contains("IDP") || type.contains("7")) {
-        output->setType(Output::Panel);
+        builder.type = Output::Panel;
     } else if (type.contains("VGA")) {
-        output->setType(Output::VGA);
+        builder.type = Output::VGA;
     } else if (type.contains("DVI")) {
-        output->setType(Output::DVI);
+        builder.type = Output::DVI;
     } else if (type.contains("DVI-I")) {
-        output->setType(Output::DVII);
+        builder.type = Output::DVII;
     } else if (type.contains("DVI-A")) {
-        output->setType(Output::DVIA);
+        builder.type = Output::DVIA;
     } else if (type.contains("DVI-D")) {
-        output->setType(Output::DVID);
+        builder.type = Output::DVID;
     } else if (type.contains("HDMI") || type.contains("6")) {
-        output->setType(Output::HDMI);
+        builder.type = Output::HDMI;
     } else if (type.contains("Panel")) {
-        output->setType(Output::Panel);
+        builder.type = Output::Panel;
     } else if (type.contains("TV")) {
-        output->setType(Output::TV);
+        builder.type = Output::TV;
     } else if (type.contains("TV-Composite")) {
-        output->setType(Output::TVComposite);
+        builder.type = Output::TVComposite;
     } else if (type.contains("TV-SVideo")) {
-        output->setType(Output::TVSVideo);
+        builder.type = Output::TVSVideo;
     } else if (type.contains("TV-Component")) {
-        output->setType(Output::TVComponent);
+        builder.type = Output::TVComponent;
     } else if (type.contains("TV-SCART")) {
-        output->setType(Output::TVSCART);
+        builder.type = Output::TVSCART;
     } else if (type.contains("TV-C4")) {
-        output->setType(Output::TVC4);
+        builder.type = Output::TVC4;
     } else if (type.contains("DisplayPort") || type.contains("14")) {
-        output->setType(Output::DisplayPort);
+        builder.type = Output::DisplayPort;
     } else if (type.contains("Unknown")) {
-        output->setType(Output::Unknown);
+        builder.type = Output::Unknown;
     } else {
         qCWarning(KSCREEN_FAKE) << "Output Type not translated:" << type;
     }
     map.remove(QStringLiteral("type"));
 
     if (map.contains(QStringLiteral("pos"))) {
-        output->setPos(Parser::pointFromJson(map[QStringLiteral("pos")].toMap()));
+        builder.pos = Parser::pointFromJson(map[QStringLiteral("pos")].toMap());
         map.remove(QStringLiteral("pos"));
     }
 
     if (map.contains(QStringLiteral("size"))) {
-        output->setSize(Parser::sizeFromJson(map[QStringLiteral("size")].toMap()));
+        builder.size = Parser::sizeFromJson(map[QStringLiteral("size")].toMap());
         map.remove(QStringLiteral("size"));
     }
 
@@ -189,13 +191,19 @@ OutputPtr Parser::outputFromJson(QMap<QString, QVariant> map)
     auto scale = QStringLiteral("scale");
     if (map.contains(scale)) {
         qDebug() << "Scale found:" << map[scale].toReal();
-        output->setScale(map[scale].toReal());
+        builder.scale = map[scale].toReal();
         map.remove(scale);
+    }
+
+    if (map.contains(QStringLiteral("primary"))) {
+        builder.primary = map[QStringLiteral("primary")].toBool();
+        map.remove(QStringLiteral("primary"));
     }
 
     // Remove some extra properties that we do not want or need special treatment
     map.remove(QStringLiteral("edid"));
 
+    OutputPtr output(new Output(std::move(builder)));
     Parser::qvariant2qobject(map, output.data());
     return output;
 }
