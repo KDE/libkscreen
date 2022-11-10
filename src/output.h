@@ -103,7 +103,37 @@ public:
     };
     Q_ENUM(RgbRange)
 
+    /**
+     * Convenience struct that also allows settings some properties at creation
+     * time which are otherwise not possible to directly change later, such as
+     * priority.
+     */
+    struct Builder {
+        int id = 0;
+        QString name;
+        Type type = Type::Unknown;
+        QString icon;
+        ModeList modes;
+        QPoint pos;
+        QSize size;
+        Rotation rotation = Rotation::None;
+        QString currentModeId;
+        QStringList preferredModes;
+        bool connected = false;
+        bool enabled = false;
+        bool primary = false;
+        QList<int> clones;
+        int replicationSource = 0;
+        QSize sizeMm;
+        qreal scale = 1.0;
+        bool followPreferredMode = false;
+        uint32_t overscan = 0;
+        VrrPolicy vrrPolicy = VrrPolicy::Automatic;
+        RgbRange rgbRange = RgbRange::Automatic;
+    };
+
     explicit Output();
+    explicit Output(Builder &&builder);
     ~Output() override;
 
     OutputPtr clone() const;
