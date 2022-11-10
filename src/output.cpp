@@ -21,17 +21,30 @@ using namespace KScreen;
 class Q_DECL_HIDDEN Output::Private
 {
 public:
-    Private()
-        : id(0)
-        , type(Unknown)
-        , replicationSource(0)
-        , rotation(None)
-        , scale(1.0)
-        , explicitLogicalSize(QSizeF())
-        , connected(false)
-        , enabled(false)
-        , primary(false)
+    Private(Builder &&builder)
+        : id(builder.id)
+        , name(builder.name)
+        , type(builder.type)
+        , icon(builder.icon)
+        , modeList(builder.modes)
+        , pos(builder.pos)
+        , size(builder.size)
+        , rotation(builder.rotation)
+        , currentMode(builder.currentModeId)
+        , preferredModes(builder.preferredModes)
+        , connected(builder.connected)
+        , enabled(builder.enabled)
+        , primary(builder.primary)
+        , clones(builder.clones)
+        , replicationSource(builder.replicationSource)
         , edid(nullptr)
+        , sizeMm(builder.sizeMm)
+        , scale(builder.scale)
+        , followPreferredMode(builder.followPreferredMode)
+        , explicitLogicalSize(QSizeF())
+        , overscan(builder.overscan)
+        , vrrPolicy(builder.vrrPolicy)
+        , rgbRange(builder.rgbRange)
     {
     }
 
@@ -162,9 +175,15 @@ QString Output::Private::biggestMode(const ModeList &modes) const
 
 Output::Output()
     : QObject(nullptr)
-    , d(new Private())
+    , d(new Private(Builder()))
 {
 }
+
+Output::Output(Builder &&builder)
+    : QObject(nullptr)
+    , d(new Private(std::move(builder)))
+{
+};
 
 Output::Output(Output::Private *dd)
     : QObject()
