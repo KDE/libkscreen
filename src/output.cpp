@@ -206,15 +206,6 @@ int Output::id() const
     return d->id;
 }
 
-void Output::setId(int id)
-{
-    if (d->id == id) {
-        return;
-    }
-    d->id = id;
-    Q_EMIT outputChanged();
-}
-
 QString Output::name() const
 {
     return d->name;
