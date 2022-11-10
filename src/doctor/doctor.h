@@ -30,20 +30,21 @@ public:
     void start(QCommandLineParser *m_parser);
     void configReceived(KScreen::ConfigOperation *op);
     OutputPtr findOutput(const QString &query);
+    KScreen::ModePtr findMode(OutputPtr output, const QString &query);
 
     void showBackends() const;
     void showOutputs() const;
     void showJson() const;
 
-    bool setEnabled(int id, bool enabled);
-    bool setPosition(int id, const QPoint &pos);
-    bool setMode(int id, const QString &mode_id);
-    bool setScale(int id, qreal scale);
-    bool setRotation(int id, KScreen::Output::Rotation rot);
-    bool setOverscan(int id, uint32_t overscan);
-    bool setVrrPolicy(int id, KScreen::Output::VrrPolicy policy);
-    bool setRgbRange(int id, KScreen::Output::RgbRange rgbRange);
-    bool setPrimary(int id);
+    void setEnabled(OutputPtr output, bool enable = true);
+    void setPosition(OutputPtr output, const QPoint &pos);
+    bool setMode(OutputPtr output, const QString &query);
+    void setScale(OutputPtr output, qreal scale);
+    void setRotation(OutputPtr output, KScreen::Output::Rotation rot);
+    void setOverscan(OutputPtr output, uint32_t overscan);
+    void setVrrPolicy(OutputPtr output, KScreen::Output::VrrPolicy policy);
+    void setRgbRange(OutputPtr output, KScreen::Output::RgbRange rgbRange);
+    void setPrimary(OutputPtr output);
 
 Q_SIGNALS:
     void outputsChanged();

@@ -213,24 +213,15 @@ void Doctor::parseOutputArgs()
                 const QString subcmd = ops.length() > 2 ? ops[2] : QString();
 
                 if (ops.count() == 3 && subcmd == QLatin1String("primary")) {
-                    if (!setPrimary(output_id)) {
-                        qApp->exit(1);
-                        return;
-                    };
+                    setPrimary(output);
                 } else if (ops.count() == 3 && subcmd == QLatin1String("enable")) {
-                    if (!setEnabled(output_id, true)) {
-                        qApp->exit(1);
-                        return;
-                    };
+                    setEnabled(output, true);
                 } else if (ops.count() == 3 && subcmd == QLatin1String("disable")) {
-                    if (!setEnabled(output_id, false)) {
-                        qApp->exit(1);
-                        return;
-                    };
+                    setEnabled(output, false);
                 } else if (ops.count() == 4 && subcmd == QLatin1String("mode")) {
                     QString mode_id = ops[3];
                     // set mode
-                    if (!setMode(output_id, mode_id)) {
+                    if (!setMode(output, mode_id)) {
                         qApp->exit(9);
                         return;
                     }
@@ -253,10 +244,8 @@ void Doctor::parseOutputArgs()
 
                     QPoint p(x, y);
                     qCDebug(KSCREEN_DOCTOR) << "Output position" << p;
-                    if (!setPosition(output_id, p)) {
-                        qApp->exit(1);
-                        return;
-                    }
+                    setPosition(output, p);
+
                 } else if ((ops.count() == 4 || ops.count() == 5) && subcmd == QLatin1String("scale")) {
                     // be lenient about . vs. comma as separator
                     qreal scale = ops[3].replace(QLatin1Char(','), QLatin1Char('.')).toDouble(&ok);
@@ -265,11 +254,12 @@ void Doctor::parseOutputArgs()
                         scale = dbl.toDouble(&ok);
                     };
                     // set scale
-                    if (!ok || qFuzzyCompare(scale, 0.0) || !setScale(output_id, scale)) {
+                    if (!ok || qFuzzyCompare(scale, 0.0)) {
                         qCDebug(KSCREEN_DOCTOR) << "Could not set scale " << scale << " to output " << output_id;
                         qApp->exit(9);
                         return;
                     }
+                    setScale(output, scale);
                 } else if ((ops.count() == 4) && (subcmd == QLatin1String("orientation") || subcmd == QStringLiteral("rotation"))) {
                     const QString _rotation = ops[3].toLower();
                     bool ok = false;
@@ -284,11 +274,12 @@ void Doctor::parseOutputArgs()
                         ok = true;
                         rot = rotationMap[_rotation];
                     }
-                    if (!ok || !setRotation(output_id, rot)) {
+                    if (!ok) {
                         qCDebug(KSCREEN_DOCTOR) << "Could not set orientation " << _rotation << " to output " << output_id;
                         qApp->exit(9);
                         return;
                     }
+                    setRotation(output, rot);
                 } else if (ops.count() == 4 && subcmd == QLatin1String("overscan")) {
                     const uint32_t overscan = ops[3].toInt();
                     if (overscan > 100) {
@@ -296,11 +287,7 @@ void Doctor::parseOutputArgs()
                         qApp->exit(9);
                         return;
                     }
-                    if (!setOverscan(output_id, overscan)) {
-                        qCDebug(KSCREEN_DOCTOR) << "Could not set overscan " << overscan << " to output " << output_id;
-                        qApp->exit(9);
-                        return;
-                    }
+                    setOverscan(output, overscan);
                 } else if (ops.count() == 4 && subcmd == QLatin1String("vrrpolicy")) {
                     const QString _policy = ops[3].toLower();
                     KScreen::Output::VrrPolicy policy;
@@ -315,11 +302,7 @@ void Doctor::parseOutputArgs()
                         qApp->exit(9);
                         return;
                     }
-                    if (!setVrrPolicy(output_id, policy)) {
-                        qCDebug(KSCREEN_DOCTOR) << "Could not set vrr policy " << policy << " to output " << output_id;
-                        qApp->exit(9);
-                        return;
-                    }
+                    setVrrPolicy(output, policy);
                 } else if (ops.count() == 4 && subcmd == QLatin1String("rgbrange")) {
                     const QString _range = ops[3].toLower();
                     KScreen::Output::RgbRange range;
@@ -334,11 +317,7 @@ void Doctor::parseOutputArgs()
                         qApp->exit(9);
                         return;
                     }
-                    if (!setRgbRange(output_id, range)) {
-                        qCDebug(KSCREEN_DOCTOR) << "Could not set rgb range " << range << " to output " << output_id;
-                        qApp->exit(9);
-                        return;
-                    }
+                    setRgbRange(output, range);
                 } else {
                     cerr << "Unable to parse arguments: " << op << Qt::endl;
                     qApp->exit(2);
@@ -470,132 +449,80 @@ void Doctor::showJson() const
     cout << doc.toJson(QJsonDocument::Indented);
 }
 
-bool Doctor::setEnabled(int id, bool enabled = true)
+void Doctor::setEnabled(OutputPtr output, bool enable)
 {
-    for (const auto &output : m_config->outputs()) {
-        if (output->id() == id) {
-            cout << (enabled ? "Enabling " : "Disabling ") << "output " << id << Qt::endl;
-            output->setEnabled(enabled);
-            m_changed = true;
-            return true;
-        }
-    }
-    cerr << "Output with id " << id << " not found." << Qt::endl;
-    qApp->exit(8);
-    return false;
+    cout << (enable ? "Enabling " : "Disabling ") << "output " << output->id() << Qt::endl;
+    output->setEnabled(enable);
+    m_changed = true;
 }
 
-bool Doctor::setPosition(int id, const QPoint &pos)
+void Doctor::setPosition(OutputPtr output, const QPoint &pos)
 {
-    for (const auto &output : m_config->outputs()) {
-        if (output->id() == id) {
-            qCDebug(KSCREEN_DOCTOR) << "Set output position" << pos;
-            output->setPos(pos);
-            m_changed = true;
-            return true;
-        }
-    }
-    cout << "Output with id " << id << " not found." << Qt::endl;
-    return false;
+    qCDebug(KSCREEN_DOCTOR) << "Set output position" << pos;
+    output->setPos(pos);
+    m_changed = true;
 }
 
-bool Doctor::setMode(int id, const QString &mode_id)
+KScreen::ModePtr Doctor::findMode(OutputPtr output, const QString &query)
 {
-    for (const auto &output : m_config->outputs()) {
-        if (output->id() == id) {
-            // find mode
-            for (const KScreen::ModePtr &mode : output->modes()) {
-                auto name =
-                    QStringLiteral("%1x%2@%3")
+    for (const KScreen::ModePtr &mode : output->modes()) {
+        auto name = QStringLiteral("%1x%2@%3")
                         .arg(QString::number(mode->size().width()), QString::number(mode->size().height()), QString::number(qRound(mode->refreshRate())));
-                if (mode->id() == mode_id || name == mode_id) {
-                    qCDebug(KSCREEN_DOCTOR) << "Taddaaa! Found mode" << mode->id() << name;
-                    output->setCurrentModeId(mode->id());
-                    m_changed = true;
-                    return true;
-                }
-            }
+        if (mode->id() == query || name == query) {
+            qCDebug(KSCREEN_DOCTOR) << "Taddaaa! Found mode" << mode->id() << name;
+            return mode;
         }
     }
-    cout << "Output mode " << mode_id << " not found." << Qt::endl;
-    return false;
+    cout << "Output mode " << query << " not found." << Qt::endl;
+    return ModePtr();
 }
 
-bool Doctor::setScale(int id, qreal scale)
+bool Doctor::setMode(OutputPtr output, const QString &query)
 {
-    for (const auto &output : m_config->outputs()) {
-        if (output->id() == id) {
-            output->setScale(scale);
-            m_changed = true;
-            return true;
-        }
+    // find mode
+    const KScreen::ModePtr mode = findMode(output, query);
+    if (!mode) {
+        return false;
     }
-    cout << "Output scale " << id << " invalid." << Qt::endl;
-    return false;
+    output->setCurrentModeId(mode->id());
+    m_changed = true;
+    return true;
 }
 
-bool Doctor::setRotation(int id, KScreen::Output::Rotation rot)
+void Doctor::setScale(OutputPtr output, qreal scale)
 {
-    for (const auto &output : m_config->outputs()) {
-        if (output->id() == id) {
-            output->setRotation(rot);
-            m_changed = true;
-            return true;
-        }
-    }
-    cout << "Output rotation " << id << " invalid." << Qt::endl;
-    return false;
+    output->setScale(scale);
+    m_changed = true;
 }
 
-bool Doctor::setOverscan(int id, uint32_t overscan)
+void Doctor::setRotation(OutputPtr output, KScreen::Output::Rotation rot)
 {
-    for (const auto &output : m_config->outputs()) {
-        if (output->id() == id) {
-            output->setOverscan(overscan);
-            m_changed = true;
-            return true;
-        }
-    }
-    cout << "Output overscan " << id << " invalid." << Qt::endl;
-    return false;
+    output->setRotation(rot);
+    m_changed = true;
 }
 
-bool Doctor::setVrrPolicy(int id, KScreen::Output::VrrPolicy policy)
+void Doctor::setOverscan(OutputPtr output, uint32_t overscan)
 {
-    for (const auto &output : m_config->outputs()) {
-        if (output->id() == id) {
-            output->setVrrPolicy(policy);
-            m_changed = true;
-            return true;
-        }
-    }
-    cout << "Output VrrPolicy " << id << " invalid." << Qt::endl;
-    return false;
+    output->setOverscan(overscan);
+    m_changed = true;
 }
 
-bool Doctor::setRgbRange(int id, KScreen::Output::RgbRange rgbRange)
+void Doctor::setVrrPolicy(OutputPtr output, KScreen::Output::VrrPolicy policy)
 {
-    for (const auto &output : m_config->outputs()) {
-        if (output->id() == id) {
-            output->setRgbRange(rgbRange);
-            m_changed = true;
-            return true;
-        }
-    }
-    cout << "Output RgbRange " << id << " invalid." << Qt::endl;
-    return false;
+    output->setVrrPolicy(policy);
+    m_changed = true;
 }
 
-bool KScreen::Doctor::setPrimary(int id)
+void Doctor::setRgbRange(OutputPtr output, KScreen::Output::RgbRange rgbRange)
 {
-    for (const auto &output : m_config->outputs()) {
-        if (output->id() == id) {
-            m_config->setPrimaryOutput(output);
-            m_changed = true;
-            return true;
-        }
-    }
-    return false;
+    output->setRgbRange(rgbRange);
+    m_changed = true;
+}
+
+void KScreen::Doctor::setPrimary(OutputPtr output)
+{
+    m_config->setPrimaryOutput(output);
+    m_changed = true;
 }
 
 void Doctor::applyConfig()
