@@ -260,14 +260,18 @@ KScreen::ConfigPtr WaylandConfig::currentConfig()
     // Add KScreen::Outputs that aren't in the list yet
     KScreen::OutputList kscreenOutputs = m_kscreenConfig->outputs();
     for (const auto &output : m_outputMap) {
-        KScreen::OutputPtr &kscreenOutput = kscreenOutputs[output->id()];
-        if (!kscreenOutput) {
-            kscreenOutput = output->toKScreenOutput();
-        } else {
+        KScreen::OutputPtr kscreenOutput;
+        if (m_kscreenConfig->outputs().contains(output->id())) {
+            kscreenOutput = m_kscreenConfig->outputs()[output->id()];
             output->updateKScreenOutput(kscreenOutput);
+        } else {
+            kscreenOutput = output->toKScreenOutput();
+            m_kscreenConfig->addOutput(kscreenOutput);
+        }
+        if (output->isPrimary()) {
+            m_kscreenConfig->setPrimaryOutput(kscreenOutput);
         }
     }
-    m_kscreenConfig->setOutputs(kscreenOutputs);
 
     m_kscreenConfig->setTabletModeAvailable(m_tabletModeAvailable);
     m_kscreenConfig->setTabletModeEngaged(m_tabletModeEngaged);

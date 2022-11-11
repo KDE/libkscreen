@@ -178,7 +178,6 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output)
     // Initialize primary output
     output->setEnabled(enabled());
     output->setConnected(true);
-    output->setPrimary(m_isPrimary);
     output->setName(name());
     output->setSizeMm(m_physicalSize);
     output->setPos(m_pos);
