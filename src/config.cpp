@@ -44,17 +44,6 @@ public:
         return iter == outputs.constEnd() ? KScreen::OutputPtr() : iter.value();
     }
 
-    void onPrimaryOutputChanged()
-    {
-        const KScreen::OutputPtr output(qobject_cast<KScreen::Output *>(sender()), [](void *) {});
-        Q_ASSERT(output);
-        if (output->isPrimary()) {
-            q->setPrimaryOutput(output);
-        } else {
-            q->setPrimaryOutput(findPrimaryOutput());
-        }
-    }
-
     OutputList::Iterator removeOutput(OutputList::Iterator iter)
     {
         if (iter == outputs.end()) {
@@ -317,9 +306,7 @@ void Config::setPrimaryOutput(const OutputPtr &newPrimary)
     //                  << newPrimary << "(" << (newPrimary.isNull() ? "none" : newPrimary->name()) << ")";
 
     for (OutputPtr &output : d->outputs) {
-        disconnect(output.data(), &KScreen::Output::isPrimaryChanged, d, &KScreen::Config::Private::onPrimaryOutputChanged);
         output->setPrimary(output == newPrimary);
-        connect(output.data(), &KScreen::Output::isPrimaryChanged, d, &KScreen::Config::Private::onPrimaryOutputChanged);
     }
 
     d->primaryOutput = newPrimary;
@@ -330,7 +317,6 @@ void Config::addOutput(const OutputPtr &output)
 {
     d->outputs.insert(output->id(), output);
     output->setExplicitLogicalSize(logicalSizeForOutput(*output));
-    connect(output.data(), &KScreen::Output::isPrimaryChanged, d, &KScreen::Config::Private::onPrimaryOutputChanged);
 
     Q_EMIT outputAdded(output);
 
