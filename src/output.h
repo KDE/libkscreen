@@ -20,6 +20,7 @@
 
 namespace KScreen
 {
+class Config;
 class Edid;
 class Mode;
 
@@ -40,7 +41,7 @@ public:
     Q_PROPERTY(QString preferredModeId READ preferredModeId CONSTANT)
     Q_PROPERTY(bool connected READ isConnected WRITE setConnected NOTIFY isConnectedChanged)
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled NOTIFY isEnabledChanged)
-    Q_PROPERTY(bool primary READ isPrimary WRITE setPrimary NOTIFY isPrimaryChanged)
+    Q_PROPERTY(bool primary READ isPrimary NOTIFY isPrimaryChanged)
     Q_PROPERTY(QList<int> clones READ clones WRITE setClones NOTIFY clonesChanged)
     Q_PROPERTY(int replicationSource READ replicationSource WRITE setReplicationSource NOTIFY replicationSourceChanged)
     Q_PROPERTY(KScreen::Edid *edid READ edid CONSTANT)
@@ -243,7 +244,6 @@ public:
     void setEnabled(bool enabled);
 
     bool isPrimary() const;
-    void setPrimary(bool primary);
 
     /**
      * @brief Immutable clones because of hardware restrictions
@@ -462,6 +462,12 @@ private:
     Private *const d;
 
     explicit Output(Private *dd);
+
+    friend class Config;
+    /** Only for internal management by a config instance!
+     * Use config->setPrimaryOutput() instead.
+     */
+    void setPrimary(bool primary);
 };
 
 } // KScreen namespace
