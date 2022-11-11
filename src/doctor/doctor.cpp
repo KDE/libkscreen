@@ -588,23 +588,14 @@ bool Doctor::setRgbRange(int id, KScreen::Output::RgbRange rgbRange)
 
 bool KScreen::Doctor::setPrimary(int id)
 {
-    bool found = false;
     for (const auto &output : m_config->outputs()) {
         if (output->id() == id) {
-            output->setPrimary(true);
+            m_config->setPrimaryOutput(output);
             m_changed = true;
-            found = true;
+            return true;
         }
     }
-    if (found) {
-        for (const auto &output : m_config->outputs()) {
-            if (output->id() != id) {
-                output->setPrimary(false);
-                m_changed = true;
-            }
-        }
-    }
-    return found;
+    return false;
 }
 
 void Doctor::applyConfig()
