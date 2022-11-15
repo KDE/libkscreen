@@ -440,6 +440,8 @@ void Config::apply(const ConfigPtr &other)
 
     // Update validity
     setValid(other->isValid());
+
+    Q_EMIT prioritiesChanged();
 }
 
 QRect Config::outputGeometryForOutput(const KScreen::Output &output) const
