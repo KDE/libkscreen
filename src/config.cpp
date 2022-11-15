@@ -12,12 +12,16 @@
 #include "mode.h"
 #include "output.h"
 #include "screen.h"
+#include "types.h"
 
 #include <QCryptographicHash>
 #include <QDebug>
 #include <QRect>
 #include <QStringList>
 
+#include <algorithm>
+#include <cstdint>
+#include <optional>
 #include <utility>
 
 using namespace KScreen;
@@ -323,7 +327,77 @@ void Config::setOutputs(const OutputList &outputs)
         addOutput(output);
     }
 
-    // TODO adjust priorities
+    adjustPriorities();
+}
+
+static std::optional<OutputPtr> removeOptional(QList<OutputPtr> &haystack, std::optional<OutputPtr> &needle)
+{
+    if (!needle.has_value()) {
+        return std::nullopt;
+    }
+    const OutputPtr &value = needle.value();
+    const bool removed = haystack.removeOne(value);
+    return removed ? needle : std::nullopt;
+}
+
+void Config::adjustPriorities(std::optional<OutputPtr> keep)
+{
+    // we need specifically tree-based QMap for this
+    QMap<uint32_t, QList<OutputPtr>> multimap;
+    uint32_t maxPriority = 0;
+    bool found = false;
+
+    for (const OutputPtr &output : d->outputs) {
+        maxPriority = std::max(maxPriority, output->priority());
+    }
+
+    if (keep.has_value() && keep.value()->priority() == 0) {
+        qCDebug(KSCREEN) << "The output to keep" << keep.value() << "has zero priority. Did you forget to set priority after enabling it?";
+        keep.reset();
+    }
+    for (const OutputPtr &output : d->outputs) {
+        if (keep.has_value() && keep.value() == output) {
+            found = true;
+        }
+        if (!output->isEnabled()) {
+            output->setPriority(0);
+        } else {
+            // XXX: we are currently not enforcing consistency after enabling an output.
+            if (output->priority() == 0) {
+                output->setPriority(maxPriority + 1);
+            }
+            QList<OutputPtr> &entry = multimap[output->priority()];
+            entry.append(output);
+        }
+    }
+    if (keep.has_value() && !found) {
+        qCDebug(KSCREEN) << "The output to keep" << keep.value() << "is not in the list of outputs" << d->outputs;
+        keep.reset();
+    }
+
+    uint32_t nextPriority = 1;
+    for (QList<OutputPtr> &current_list : multimap) {
+        std::optional<OutputPtr> currentKeep = removeOptional(current_list, keep);
+
+        // deterministic sorting of identically-prioritized outputs.
+        // ordering reversed, so that later we can use pop() operation instead of removing from the beginning.
+        std::stable_sort(current_list.begin(), current_list.end(), [](const OutputPtr &lhs, const OutputPtr &rhs) -> bool {
+            return rhs->name() < lhs->name();
+        });
+
+        while (currentKeep.has_value() || !current_list.isEmpty()) {
+            OutputPtr nextOutput;
+            if (currentKeep.has_value() && (currentKeep.value()->priority() <= nextPriority || current_list.isEmpty())) {
+                nextOutput = currentKeep.value();
+                currentKeep.reset();
+            } else {
+                Q_ASSERT(!current_list.isEmpty());
+                nextOutput = current_list.takeLast();
+            }
+            nextOutput->setPriority(nextPriority);
+            nextPriority += 1;
+        }
+    }
 }
 
 bool Config::isValid() const
