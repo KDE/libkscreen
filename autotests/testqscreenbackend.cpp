@@ -162,7 +162,7 @@ void testQScreenBackend::commonUsagePattern()
 
         QVariantMap info;
         info[QStringLiteral("id")] = output->id();
-        info[QStringLiteral("priority")] = static_cast<uint32_t>(output->isEnabled() ? (output->isPrimary() ? 1 : 2) : 0);
+        info[QStringLiteral("priority")] = output->priority();
         info[QStringLiteral("enabled")] = output->isEnabled();
         info[QStringLiteral("rotation")] = output->rotation();
 

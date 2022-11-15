@@ -380,8 +380,7 @@ void Doctor::showOutputs() const
         cout << green << "Output: " << cr << output->id() << " " << output->name();
         cout << " " << (output->isEnabled() ? green + QStringLiteral("enabled") : red + QStringLiteral("disabled")) << cr;
         cout << " " << (output->isConnected() ? green + QStringLiteral("connected") : red + QStringLiteral("disconnected")) << cr;
-        const int priority = output->isEnabled() ? (output->isPrimary() ? 1 : 2) : 0;
-        cout << " " << (output->isEnabled() ? green : red) + QStringLiteral("priority ") << priority << cr;
+        cout << " " << (output->isEnabled() ? green : red) + QStringLiteral("priority ") << output->priority() << cr;
         auto _type = typeString[output->type()];
         cout << " " << yellow << (_type.isEmpty() ? QStringLiteral("UnmappedOutputType") : _type);
         cout << blue << " Modes: " << cr;

@@ -348,7 +348,7 @@ void XRandRConfig::printConfig(const ConfigPtr &config) const
         }
 
         qCDebug(KSCREEN_XRANDR) << "Enabled: " << output->isEnabled() << "\n"
-                                << "Priority: " << static_cast<uint32_t>(output->isEnabled() ? (output->isPrimary() ? 1 : 2) : 0) << "\n"
+                                << "Priority: " << output->priority() << "\n"
                                 << "Rotation: " << output->rotation() << "\n"
                                 << "Pos: " << output->pos() << "\n"
                                 << "MMSize: " << output->sizeMm();
