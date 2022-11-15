@@ -226,6 +226,7 @@ ConfigPtr ConfigSerializer::deserializeConfig(const QVariantMap &map)
 OutputPtr ConfigSerializer::deserializeOutput(const QDBusArgument &arg)
 {
     Output::Builder builder;
+    std::optional<bool> primary = std::nullopt;
     std::optional<uint32_t> priority = std::nullopt;
 
     arg.beginMap();
@@ -262,7 +263,7 @@ OutputPtr ConfigSerializer::deserializeOutput(const QDBusArgument &arg)
             builder.enabled = value.toBool();
         } else if (key == QLatin1String("primary")) {
             // primary is deprecated, but if it appears in config for compatibility reason.
-            builder.primary = value.toBool();
+            primary = value.toBool();
         } else if (key == QLatin1String("priority")) {
             // "priority" takes precedence over "primary", but we need to
             //  check it after the loop, otherwise it may come before the
@@ -300,8 +301,11 @@ OutputPtr ConfigSerializer::deserializeOutput(const QDBusArgument &arg)
         arg.endMapEntry();
     }
     arg.endMap();
+    if (primary.has_value()) {
+        builder.priority = builder.enabled ? (primary.value() ? 1 : 2) : 0;
+    }
     if (priority.has_value()) {
-        builder.primary = priority.value() == 1;
+        builder.priority = priority.value();
     }
     return OutputPtr(new Output(std::move(builder)));
 }

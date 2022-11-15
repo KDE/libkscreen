@@ -401,7 +401,7 @@ KScreen::OutputPtr XRandROutput::toKScreenOutput() const
         builder.icon = m_icon;
         builder.sizeMm = QSize(m_widthMm, m_heightMm);
         builder.connected = isConnected();
-        builder.primary = m_primary;
+        builder.priority = (isConnected() ? (m_primary ? 1 : 2) : 0);
     }
 
     // See https://bugzilla.redhat.com/show_bug.cgi?id=1290586

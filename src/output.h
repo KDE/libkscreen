@@ -17,6 +17,7 @@
 #include <QPoint>
 #include <QSize>
 #include <QStringList>
+#include <cstdint>
 
 namespace KScreen
 {
@@ -123,7 +124,7 @@ public:
         QStringList preferredModes;
         bool connected = false;
         bool enabled = false;
-        bool primary = false;
+        uint32_t priority = false;
         QList<int> clones;
         int replicationSource = 0;
         QSize sizeMm;
@@ -469,7 +470,7 @@ private:
     /** Only for internal management by a config instance!
      * Use config->setPrimaryOutput() instead.
      */
-    void setPrimary(bool primary);
+    void setPriority(uint32_t priority);
 };
 
 } // KScreen namespace

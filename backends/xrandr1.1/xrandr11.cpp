@@ -112,7 +112,7 @@ KScreen::ConfigPtr XRandR11::config() const
         builder.enabled = true;
         builder.name = QStringLiteral("Default");
         builder.pos = QPoint(0, 0);
-        builder.primary = true;
+        builder.priority = 1;
         builder.rotation = (KScreen::Output::Rotation)info->rotation;
         builder.sizeMm = QSize(xcbScreen->width_in_millimeters, xcbScreen->height_in_millimeters);
     }

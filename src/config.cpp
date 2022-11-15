@@ -306,7 +306,7 @@ void Config::setPrimaryOutput(const OutputPtr &newPrimary)
     //                  << newPrimary << "(" << (newPrimary.isNull() ? "none" : newPrimary->name()) << ")";
 
     for (OutputPtr &output : d->outputs) {
-        output->setPrimary(output == newPrimary);
+        output->setPriority(output->isEnabled() ? (output == newPrimary ? 1 : 2) : 0);
     }
 
     d->primaryOutput = newPrimary;

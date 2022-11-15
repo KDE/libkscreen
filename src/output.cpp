@@ -15,6 +15,7 @@
 #include <QScopedPointer>
 
 #include <cstdint>
+#include <qobjectdefs.h>
 #include <utility>
 
 using namespace KScreen;
@@ -35,7 +36,7 @@ public:
         , preferredModes(builder.preferredModes)
         , connected(builder.connected)
         , enabled(builder.enabled)
-        , primary(builder.primary)
+        , priority(builder.priority)
         , clones(builder.clones)
         , replicationSource(builder.replicationSource)
         , edid(nullptr)
@@ -62,7 +63,7 @@ public:
         , preferredModes(other.preferredModes)
         , connected(other.connected)
         , enabled(other.enabled)
-        , primary(other.primary)
+        , priority(other.priority)
         , clones(other.clones)
         , replicationSource(other.replicationSource)
         , sizeMm(other.sizeMm)
@@ -102,7 +103,7 @@ public:
     //
     bool connected;
     bool enabled;
-    bool primary;
+    uint32_t priority;
     QList<int> clones;
     int replicationSource;
     QScopedPointer<Edid> edid;
@@ -500,21 +501,21 @@ void Output::setEnabled(bool enabled)
 
 bool Output::isPrimary() const
 {
-    return d->primary;
+    return d->enabled && (d->priority == 1);
 }
 
-void Output::setPrimary(bool primary)
+void Output::setPriority(uint32_t priority)
 {
-    if (d->primary == primary) {
+    if (d->priority == priority) {
         return;
     }
-    d->primary = primary;
+    d->priority = priority;
     Q_EMIT isPrimaryChanged();
 }
 
 uint32_t Output::priority() const
 {
-    return d->enabled ? (d->primary ? 1 : 2) : 0;
+    return d->priority;
 }
 
 QList<int> Output::clones() const
@@ -708,9 +709,9 @@ void Output::apply(const OutputPtr &other)
         changes << &Output::isEnabledChanged;
         setEnabled(other->d->enabled);
     }
-    if (d->primary != other->d->primary) {
+    if (d->priority != other->d->priority) {
         changes << &Output::isPrimaryChanged;
-        setPrimary(other->d->primary);
+        setPriority(other->d->priority);
     }
     if (d->clones != other->d->clones) {
         changes << &Output::clonesChanged;

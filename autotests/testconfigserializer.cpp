@@ -139,7 +139,7 @@ private Q_SLOTS:
             builder.preferredModes = QStringList() << QStringLiteral("1");
             builder.connected = true;
             builder.enabled = true;
-            builder.primary = true;
+            builder.priority = 1;
             builder.clones = QList<int>() << 50 << 60;
             builder.sizeMm = QSize(310, 250);
         }
