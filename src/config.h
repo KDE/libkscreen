@@ -236,7 +236,7 @@ public:
 Q_SIGNALS:
     void outputAdded(const KScreen::OutputPtr &output);
     void outputRemoved(int outputId);
-    void primaryOutputChanged(const KScreen::OutputPtr &output);
+    void prioritiesChanged();
 
 private:
     Q_DISABLE_COPY(Config)

@@ -300,7 +300,6 @@ void Config::setPrimaryOutput(const OutputPtr &newPrimary)
         output->setPriority(output->isEnabled() ? (output == newPrimary ? 1 : 2) : 0);
     }
 
-    Q_EMIT primaryOutputChanged(newPrimary);
 }
 
 void Config::addOutput(const OutputPtr &output)
@@ -398,6 +397,8 @@ void Config::adjustPriorities(std::optional<OutputPtr> keep)
             nextPriority += 1;
         }
     }
+
+    Q_EMIT prioritiesChanged();
 }
 
 bool Config::isValid() const
