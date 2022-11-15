@@ -14,6 +14,7 @@
 #include <QRect>
 #include <QScopedPointer>
 
+#include <cstdint>
 #include <utility>
 
 using namespace KScreen;
@@ -509,6 +510,11 @@ void Output::setPrimary(bool primary)
     }
     d->primary = primary;
     Q_EMIT isPrimaryChanged();
+}
+
+uint32_t Output::priority() const
+{
+    return d->enabled ? (d->primary ? 1 : 2) : 0;
 }
 
 QList<int> Output::clones() const

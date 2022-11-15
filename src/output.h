@@ -42,6 +42,7 @@ public:
     Q_PROPERTY(bool connected READ isConnected WRITE setConnected NOTIFY isConnectedChanged)
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled NOTIFY isEnabledChanged)
     Q_PROPERTY(bool primary READ isPrimary NOTIFY isPrimaryChanged)
+    Q_PROPERTY(uint32_t priority READ priority NOTIFY isPrimaryChanged)
     Q_PROPERTY(QList<int> clones READ clones WRITE setClones NOTIFY clonesChanged)
     Q_PROPERTY(int replicationSource READ replicationSource WRITE setReplicationSource NOTIFY replicationSourceChanged)
     Q_PROPERTY(KScreen::Edid *edid READ edid CONSTANT)
@@ -244,6 +245,7 @@ public:
     void setEnabled(bool enabled);
 
     bool isPrimary() const;
+    uint32_t priority() const;
 
     /**
      * @brief Immutable clones because of hardware restrictions
