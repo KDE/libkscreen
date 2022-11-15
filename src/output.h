@@ -432,7 +432,7 @@ private:
     class Private;
     Private *const d;
 
-    Output(Private *dd);
+    explicit Output(Private *dd);
 };
 
 } // KScreen namespace
