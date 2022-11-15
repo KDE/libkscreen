@@ -51,17 +51,15 @@ public:
             return iter;
         }
 
-        OutputPtr output = iter.value();
-        if (!output) {
-            return outputs.erase(iter);
-        }
-
         const int outputId = iter.key();
+        OutputPtr output = iter.value();
+
         iter = outputs.erase(iter);
 
-        output->disconnect(q);
-
-        Q_EMIT q->outputRemoved(outputId);
+        if (output) {
+            output->disconnect(q);
+            Q_EMIT q->outputRemoved(outputId);
+        }
 
         return iter;
     }
