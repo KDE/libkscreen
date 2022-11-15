@@ -214,6 +214,14 @@ void Doctor::parseOutputArgs()
 
                 if (ops.count() == 3 && subcmd == QLatin1String("primary")) {
                     setPrimary(output);
+                } else if (ops.count() == 4 && subcmd == QLatin1String("priority")) {
+                    uint32_t priority = ops[3].toUInt(&ok);
+                    if (!ok || priority > 100) {
+                        qCWarning(KSCREEN_DOCTOR) << "Wrong input: allowed values for priority are from 1 to 100";
+                        qApp->exit(5);
+                        return;
+                    }
+                    setPriority(output, priority);
                 } else if (ops.count() == 3 && subcmd == QLatin1String("enable")) {
                     setEnabled(output, true);
                 } else if (ops.count() == 3 && subcmd == QLatin1String("disable")) {
@@ -519,7 +527,12 @@ void Doctor::setRgbRange(OutputPtr output, KScreen::Output::RgbRange rgbRange)
 
 void KScreen::Doctor::setPrimary(OutputPtr output)
 {
-    m_config->setPrimaryOutput(output);
+    setPriority(output, 1);
+}
+
+void KScreen::Doctor::setPriority(OutputPtr output, uint32_t priority)
+{
+    m_config->setOutputPriority(output, priority);
     m_changed = true;
 }
 

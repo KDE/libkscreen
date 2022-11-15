@@ -45,6 +45,7 @@ public:
     void setVrrPolicy(OutputPtr output, KScreen::Output::VrrPolicy policy);
     void setRgbRange(OutputPtr output, KScreen::Output::RgbRange rgbRange);
     void setPrimary(OutputPtr output);
+    void setPriority(OutputPtr output, uint32_t priority);
 
 Q_SIGNALS:
     void outputsChanged();
