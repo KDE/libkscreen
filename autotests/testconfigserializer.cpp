@@ -7,6 +7,7 @@
 
 #include <QObject>
 #include <QtTest>
+#include <cstdint>
 #include <utility>
 
 #include "../src/configserializer_p.h"
@@ -164,7 +165,7 @@ private Q_SLOTS:
         QCOMPARE(obj[QLatin1String("currentModeId")].toString(), output->currentModeId());
         QCOMPARE(obj[QLatin1String("connected")].toBool(), output->isConnected());
         QCOMPARE(obj[QLatin1String("enabled")].toBool(), output->isEnabled());
-        QCOMPARE(obj[QLatin1String("primary")].toBool(), output->isPrimary());
+        QCOMPARE(obj[QLatin1String("priority")].toBool(), static_cast<uint32_t>(output->isEnabled() ? (output->isPrimary() ? 1 : 2) : 0));
         const QJsonArray clones = obj[QLatin1String("clones")].toArray();
         QCOMPARE(clones.size(), output->clones().count());
         for (int i = 0; i < clones.size(); ++i) {

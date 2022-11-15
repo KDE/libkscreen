@@ -20,6 +20,7 @@
 
 #include <QRect>
 #include <QScopedPointer>
+#include <cstdint>
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <private/qtx11extras_p.h>
 #else
@@ -347,7 +348,7 @@ void XRandRConfig::printConfig(const ConfigPtr &config) const
         }
 
         qCDebug(KSCREEN_XRANDR) << "Enabled: " << output->isEnabled() << "\n"
-                                << "Primary: " << output->isPrimary() << "\n"
+                                << "Priority: " << static_cast<uint32_t>(output->isEnabled() ? (output->isPrimary() ? 1 : 2) : 0) << "\n"
                                 << "Rotation: " << output->rotation() << "\n"
                                 << "Pos: " << output->pos() << "\n"
                                 << "MMSize: " << output->sizeMm();
@@ -397,7 +398,7 @@ void XRandRConfig::printInternalCond() const
                                 << "Current mode id: " << output->currentModeId() << "\n"
                                 << "Connected: " << output->isConnected() << "\n"
                                 << "Enabled: " << output->isEnabled() << "\n"
-                                << "Primary: " << output->isPrimary();
+                                << "Priority: " << static_cast<uint32_t>(output->isEnabled() ? (output->isPrimary() ? 1 : 2) : 0);
         if (!output->isEnabled()) {
             continue;
         }

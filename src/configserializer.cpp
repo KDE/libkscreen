@@ -18,6 +18,9 @@
 #include <QJsonDocument>
 #include <QRect>
 
+#include <cstdint>
+#include <optional>
+
 using namespace KScreen;
 
 QJsonObject ConfigSerializer::serializePoint(const QPoint &point)
@@ -78,7 +81,7 @@ QJsonObject ConfigSerializer::serializeOutput(const OutputPtr &output)
     obj[QLatin1String("connected")] = output->isConnected();
     obj[QLatin1String("followPreferredMode")] = output->followPreferredMode();
     obj[QLatin1String("enabled")] = output->isEnabled();
-    obj[QLatin1String("primary")] = output->isPrimary();
+    obj[QLatin1String("priority")] = output->isPrimary();
     obj[QLatin1String("clones")] = serializeList(output->clones());
     // obj[QLatin1String("edid")] = output->edid()->raw();
     obj[QLatin1String("sizeMM")] = serializeSize(output->sizeMm());
@@ -223,6 +226,7 @@ ConfigPtr ConfigSerializer::deserializeConfig(const QVariantMap &map)
 OutputPtr ConfigSerializer::deserializeOutput(const QDBusArgument &arg)
 {
     Output::Builder builder;
+    std::optional<uint32_t> priority = std::nullopt;
 
     arg.beginMap();
     while (!arg.atEnd()) {
@@ -257,7 +261,13 @@ OutputPtr ConfigSerializer::deserializeOutput(const QDBusArgument &arg)
         } else if (key == QLatin1String("enabled")) {
             builder.enabled = value.toBool();
         } else if (key == QLatin1String("primary")) {
+            // primary is deprecated, but if it appears in config for compatibility reason.
             builder.primary = value.toBool();
+        } else if (key == QLatin1String("priority")) {
+            // "priority" takes precedence over "primary", but we need to
+            //  check it after the loop, otherwise it may come before the
+            //  primary and get overridden.
+            priority = value.toUInt();
         } else if (key == QLatin1String("clones")) {
             builder.clones = deserializeList<int>(value.value<QDBusArgument>());
         } else if (key == QLatin1String("replicationSource")) {
@@ -290,6 +300,9 @@ OutputPtr ConfigSerializer::deserializeOutput(const QDBusArgument &arg)
         arg.endMapEntry();
     }
     arg.endMap();
+    if (priority.has_value()) {
+        builder.primary = priority.value() == 1;
+    }
     return OutputPtr(new Output(std::move(builder)));
 }
 

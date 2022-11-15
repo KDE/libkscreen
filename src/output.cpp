@@ -772,7 +772,7 @@ QDebug operator<<(QDebug dbg, const KScreen::OutputPtr &output)
             << output->name() << ", "
             << (output->isConnected() ? "connected " : "disconnected ")
             << (output->isEnabled() ? "enabled" : "disabled")
-            << (output->isPrimary() ? " primary" : "")
+            << " priority " << static_cast<uint32_t>(output->isEnabled() ? (output->isPrimary() ? 1 : 2) : 0)
             << ", pos: " << output->pos()
             << ", res: " << output->size()
             << ", modeId: " << output->currentModeId()

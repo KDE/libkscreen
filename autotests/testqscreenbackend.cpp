@@ -9,6 +9,8 @@
 #include <QObject>
 #include <QtTest>
 
+#include <cstdint>
+
 #include "../src/backendmanager_p.h"
 #include "../src/config.h"
 #include "../src/edid.h"
@@ -160,7 +162,7 @@ void testQScreenBackend::commonUsagePattern()
 
         QVariantMap info;
         info[QStringLiteral("id")] = output->id();
-        info[QStringLiteral("primary")] = output->isPrimary();
+        info[QStringLiteral("priority")] = static_cast<uint32_t>(output->isEnabled() ? (output->isPrimary() ? 1 : 2) : 0);
         info[QStringLiteral("enabled")] = output->isEnabled();
         info[QStringLiteral("rotation")] = output->rotation();
 
