@@ -305,10 +305,6 @@ void Config::addOutput(const OutputPtr &output)
     output->setExplicitLogicalSize(logicalSizeForOutput(*output));
 
     Q_EMIT outputAdded(output);
-
-    if (output->isPrimary()) {
-        setPrimaryOutput(output);
-    }
 }
 
 void Config::removeOutput(int outputId)
@@ -326,6 +322,8 @@ void Config::setOutputs(const OutputList &outputs)
     for (const OutputPtr &output : outputs) {
         addOutput(output);
     }
+
+    // TODO adjust priorities
 }
 
 bool Config::isValid() const

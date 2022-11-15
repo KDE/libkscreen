@@ -132,6 +132,13 @@ public:
     OutputList connectedOutputs() const;
     OutputPtr primaryOutput() const;
     void setPrimaryOutput(const OutputPtr &output);
+    /** Add an output to this configuration.
+     *
+     * This method does not ensure consistency of priorities, it is up to the
+     * caller to perform necessary adjustments afterwards. The reason is that
+     * it might be used in a loop (such as adding all outputs) where committing
+     * intermediate states is undesirable.
+     */
     void addOutput(const OutputPtr &output);
     /** Remove an output with matching ID from this configuration.
      *
