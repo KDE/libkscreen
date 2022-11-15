@@ -13,6 +13,9 @@
 
 #include "mode.h"
 
+#include <cstdint>
+#include <cstring>
+#include <qglobal.h>
 #include <utility>
 #include <xcb/render.h>
 
@@ -28,7 +31,7 @@ XRandROutput::XRandROutput(xcb_randr_output_t id, XRandRConfig *config)
     : QObject(config)
     , m_config(config)
     , m_id(id)
-    , m_primary(false)
+    , m_priority(0)
     , m_type(KScreen::Output::Unknown)
     , m_crtc(nullptr)
 {
@@ -56,7 +59,25 @@ bool XRandROutput::isEnabled() const
 
 bool XRandROutput::isPrimary() const
 {
-    return m_primary;
+    return m_priority == 1;
+}
+
+uint32_t XRandROutput::priority() const
+{
+    return m_priority;
+}
+
+void XRandROutput::setPriority(uint32_t priority)
+{
+    if (m_priority == priority) {
+        return;
+    }
+
+    m_priority = priority;
+    setOutputPriorityToProperty();
+    if (priority == 1) {
+        setAsPrimary();
+    }
 }
 
 QPoint XRandROutput::position() const
@@ -117,12 +138,7 @@ XRandRCrtc *XRandROutput::crtc() const
     return m_crtc;
 }
 
-void XRandROutput::update()
-{
-    init();
-}
-
-void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_connection_t conn, bool primary)
+void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_connection_t conn, uint32_t priority)
 {
     qCDebug(KSCREEN_XRANDR) << "XRandROutput" << m_id << "update"
                             << "\n"
@@ -131,7 +147,7 @@ void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_rand
                             << "\tCRTC:" << crtc << "\n"
                             << "\tMODE:" << mode << "\n"
                             << "\tConnection:" << conn << "\n"
-                            << "\tPrimary:" << primary;
+                            << "\tPriority:" << priority;
 
     // Connected or disconnected
     if (isConnected() != (conn == XCB_RANDR_CONNECTION_CONNECTED)) {
@@ -177,13 +193,38 @@ void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_rand
         }
     }
 
-    // Primary has changed
-    m_primary = primary;
+    // priority has changed
+    m_priority = priority;
 }
 
-void XRandROutput::setIsPrimary(bool primary)
+void XRandROutput::outputPriorityFromProperty()
 {
-    m_primary = primary;
+    // XXX: can fetch actual value from X server. But setting it simply to 0 doesn't seem to hurt either.
+    m_priority = 0;
+}
+
+void XRandROutput::setOutputPriorityToProperty()
+{
+    const uint32_t data[1] = {(uint32_t)m_priority};
+    constexpr uint32_t format = 32;
+
+    constexpr const char *KDE_SCREEN_INDEX = "_KDE_SCREEN_INDEX";
+    xcb_atom_t screen_index_atom = XCB::InternAtom(/* only_if_exists */ false, strlen(KDE_SCREEN_INDEX), KDE_SCREEN_INDEX)->atom;
+
+    xcb_randr_change_output_property(XCB::connection(),
+                                     m_id,
+                                     screen_index_atom,
+                                     XCB_ATOM_INTEGER,
+                                     format,
+                                     XCB_PROP_MODE_REPLACE,
+                                     sizeof(data) / sizeof(*data),
+                                     data);
+}
+
+void XRandROutput::setAsPrimary()
+{
+    Q_ASSERT(m_priority == 1);
+    xcb_randr_set_output_primary(XCB::connection(), XRandR::rootWindow(), m_id);
 }
 
 void XRandROutput::init()
@@ -194,13 +235,11 @@ void XRandROutput::init()
         return;
     }
 
-    XCB::PrimaryOutput primary(XRandR::rootWindow());
-
     m_name = QString::fromUtf8((const char *)xcb_randr_get_output_info_name(outputInfo.data()), outputInfo->name_len);
     m_type = fetchOutputType(m_id, m_name);
     m_icon = QString();
     m_connected = (xcb_randr_connection_t)outputInfo->connection;
-    m_primary = (primary->output == m_id);
+    outputPriorityFromProperty();
 
     xcb_randr_output_t *clones = xcb_randr_get_output_info_clones(outputInfo.data());
     for (int i = 0; i < outputInfo->num_clones; ++i) {
@@ -401,7 +440,7 @@ KScreen::OutputPtr XRandROutput::toKScreenOutput() const
         builder.icon = m_icon;
         builder.sizeMm = QSize(m_widthMm, m_heightMm);
         builder.connected = isConnected();
-        builder.priority = (isConnected() ? (m_primary ? 1 : 2) : 0);
+        builder.priority = (isConnected() ? m_priority : 0);
     }
 
     // See https://bugzilla.redhat.com/show_bug.cgi?id=1290586

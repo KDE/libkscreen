@@ -14,6 +14,7 @@
 #include <QMap>
 #include <QObject>
 #include <QVariant>
+#include <cstdint>
 
 class XRandRConfig;
 class XRandRCrtc;
@@ -36,16 +37,16 @@ public:
     void disabled();
     void disconnected();
 
-    void update();
-    void update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_connection_t conn, bool primary);
-
-    void setIsPrimary(bool primary);
+    void update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_connection_t conn, uint32_t priority);
 
     xcb_randr_output_t id() const;
 
     bool isEnabled() const;
     bool isConnected() const;
     bool isPrimary() const;
+
+    uint32_t priority() const;
+    void setPriority(uint32_t priority);
 
     QPoint position() const;
     QSize size() const;
@@ -68,6 +69,9 @@ public:
 private:
     void init();
     void updateModes(const XCB::OutputInfo &outputInfo);
+    void outputPriorityFromProperty();
+    void setOutputPriorityToProperty();
+    void setAsPrimary();
 
     static KScreen::Output::Type fetchOutputType(xcb_randr_output_t outputId, const QString &name);
     static QByteArray typeFromProperty(xcb_randr_output_t outputId);
@@ -81,7 +85,7 @@ private:
     mutable QByteArray m_edid;
 
     xcb_randr_connection_t m_connected;
-    bool m_primary;
+    uint32_t m_priority;
     KScreen::Output::Type m_type;
 
     XRandRMode::Map m_modes;
