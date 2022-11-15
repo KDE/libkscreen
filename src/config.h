@@ -17,6 +17,7 @@
 #include <QMetaType>
 #include <QObject>
 
+#include <cstdint>
 #include <optional>
 
 namespace KScreen
@@ -151,6 +152,13 @@ public:
      */
     void removeOutput(int outputId);
     void setOutputs(const OutputList &outputs);
+
+    /**
+     * Set output's priority and call adjustPriorities() trying to retain
+     * relative ordering of the output. Setting priority to zero with this
+     * method will disable the output, otherwise the output will be enabled.
+     */
+    void setOutputPriority(const OutputPtr &output, uint32_t priority);
 
     /** Ensure consistency and continuity of priorities.
      *

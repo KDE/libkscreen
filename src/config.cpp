@@ -288,18 +288,7 @@ OutputPtr Config::primaryOutput() const
 
 void Config::setPrimaryOutput(const OutputPtr &newPrimary)
 {
-    if (primaryOutput() == newPrimary) {
-        return;
-    }
-
-    // qCDebug(KSCREEN) << "Primary output changed from" << primaryOutput()
-    //                  << "(" << (primaryOutput().isNull() ? "none" : primaryOutput()->name()) << ") to"
-    //                  << newPrimary << "(" << (newPrimary.isNull() ? "none" : newPrimary->name()) << ")";
-
-    for (OutputPtr &output : d->outputs) {
-        output->setPriority(output->isEnabled() ? (output == newPrimary ? 1 : 2) : 0);
-    }
-
+    setOutputPriority(newPrimary, 1);
 }
 
 void Config::addOutput(const OutputPtr &output)
@@ -327,6 +316,17 @@ void Config::setOutputs(const OutputList &outputs)
     }
 
     adjustPriorities();
+}
+
+void Config::setOutputPriority(const OutputPtr &output, uint32_t priority)
+{
+    if (!d->outputs.contains(output->id()) || d->outputs[output->id()] != output) {
+        qCDebug(KSCREEN) << "The output" << output << "does not belong to this config";
+        return;
+    }
+    output->setEnabled(priority != 0);
+    output->setPriority(priority);
+    adjustPriorities((priority != 0) ? std::optional(output) : std::nullopt);
 }
 
 static std::optional<OutputPtr> removeOptional(QList<OutputPtr> &haystack, std::optional<OutputPtr> &needle)
