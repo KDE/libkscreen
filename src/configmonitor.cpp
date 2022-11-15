@@ -24,7 +24,6 @@ class Q_DECL_HIDDEN ConfigMonitor::Private : public QObject
 public:
     Private(ConfigMonitor *q);
 
-    void updateConfigs();
     void onBackendReady(org::kde::kscreen::Backend *backend);
     void backendConfigChanged(const QVariantMap &configMap);
     void configDestroyed(QObject *removedConfig);
