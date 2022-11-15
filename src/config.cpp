@@ -44,6 +44,7 @@ public:
         return iter == outputs.constEnd() ? KScreen::OutputPtr() : iter.value();
     }
 
+    // output priorities may be inconsistent after this call
     OutputList::Iterator removeOutput(OutputList::Iterator iter)
     {
         if (iter == outputs.end()) {
@@ -58,9 +59,6 @@ public:
         const int outputId = iter.key();
         iter = outputs.erase(iter);
 
-        if (primaryOutput == output) {
-            q->setPrimaryOutput(OutputPtr());
-        }
         output->disconnect(q);
 
         Q_EMIT q->outputRemoved(outputId);
@@ -70,7 +68,6 @@ public:
 
     bool valid;
     ScreenPtr screen;
-    OutputPtr primaryOutput;
     OutputList outputs;
     Features supportedFeatures;
     bool tabletModeAvailable;
@@ -202,7 +199,6 @@ ConfigPtr Config::clone() const
     for (const OutputPtr &ourOutput : std::as_const(d->outputs)) {
         newConfig->addOutput(ourOutput->clone());
     }
-    newConfig->d->primaryOutput = newConfig->d->findPrimaryOutput();
     return newConfig;
 }
 
@@ -285,19 +281,12 @@ OutputList Config::connectedOutputs() const
 
 OutputPtr Config::primaryOutput() const
 {
-    if (d->primaryOutput) {
-        return d->primaryOutput;
-    }
-
-    d->primaryOutput = d->findPrimaryOutput();
-    return d->primaryOutput;
+    return d->findPrimaryOutput();
 }
 
 void Config::setPrimaryOutput(const OutputPtr &newPrimary)
 {
-    // Don't call primaryOutput(): at this point d->primaryOutput is either
-    // initialized, or we need to look for the primary anyway
-    if (d->primaryOutput == newPrimary) {
+    if (primaryOutput() == newPrimary) {
         return;
     }
 
@@ -309,7 +298,6 @@ void Config::setPrimaryOutput(const OutputPtr &newPrimary)
         output->setPriority(output->isEnabled() ? (output == newPrimary ? 1 : 2) : 0);
     }
 
-    d->primaryOutput = newPrimary;
     Q_EMIT primaryOutputChanged(newPrimary);
 }
 

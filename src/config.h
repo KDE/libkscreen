@@ -133,6 +133,13 @@ public:
     OutputPtr primaryOutput() const;
     void setPrimaryOutput(const OutputPtr &output);
     void addOutput(const OutputPtr &output);
+    /** Remove an output with matching ID from this configuration.
+     *
+     * This method does not ensure consistency of priorities, it is up to the
+     * caller to perform necessary adjustments afterwards. The reason is that
+     * it might be used in a loop (such as removing all outputs) where committing
+     * intermediate states is undesirable.
+     */
     void removeOutput(int outputId);
     void setOutputs(const OutputList &outputs);
 
