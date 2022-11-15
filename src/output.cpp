@@ -510,7 +510,7 @@ void Output::setPriority(uint32_t priority)
         return;
     }
     d->priority = priority;
-    Q_EMIT isPrimaryChanged();
+    Q_EMIT priorityChanged();
 }
 
 uint32_t Output::priority() const
@@ -710,7 +710,7 @@ void Output::apply(const OutputPtr &other)
         setEnabled(other->d->enabled);
     }
     if (d->priority != other->d->priority) {
-        changes << &Output::isPrimaryChanged;
+        changes << &Output::priorityChanged;
         setPriority(other->d->priority);
     }
     if (d->clones != other->d->clones) {
