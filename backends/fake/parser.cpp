@@ -179,6 +179,13 @@ OutputPtr Parser::outputFromJson(QMap<QString, QVariant> map)
         map.remove(QStringLiteral("size"));
     }
 
+    // This is not supported in real configs; only set this value in fake test
+    // configs and don't add logic to kscreen to set this data in real configs.
+    if (map.contains(QStringLiteral("sizeMM"))) {
+        output->setSizeMm(Parser::sizeFromJson(map[QStringLiteral("sizeMM")].toMap()));
+        map.remove(QStringLiteral("sizeMM"));
+    }
+
     auto scale = QStringLiteral("scale");
     if (map.contains(scale)) {
         qDebug() << "Scale found:" << map[scale].toReal();
