@@ -196,9 +196,14 @@ void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_rand
     }
 }
 
+static constexpr const char *KDE_SCREEN_INDEX = "_KDE_SCREEN_INDEX";
+
 XRandROutput::Priority XRandROutput::outputPriorityFromProperty() const
 {
-    constexpr const char *KDE_SCREEN_INDEX = "_KDE_SCREEN_INDEX";
+    if (!isConnected()) {
+        return 0;
+    }
+
     xcb_atom_t screen_index_atom = XCB::InternAtom(/* only_if_exists */ false, strlen(KDE_SCREEN_INDEX), KDE_SCREEN_INDEX)->atom;
 
     auto cookie = xcb_randr_get_output_property(XCB::connection(),
@@ -225,9 +230,12 @@ XRandROutput::Priority XRandROutput::outputPriorityFromProperty() const
 
 void XRandROutput::setOutputPriorityToProperty(Priority priority)
 {
+    if (!isConnected()) {
+        return;
+    }
+
     const Priority data[1] = {priority};
 
-    constexpr const char *KDE_SCREEN_INDEX = "_KDE_SCREEN_INDEX";
     xcb_atom_t screen_index_atom = XCB::InternAtom(/* only_if_exists */ false, strlen(KDE_SCREEN_INDEX), KDE_SCREEN_INDEX)->atom;
 
     xcb_randr_change_output_property(XCB::connection(),
@@ -242,8 +250,9 @@ void XRandROutput::setOutputPriorityToProperty(Priority priority)
 
 void XRandROutput::setAsPrimary()
 {
-    Q_ASSERT(priority() == 1);
-    xcb_randr_set_output_primary(XCB::connection(), XRandR::rootWindow(), m_id);
+    if (isConnected() && isEnabled()) {
+        xcb_randr_set_output_primary(XCB::connection(), XRandR::rootWindow(), m_id);
+    }
 }
 
 void XRandROutput::init()
