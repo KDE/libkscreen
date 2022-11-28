@@ -499,6 +499,8 @@ bool XRandRConfig::disableOutput(const OutputPtr &kscreenOutput) const
                             << "\n"
                             << "\tCRTC:" << crtc;
 
+    xOutput->setPriority(0);
+
     auto cookie = xcb_randr_set_crtc_config(XCB::connection(), //
                                             crtc,
                                             XCB_CURRENT_TIME,
