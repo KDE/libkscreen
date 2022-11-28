@@ -15,6 +15,7 @@
 #include <QObject>
 #include <QVariant>
 #include <cstdint>
+#include <limits>
 
 class XRandRConfig;
 class XRandRCrtc;
@@ -31,13 +32,16 @@ class XRandROutput : public QObject
 public:
     typedef QMap<xcb_randr_output_t, XRandROutput *> Map;
 
+    using Priority = uint32_t;
+    static constexpr size_t PRIORITY_FORMAT = std::numeric_limits<Priority>::digits;
+
     explicit XRandROutput(xcb_randr_output_t id, XRandRConfig *config);
     ~XRandROutput() override;
 
     void disabled();
     void disconnected();
 
-    void update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_connection_t conn, uint32_t priority);
+    void update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_connection_t conn, Priority priority);
 
     xcb_randr_output_t id() const;
 
@@ -45,8 +49,8 @@ public:
     bool isConnected() const;
     bool isPrimary() const;
 
-    uint32_t priority() const;
-    void setPriority(uint32_t priority);
+    Priority priority() const;
+    void setPriority(Priority priority);
 
     QPoint position() const;
     QSize size() const;
@@ -69,7 +73,7 @@ public:
 private:
     void init();
     void updateModes(const XCB::OutputInfo &outputInfo);
-    void outputPriorityFromProperty();
+    Priority outputPriorityFromProperty();
     void setOutputPriorityToProperty();
     void setAsPrimary();
 
@@ -85,7 +89,7 @@ private:
     mutable QByteArray m_edid;
 
     xcb_randr_connection_t m_connected;
-    uint32_t m_priority;
+    Priority m_priority;
     KScreen::Output::Type m_type;
 
     XRandRMode::Map m_modes;

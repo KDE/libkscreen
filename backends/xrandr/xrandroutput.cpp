@@ -17,6 +17,7 @@
 #include <cstring>
 #include <qglobal.h>
 #include <utility>
+#include <xcb/randr.h>
 #include <xcb/render.h>
 
 Q_DECLARE_METATYPE(QList<int>)
@@ -197,16 +198,36 @@ void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_rand
     m_priority = priority;
 }
 
-void XRandROutput::outputPriorityFromProperty()
+XRandROutput::Priority XRandROutput::outputPriorityFromProperty()
 {
-    // XXX: can fetch actual value from X server. But setting it simply to 0 doesn't seem to hurt either.
-    m_priority = 0;
+    constexpr const char *KDE_SCREEN_INDEX = "_KDE_SCREEN_INDEX";
+    xcb_atom_t screen_index_atom = XCB::InternAtom(/* only_if_exists */ false, strlen(KDE_SCREEN_INDEX), KDE_SCREEN_INDEX)->atom;
+
+    auto cookie = xcb_randr_get_output_property(XCB::connection(),
+                                                m_id,
+                                                screen_index_atom,
+                                                XCB_ATOM_INTEGER,
+                                                /*offset*/ 0,
+                                                /*length*/ 1,
+                                                /*delete*/ false,
+                                                /*pending*/ false);
+    XCB::ScopedPointer<xcb_randr_get_output_property_reply_t> reply(xcb_randr_get_output_property_reply(XCB::connection(), cookie, nullptr));
+    if (!reply) {
+        return 0;
+    }
+
+    if (!(reply->type == XCB_ATOM_INTEGER && reply->format == PRIORITY_FORMAT && reply->num_items == 1)) {
+        return 0;
+    }
+
+    const uint8_t *prop = xcb_randr_get_output_property_data(reply.data());
+    const Priority priority = *reinterpret_cast<const Priority *>(prop);
+    return priority;
 }
 
 void XRandROutput::setOutputPriorityToProperty()
 {
-    const uint32_t data[1] = {(uint32_t)m_priority};
-    constexpr uint32_t format = 32;
+    const Priority data[1] = {(Priority)m_priority};
 
     constexpr const char *KDE_SCREEN_INDEX = "_KDE_SCREEN_INDEX";
     xcb_atom_t screen_index_atom = XCB::InternAtom(/* only_if_exists */ false, strlen(KDE_SCREEN_INDEX), KDE_SCREEN_INDEX)->atom;
@@ -215,7 +236,7 @@ void XRandROutput::setOutputPriorityToProperty()
                                      m_id,
                                      screen_index_atom,
                                      XCB_ATOM_INTEGER,
-                                     format,
+                                     PRIORITY_FORMAT,
                                      XCB_PROP_MODE_REPLACE,
                                      sizeof(data) / sizeof(*data),
                                      data);
@@ -239,7 +260,7 @@ void XRandROutput::init()
     m_type = fetchOutputType(m_id, m_name);
     m_icon = QString();
     m_connected = (xcb_randr_connection_t)outputInfo->connection;
-    outputPriorityFromProperty();
+    m_priority = outputPriorityFromProperty();
 
     xcb_randr_output_t *clones = xcb_randr_get_output_info_clones(outputInfo.data());
     for (int i = 0; i < outputInfo->num_clones; ++i) {
