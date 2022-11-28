@@ -178,6 +178,8 @@ public:
      */
     void setOutputPriority(const OutputPtr &output, uint32_t priority);
 
+    void setOutputPriorities(QMap<OutputPtr, uint32_t> &priorities);
+
     /**
      * Ensure consistency and continuity of priorities.
      *

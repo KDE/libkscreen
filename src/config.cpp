@@ -329,6 +329,23 @@ void Config::setOutputPriority(const OutputPtr &output, uint32_t priority)
     adjustPriorities((priority != 0) ? std::optional(output) : std::nullopt);
 }
 
+void Config::setOutputPriorities(QMap<OutputPtr, uint32_t> &priorities)
+{
+    for (auto it = priorities.constBegin(); it != priorities.constEnd(); it++) {
+        const OutputPtr &output = it.key();
+        const uint32_t priority = it.value();
+
+        if (!d->outputs.contains(output->id()) || d->outputs[output->id()] != output) {
+            qCDebug(KSCREEN) << "The output" << output << "does not belong to this config";
+            return;
+        }
+
+        output->setEnabled(priority != 0);
+        output->setPriority(priority);
+    }
+    adjustPriorities();
+}
+
 static std::optional<OutputPtr> removeOptional(QList<OutputPtr> &haystack, std::optional<OutputPtr> &needle)
 {
     if (!needle.has_value()) {
