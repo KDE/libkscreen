@@ -13,6 +13,7 @@
 
 #include "mode.h"
 
+#include <utility>
 #include <xcb/render.h>
 
 Q_DECLARE_METATYPE(QList<int>)
@@ -392,48 +393,42 @@ void XRandROutput::updateLogicalSize(const KScreen::OutputPtr &output, XRandRCrt
 
 KScreen::OutputPtr XRandROutput::toKScreenOutput() const
 {
-    KScreen::OutputPtr kscreenOutput(new KScreen::Output);
-
-    const bool signalsBlocked = kscreenOutput->signalsBlocked();
-    kscreenOutput->blockSignals(true);
-    kscreenOutput->setId(m_id);
-    kscreenOutput->setType(m_type);
-    kscreenOutput->setSizeMm(QSize(m_widthMm, m_heightMm));
-    kscreenOutput->setName(m_name);
-    kscreenOutput->setIcon(m_icon);
+    KScreen::Output::Builder builder;
+    {
+        builder.id = m_id;
+        builder.name = m_name;
+        builder.type = m_type;
+        builder.icon = m_icon;
+        builder.sizeMm = QSize(m_widthMm, m_heightMm);
+        builder.connected = isConnected();
+        builder.primary = m_primary;
+    }
 
     // See https://bugzilla.redhat.com/show_bug.cgi?id=1290586
     // QXL will be creating a new mode we need to jump to every time the display is resized
-    kscreenOutput->setFollowPreferredMode(m_hotplugModeUpdate && m_crtc && m_crtc->isChangedFromOutside());
+    builder.followPreferredMode = m_hotplugModeUpdate && m_crtc && m_crtc->isChangedFromOutside();
 
-    kscreenOutput->setConnected(isConnected());
-    if (isConnected()) {
-        KScreen::ModeList kscreenModes;
+    if (builder.connected) {
         for (auto iter = m_modes.constBegin(), end = m_modes.constEnd(); iter != end; ++iter) {
             XRandRMode *mode = iter.value();
-            kscreenModes.insert(QString::number(iter.key()), mode->toKScreenMode());
+            builder.modes.insert(QString::number(iter.key()), mode->toKScreenMode());
         }
-        kscreenOutput->setModes(kscreenModes);
-        kscreenOutput->setPreferredModes(m_preferredModes);
-        kscreenOutput->setPrimary(m_primary);
-        kscreenOutput->setClones([](const QList<xcb_randr_output_t> &clones) {
-            QList<int> kclones;
-            kclones.reserve(clones.size());
-            for (xcb_randr_output_t o : clones) {
-                kclones.append(static_cast<int>(o));
-            }
-            return kclones;
-        }(m_clones));
-        kscreenOutput->setEnabled(isEnabled());
-        if (isEnabled()) {
-            kscreenOutput->setSize(size());
-            kscreenOutput->setPos(position());
-            kscreenOutput->setRotation(rotation());
-            kscreenOutput->setCurrentModeId(currentModeId());
+        builder.preferredModes = m_preferredModes;
+
+        builder.clones.reserve(m_clones.size());
+        for (xcb_randr_output_t o : std::as_const(m_clones)) {
+            builder.clones.append(static_cast<int>(o));
+        }
+
+        builder.enabled = isEnabled();
+        if (builder.enabled) {
+            builder.size = size();
+            builder.pos = position();
+            builder.rotation = rotation();
+            builder.currentModeId = currentModeId();
         }
         // TODO: set logical size?
     }
 
-    kscreenOutput->blockSignals(signalsBlocked);
-    return kscreenOutput;
+    return KScreen::OutputPtr(new KScreen::Output(std::move(builder)));
 }

@@ -175,9 +175,12 @@ void Fake::setRotation(int outputId, int rotation)
 
 void Fake::addOutput(int outputId, const QString &name)
 {
-    KScreen::OutputPtr output(new KScreen::Output);
-    output->setId(outputId);
-    output->setName(name);
+    KScreen::Output::Builder builder;
+    {
+        builder.id = outputId;
+        builder.name = name;
+    }
+    KScreen::OutputPtr output(new KScreen::Output(std::move(builder)));
     mConfig->addOutput(output);
     Q_EMIT configChanged(mConfig);
 }

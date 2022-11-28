@@ -7,6 +7,7 @@
 
 #include <QObject>
 #include <QtTest>
+#include <utility>
 
 #include "../src/configserializer_p.h"
 #include "../src/mode.h"
@@ -123,23 +124,25 @@ private Q_SLOTS:
         mode->setRefreshRate(50.4);
         modes.insert(mode->id(), mode);
 
-        KScreen::OutputPtr output(new KScreen::Output);
-        output->setId(60);
-        output->setName(QStringLiteral("LVDS-0"));
-        output->setType(KScreen::Output::Panel);
-        output->setIcon(QString());
-        output->setModes(modes);
-        output->setPos(QPoint(1280, 0));
-        output->setSize(mode->size());
-        output->setRotation(KScreen::Output::None);
-        output->setCurrentModeId(QStringLiteral("1"));
-        output->setPreferredModes(QStringList() << QStringLiteral("1"));
-        output->setConnected(true);
-        output->setEnabled(true);
-        output->setPrimary(true);
-        output->setClones(QList<int>() << 50 << 60);
-        output->setSizeMm(QSize(310, 250));
-
+        KScreen::Output::Builder builder;
+        {
+            builder.id = 60;
+            builder.name = QStringLiteral("LVDS-0");
+            builder.type = KScreen::Output::Panel;
+            builder.icon = QString();
+            builder.modes = modes;
+            builder.pos = QPoint(1280, 0);
+            builder.size = mode->size();
+            builder.rotation = KScreen::Output::None;
+            builder.currentModeId = QStringLiteral("1");
+            builder.preferredModes = QStringList() << QStringLiteral("1");
+            builder.connected = true;
+            builder.enabled = true;
+            builder.primary = true;
+            builder.clones = QList<int>() << 50 << 60;
+            builder.sizeMm = QSize(310, 250);
+        }
+        KScreen::OutputPtr output(new KScreen::Output(std::move(builder)));
         const QJsonObject obj = KScreen::ConfigSerializer::serializeOutput(output);
         QVERIFY(!obj.isEmpty());
 

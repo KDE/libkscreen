@@ -11,6 +11,7 @@
 #include <output.h>
 
 #include <QGuiApplication>
+#include <utility>
 
 using namespace KScreen;
 
@@ -42,9 +43,12 @@ const QScreen *QScreenOutput::qscreen() const
 
 OutputPtr QScreenOutput::toKScreenOutput() const
 {
-    OutputPtr output(new Output);
-    output->setId(m_id);
-    output->setName(m_qscreen->name());
+    Output::Builder builder;
+    {
+        builder.id = m_id;
+        builder.name = m_qscreen->name();
+    }
+    OutputPtr output(new Output(std::move(builder)));
     updateKScreenOutput(output);
     return output;
 }

@@ -86,8 +86,11 @@ void WaylandOutputDevice::kde_output_device_v2_mode(struct ::kde_output_device_m
 
 OutputPtr WaylandOutputDevice::toKScreenOutput()
 {
-    OutputPtr output(new Output());
-    output->setId(m_id);
+    Output::Builder builder;
+    {
+        builder.id = m_id;
+    }
+    OutputPtr output(new Output(std::move(builder)));
     updateKScreenOutput(output);
     return output;
 }
