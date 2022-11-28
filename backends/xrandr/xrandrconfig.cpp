@@ -300,17 +300,10 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
     }
 
     for (auto it = prioritiesChange.constBegin(); it != prioritiesChange.constEnd(); it++) {
-        const auto &[before, after] = it.value();
         const xcb_randr_output_t outputId = it.key();
-        if (after.has_value()) {
-            const uint32_t priority = after.value();
-            // either there was no 'before', or it differs from 'after'
-            if (!before.has_value() || (before.value() != priority)) {
-                setOutputPriority(outputId, priority);
-            }
-        } else {
-            setOutputPriority(outputId, 0);
-        }
+        const auto &[before, after] = it.value();
+        const uint32_t priority = after.value_or(0);
+        setOutputPriority(outputId, priority);
     }
 
     if (forceScreenSizeUpdate || currentScreenSize != newScreenSize) {
