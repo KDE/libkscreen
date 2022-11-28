@@ -523,10 +523,7 @@ bool XRandRConfig::disableOutput(const OutputPtr &kscreenOutput) const
     // Update the cached output now, otherwise we get RRNotify_CrtcChange notification
     // for an outdated output, which can lead to a crash.
     if (reply->status == XCB_RANDR_SET_CONFIG_SUCCESS) {
-        xOutput->update(XCB_NONE,
-                        XCB_NONE,
-                        xOutput->isConnected() ? XCB_RANDR_CONNECTION_CONNECTED : XCB_RANDR_CONNECTION_DISCONNECTED,
-                        kscreenOutput->priority());
+        xOutput->update(XCB_NONE, XCB_NONE, xOutput->isConnected() ? XCB_RANDR_CONNECTION_CONNECTED : XCB_RANDR_CONNECTION_DISCONNECTED);
         if (xOutput->crtc())
             xOutput->crtc()->updateTimestamp(reply->timestamp);
     }
@@ -575,7 +572,8 @@ bool XRandRConfig::enableOutput(const OutputPtr &kscreenOutput) const
         return false;
     }
 
-    xOutput->update(freeCrtc->crtc(), modeId, XCB_RANDR_CONNECTION_CONNECTED, kscreenOutput->priority());
+    xOutput->update(freeCrtc->crtc(), modeId, XCB_RANDR_CONNECTION_CONNECTED);
+    xOutput->setPriority(kscreenOutput->priority());
     return true;
 }
 
@@ -605,7 +603,8 @@ bool XRandRConfig::changeOutput(const KScreen::OutputPtr &kscreenOutput) const
         return false;
     }
 
-    xOutput->update(xOutput->crtc()->crtc(), modeId, XCB_RANDR_CONNECTION_CONNECTED, kscreenOutput->priority());
+    xOutput->update(xOutput->crtc()->crtc(), modeId, XCB_RANDR_CONNECTION_CONNECTED);
+    xOutput->setPriority(kscreenOutput->priority());
     return true;
 }
 

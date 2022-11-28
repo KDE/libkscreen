@@ -41,7 +41,7 @@ public:
     void disabled();
     void disconnected();
 
-    void update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_connection_t conn, Priority priority);
+    void update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_connection_t conn);
 
     xcb_randr_output_t id() const;
 
@@ -73,8 +73,8 @@ public:
 private:
     void init();
     void updateModes(const XCB::OutputInfo &outputInfo);
-    Priority outputPriorityFromProperty();
-    void setOutputPriorityToProperty();
+    Priority outputPriorityFromProperty() const;
+    void setOutputPriorityToProperty(Priority priority);
     void setAsPrimary();
 
     static KScreen::Output::Type fetchOutputType(xcb_randr_output_t outputId, const QString &name);
@@ -89,7 +89,6 @@ private:
     mutable QByteArray m_edid;
 
     xcb_randr_connection_t m_connected;
-    Priority m_priority;
     KScreen::Output::Type m_type;
 
     XRandRMode::Map m_modes;

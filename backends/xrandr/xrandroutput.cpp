@@ -32,7 +32,6 @@ XRandROutput::XRandROutput(xcb_randr_output_t id, XRandRConfig *config)
     : QObject(config)
     , m_config(config)
     , m_id(id)
-    , m_priority(0)
     , m_type(KScreen::Output::Unknown)
     , m_crtc(nullptr)
 {
@@ -60,23 +59,26 @@ bool XRandROutput::isEnabled() const
 
 bool XRandROutput::isPrimary() const
 {
-    return m_priority == 1;
+    return priority() == 1;
 }
 
 uint32_t XRandROutput::priority() const
 {
-    return m_priority;
+    if (isConnected() && isEnabled()) {
+        return outputPriorityFromProperty();
+    } else {
+        return 0;
+    }
 }
 
-void XRandROutput::setPriority(uint32_t priority)
+void XRandROutput::setPriority(XRandROutput::Priority newPriority)
 {
-    if (m_priority == priority) {
+    if (priority() == newPriority) {
         return;
     }
 
-    m_priority = priority;
-    setOutputPriorityToProperty();
-    if (priority == 1) {
+    setOutputPriorityToProperty(newPriority);
+    if (newPriority == 1) {
         setAsPrimary();
     }
 }
@@ -139,7 +141,7 @@ XRandRCrtc *XRandROutput::crtc() const
     return m_crtc;
 }
 
-void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_connection_t conn, uint32_t priority)
+void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_connection_t conn)
 {
     qCDebug(KSCREEN_XRANDR) << "XRandROutput" << m_id << "update"
                             << "\n"
@@ -147,8 +149,7 @@ void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_rand
                             << "\tm_crtc" << m_crtc << "\n"
                             << "\tCRTC:" << crtc << "\n"
                             << "\tMODE:" << mode << "\n"
-                            << "\tConnection:" << conn << "\n"
-                            << "\tPriority:" << priority;
+                            << "\tConnection:" << conn;
 
     // Connected or disconnected
     if (isConnected() != (conn == XCB_RANDR_CONNECTION_CONNECTED)) {
@@ -193,12 +194,9 @@ void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_rand
             m_crtc->connectOutput(m_id);
         }
     }
-
-    // priority has changed
-    m_priority = priority;
 }
 
-XRandROutput::Priority XRandROutput::outputPriorityFromProperty()
+XRandROutput::Priority XRandROutput::outputPriorityFromProperty() const
 {
     constexpr const char *KDE_SCREEN_INDEX = "_KDE_SCREEN_INDEX";
     xcb_atom_t screen_index_atom = XCB::InternAtom(/* only_if_exists */ false, strlen(KDE_SCREEN_INDEX), KDE_SCREEN_INDEX)->atom;
@@ -225,9 +223,9 @@ XRandROutput::Priority XRandROutput::outputPriorityFromProperty()
     return priority;
 }
 
-void XRandROutput::setOutputPriorityToProperty()
+void XRandROutput::setOutputPriorityToProperty(Priority priority)
 {
-    const Priority data[1] = {(Priority)m_priority};
+    const Priority data[1] = {priority};
 
     constexpr const char *KDE_SCREEN_INDEX = "_KDE_SCREEN_INDEX";
     xcb_atom_t screen_index_atom = XCB::InternAtom(/* only_if_exists */ false, strlen(KDE_SCREEN_INDEX), KDE_SCREEN_INDEX)->atom;
@@ -244,7 +242,7 @@ void XRandROutput::setOutputPriorityToProperty()
 
 void XRandROutput::setAsPrimary()
 {
-    Q_ASSERT(m_priority == 1);
+    Q_ASSERT(priority() == 1);
     xcb_randr_set_output_primary(XCB::connection(), XRandR::rootWindow(), m_id);
 }
 
@@ -260,7 +258,6 @@ void XRandROutput::init()
     m_type = fetchOutputType(m_id, m_name);
     m_icon = QString();
     m_connected = (xcb_randr_connection_t)outputInfo->connection;
-    m_priority = outputPriorityFromProperty();
 
     xcb_randr_output_t *clones = xcb_randr_get_output_info_clones(outputInfo.data());
     for (int i = 0; i < outputInfo->num_clones; ++i) {
@@ -461,7 +458,7 @@ KScreen::OutputPtr XRandROutput::toKScreenOutput() const
         builder.icon = m_icon;
         builder.sizeMm = QSize(m_widthMm, m_heightMm);
         builder.connected = isConnected();
-        builder.priority = (isConnected() ? m_priority : 0);
+        builder.priority = priority();
     }
 
     // See https://bugzilla.redhat.com/show_bug.cgi?id=1290586
