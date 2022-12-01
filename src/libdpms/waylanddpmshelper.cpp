@@ -13,7 +13,8 @@
 #include <QPointer>
 #include <QScreen>
 #include <QWaylandClientExtensionTemplate>
-#include <qpa/qplatformnativeinterface.h>
+#include <qpa/qplatformscreen_p.h>
+
 
 class Dpms : public QObject, public QtWayland::org_kde_kwin_dpms
 {
@@ -118,10 +119,9 @@ public:
 private:
     void addScreen(QScreen *screen)
     {
-        QPlatformNativeInterface *native = qGuiApp->platformNativeInterface();
-        wl_output *output = reinterpret_cast<wl_output *>(native->nativeResourceForScreen(QByteArrayLiteral("output"), screen));
-        if (output) {
-            m_dpmsPerScreen[screen] = new Dpms(get(output), m_dpms, screen);
+        auto waylandScreen = screen->nativeInterface<QNativeInterface::Private::QWaylandScreen>();
+        if (waylandScreen && waylandScreen->output()) {
+            m_dpmsPerScreen[screen] = new Dpms(get(waylandScreen->output()), m_dpms, screen);
         }
     }
 
