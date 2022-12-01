@@ -165,3 +165,8 @@ void WaylandDpmsHelper::trigger(KScreen::Dpms::Mode mode, const QList<QScreen *>
     }
     setHasPendingChanges(false);
 }
+
+void WaylandDpmsHelper::blockUntilSupported() const
+{
+    QMetaObject::invokeMethod(m_dpmsManager, "addRegistryListener");
+}

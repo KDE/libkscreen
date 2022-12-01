@@ -25,7 +25,11 @@ public:
 
     bool isSupported() const
     {
-        return m_supported.value_or(false);
+        if (!m_supported.has_value()) {
+            blockUntilSupported();
+        }
+        Q_ASSERT(m_supported.has_value());
+        return *m_supported;
     }
     void setSupported(bool supported)
     {
@@ -54,7 +58,9 @@ Q_SIGNALS:
     void hasPendingChangesChanged(bool pendingChanges);
 
 private:
-    std::optional<bool> m_supported = false;
+    virtual void blockUntilSupported() const {}
+
+    std::optional<bool> m_supported;
     bool m_hasPendingChanges = false;
 };
 

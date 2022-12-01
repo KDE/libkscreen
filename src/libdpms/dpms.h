@@ -41,7 +41,11 @@ public:
     };
     Q_ENUM(Mode)
 
-    /// @returns true if the system DPMS system is supported
+    /**
+     * @returns true if the DPMS system is supported
+     *
+     * If we are still figuring out if it's supported, it will block.
+     */
     bool isSupported() const;
 
     /**
