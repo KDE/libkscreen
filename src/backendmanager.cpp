@@ -55,6 +55,7 @@ BackendManager::BackendManager()
     , mShuttingDown(false)
     , mRequestsCounter(0)
     , mLoader(nullptr)
+    , mInProcessBackend(nullptr)
     , mMethod(OutOfProcess)
 {
     Log::instance();
@@ -224,9 +225,9 @@ KScreen::AbstractBackend *BackendManager::loadBackendInProcess(const QString &na
                               "loadBackendPlugin() instead.";
         return nullptr;
     }
-    if (m_inProcessBackend.first != nullptr && (name.isEmpty() || m_inProcessBackend.first->name() == name)) {
-        return m_inProcessBackend.first;
-    } else if (m_inProcessBackend.first != nullptr && m_inProcessBackend.first->name() != name) {
+    if (mInProcessBackend != nullptr && (name.isEmpty() || mInProcessBackend->name() == name)) {
+        return mInProcessBackend;
+    } else if (mInProcessBackend != nullptr && mInProcessBackend->name() != name) {
         shutdownBackend();
     }
 
@@ -246,7 +247,7 @@ KScreen::AbstractBackend *BackendManager::loadBackendInProcess(const QString &na
     }
     // qCDebug(KSCREEN) << "Connecting ConfigMonitor to backend.";
     ConfigMonitor::instance()->connectInProcessBackend(backend);
-    m_inProcessBackend = qMakePair<KScreen::AbstractBackend *, QVariantMap>(backend, QVariantMap(mBackendArguments));
+    mInProcessBackend = backend;
     setConfig(backend->config());
     return backend;
 }
@@ -396,9 +397,8 @@ void BackendManager::shutdownBackend()
     if (mMethod == InProcess) {
         delete mLoader;
         mLoader = nullptr;
-        m_inProcessBackend.second.clear();
-        delete m_inProcessBackend.first;
-        m_inProcessBackend.first = nullptr;
+        delete mInProcessBackend;
+        mInProcessBackend = nullptr;
     } else {
         if (mBackendService.isEmpty() && !mInterface) {
             return;

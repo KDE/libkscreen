@@ -152,7 +152,7 @@ private:
 
     // For in-process operation
     QPluginLoader *mLoader;
-    QPair<KScreen::AbstractBackend *, QVariantMap> m_inProcessBackend;
+    KScreen::AbstractBackend *mInProcessBackend;
 
     Method mMethod;
 };
