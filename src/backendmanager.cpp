@@ -177,6 +177,18 @@ QFileInfoList BackendManager::listBackends()
     return finfos;
 }
 
+void BackendManager::setBackendArgs(const QVariantMap &arguments)
+{
+    if (mBackendArguments != arguments) {
+        mBackendArguments = arguments;
+    }
+}
+
+QVariantMap BackendManager::getBackendArgs()
+{
+    return mBackendArguments;
+}
+
 KScreen::AbstractBackend *BackendManager::loadBackendPlugin(QPluginLoader *loader, const QString &name, const QVariantMap &arguments)
 {
     const auto finfo = preferredBackend(name);
@@ -222,18 +234,19 @@ KScreen::AbstractBackend *BackendManager::loadBackendInProcess(const QString &na
         mLoader = new QPluginLoader(this);
     }
     auto test_data_equals = QStringLiteral("TEST_DATA=");
-    QVariantMap arguments;
+    QVariantMap arguments = mBackendArguments;
     auto beargs = QString::fromLocal8Bit(qgetenv("KSCREEN_BACKEND_ARGS"));
     if (beargs.startsWith(test_data_equals)) {
         arguments[QStringLiteral("TEST_DATA")] = beargs.remove(test_data_equals);
     }
+    mBackendArguments = arguments;
     auto backend = BackendManager::loadBackendPlugin(mLoader, name, arguments);
     if (!backend) {
         return nullptr;
     }
     // qCDebug(KSCREEN) << "Connecting ConfigMonitor to backend.";
     ConfigMonitor::instance()->connectInProcessBackend(backend);
-    m_inProcessBackend = qMakePair<KScreen::AbstractBackend *, QVariantMap>(static_cast<KScreen::AbstractBackend *>(backend), QVariantMap(arguments));
+    m_inProcessBackend = qMakePair<KScreen::AbstractBackend *, QVariantMap>(static_cast<KScreen::AbstractBackend *>(backend), QVariantMap(mBackendArguments));
     setConfig(backend->config());
     return backend;
 }
@@ -254,7 +267,7 @@ void BackendManager::requestBackend()
     ++mRequestsCounter;
 
     const QByteArray args = qgetenv("KSCREEN_BACKEND_ARGS");
-    QVariantMap arguments;
+    QVariantMap arguments = mBackendArguments;
     if (!args.isEmpty()) {
         const QList<QByteArray> arglist = args.split(';');
         for (const QByteArray &arg : arglist) {
@@ -265,8 +278,9 @@ void BackendManager::requestBackend()
             arguments.insert(QString::fromUtf8(arg.left(pos)), arg.mid(pos + 1));
         }
     }
+    mBackendArguments = arguments;
 
-    startBackend(QString::fromLatin1(qgetenv("KSCREEN_BACKEND")), arguments);
+    startBackend(QString::fromLatin1(qgetenv("KSCREEN_BACKEND")), mBackendArguments);
 }
 
 void BackendManager::emitBackendReady()
