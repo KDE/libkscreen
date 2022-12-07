@@ -234,14 +234,8 @@ KScreen::AbstractBackend *BackendManager::loadBackendInProcess(const QString &na
     if (mLoader == nullptr) {
         mLoader = new QPluginLoader(this);
     }
-    auto test_data_equals = QStringLiteral("TEST_DATA=");
-    QVariantMap arguments = mBackendArguments;
-    auto beargs = QString::fromLocal8Bit(qgetenv("KSCREEN_BACKEND_ARGS"));
-    if (beargs.startsWith(test_data_equals)) {
-        arguments[QStringLiteral("TEST_DATA")] = beargs.remove(test_data_equals);
-    }
-    mBackendArguments = arguments;
-    auto backend = BackendManager::loadBackendPlugin(mLoader, name, arguments);
+
+    auto backend = BackendManager::loadBackendPlugin(mLoader, name, mBackendArguments);
     if (!backend) {
         return nullptr;
     }
@@ -266,20 +260,6 @@ void BackendManager::requestBackend()
         return;
     }
     ++mRequestsCounter;
-
-    const QByteArray args = qgetenv("KSCREEN_BACKEND_ARGS");
-    QVariantMap arguments = mBackendArguments;
-    if (!args.isEmpty()) {
-        const QList<QByteArray> arglist = args.split(';');
-        for (const QByteArray &arg : arglist) {
-            const int pos = arg.indexOf('=');
-            if (pos == -1) {
-                continue;
-            }
-            arguments.insert(QString::fromUtf8(arg.left(pos)), arg.mid(pos + 1));
-        }
-    }
-    mBackendArguments = arguments;
 
     startBackend(QString::fromLatin1(qgetenv("KSCREEN_BACKEND")), mBackendArguments);
 }
