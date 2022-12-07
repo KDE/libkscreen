@@ -66,7 +66,9 @@ void testScreenConfig::cleanupTestCase()
 void testScreenConfig::singleOutput()
 {
     // json file for the fake backend
-    KScreen::BackendManager::instance()->setBackendArgs({{QStringLiteral("TEST_DATA"), TEST_DATA "singleoutput.json"}});
+    KScreen::BackendManager::instance()->setBackendArgs(
+        {{QStringLiteral("TEST_DATA"), TEST_DATA "singleoutput.json"},
+         {QStringLiteral("SUPPORTED_FEATURES"), QVariant::fromValue(KScreen::Config::Feature::PerOutputScaling)}});
 
     //     QVERIFY2(kscreen, KScreen::errorString().toLatin1());
 
@@ -121,7 +123,9 @@ void testScreenConfig::singleOutputWithoutPreferred()
 
 void testScreenConfig::multiOutput()
 {
-    KScreen::BackendManager::instance()->setBackendArgs({{QStringLiteral("TEST_DATA"), TEST_DATA "multipleoutput.json"}});
+    KScreen::BackendManager::instance()->setBackendArgs(
+        {{QStringLiteral("TEST_DATA"), TEST_DATA "multipleoutput.json"},
+         {QStringLiteral("SUPPORTED_FEATURES"), QVariant::fromValue(KScreen::Config::Feature::PerOutputScaling)}});
 
     const ConfigPtr config = getConfig();
     QVERIFY(!config.isNull());
