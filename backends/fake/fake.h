@@ -8,6 +8,7 @@
 #define FAKE_BACKEND_H
 
 #include "abstractbackend.h"
+#include "config.h"
 
 #include <QLoggingCategory>
 #include <QObject>
@@ -43,6 +44,7 @@ private Q_SLOTS:
 
 private:
     QString mConfigFile;
+    KScreen::Config::Features mSupportedFeatures = KScreen::Config::Feature::None;
     mutable KScreen::ConfigPtr mConfig;
 };
 Q_DECLARE_LOGGING_CATEGORY(KSCREEN_FAKE)

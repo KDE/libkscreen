@@ -45,7 +45,16 @@ void Fake::init(const QVariantMap &arguments)
     }
 
     mConfigFile = arguments[QStringLiteral("TEST_DATA")].toString();
-    qCDebug(KSCREEN_FAKE) << "Fake profile file:" << mConfigFile;
+
+    if (arguments.contains(QStringLiteral("SUPPORTED_FEATURES"))) {
+        bool ok = false;
+        const int features = arguments[QStringLiteral("SUPPORTED_FEATURES")].toInt(&ok);
+        if (ok) {
+            mSupportedFeatures = static_cast<KScreen::Config::Features>(features);
+        }
+    }
+
+    qCDebug(KSCREEN_FAKE) << "Fake profile file:" << mConfigFile << "features" << mSupportedFeatures;
 }
 
 void Fake::delayedInit()
@@ -72,6 +81,9 @@ ConfigPtr Fake::config() const
 {
     if (mConfig.isNull()) {
         mConfig = Parser::fromJson(mConfigFile);
+        if (mConfig) {
+            mConfig->setSupportedFeatures(mSupportedFeatures);
+        }
     }
 
     return mConfig;
