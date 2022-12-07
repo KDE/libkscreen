@@ -101,7 +101,7 @@ void TestModeListChange::cleanupTestCase()
 void TestModeListChange::modeListChange()
 {
     // json file for the fake backend
-    qputenv("KSCREEN_BACKEND_ARGS", "TEST_DATA=" TEST_DATA "singleoutput.json");
+    KScreen::BackendManager::instance()->setBackendArgs({{QStringLiteral("TEST_DATA"), TEST_DATA "singleoutput.json"}});
 
     const ConfigPtr config = getConfig();
     QVERIFY(!config.isNull());

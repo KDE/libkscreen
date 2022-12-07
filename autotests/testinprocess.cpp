@@ -77,9 +77,9 @@ void TestInProcess::init()
     qputenv("KSCREEN_BACKEND_INPROCESS", "1");
     // Use Fake backend with one of the json configs
     qputenv("KSCREEN_BACKEND", "Fake");
-    qputenv("KSCREEN_BACKEND_ARGS", "TEST_DATA=" TEST_DATA "multipleoutput.json");
 
     KScreen::BackendManager::instance()->shutdownBackend();
+    KScreen::BackendManager::instance()->setBackendArgs({{QStringLiteral("TEST_DATA"), TEST_DATA "multipleoutput.json"}});
 }
 
 void TestInProcess::cleanup()

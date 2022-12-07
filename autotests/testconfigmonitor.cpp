@@ -60,7 +60,7 @@ private Q_SLOTS:
         KScreen::BackendManager::instance()->shutdownBackend();
         KScreen::BackendManager::instance()->setMethod(KScreen::BackendManager::InProcess);
         // json file for the fake backend
-        qputenv("KSCREEN_BACKEND_ARGS", "TEST_DATA=" TEST_DATA "singleoutput.json");
+        KScreen::BackendManager::instance()->setBackendArgs({{QStringLiteral("TEST_DATA"), TEST_DATA "singleoutput.json"}});
 
         // Prepare monitor
         KScreen::ConfigMonitor *monitor = KScreen::ConfigMonitor::instance();
