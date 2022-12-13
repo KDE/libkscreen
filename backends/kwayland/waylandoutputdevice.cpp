@@ -273,11 +273,6 @@ QString WaylandOutputDevice::modeName(const WaylandOutputDeviceMode *m) const
 
 QString WaylandOutputDevice::name() const
 {
-    return QStringLiteral("%1 %2").arg(m_manufacturer, m_model);
-}
-
-QString WaylandOutputDevice::outputName() const
-{
     return m_outputName;
 }
 
