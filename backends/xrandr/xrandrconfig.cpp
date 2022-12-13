@@ -274,8 +274,8 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
     }
 
     if (currentScreenSize != newScreenSize) {
-	for (const KScreen::OutputPtr &output : toChange) {
-             disableOutput(output);
+        for (const KScreen::OutputPtr &output : toChange) {
+            disableOutput(output);
         }
     }
 
@@ -311,7 +311,6 @@ void XRandRConfig::applyKScreenConfig(const KScreen::ConfigPtr &config)
             }
         }
     }
-
 }
 
 void XRandRConfig::printConfig(const ConfigPtr &config) const
