@@ -34,7 +34,6 @@ public:
     bool enabled() const;
     int id() const;
     QString name() const;
-    QString outputName() const;
     QString model() const;
     QString manufacturer() const;
     qreal scale() const;

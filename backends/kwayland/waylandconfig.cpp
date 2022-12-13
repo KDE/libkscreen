@@ -135,7 +135,7 @@ void WaylandConfig::setupRegistry()
 
                 m_primaryOutputName = name;
                 for (auto output : std::as_const(m_outputMap)) {
-                    output->setPrimary(output->outputName() == name);
+                    output->setPrimary(output->name() == name);
                 }
                 if (!m_blockSignals) {
                     Q_EMIT configChanged();
@@ -174,7 +174,7 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
         QObject::disconnect(*connection);
         delete connection;
 
-        device->setPrimary(m_primaryOutputName == device->outputName());
+        device->setPrimary(m_primaryOutputName == device->name());
         m_initializingOutputs.removeOne(device);
         m_outputMap.insert(device->id(), device);
         checkInitialized();
