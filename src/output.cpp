@@ -14,6 +14,8 @@
 #include <QRect>
 #include <QScopedPointer>
 
+#include <cstdint>
+#include <qobjectdefs.h>
 #include <utility>
 
 using namespace KScreen;
@@ -30,7 +32,7 @@ public:
         , explicitLogicalSize(QSizeF())
         , connected(false)
         , enabled(false)
-        , primary(false)
+        , priority(0)
         , edid(nullptr)
     {
     }
@@ -48,7 +50,7 @@ public:
         , preferredModes(other.preferredModes)
         , connected(other.connected)
         , enabled(other.enabled)
-        , primary(other.primary)
+        , priority(other.priority)
         , clones(other.clones)
         , replicationSource(other.replicationSource)
         , sizeMm(other.sizeMm)
@@ -88,7 +90,7 @@ public:
     //
     bool connected;
     bool enabled;
-    bool primary;
+    uint32_t priority;
     QList<int> clones;
     int replicationSource;
     QScopedPointer<Edid> edid;
@@ -489,16 +491,26 @@ void Output::setEnabled(bool enabled)
 
 bool Output::isPrimary() const
 {
-    return d->primary;
+    return d->enabled && (d->priority == 1);
 }
 
 void Output::setPrimary(bool primary)
 {
-    if (d->primary == primary) {
+    setPriority(1);
+}
+
+uint32_t Output::priority() const
+{
+    return d->priority;
+}
+
+void Output::setPriority(uint32_t priority)
+{
+    if (d->priority == priority) {
         return;
     }
-    d->primary = primary;
-    Q_EMIT isPrimaryChanged();
+    d->priority = priority;
+    Q_EMIT priorityChanged();
 }
 
 QList<int> Output::clones() const
@@ -692,9 +704,9 @@ void Output::apply(const OutputPtr &other)
         changes << &Output::isEnabledChanged;
         setEnabled(other->d->enabled);
     }
-    if (d->primary != other->d->primary) {
-        changes << &Output::isPrimaryChanged;
-        setPrimary(other->d->primary);
+    if (d->priority != other->d->priority) {
+        changes << &Output::priorityChanged;
+        setPriority(other->d->priority);
     }
     if (d->clones != other->d->clones) {
         changes << &Output::clonesChanged;
@@ -762,7 +774,7 @@ QDebug operator<<(QDebug dbg, const KScreen::OutputPtr &output)
             << output->name() << ", "
             << (output->isConnected() ? "connected " : "disconnected ")
             << (output->isEnabled() ? "enabled" : "disabled")
-            << (output->isPrimary() ? " primary" : "")
+            << " priority " << output->priority()
             << ", pos: " << output->pos()
             << ", res: " << output->size()
             << ", modeId: " << output->currentModeId()

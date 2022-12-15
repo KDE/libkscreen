@@ -176,7 +176,6 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output)
     output->setId(m_id);
     output->setEnabled(enabled());
     output->setConnected(true);
-    output->setPrimary(m_isPrimary);
     output->setName(name());
     output->setSizeMm(m_physicalSize);
     output->setPos(m_pos);
@@ -262,10 +261,12 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputConfiguration *wlConfig, cons
         wlConfig->set_rgb_range(object(), static_cast<uint32_t>(output->rgbRange()));
         changed = true;
     }
-
-    if (output->isPrimary()) {
-        wlConfig->set_primary_output(object());
+    if (output->priority() != m_index) {
         changed = true;
+    }
+    // always send all outputs
+    if (kde_output_configuration_v2_get_version(wlConfig->object()) >= KDE_OUTPUT_CONFIGURATION_V2_SET_PRIORITY_SINCE_VERSION) {
+        wlConfig->set_priority(object(), output->priority());
     }
 
     return changed;
@@ -288,14 +289,14 @@ QDebug operator<<(QDebug dbg, const WaylandOutputDevice *output)
     return dbg;
 }
 
-bool WaylandOutputDevice::isPrimary() const
+void WaylandOutputDevice::setIndex(uint32_t index)
 {
-    return m_isPrimary;
+    m_index = index;
 }
 
-void WaylandOutputDevice::setPrimary(bool primary)
+uint32_t WaylandOutputDevice::index() const
 {
-    m_isPrimary = primary;
+    return m_index;
 }
 
 void WaylandOutputDevice::kde_output_device_v2_done()

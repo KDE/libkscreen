@@ -17,6 +17,9 @@
 #include <QMetaType>
 #include <QObject>
 
+#include <cstdint>
+#include <optional>
+
 namespace KScreen
 {
 class Output;
@@ -130,11 +133,68 @@ public:
     OutputPtr output(int outputId) const;
     OutputList outputs() const;
     OutputList connectedOutputs() const;
+
+    /**
+     * Find primary output. Primary output is the output with priority 1. May be
+     * null.
+     */
     OutputPtr primaryOutput() const;
+    /**
+     * Setting output to be the primary one is equivalent to setting its
+     * priority to 1.
+     */
     void setPrimaryOutput(const OutputPtr &output);
+    /**
+     * Add an output to this configuration.
+     *
+     * This method does not ensure consistency of priorities, it is up to the
+     * caller to perform necessary adjustments afterwards. The reason is that it
+     * might be used in a loop (such as adding all outputs) where committing
+     * intermediate states is undesirable.
+     */
     void addOutput(const OutputPtr &output);
+    /**
+     * Remove an output with matching ID from this configuration.
+     *
+     * This method does not ensure consistency of priorities, it is up to the
+     * caller to perform necessary adjustments afterwards. The reason is that it
+     * might be used in a loop (such as removing all outputs) where committing
+     * intermediate states is undesirable.
+     */
     void removeOutput(int outputId);
+    /**
+     * Replace all existing outputs with the given ones.
+     *
+     * Unlike addOutput and removeOutput which operate on individual items
+     * presumably in a loop, this method will call adjustPriorities() before
+     * returning.
+     */
     void setOutputs(const OutputList &outputs);
+
+    /**
+     * Set output's priority and call adjustPriorities() trying to retain
+     * relative ordering of the output. Setting priority to zero with this
+     * method will disable the output, otherwise the output will be enabled.
+     */
+    void setOutputPriority(const OutputPtr &output, uint32_t priority);
+
+    void setOutputPriorities(QMap<OutputPtr, uint32_t> &priorities);
+
+    /**
+     * Ensure consistency and continuity of priorities.
+     *
+     * Most methods operating on outputs are doing so in loop, where committing
+     * intermediate states is undesirable. This method restores the balance by
+     * settings priority of all disabled outputs to 0, disabling all outputs
+     * whose priority is 0 (i.e. it works in both directions), and sorting all
+     * the remaining ones, such that they are numbered strictly sequentially
+     * starting from 1.
+     * @param keep The output, which priority should stay as close as possible
+     * to its current one. It is not possible to guarantee, but the algorithm
+     * will do its best to prioritize this output among others, if there happens
+     * to be multiple ones with the same priority number.
+     */
+    void adjustPriorities(std::optional<OutputPtr> keep = std::nullopt);
 
     bool isValid() const;
     void setValid(bool valid);
@@ -204,7 +264,7 @@ public:
 Q_SIGNALS:
     void outputAdded(const KScreen::OutputPtr &output);
     void outputRemoved(int outputId);
-    void primaryOutputChanged(const KScreen::OutputPtr &output);
+    void prioritiesChanged();
 
 private:
     Q_DISABLE_COPY(Config)

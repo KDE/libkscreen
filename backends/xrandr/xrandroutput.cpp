@@ -13,6 +13,12 @@
 
 #include "mode.h"
 
+#include <array>
+#include <cstdint>
+#include <cstring>
+#include <qglobal.h>
+#include <utility>
+#include <xcb/randr.h>
 #include <xcb/render.h>
 
 Q_DECLARE_METATYPE(QList<int>)
@@ -27,7 +33,6 @@ XRandROutput::XRandROutput(xcb_randr_output_t id, XRandRConfig *config)
     : QObject(config)
     , m_config(config)
     , m_id(id)
-    , m_primary(false)
     , m_type(KScreen::Output::Unknown)
     , m_crtc(nullptr)
 {
@@ -55,7 +60,28 @@ bool XRandROutput::isEnabled() const
 
 bool XRandROutput::isPrimary() const
 {
-    return m_primary;
+    return priority() == 1;
+}
+
+uint32_t XRandROutput::priority() const
+{
+    if (isConnected() && isEnabled()) {
+        return outputPriorityFromProperty();
+    } else {
+        return 0;
+    }
+}
+
+void XRandROutput::setPriority(XRandROutput::Priority newPriority)
+{
+    if (priority() == newPriority) {
+        return;
+    }
+
+    setOutputPriorityToProperty(newPriority);
+    if (newPriority == 1) {
+        setAsPrimary();
+    }
 }
 
 QPoint XRandROutput::position() const
@@ -116,12 +142,7 @@ XRandRCrtc *XRandROutput::crtc() const
     return m_crtc;
 }
 
-void XRandROutput::update()
-{
-    init();
-}
-
-void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_connection_t conn, bool primary)
+void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr_connection_t conn)
 {
     qCDebug(KSCREEN_XRANDR) << "XRandROutput" << m_id << "update"
                             << "\n"
@@ -129,8 +150,7 @@ void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_rand
                             << "\tm_crtc" << m_crtc << "\n"
                             << "\tCRTC:" << crtc << "\n"
                             << "\tMODE:" << mode << "\n"
-                            << "\tConnection:" << conn << "\n"
-                            << "\tPrimary:" << primary;
+                            << "\tConnection:" << conn;
 
     // Connected or disconnected
     if (isConnected() != (conn == XCB_RANDR_CONNECTION_CONNECTED)) {
@@ -175,14 +195,65 @@ void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_rand
             m_crtc->connectOutput(m_id);
         }
     }
-
-    // Primary has changed
-    m_primary = primary;
 }
 
-void XRandROutput::setIsPrimary(bool primary)
+static constexpr const char *KDE_SCREEN_INDEX = "_KDE_SCREEN_INDEX";
+
+XRandROutput::Priority XRandROutput::outputPriorityFromProperty() const
 {
-    m_primary = primary;
+    if (!isConnected()) {
+        return 0;
+    }
+
+    xcb_atom_t screen_index_atom = XCB::InternAtom(/* only_if_exists */ false, strlen(KDE_SCREEN_INDEX), KDE_SCREEN_INDEX)->atom;
+
+    auto cookie = xcb_randr_get_output_property(XCB::connection(),
+                                                m_id,
+                                                screen_index_atom,
+                                                XCB_ATOM_INTEGER,
+                                                /*offset*/ 0,
+                                                /*length*/ 1,
+                                                /*delete*/ false,
+                                                /*pending*/ false);
+    XCB::ScopedPointer<xcb_randr_get_output_property_reply_t> reply(xcb_randr_get_output_property_reply(XCB::connection(), cookie, nullptr));
+    if (!reply) {
+        return 0;
+    }
+
+    if (!(reply->type == XCB_ATOM_INTEGER && reply->format == PRIORITY_FORMAT && reply->num_items == 1)) {
+        return 0;
+    }
+
+    const uint8_t *prop = xcb_randr_get_output_property_data(reply.data());
+    const Priority priority = *reinterpret_cast<const Priority *>(prop);
+    return priority;
+}
+
+void XRandROutput::setOutputPriorityToProperty(Priority priority)
+{
+    if (!isConnected()) {
+        return;
+    }
+
+    const std::array<Priority, 1> data = {priority};
+
+    xcb_atom_t screen_index_atom = XCB::InternAtom(/* only_if_exists */ false, strlen(KDE_SCREEN_INDEX), KDE_SCREEN_INDEX)->atom;
+
+    xcb_randr_change_output_property(XCB::connection(), //
+                                     m_id,
+                                     screen_index_atom,
+                                     XCB_ATOM_INTEGER,
+                                     PRIORITY_FORMAT,
+                                     XCB_PROP_MODE_REPLACE,
+                                     data.size(),
+                                     data.data());
+}
+
+void XRandROutput::setAsPrimary()
+{
+    if (isConnected() && isEnabled()) {
+        xcb_randr_set_output_primary(XCB::connection(), XRandR::rootWindow(), m_id);
+    }
 }
 
 void XRandROutput::init()
@@ -193,13 +264,10 @@ void XRandROutput::init()
         return;
     }
 
-    XCB::PrimaryOutput primary(XRandR::rootWindow());
-
     m_name = QString::fromUtf8((const char *)xcb_randr_get_output_info_name(outputInfo.data()), outputInfo->name_len);
     m_type = fetchOutputType(m_id, m_name);
     m_icon = QString();
     m_connected = (xcb_randr_connection_t)outputInfo->connection;
-    m_primary = (primary->output == m_id);
 
     xcb_randr_output_t *clones = xcb_randr_get_output_info_clones(outputInfo.data());
     for (int i = 0; i < outputInfo->num_clones; ++i) {
@@ -395,6 +463,7 @@ KScreen::OutputPtr XRandROutput::toKScreenOutput() const
     kscreenOutput->setSizeMm(QSize(m_widthMm, m_heightMm));
     kscreenOutput->setName(m_name);
     kscreenOutput->setIcon(m_icon);
+    kscreenOutput->setPriority(priority());
 
     // See https://bugzilla.redhat.com/show_bug.cgi?id=1290586
     // QXL will be creating a new mode we need to jump to every time the display is resized
@@ -409,7 +478,6 @@ KScreen::OutputPtr XRandROutput::toKScreenOutput() const
         }
         kscreenOutput->setModes(kscreenModes);
         kscreenOutput->setPreferredModes(m_preferredModes);
-        kscreenOutput->setPrimary(m_primary);
         kscreenOutput->setClones([](const QList<xcb_randr_output_t> &clones) {
             QList<int> kclones;
             kclones.reserve(clones.size());

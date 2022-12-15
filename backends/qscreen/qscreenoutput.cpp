@@ -54,7 +54,6 @@ void QScreenOutput::updateKScreenOutput(OutputPtr &output) const
     // Initialize primary output
     output->setEnabled(true);
     output->setConnected(true);
-    output->setPrimary(QGuiApplication::primaryScreen() == m_qscreen);
 
     // Rotation - translate QScreen::primaryOrientation() to Output::rotation()
     if (m_qscreen->primaryOrientation() == Qt::PortraitOrientation) {

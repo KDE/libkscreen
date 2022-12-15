@@ -124,20 +124,18 @@ void WaylandConfig::setupRegistry()
             addOutput(name, std::min(2u, version));
         }
         if (interface == WaylandOutputManagement::interface()->name) {
-            m_outputManagement = new WaylandOutputManagement(m_registry->registry(), name, std::min(2u, version));
+            m_outputManagement = new WaylandOutputManagement(m_registry->registry(), name, std::min(3u, version));
         }
-        if (interface == WaylandPrimaryOutput::interface()->name) {
-            m_primaryOutput.reset(new WaylandPrimaryOutput(m_registry->registry(), name, std::min(1u, version)));
-            connect(m_primaryOutput.data(), &WaylandPrimaryOutput::primaryOutputChanged, this, [this](const QString &name) {
-                if (m_primaryOutputName == name) {
-                    return;
+        if (interface == WaylandOutputOrder::interface()->name) {
+            m_outputOrder = std::make_unique<WaylandOutputOrder>(m_registry->registry(), name, std::min(1u, version));
+            connect(m_outputOrder.get(), &WaylandOutputOrder::outputOrderChanged, this, [this](const QVector<QString> &names) {
+                bool change = false;
+                for (const auto &output : std::as_const(m_outputMap)) {
+                    const uint32_t newIndex = names.indexOf(output->name()) + 1;
+                    change = change || output->index() != newIndex;
+                    output->setIndex(newIndex);
                 }
-
-                m_primaryOutputName = name;
-                for (auto output : std::as_const(m_outputMap)) {
-                    output->setPrimary(output->name() == name);
-                }
-                if (!m_blockSignals) {
+                if (change && !m_blockSignals) {
                     Q_EMIT configChanged();
                 }
             });
@@ -174,13 +172,17 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
         QObject::disconnect(*connection);
         delete connection;
 
-        device->setPrimary(m_primaryOutputName == device->name());
         m_initializingOutputs.removeOne(device);
         m_outputMap.insert(device->id(), device);
+        if (m_outputOrder) {
+            device->setIndex(m_outputOrder->order().indexOf(device->name()) + 1);
+        }
         checkInitialized();
 
-        if (!m_blockSignals && m_initializingOutputs.isEmpty()) {
+        if (m_initializingOutputs.isEmpty()) {
             m_screen->setOutputs(m_outputMap.values());
+        }
+        if (!m_blockSignals && m_initializingOutputs.isEmpty()) {
             Q_EMIT configChanged();
         }
 
@@ -259,15 +261,19 @@ KScreen::ConfigPtr WaylandConfig::currentConfig()
 
     // Add KScreen::Outputs that aren't in the list yet
     KScreen::OutputList kscreenOutputs = m_kscreenConfig->outputs();
+    QMap<OutputPtr, uint32_t> priorities;
     for (const auto &output : m_outputMap) {
-        KScreen::OutputPtr &kscreenOutput = kscreenOutputs[output->id()];
-        if (!kscreenOutput) {
-            kscreenOutput = output->toKScreenOutput();
-        } else {
+        KScreen::OutputPtr kscreenOutput;
+        if (m_kscreenConfig->outputs().contains(output->id())) {
+            kscreenOutput = m_kscreenConfig->outputs()[output->id()];
             output->updateKScreenOutput(kscreenOutput);
+        } else {
+            kscreenOutput = output->toKScreenOutput();
+            m_kscreenConfig->addOutput(kscreenOutput);
         }
+        priorities[kscreenOutput] = output->index();
     }
-    m_kscreenConfig->setOutputs(kscreenOutputs);
+    m_kscreenConfig->setOutputPriorities(priorities);
 
     m_kscreenConfig->setTabletModeAvailable(m_tabletModeAvailable);
     m_kscreenConfig->setTabletModeEngaged(m_tabletModeEngaged);
@@ -302,6 +308,9 @@ WaylandOutputDevice *WaylandConfig::findOutputDevice(struct ::kde_output_device_
 void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
 {
     using namespace KWayland::Client;
+
+    newConfig->adjustPriorities(); // never trust input
+
     // Create a new configuration object
     auto wlConfig = m_outputManagement->createConfiguration();
     bool changed = false;

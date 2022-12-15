@@ -51,6 +51,8 @@ public:
 
     bool isPrimary() const;
     void setPrimary(bool primary);
+    void setIndex(uint32_t priority);
+    uint32_t index() const;
     bool setWlConfig(WaylandOutputConfiguration *wlConfig, const KScreen::OutputPtr &output);
 
     QString modeId() const;
@@ -111,7 +113,7 @@ private:
     uint32_t m_overscan;
     uint32_t m_vrr_policy;
     uint32_t m_rgbRange;
-    bool m_isPrimary = false;
+    uint32_t m_index;
 };
 
 }

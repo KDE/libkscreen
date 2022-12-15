@@ -31,10 +31,10 @@ class OutputManagement;
 namespace KScreen
 {
 class Output;
-class WaylandPrimaryOutput;
 class WaylandOutputDevice;
 class WaylandScreen;
 class WaylandOutputManagement;
+class WaylandOutputOrder;
 
 /**
  * @class WaylandConfig
@@ -88,11 +88,10 @@ private:
 
     KWayland::Client::Registry *m_registry;
     WaylandOutputManagement *m_outputManagement = nullptr;
-    QScopedPointer<WaylandPrimaryOutput> m_primaryOutput;
+    std::unique_ptr<WaylandOutputOrder> m_outputOrder;
 
     // KWayland names as keys
     QMap<int, WaylandOutputDevice *> m_outputMap;
-    QString m_primaryOutputName;
 
     // KWayland names
     QList<WaylandOutputDevice *> m_initializingOutputs;

@@ -8,7 +8,7 @@
 #define WAYLANDOUTPUTMANAGEMENT_H
 
 #include "qwayland-kde-output-management-v2.h"
-#include "qwayland-kde-primary-output-v1.h"
+#include "qwayland-kde-output-order-v1.h"
 
 #include <QObject>
 #include <QSize>
@@ -42,18 +42,24 @@ public:
     WaylandOutputConfiguration *createConfiguration();
 };
 
-class WaylandPrimaryOutput : public QObject, public QtWayland::kde_primary_output_v1
+class WaylandOutputOrder : public QObject, public QtWayland::kde_output_order_v1
 {
     Q_OBJECT
 public:
-    WaylandPrimaryOutput(struct ::wl_registry *registry, int id, int version);
-    ~WaylandPrimaryOutput();
+    WaylandOutputOrder(struct ::wl_registry *registry, int id, int version);
+    ~WaylandOutputOrder();
+
+    QVector<QString> order() const;
 
 Q_SIGNALS:
-    void primaryOutputChanged(const QString &outputName);
+    void outputOrderChanged(const QVector<QString> &outputs);
 
-protected:
-    void kde_primary_output_v1_primary_output(const QString &outputName) override;
+private:
+    void kde_output_order_v1_output(const QString &output_name) override;
+    void kde_output_order_v1_done() override;
+
+    QVector<QString> m_outputOrder;
+    QVector<QString> m_pendingOutputOrder;
 };
 }
 

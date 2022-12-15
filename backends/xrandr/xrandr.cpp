@@ -142,8 +142,7 @@ void XRandR::outputChanged(xcb_randr_output_t output, xcb_randr_crtc_t crtc, xcb
         // info is valid: the output is still there
     }
 
-    XCB::PrimaryOutput primary(XRandR::rootWindow());
-    xOutput->update(crtc, mode, connection, (primary->output == output));
+    xOutput->update(crtc, mode, connection);
     qCDebug(KSCREEN_XRANDR) << "Output" << xOutput->id() << ": connected =" << xOutput->isConnected() << ", enabled =" << xOutput->isEnabled();
 }
 

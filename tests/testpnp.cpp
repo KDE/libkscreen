@@ -16,6 +16,7 @@
 #include <QGuiApplication>
 #include <QRect>
 #include <QScreen>
+#include <cstdint>
 //#include <QX11Info>
 
 using namespace KScreen;
@@ -112,7 +113,7 @@ void TestPnp::print()
             continue;
         }
         qDebug() << "Enabled: " << output->isEnabled();
-        qDebug() << "Primary: " << output->isPrimary();
+        qDebug() << "Priority: " << output->priority();
         qDebug() << "Rotation: " << output->rotation();
         qDebug() << "Pos: " << output->pos();
         qDebug() << "MMSize: " << output->sizeMm();

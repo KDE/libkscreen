@@ -36,21 +36,29 @@ void WaylandOutputConfiguration::kde_output_configuration_v2_failed()
     Q_EMIT failed();
 }
 
-WaylandPrimaryOutput::WaylandPrimaryOutput(struct ::wl_registry *registry, int id, int version)
-    : QObject()
-    , QtWayland::kde_primary_output_v1(registry, id, version)
+WaylandOutputOrder::WaylandOutputOrder(struct ::wl_registry *registry, int id, int version)
+    : QtWayland::kde_output_order_v1(registry, id, version)
 {
 }
 
-WaylandPrimaryOutput::~WaylandPrimaryOutput()
+WaylandOutputOrder::~WaylandOutputOrder()
 {
-    if (kde_primary_output_v1_get_version(object()) >= KDE_PRIMARY_OUTPUT_V1_DESTROY_SINCE_VERSION) {
-        destroy();
-    }
 }
 
-void WaylandPrimaryOutput::kde_primary_output_v1_primary_output(const QString &outputName)
+QVector<QString> WaylandOutputOrder::order() const
 {
-    Q_EMIT primaryOutputChanged(outputName);
+    return m_outputOrder;
+}
+
+void WaylandOutputOrder::kde_output_order_v1_output(const QString &output_name)
+{
+    m_pendingOutputOrder.push_back(output_name);
+}
+
+void WaylandOutputOrder::kde_output_order_v1_done()
+{
+    m_outputOrder = m_pendingOutputOrder;
+    Q_EMIT outputOrderChanged(m_pendingOutputOrder);
+    m_pendingOutputOrder.clear();
 }
 }

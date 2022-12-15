@@ -6,6 +6,7 @@
 #pragma once
 
 #include <QObject>
+#include <cstdint>
 
 #include "xrandrcrtc.h"
 #include "xrandroutput.h"
@@ -43,7 +44,7 @@ private:
     QSize screenSize(const KScreen::ConfigPtr &config) const;
     bool setScreenSize(const QSize &size) const;
 
-    void setPrimaryOutput(xcb_randr_output_t outputId) const;
+    void setOutputPriority(xcb_randr_output_t outputId, uint32_t priority) const;
 
     bool disableOutput(const KScreen::OutputPtr &output) const;
     bool enableOutput(const KScreen::OutputPtr &output) const;

@@ -12,12 +12,16 @@
 #include "mode.h"
 #include "output.h"
 #include "screen.h"
+#include "types.h"
 
 #include <QCryptographicHash>
 #include <QDebug>
 #include <QRect>
 #include <QStringList>
 
+#include <algorithm>
+#include <cstdint>
+#include <optional>
 #include <utility>
 
 using namespace KScreen;
@@ -44,44 +48,28 @@ public:
         return iter == outputs.constEnd() ? KScreen::OutputPtr() : iter.value();
     }
 
-    void onPrimaryOutputChanged()
-    {
-        const KScreen::OutputPtr output(qobject_cast<KScreen::Output *>(sender()), [](void *) {});
-        Q_ASSERT(output);
-        if (output->isPrimary()) {
-            q->setPrimaryOutput(output);
-        } else {
-            q->setPrimaryOutput(findPrimaryOutput());
-        }
-    }
-
+    // output priorities may be inconsistent after this call
     OutputList::Iterator removeOutput(OutputList::Iterator iter)
     {
         if (iter == outputs.end()) {
             return iter;
         }
 
-        OutputPtr output = iter.value();
-        if (!output) {
-            return outputs.erase(iter);
-        }
-
         const int outputId = iter.key();
+        OutputPtr output = iter.value();
+
         iter = outputs.erase(iter);
 
-        if (primaryOutput == output) {
-            q->setPrimaryOutput(OutputPtr());
+        if (output) {
+            output->disconnect(q);
+            Q_EMIT q->outputRemoved(outputId);
         }
-        output->disconnect(q);
-
-        Q_EMIT q->outputRemoved(outputId);
 
         return iter;
     }
 
     bool valid;
     ScreenPtr screen;
-    OutputPtr primaryOutput;
     OutputList outputs;
     Features supportedFeatures;
     bool tabletModeAvailable;
@@ -213,7 +201,6 @@ ConfigPtr Config::clone() const
     for (const OutputPtr &ourOutput : std::as_const(d->outputs)) {
         newConfig->addOutput(ourOutput->clone());
     }
-    newConfig->d->primaryOutput = newConfig->d->findPrimaryOutput();
     return newConfig;
 }
 
@@ -296,47 +283,20 @@ OutputList Config::connectedOutputs() const
 
 OutputPtr Config::primaryOutput() const
 {
-    if (d->primaryOutput) {
-        return d->primaryOutput;
-    }
-
-    d->primaryOutput = d->findPrimaryOutput();
-    return d->primaryOutput;
+    return d->findPrimaryOutput();
 }
 
 void Config::setPrimaryOutput(const OutputPtr &newPrimary)
 {
-    // Don't call primaryOutput(): at this point d->primaryOutput is either
-    // initialized, or we need to look for the primary anyway
-    if (d->primaryOutput == newPrimary) {
-        return;
-    }
-
-    // qCDebug(KSCREEN) << "Primary output changed from" << primaryOutput()
-    //                  << "(" << (primaryOutput().isNull() ? "none" : primaryOutput()->name()) << ") to"
-    //                  << newPrimary << "(" << (newPrimary.isNull() ? "none" : newPrimary->name()) << ")";
-
-    for (OutputPtr &output : d->outputs) {
-        disconnect(output.data(), &KScreen::Output::isPrimaryChanged, d, &KScreen::Config::Private::onPrimaryOutputChanged);
-        output->setPrimary(output == newPrimary);
-        connect(output.data(), &KScreen::Output::isPrimaryChanged, d, &KScreen::Config::Private::onPrimaryOutputChanged);
-    }
-
-    d->primaryOutput = newPrimary;
-    Q_EMIT primaryOutputChanged(newPrimary);
+    setOutputPriority(newPrimary, 1);
 }
 
 void Config::addOutput(const OutputPtr &output)
 {
     d->outputs.insert(output->id(), output);
     output->setExplicitLogicalSize(logicalSizeForOutput(*output));
-    connect(output.data(), &KScreen::Output::isPrimaryChanged, d, &KScreen::Config::Private::onPrimaryOutputChanged);
 
     Q_EMIT outputAdded(output);
-
-    if (output->isPrimary()) {
-        setPrimaryOutput(output);
-    }
 }
 
 void Config::removeOutput(int outputId)
@@ -354,6 +314,110 @@ void Config::setOutputs(const OutputList &outputs)
     for (const OutputPtr &output : outputs) {
         addOutput(output);
     }
+
+    adjustPriorities();
+}
+
+void Config::setOutputPriority(const OutputPtr &output, uint32_t priority)
+{
+    if (!d->outputs.contains(output->id()) || d->outputs[output->id()] != output) {
+        qCDebug(KSCREEN) << "The output" << output << "does not belong to this config";
+        return;
+    }
+    if (output->priority() == priority) {
+        return;
+    }
+    output->setEnabled(priority != 0);
+    output->setPriority(priority);
+    adjustPriorities((priority != 0) ? std::optional(output) : std::nullopt);
+}
+
+void Config::setOutputPriorities(QMap<OutputPtr, uint32_t> &priorities)
+{
+    for (auto it = priorities.constBegin(); it != priorities.constEnd(); it++) {
+        const OutputPtr &output = it.key();
+        const uint32_t priority = it.value();
+
+        if (!d->outputs.contains(output->id()) || d->outputs[output->id()] != output) {
+            qCDebug(KSCREEN) << "The output" << output << "does not belong to this config";
+            return;
+        }
+        output->setEnabled(priority != 0);
+        output->setPriority(priority);
+    }
+    adjustPriorities();
+}
+
+static std::optional<OutputPtr> removeOptional(QList<OutputPtr> &haystack, std::optional<OutputPtr> &needle)
+{
+    if (!needle.has_value()) {
+        return std::nullopt;
+    }
+    const OutputPtr &value = needle.value();
+    const bool removed = haystack.removeOne(value);
+    return removed ? needle : std::nullopt;
+}
+
+void Config::adjustPriorities(std::optional<OutputPtr> keep)
+{
+    // we need specifically tree-based QMap for this
+    QMap<uint32_t, QList<OutputPtr>> multimap;
+    uint32_t maxPriority = 0;
+    bool found = false;
+
+    for (const OutputPtr &output : d->outputs) {
+        maxPriority = std::max(maxPriority, output->priority());
+    }
+
+    if (keep.has_value() && keep.value()->priority() == 0) {
+        qCDebug(KSCREEN) << "The output to keep" << keep.value() << "has zero priority. Did you forget to set priority after enabling it?";
+        keep.reset();
+    }
+    for (const OutputPtr &output : d->outputs) {
+        if (keep.has_value() && keep.value() == output) {
+            found = true;
+        }
+        if (!output->isEnabled()) {
+            output->setPriority(0);
+        } else {
+            // XXX: we are currently not enforcing consistency after enabling an output.
+            if (output->priority() == 0) {
+                output->setPriority(maxPriority + 1);
+            }
+            QList<OutputPtr> &entry = multimap[output->priority()];
+            entry.append(output);
+        }
+    }
+    if (keep.has_value() && !found) {
+        qCDebug(KSCREEN) << "The output to keep" << keep.value() << "is not in the list of outputs" << d->outputs;
+        keep.reset();
+    }
+
+    uint32_t nextPriority = 1;
+    for (QList<OutputPtr> &current_list : multimap) {
+        std::optional<OutputPtr> currentKeep = removeOptional(current_list, keep);
+
+        // deterministic sorting of identically-prioritized outputs.
+        // ordering reversed, so that later we can use pop() operation instead of removing from the beginning.
+        std::stable_sort(current_list.begin(), current_list.end(), [](const OutputPtr &lhs, const OutputPtr &rhs) -> bool {
+            return rhs->name() < lhs->name();
+        });
+
+        while (currentKeep.has_value() || !current_list.isEmpty()) {
+            OutputPtr nextOutput;
+            if (currentKeep.has_value() && (currentKeep.value()->priority() <= nextPriority || current_list.isEmpty())) {
+                nextOutput = currentKeep.value();
+                currentKeep.reset();
+            } else {
+                Q_ASSERT(!current_list.isEmpty());
+                nextOutput = current_list.takeLast();
+            }
+            nextOutput->setPriority(nextPriority);
+            nextPriority += 1;
+        }
+    }
+
+    Q_EMIT prioritiesChanged();
 }
 
 bool Config::isValid() const
@@ -395,6 +459,8 @@ void Config::apply(const ConfigPtr &other)
 
     // Update validity
     setValid(other->isValid());
+
+    Q_EMIT prioritiesChanged();
 }
 
 QRect Config::outputGeometryForOutput(const KScreen::Output &output) const

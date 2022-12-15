@@ -112,7 +112,7 @@ KScreen::ConfigPtr XRandR11::config() const
     output->setEnabled(true);
     output->setName(QStringLiteral("Default"));
     output->setPos(QPoint(0, 0));
-    output->setPrimary(true);
+    output->setPriority(1);
     output->setRotation((KScreen::Output::Rotation)info->rotation);
     output->setSizeMm(QSize(xcbScreen->width_in_millimeters, xcbScreen->height_in_millimeters));
 

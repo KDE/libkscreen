@@ -193,6 +193,16 @@ OutputPtr Parser::outputFromJson(QMap<QString, QVariant> map)
         map.remove(scale);
     }
 
+    // the deprecated "primary" property may exist for compatibility, but "priority" should override it whenever present.
+    if (map.contains(QStringLiteral("primary"))) {
+        output->setPriority(map[QStringLiteral("primary")].toBool() ? 1 : 2);
+        map.remove(QStringLiteral("primary"));
+    }
+    if (map.contains(QStringLiteral("priority"))) {
+        output->setPriority(map[QStringLiteral("priority")].toUInt());
+        map.remove(QStringLiteral("priority"));
+    }
+
     // Remove some extra properties that we do not want or need special treatment
     map.remove(QStringLiteral("edid"));
 

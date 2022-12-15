@@ -167,16 +167,18 @@ void SetConfigOperationPrivate::fixPrimaryOutput()
     // - we have exactly 1 primary
     // - we have a primary at all
     bool found = false;
+    KScreen::OutputPtr primary;
     KScreen::OutputPtr candidate;
     for (const KScreen::OutputPtr &output : outputs) {
-        if (!output->isEnabled() && output->isPrimary()) {
-            qCDebug(KSCREEN) << "can't be primary if disabled!!" << output;
-            output->setPrimary(false);
-        } else if (output->isPrimary() && !found) {
-            found = true;
-        } else if (output->isPrimary() && found) {
-            qCDebug(KSCREEN) << "can only have 1 primary" << output;
-            output->setPrimary(false);
+        if (output->isPrimary()) {
+            if (!output->isEnabled()) {
+                qCDebug(KSCREEN) << "can't be primary if disabled!!" << output;
+            } else if (found) {
+                qCDebug(KSCREEN) << "can only have 1 primary" << output;
+            } else {
+                found = true;
+                primary = output;
+            }
         } else if (output->isEnabled()) {
             candidate = output;
         }
@@ -184,7 +186,11 @@ void SetConfigOperationPrivate::fixPrimaryOutput()
 
     if (!found && candidate) {
         qCDebug(KSCREEN) << "setting primary instead" << candidate;
-        candidate->setPrimary(true);
+        config->setPrimaryOutput(candidate);
+    } else {
+        // ensures all others are set to non-primary. It's OK if all outputs
+        // are disabled and `primary` is essentially nullptr.
+        config->setPrimaryOutput(primary);
     }
 }
 

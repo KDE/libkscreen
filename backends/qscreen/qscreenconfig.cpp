@@ -99,20 +99,19 @@ void QScreenConfig::updateKScreenConfig(ConfigPtr &config) const
     }
 
     // Add KScreen::Outputs that aren't in the list yet, handle primaryOutput
-    KScreen::OutputList kscreenOutputs = config->outputs();
     for (QScreenOutput *output : m_outputMap) {
-        KScreen::OutputPtr kscreenOutput = kscreenOutputs[output->id()];
-
-        if (!kscreenOutput) {
+        KScreen::OutputPtr kscreenOutput;
+        if (config->outputs().contains(output->id())) {
+            kscreenOutput = config->outputs()[output->id()];
+            output->updateKScreenOutput(kscreenOutput);
+        } else {
             kscreenOutput = output->toKScreenOutput();
-            kscreenOutputs.insert(kscreenOutput->id(), kscreenOutput);
+            config->addOutput(kscreenOutput);
         }
-        output->updateKScreenOutput(kscreenOutput);
         if (QGuiApplication::primaryScreen() == output->qscreen()) {
             config->setPrimaryOutput(kscreenOutput);
         }
     }
-    config->setOutputs(kscreenOutputs);
 }
 
 QMap<int, QScreenOutput *> QScreenConfig::outputMap() const
