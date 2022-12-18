@@ -7,7 +7,6 @@
 #include "fake.h"
 #include "parser.h"
 
-#include "config.h"
 #include "edid.h"
 #include <output.h>
 

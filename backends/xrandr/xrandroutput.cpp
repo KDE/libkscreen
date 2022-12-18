@@ -14,7 +14,6 @@
 #include "mode.h"
 
 #include <array>
-#include <cstdint>
 #include <cstring>
 #include <qglobal.h>
 #include <utility>

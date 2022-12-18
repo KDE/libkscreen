@@ -15,7 +15,6 @@
 #include "screen.h"
 
 #include <xcb/randr.h>
-#include <xcb/xcb.h>
 
 #include <QDebug>
 #include <QString>
