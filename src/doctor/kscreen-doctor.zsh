@@ -178,6 +178,23 @@ _kscreen-doctor-mode() {
   return $ret
 }
 
+_kscreen-doctor-priorities() {
+  local connected_count
+  if (( $+commands[jq] )); then
+    connected_count="$(
+      kscreen-doctor --json |
+      jq --raw-output '
+        .outputs
+        | map(select(.connected))
+        | length
+      ')"
+  else
+    # best effort fallback
+    connected_count="$(kscreen-doctor --outputs | wc -l)"
+  fi
+  _alternative "priority::( {0..${connected_count}} )"
+}
+
 _arguments -C \
     '(-h --help)'{-h,--help}'[Displays help on commandline options]' \
     '--help-all[Displays help including Qt specific options]' \
@@ -198,6 +215,10 @@ case $state in
 
         if compset -P 1 'mode.' ; then
           _kscreen-doctor-mode "$output" && ret=0
+        elif compset -P 1 'priority.' ; then
+          _kscreen-doctor-priorities && ret=0
+        elif compset -P 1 'position.' ; then
+          _arguments '1::x,y:' && ret=0
         elif compset -P 1 'rgbrange.' ; then
           _alternative 'rgbrange::(automatic full limited)' && ret=0
         elif compset -P 1 'rotation.' || compset -P 1 'orientation.' ; then
@@ -227,12 +248,13 @@ case $state in
           _describe -t subcommands 'subcommand' '(
             enable:"Toggle output"
             disable:"Toggle output"
-            primary:"Make this output primary"
+            primary:"Make this output primary (same as priority.1)"
           )' -- '(
             mode:"Resolution and refresh rate"
             orientation:"Display orientation"
             overscan:"(Wayland only) Overscan area size"
             position:"x and y coordinates"
+            priority:"Set output priority"
             rgbrange:"RGB range"
             rotation:"Display orientation"
             scale:"(Wayland only) Per-output scaling"
