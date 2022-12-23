@@ -26,6 +26,7 @@ include(CMakePackageConfigHelpers)
 include(GenerateExportHeader)
 include(KDEClangFormat)
 include(KDEGitCommitHooks)
+include(ECMDeprecationSettings)
 
 find_package(Qt${QT_MAJOR_VERSION} ${QT_MIN_VERSION} CONFIG REQUIRED Core DBus Gui Test WaylandClient)
 if (QT_MAJOR_VERSION EQUAL "5")
@@ -69,6 +70,10 @@ ecm_setup_version(${PROJECT_VERSION} VARIABLE_PREFIX KSCREEN
                         VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/kscreen_version.h"
                         PACKAGE_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/KF5ScreenConfigVersion.cmake"
                         SOVERSION 7)
+
+ecm_set_disabled_deprecation_versions(QT 5.15.2
+    KF 5.101
+)
 
 add_subdirectory(src)
 add_subdirectory(backends)
