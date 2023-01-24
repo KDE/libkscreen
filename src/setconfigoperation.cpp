@@ -187,7 +187,7 @@ void SetConfigOperationPrivate::fixPrimaryOutput()
     if (!found && candidate) {
         qCDebug(KSCREEN) << "setting primary instead" << candidate;
         config->setPrimaryOutput(candidate);
-    } else {
+    } else if (primary) {
         // ensures all others are set to non-primary. It's OK if all outputs
         // are disabled and `primary` is essentially nullptr.
         config->setPrimaryOutput(primary);
