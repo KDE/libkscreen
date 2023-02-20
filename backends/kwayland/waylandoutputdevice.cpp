@@ -306,7 +306,12 @@ void WaylandOutputDevice::kde_output_device_v2_done()
 
 void WaylandOutputDevice::kde_output_device_v2_scale(wl_fixed_t factor)
 {
-    m_factor = wl_fixed_to_double(factor);
+    const double factorAsDouble = wl_fixed_to_double(factor);
+
+    // the fractional scaling protocol only speaks in unit of 120ths
+    // using the same scale throughout makes that simpler
+    // this also eliminates most loss from wl_fixed
+    m_factor = std::round(factorAsDouble * 120) / 120;
 }
 
 void WaylandOutputDevice::kde_output_device_v2_edid(const QString &edid)
