@@ -99,7 +99,8 @@ void Doctor::start(QCommandLineParser *parser)
 
         connect(m_dpmsClient, &Dpms::hasPendingChangesChanged, qGuiApp, [](bool hasChanges) {
             if (!hasChanges) {
-                qGuiApp->quit();
+                // We need to hit the event loop, otherwise .quit() hangs
+                QTimer::singleShot(0, qApp->quit);
             }
         });
 
