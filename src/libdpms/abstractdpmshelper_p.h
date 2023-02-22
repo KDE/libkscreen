@@ -23,7 +23,7 @@ public:
 
     virtual void trigger(Dpms::Mode, const QList<QScreen *> &screens) = 0;
 
-    bool isSupported() const
+    bool isSupported()
     {
         if (!m_supported.has_value()) {
             blockUntilSupported();
@@ -58,7 +58,7 @@ Q_SIGNALS:
     void hasPendingChangesChanged(bool pendingChanges);
 
 private:
-    virtual void blockUntilSupported() const {}
+    virtual void blockUntilSupported() {}
 
     std::optional<bool> m_supported;
     bool m_hasPendingChanges = false;
