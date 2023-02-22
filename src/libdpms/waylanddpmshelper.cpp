@@ -90,12 +90,18 @@ public:
 
             const auto screens = qGuiApp->screens();
             for (QScreen *screen : screens) {
-                QPlatformNativeInterface *native = qGuiApp->platformNativeInterface();
-                wl_output *output = reinterpret_cast<wl_output *>(native->nativeResourceForScreen(QByteArrayLiteral("output"), screen));
-                m_dpmsPerScreen[screen] = new Dpms(get(output), m_dpms, screen);
+                addScreen(screen);
             }
+            connect(qGuiApp, &QGuiApplication::screenAdded, this, &DpmsManager::addScreen);
+            connect(qGuiApp, &QGuiApplication::screenRemoved, this, [this](QScreen *screen) {
+                delete m_dpmsPerScreen.take(screen);
+            });
             m_dpms->setSupported(hasDpms);
         });
+    }
+    ~DpmsManager()
+    {
+        qDeleteAll(m_dpmsPerScreen);
     }
 
     Dpms *fetch(QScreen *screen)
@@ -104,6 +110,15 @@ public:
     }
 
 private:
+    void addScreen(QScreen *screen)
+    {
+        QPlatformNativeInterface *native = qGuiApp->platformNativeInterface();
+        wl_output *output = reinterpret_cast<wl_output *>(native->nativeResourceForScreen(QByteArrayLiteral("output"), screen));
+        if (output) {
+            m_dpmsPerScreen[screen] = new Dpms(get(output), m_dpms, screen);
+        }
+    }
+
     WaylandDpmsHelper *const m_dpms;
     QHash<QScreen *, Dpms *> m_dpmsPerScreen;
 };
