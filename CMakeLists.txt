@@ -4,13 +4,13 @@ project(libkscreen)
 set(PROJECT_VERSION "5.27.80")
 
 set(QT_MIN_VERSION "5.15.2")
-set(KF5_MIN_VERSION "5.102.0")
+set(KF6_MIN_VERSION "5.102.0")
 set(KDE_COMPILERSETTINGS_LEVEL "5.82")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(ECM ${KF5_MIN_VERSION} REQUIRED NO_MODULE)
+find_package(ECM ${KF6_MIN_VERSION} REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ECM_MODULE_PATH})
 include(KDEInstallDirs)
 include(KDECompilerSettings NO_POLICY_SCOPE)
@@ -36,9 +36,9 @@ endif()
 find_package(WaylandScanner)
 
 # Wayland backend
-find_package(KF5Wayland ${KF5_MIN_VERSION} CONFIG REQUIRED)
-add_feature_info("KF5Wayland" KF5Wayland_FOUND "Required for building libkscreen's KWayland backend")
-find_package(KF5Config ${KF5_MIN_VERSION} CONFIG REQUIRED)
+find_package(KF6Wayland ${KF6_MIN_VERSION} CONFIG REQUIRED)
+add_feature_info("KF6Wayland" KF6Wayland_FOUND "Required for building libkscreen's KWayland backend")
+find_package(KF6Config ${KF6_MIN_VERSION} CONFIG REQUIRED)
 
 find_package(PlasmaWaylandProtocols 1.10.0 CONFIG)
 set_package_properties(PlasmaWaylandProtocols PROPERTIES TYPE REQUIRED)
@@ -68,7 +68,7 @@ endif()
 
 ecm_setup_version(${PROJECT_VERSION} VARIABLE_PREFIX KSCREEN
                         VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/kscreen_version.h"
-                        PACKAGE_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/KF5ScreenConfigVersion.cmake"
+                        PACKAGE_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/KF6ScreenConfigVersion.cmake"
                         SOVERSION 8)
 
 ecm_set_disabled_deprecation_versions(QT 5.15.2
@@ -84,7 +84,7 @@ endif()
 
 ecm_install_po_files_as_qm(poqm)
 
-set(CMAKECONFIG_INSTALL_DIR "${KDE_INSTALL_CMAKEPACKAGEDIR}/KF5Screen")
+set(CMAKECONFIG_INSTALL_DIR "${KDE_INSTALL_CMAKEPACKAGEDIR}/KF6Screen")
 
 # add clang-format target for all our real source files
 file(GLOB_RECURSE ALL_CLANG_FORMAT_SOURCE_FILES *.cpp *.h)
@@ -94,31 +94,31 @@ kde_configure_git_pre_commit_hook(CHECKS CLANG_FORMAT)
 
 if (BUILD_QCH)
     ecm_install_qch_export(
-        TARGETS KF5Screen_QCH
-        FILE KF5ScreenQchTargets.cmake
+        TARGETS KF6Screen_QCH
+        FILE KF6ScreenQchTargets.cmake
         DESTINATION "${CMAKECONFIG_INSTALL_DIR}"
         COMPONENT Devel
     )
-    set(PACKAGE_INCLUDE_QCHTARGETS "include(\"\${CMAKE_CURRENT_LIST_DIR}/KF5ScreenQchTargets.cmake\")")
+    set(PACKAGE_INCLUDE_QCHTARGETS "include(\"\${CMAKE_CURRENT_LIST_DIR}/KF6ScreenQchTargets.cmake\")")
 endif()
 
-configure_package_config_file("${CMAKE_CURRENT_SOURCE_DIR}/KF5ScreenConfig.cmake.in"
-                              "${CMAKE_CURRENT_BINARY_DIR}/KF5ScreenConfig.cmake"
+configure_package_config_file("${CMAKE_CURRENT_SOURCE_DIR}/KF6ScreenConfig.cmake.in"
+                              "${CMAKE_CURRENT_BINARY_DIR}/KF6ScreenConfig.cmake"
                               INSTALL_DESTINATION ${CMAKECONFIG_INSTALL_DIR}
 )
 
 install(FILES
-  "${CMAKE_CURRENT_BINARY_DIR}/KF5ScreenConfig.cmake"
-  "${CMAKE_CURRENT_BINARY_DIR}/KF5ScreenConfigVersion.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/KF6ScreenConfig.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/KF6ScreenConfigVersion.cmake"
   DESTINATION "${CMAKECONFIG_INSTALL_DIR}"
   COMPONENT Devel
 )
 
 install(EXPORT
-  KF5ScreenTargets
+  KF6ScreenTargets
   DESTINATION "${CMAKECONFIG_INSTALL_DIR}"
-  FILE KF5ScreenTargets.cmake
-  NAMESPACE KF5::
+  FILE KF6ScreenTargets.cmake
+  NAMESPACE KF6::
   COMPONENT Devel
 )
 

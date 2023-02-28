@@ -19,7 +19,7 @@ set_target_properties(KSC_QScreen PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_B
 set_target_properties(KSC_QScreen PROPERTIES PREFIX "")
 target_link_libraries(KSC_QScreen Qt::Core
                                  Qt::Gui
-                                 KF5::Screen
+                                 KF6::Screen
 )
 if (TARGET Qt::X11Extras)
     target_link_libraries(KSC_QScreen Qt::X11Extras)

@@ -23,7 +23,7 @@ class XRandRConfig;
 class XRandR : public KScreen::AbstractBackend
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.kf5.kscreen.backends.xrandr")
+    Q_PLUGIN_METADATA(IID "org.kf6.kscreen.backends.xrandr")
 
 public:
     explicit XRandR();

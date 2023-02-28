@@ -21,7 +21,7 @@ set_target_properties(KSC_Fake PROPERTIES PREFIX "")
 target_link_libraries(KSC_Fake
     Qt::Core
     Qt::DBus
-    KF5::Screen
+    KF6::Screen
 )
 
 install(TARGETS KSC_Fake DESTINATION ${KDE_INSTALL_PLUGINDIR}/kf${QT_MAJOR_VERSION}/kscreen/)

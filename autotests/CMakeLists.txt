@@ -7,7 +7,7 @@ macro(KSCREEN_ADD_TEST)
         set(test_SRCS ${_testname}.cpp ${KSCREEN_WAYLAND_SRCS})
         qt_add_dbus_interface(test_SRCS ${CMAKE_SOURCE_DIR}/interfaces/org.kde.KScreen.FakeBackend.xml fakebackendinterface)
         add_executable(${_testname} ${test_SRCS})
-        target_link_libraries(${_testname} Qt::Core Qt::Gui Qt::Test Qt::DBus KF5::Screen ${KSCREEN_WAYLAND_LIBS})
+        target_link_libraries(${_testname} Qt::Core Qt::Gui Qt::Test Qt::DBus KF6::Screen ${KSCREEN_WAYLAND_LIBS})
         add_test(NAME kscreen-${_testname}
                  COMMAND dbus-launch $<TARGET_FILE:${_testname}>
         )
@@ -25,13 +25,13 @@ kscreen_add_test(testlog)
 kscreen_add_test(testmodelistchange)
 kscreen_add_test(testedid)
 
-if (NOT TARGET KF5::WaylandServer)
-    message(WARNING "Skipping KF5::WaylandServer based unit tests!")
+if (NOT TARGET KF6::WaylandServer)
+    message(WARNING "Skipping KF6::WaylandServer based unit tests!")
     return()
 endif()
 
 set(KSCREEN_WAYLAND_LIBS
-    KF5::WaylandServer KF5::WaylandClient
+    KF6::WaylandServer KF6::WaylandClient
 )
 
 # For WaylandConfigReader and TestServer

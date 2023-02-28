@@ -20,7 +20,7 @@ class QScreenConfig;
 class QScreenBackend : public KScreen::AbstractBackend
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.kf5.kscreen.backends.qscreen")
+    Q_PLUGIN_METADATA(IID "org.kf6.kscreen.backends.qscreen")
 
 public:
     explicit QScreenBackend();

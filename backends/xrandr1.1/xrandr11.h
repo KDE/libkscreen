@@ -19,7 +19,7 @@ class XCBEventListener;
 class XRandR11 : public KScreen::AbstractBackend
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.kf5.kscreen.backends.xrandr11")
+    Q_PLUGIN_METADATA(IID "org.kf6.kscreen.backends.xrandr11")
 
 public:
     explicit XRandR11();

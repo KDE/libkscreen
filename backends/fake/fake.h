@@ -16,7 +16,7 @@
 class Fake : public KScreen::AbstractBackend
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.kf5.kscreen.backends.fake")
+    Q_PLUGIN_METADATA(IID "org.kf6.kscreen.backends.fake")
 
 public:
     explicit Fake();

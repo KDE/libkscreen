@@ -6,5 +6,5 @@ Name: kscreen2
 Description: Qt Based library to manage screens with backends (xrandr, whatevercomesnext)
 Version: @KSCREEN_VERSION@
 
-Libs: -L${libdir} -lKF5Screen
+Libs: -L${libdir} -lKF6Screen
 Cflags: -I${includedir}

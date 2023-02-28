@@ -18,7 +18,7 @@ qt_add_dbus_adaptor(backendlauncher_SRCS ${CMAKE_SOURCE_DIR}/interfaces/org.kde.
 add_executable(kscreen_backend_launcher ${backendlauncher_SRCS})
 
 target_link_libraries(kscreen_backend_launcher
-    KF5Screen
+    KF6Screen
     Qt::Core
     Qt::Gui
     Qt::DBus
@@ -30,7 +30,7 @@ else()
 endif()
 
 install(TARGETS kscreen_backend_launcher
-        DESTINATION ${CMAKE_INSTALL_FULL_LIBEXECDIR_KF5}
+        DESTINATION ${CMAKE_INSTALL_FULL_LIBEXECDIR_KF6}
 )
 
 configure_file(org.kde.kscreen.service.cmake

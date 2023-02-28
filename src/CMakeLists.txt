@@ -32,12 +32,12 @@ ecm_qt_declare_logging_category(libkscreen_SRCS
 )
 
 
-add_library(KF5Screen SHARED ${libkscreen_SRCS})
-generate_export_header(KF5Screen BASE_NAME KScreen)
+add_library(KF6Screen SHARED ${libkscreen_SRCS})
+generate_export_header(KF6Screen BASE_NAME KScreen)
 
-ecm_create_qm_loader(KF5Screen libkscreen5_qt)
+ecm_create_qm_loader(KF6Screen libkscreen5_qt)
 
-target_link_libraries(KF5Screen
+target_link_libraries(KF6Screen
     PUBLIC
     Qt::Core
     Qt::Gui
@@ -45,21 +45,21 @@ target_link_libraries(KF5Screen
     Qt::DBus
 )
 if (QT_MAJOR_VERSION EQUAL "5")
-    target_link_libraries(KF5Screen PRIVATE Qt::X11Extras)
+    target_link_libraries(KF6Screen PRIVATE Qt::X11Extras)
 else()
-    target_link_libraries(KF5Screen PRIVATE Qt::GuiPrivate)
+    target_link_libraries(KF6Screen PRIVATE Qt::GuiPrivate)
 endif()
 
-set_target_properties(KF5Screen PROPERTIES
+set_target_properties(KF6Screen PROPERTIES
     VERSION "${KSCREEN_VERSION}"
     SOVERSION "${KSCREEN_SOVERSION}"
     EXPORT_NAME Screen
 )
 
-target_include_directories(KF5Screen PUBLIC "$<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR_KF}/KScreen>")
+target_include_directories(KF6Screen PUBLIC "$<INSTALL_INTERFACE:${KDE_INSTALL_INCLUDEDIR_KF}/KScreen>")
 
-install(TARGETS KF5Screen EXPORT KF5ScreenTargets ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
-add_library(KF5::Screen ALIAS KF5Screen)
+install(TARGETS KF6Screen EXPORT KF6ScreenTargets ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
+add_library(KF6::Screen ALIAS KF6Screen)
 
 ecm_generate_headers(KScreen_HEADERS
     HEADER_NAMES
@@ -92,14 +92,14 @@ if(NOT WIN32)
 endif(NOT WIN32)
 
 include(ECMGeneratePriFile)
-ecm_generate_pri_file(BASE_NAME KScreen LIB_NAME KF5Screen DEPS "core" FILENAME_VAR PRI_FILENAME)
+ecm_generate_pri_file(BASE_NAME KScreen LIB_NAME KF6Screen DEPS "core" FILENAME_VAR PRI_FILENAME)
 install(FILES ${PRI_FILENAME} DESTINATION ${ECM_MKSPECS_INSTALL_DIR})
 
 if(BUILD_QCH)
     ecm_add_qch(
-        KF5Screen_QCH
+        KF6Screen_QCH
         NAME KScreen
-        BASE_NAME KF5Screen
+        BASE_NAME KF6Screen
         VERSION ${PROJECT_VERSION}
         ORG_DOMAIN org.kde
         SOURCES # using only public headers, to cover only public API
