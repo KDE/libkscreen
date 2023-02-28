@@ -20,13 +20,9 @@ set_target_properties(KSC_XRandR PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BI
 set_target_properties(KSC_XRandR PROPERTIES PREFIX "")
 target_link_libraries(KSC_XRandR Qt::Core
                                  Qt::Gui
+                                 Qt::GuiPrivate # for QX11Info
                                  ${XCB_LIBRARIES}
                                  KF6::Screen
 )
-if (QT_MAJOR_VERSION EQUAL "5")
-    target_link_libraries(KSC_XRandR Qt::X11Extras)
-else()
-    target_link_libraries(KSC_XRandR Qt::GuiPrivate)
-endif()
 
 install(TARGETS KSC_XRandR DESTINATION ${KDE_INSTALL_PLUGINDIR}/kf${QT_MAJOR_VERSION}/kscreen/)

@@ -23,11 +23,6 @@ target_link_libraries(kscreen_backend_launcher
     Qt::Gui
     Qt::DBus
 )
-if (QT_MAJOR_VERSION EQUAL "5")
-    target_link_libraries(kscreen_backend_launcher Qt::X11Extras)
-else()
-    target_link_libraries(kscreen_backend_launcher Qt::GuiPrivate)
-endif()
 
 install(TARGETS kscreen_backend_launcher
         DESTINATION ${CMAKE_INSTALL_FULL_LIBEXECDIR_KF6}

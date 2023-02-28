@@ -24,11 +24,7 @@
 #include <QGuiApplication>
 #include <QStandardPaths>
 #include <QThread>
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-#include <private/qtx11extras_p.h>
-#else
-#include <QX11Info>
-#endif
+#include <QtGui/private/qtx11extras_p.h>
 
 #include <memory>
 

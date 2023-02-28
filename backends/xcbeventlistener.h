@@ -23,11 +23,7 @@ public:
     XCBEventListener();
     ~XCBEventListener() override;
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    bool nativeEventFilter(const QByteArray &eventType, void *message, long int *result) override;
-#else
     bool nativeEventFilter(const QByteArray &eventType, void *message, qintptr *result) override;
-#endif
 
 Q_SIGNALS:
     /* Emitted when only XRandR 1.1 or older is available */

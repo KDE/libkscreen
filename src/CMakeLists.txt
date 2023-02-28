@@ -43,12 +43,8 @@ target_link_libraries(KF6Screen
     Qt::Gui
     PRIVATE
     Qt::DBus
+    Qt::GuiPrivate # for QX11Info
 )
-if (QT_MAJOR_VERSION EQUAL "5")
-    target_link_libraries(KF6Screen PRIVATE Qt::X11Extras)
-else()
-    target_link_libraries(KF6Screen PRIVATE Qt::GuiPrivate)
-endif()
 
 set_target_properties(KF6Screen PROPERTIES
     VERSION "${KSCREEN_VERSION}"

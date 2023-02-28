@@ -20,13 +20,10 @@
 
 #include <QRect>
 #include <QScopedPointer>
+#include <QtGui/private/qtx11extras_p.h>
+
 #include <optional>
 #include <utility>
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-#include <private/qtx11extras_p.h>
-#else
-#include <QX11Info>
-#endif
 
 using namespace KScreen;
 

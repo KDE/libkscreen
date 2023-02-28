@@ -8,15 +8,7 @@ target_link_libraries(KF6ScreenDpms PUBLIC Qt::Gui
                                             Qt::GuiPrivate Qt::WaylandClient Wayland::Client
 )
 
-if (QT_MAJOR_VERSION EQUAL "5")
-    target_link_libraries(KF6ScreenDpms PRIVATE Qt::X11Extras)
-    ecm_add_qtwayland_client_protocol(KF6ScreenDpms
-        PROTOCOL ${PLASMA_WAYLAND_PROTOCOLS_DIR}/dpms.xml
-        BASENAME dpms
-    )
-else()
-    qt6_generate_wayland_protocol_client_sources(KF6ScreenDpms FILES ${PLASMA_WAYLAND_PROTOCOLS_DIR}/dpms.xml)
-endif()
+qt6_generate_wayland_protocol_client_sources(KF6ScreenDpms FILES ${PLASMA_WAYLAND_PROTOCOLS_DIR}/dpms.xml)
 
 set_target_properties(KF6ScreenDpms PROPERTIES
     VERSION "${KSCREEN_VERSION}"

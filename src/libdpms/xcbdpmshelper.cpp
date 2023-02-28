@@ -7,12 +7,8 @@
 
 #include "xcbdpmshelper_p.h"
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-#include <QX11Info>
-#else
-#include <private/qtx11extras_p.h>
-#endif
 #include <QGuiApplication>
+#include <QtGui/private/qtx11extras_p.h>
 
 #include "kscreendpms_debug.h"
 

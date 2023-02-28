@@ -17,28 +17,11 @@ ecm_qt_declare_logging_category(wayland_SRCS
 )
 
 add_library(KSC_KWayland MODULE)
-if (QT_MAJOR_VERSION EQUAL "5")
-    ecm_add_qtwayland_client_protocol(wayland_SRCS
-        PROTOCOL ${PLASMA_WAYLAND_PROTOCOLS_DIR}/kde-output-device-v2.xml
-        BASENAME kde-output-device-v2
-    )
-
-    ecm_add_qtwayland_client_protocol(wayland_SRCS
-        PROTOCOL ${PLASMA_WAYLAND_PROTOCOLS_DIR}/kde-output-management-v2.xml
-        BASENAME kde-output-management-v2
-    )
-
-    ecm_add_qtwayland_client_protocol(wayland_SRCS
-        PROTOCOL ${PLASMA_WAYLAND_PROTOCOLS_DIR}/kde-output-order-v1.xml
-        BASENAME kde-output-order-v1
-    )
-else()
-    qt6_generate_wayland_protocol_client_sources(KSC_KWayland FILES
-        ${PLASMA_WAYLAND_PROTOCOLS_DIR}/kde-output-device-v2.xml
-        ${PLASMA_WAYLAND_PROTOCOLS_DIR}/kde-output-management-v2.xml
-        ${PLASMA_WAYLAND_PROTOCOLS_DIR}/kde-output-order-v1.xml
-    )
-endif()
+qt6_generate_wayland_protocol_client_sources(KSC_KWayland FILES
+    ${PLASMA_WAYLAND_PROTOCOLS_DIR}/kde-output-device-v2.xml
+    ${PLASMA_WAYLAND_PROTOCOLS_DIR}/kde-output-management-v2.xml
+    ${PLASMA_WAYLAND_PROTOCOLS_DIR}/kde-output-order-v1.xml
+)
 
 target_sources(KSC_KWayland PRIVATE ${wayland_SRCS})
 

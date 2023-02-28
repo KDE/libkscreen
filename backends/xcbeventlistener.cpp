@@ -9,11 +9,7 @@
 #include "../xcbwrapper.h"
 
 #include <QGuiApplication>
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-#include <private/qtx11extras_p.h>
-#else
-#include <QX11Info>
-#endif
+#include <QtGui/private/qtx11extras_p.h>
 
 Q_LOGGING_CATEGORY(KSCREEN_XCB_HELPER, "kscreen.xcb.helper")
 
@@ -111,11 +107,7 @@ QString XCBEventListener::connectionToString(xcb_randr_connection_t connection)
     return QStringLiteral("invalid value (%1)").arg(connection);
 }
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-bool XCBEventListener::nativeEventFilter(const QByteArray &eventType, void *message, long int *result)
-#else
 bool XCBEventListener::nativeEventFilter(const QByteArray &eventType, void *message, qintptr *result)
-#endif
 {
     Q_UNUSED(result);
 

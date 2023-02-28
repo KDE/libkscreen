@@ -29,10 +29,6 @@ include(KDEGitCommitHooks)
 include(ECMDeprecationSettings)
 
 find_package(Qt${QT_MAJOR_VERSION} ${QT_MIN_VERSION} CONFIG REQUIRED Core DBus Gui Test WaylandClient)
-if (QT_MAJOR_VERSION EQUAL "5")
-  find_package(Qt5 CONFIG REQUIRED X11Extras)
-  find_package(QtWaylandScanner REQUIRED)
-endif()
 find_package(WaylandScanner)
 
 # Wayland backend

@@ -18,11 +18,7 @@
 #include <QTime>
 #include <QTimer>
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-#include <private/qtx11extras_p.h>
-#else
-#include <QX11Info>
-#endif
+#include <QtGui/private/qtx11extras_p.h>
 
 xcb_screen_t *XRandR::s_screen = nullptr;
 xcb_window_t XRandR::s_rootWindow = 0;
