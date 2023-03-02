@@ -22,8 +22,6 @@ public:
     void trigger(KScreen::Dpms::Mode mode, const QList<QScreen *> &screens) override;
 
 private:
-    void blockUntilSupported() override;
-
     DpmsManager *m_dpmsManager = nullptr;
 };
 
