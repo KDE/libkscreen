@@ -26,6 +26,11 @@ public:
     {
     }
 
+    ~Dpms()
+    {
+        release();
+    }
+
     bool isSupported() const
     {
         return m_supported;
