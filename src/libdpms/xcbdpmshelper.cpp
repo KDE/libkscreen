@@ -26,14 +26,12 @@ XcbDpmsHelper::XcbDpmsHelper()
     auto *extension = xcb_get_extension_data(c, &xcb_dpms_id);
     if (!extension || !extension->present) {
         qCWarning(KSCREEN_DPMS) << "DPMS extension not available";
+        setSupported(false);
         return;
     }
 
     ScopedCPointer<xcb_dpms_capable_reply_t> capableReply(xcb_dpms_capable_reply(c, xcb_dpms_capable(c), nullptr));
-
-    if (capableReply && capableReply->capable) {
-        setSupported(true);
-    }
+    setSupported(capableReply && capableReply->capable);
 
     // Disable a default timeout, if any
     xcb_dpms_set_timeouts(QX11Info::connection(), 0, 0, 0);
