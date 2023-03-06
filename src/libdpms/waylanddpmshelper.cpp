@@ -112,6 +112,13 @@ public:
 private:
     void addScreen(QScreen *screen)
     {
+        // We can't rely on checking the wl_output being null yet
+        // https://codereview.qt-project.org/c/qt/qtwayland/+/464669
+        const bool fake = screen->geometry().isEmpty() || screen->name().isEmpty();
+        if (fake) {
+            return;
+        }
+
         QPlatformNativeInterface *native = qGuiApp->platformNativeInterface();
         wl_output *output = reinterpret_cast<wl_output *>(native->nativeResourceForScreen(QByteArrayLiteral("output"), screen));
         if (output) {
