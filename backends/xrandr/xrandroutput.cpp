@@ -20,8 +20,6 @@
 #include <xcb/randr.h>
 #include <xcb/render.h>
 
-Q_DECLARE_METATYPE(QList<int>)
-
 #define DOUBLE_TO_FIXED(d) ((xcb_render_fixed_t)((d)*65536))
 #define FIXED_TO_DOUBLE(f) ((double)((f) / 65536.0))
 

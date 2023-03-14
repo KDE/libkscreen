@@ -526,8 +526,4 @@ private:
 
 KSCREEN_EXPORT QDebug operator<<(QDebug dbg, const KScreen::OutputPtr &output);
 
-Q_DECLARE_METATYPE(KScreen::OutputList)
-Q_DECLARE_METATYPE(KScreen::Output::Rotation)
-Q_DECLARE_METATYPE(KScreen::Output::Type)
-
 #endif // OUTPUT_H

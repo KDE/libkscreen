@@ -102,5 +102,3 @@ private:
     bool m_hotplugModeUpdate = false;
     XRandRCrtc *m_crtc;
 };
-
-Q_DECLARE_METATYPE(XRandROutput::Map)

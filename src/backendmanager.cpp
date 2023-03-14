@@ -30,8 +30,6 @@
 
 using namespace KScreen;
 
-Q_DECLARE_METATYPE(org::kde::kscreen::Backend *)
-
 const int BackendManager::sMaxCrashCount = 4;
 
 BackendManager *BackendManager::sInstance = nullptr;

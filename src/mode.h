@@ -60,6 +60,4 @@ private:
 
 KSCREEN_EXPORT QDebug operator<<(QDebug dbg, const KScreen::ModePtr &mode);
 
-Q_DECLARE_METATYPE(KScreen::ModeList)
-
 #endif // MODE_H

@@ -45,5 +45,3 @@ private:
     QSize m_size;
     float m_refreshRate;
 };
-
-Q_DECLARE_METATYPE(XRandRMode::Map)
