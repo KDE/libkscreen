@@ -177,6 +177,7 @@ void XRandROutput::update(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_rand
         }
 
         m_hotplugModeUpdate = XRandR::hasProperty(m_id, "hotplug_mode_update");
+        m_edid.clear();
     }
 
     // A monitor has been enabled or disabled
