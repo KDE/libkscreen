@@ -57,7 +57,7 @@ WaylandBackend::WaylandBackend()
             xwaylandGroup.deleteEntry("Scale", KConfig::Notify);
         }
         // here we rerun the fonts kcm init that does the appropriate xrdb call with the new settings
-        QProcess::startDetached("kcminit", {"kcm_fonts"});
+        QProcess::startDetached("kcminit", {"kcm_fonts", "kcm_style"});
 
         Q_EMIT configChanged(newConfig);
     });
