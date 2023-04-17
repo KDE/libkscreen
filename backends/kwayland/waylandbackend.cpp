@@ -40,6 +40,11 @@ WaylandBackend::WaylandBackend()
         KConfigGroup kscreenGroup = cfg.group("KScreen");
         const bool xwaylandClientsScale = kscreenGroup.readEntry("XwaylandClientsScale", true);
 
+        auto updateXwaylandFontsSettings = []() {
+            // here we rerun the fonts kcm init that does the appropriate xrdb call with the new settings
+            QProcess::startDetached("kcminit", {"kcm_fonts"});
+        };
+
         KConfig kwinCfg(QStringLiteral("kwinrc"));
         KConfigGroup xwaylandGroup = kwinCfg.group("Xwayland");
         if (xwaylandClientsScale) {
@@ -51,13 +56,17 @@ WaylandBackend::WaylandBackend()
                 }
             }
 
-            xwaylandGroup.writeEntry("Scale", scaleFactor, KConfig::Notify);
-
+            const qreal oldScaleFactor = xwaylandGroup.readEntry("Scale", scaleFactor);
+            if (!qFuzzyCompare(oldScaleFactor, scaleFactor)) {
+                xwaylandGroup.writeEntry("Scale", scaleFactor, KConfig::Notify);
+                updateXwaylandFontsSettings();
+            }
         } else {
-            xwaylandGroup.deleteEntry("Scale", KConfig::Notify);
+            if (xwaylandGroup.hasKey("Scale")) {
+                xwaylandGroup.deleteEntry("Scale", KConfig::Notify);
+                updateXwaylandFontsSettings();
+            }
         }
-        // here we rerun the fonts kcm init that does the appropriate xrdb call with the new settings
-        QProcess::startDetached("kcminit", {"kcm_fonts", "kcm_style"});
 
         Q_EMIT configChanged(newConfig);
     });
