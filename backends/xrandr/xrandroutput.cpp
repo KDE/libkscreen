@@ -73,11 +73,13 @@ uint32_t XRandROutput::priority() const
 
 void XRandROutput::setPriority(XRandROutput::Priority newPriority)
 {
-    if (priority() == newPriority) {
-        return;
+    if (priority() != newPriority) {
+        setOutputPriorityToProperty(newPriority);
     }
 
-    setOutputPriorityToProperty(newPriority);
+    // Always update the primary regardless of it having changed. If a primary gets unplugged and plugged back in we'd
+    // otherwise end up with priorities not being in sync with xrandr primary because the effective priorities in the
+    // atoms haven't changed; also see priority().
     if (newPriority == 1) {
         setAsPrimary();
     }
