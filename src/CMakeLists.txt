@@ -83,8 +83,13 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/kscreen_export.h
         DESTINATION ${KDE_INSTALL_INCLUDEDIR_KF}/KScreen/kscreen)
 
 if(NOT WIN32)
-   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/kscreen2.pc.in ${CMAKE_CURRENT_BINARY_DIR}/kscreen2.pc @ONLY)
-   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/kscreen2.pc DESTINATION ${KDE_INSTALL_LIBDIR}/pkgconfig)
+    ecm_generate_pkgconfig_file(BASE_NAME KF6Screen
+        LIB_NAME KF6Screen
+        INCLUDE_INSTALL_DIR ${KDE_INSTALL_INCLUDEDIR_KF}/KScreen
+        DEPS Qt6Core Qt6Gui
+        DESCRIPTION "Qt Based library to manage screens with backends (xrandr, whatevercomesnext)"
+        INSTALL
+     )
 endif(NOT WIN32)
 
 include(ECMGeneratePriFile)
