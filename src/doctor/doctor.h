@@ -46,6 +46,9 @@ public:
     void setRgbRange(OutputPtr output, KScreen::Output::RgbRange rgbRange);
     void setPrimary(OutputPtr output);
     void setPriority(OutputPtr output, uint32_t priority);
+    void setHdrEnabled(OutputPtr output, bool enable);
+    void setSdrBrightness(OutputPtr output, uint32_t brightness);
+    void setWcgEnabled(OutputPtr output, bool enable);
 
 Q_SIGNALS:
     void outputsChanged();

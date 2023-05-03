@@ -53,6 +53,9 @@ public:
     Q_PROPERTY(uint32_t overscan READ overscan WRITE setOverscan NOTIFY overscanChanged)
     Q_PROPERTY(VrrPolicy vrrPolicy READ vrrPolicy WRITE setVrrPolicy NOTIFY vrrPolicyChanged)
     Q_PROPERTY(RgbRange rgbRange READ rgbRange WRITE setRgbRange NOTIFY rgbRangeChanged)
+    Q_PROPERTY(bool hdrEnabled READ isHdrEnabled WRITE setHdrEnabled NOTIFY hdrEnabledChanged)
+    Q_PROPERTY(uint32_t sdrBrightness READ sdrBrightness WRITE setSdrBrightness NOTIFY sdrBrightnessChanged)
+    Q_PROPERTY(bool wcgEnabled READ isWcgEnabled WRITE setWcgEnabled NOTIFY wcgEnabledChanged)
 
     enum Type {
         Unknown,
@@ -82,9 +85,11 @@ public:
     Q_ENUM(Rotation)
 
     enum class Capability {
-        Overscan = 0x1,
-        Vrr = 0x2,
-        RgbRange = 0x4,
+        Overscan = 1 << 0,
+        Vrr = 1 << 1,
+        RgbRange = 1 << 2,
+        HighDynamicRange = 1 << 3,
+        WideColorGamut = 1 << 4,
     };
     Q_ENUM(Capability)
     Q_DECLARE_FLAGS(Capabilities, Capability)
@@ -402,6 +407,42 @@ public:
      */
     void setRgbRange(RgbRange rgbRange);
 
+    /**
+     * @returns if high dynamic range is enabled
+     * @since 6.0
+     */
+    bool isHdrEnabled() const;
+
+    /**
+     * Set if high dynamic range should be enabled
+     * @since 6.0
+     */
+    void setHdrEnabled(bool enable);
+
+    /**
+     * @returns the brightness for SDR content while the output is in HDR mode
+     * @since 6.0
+     */
+    uint32_t sdrBrightness() const;
+
+    /**
+     * Set the brightness for SDR content while the output is in HDR mode
+     * @since 6.0
+     */
+    void setSdrBrightness(uint32_t brightness);
+
+    /**
+     * @returns if the use of wide color gamut is enabled
+     * @since 6.0
+     */
+    bool isWcgEnabled() const;
+
+    /**
+     * Set if a wide color gamut should be used
+     * @since 6.0
+     */
+    void setWcgEnabled(bool enable);
+
     void apply(const OutputPtr &other);
 
 Q_SIGNALS:
@@ -422,6 +463,9 @@ Q_SIGNALS:
     void overscanChanged();
     void vrrPolicyChanged();
     void rgbRangeChanged();
+    void hdrEnabledChanged();
+    void sdrBrightnessChanged();
+    void wcgEnabledChanged();
 
     /** The mode list changed.
      *

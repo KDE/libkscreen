@@ -50,7 +50,13 @@ int main(int argc, char **argv)
         "\n   Set scale (note: fractional scaling is only supported on wayland)\n"
         "   $ kscreen-doctor output.HDMI-2.scale.2 \n"
         "\n   Set rotation (possible values: none, left, right, inverted)\n"
-        "   $ kscreen-doctor output.HDMI-2.rotation.left \n");
+        "   $ kscreen-doctor output.HDMI-2.rotation.left \n"
+        "\n   Set HDR mode (possible values: enable, disable)\n"
+        "   $ kscreen-doctor output.HDMI-2.hdr.enable\n"
+        "\n   Set SDR brightness (possible values: 100-1000)\n"
+        "   $ kscreen-doctor output.HDMI-2.sdr_brightness.300\n"
+        "\n   Set wide color gamut mode (possible values: enable, disable)\n"
+        "   $ kscreen-doctor output.HDMI-2.wcg.enable\n");
     /*
         "\nError codes:\n"
         "   2 : general parse error\n"

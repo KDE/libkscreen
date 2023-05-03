@@ -87,6 +87,9 @@ protected:
     void kde_output_device_v2_vrr_policy(uint32_t vrr_policy) override;
     void kde_output_device_v2_rgb_range(uint32_t rgb_range) override;
     void kde_output_device_v2_name(const QString &name) override;
+    void kde_output_device_v2_high_dynamic_range(uint32_t hdr_enabled) override;
+    void kde_output_device_v2_sdr_brightness(uint32_t sdr_brightness) override;
+    void kde_output_device_v2_wide_color_gamut(uint32_t wcg_enabled) override;
 
 private:
     QString modeName(const WaylandOutputDeviceMode *m) const;
@@ -114,6 +117,9 @@ private:
     uint32_t m_vrr_policy;
     uint32_t m_rgbRange;
     uint32_t m_index;
+    bool m_hdrEnabled = false;
+    uint32_t m_sdrBrightness = 200;
+    bool m_wideColorGamutEnabled = false;
 };
 
 }

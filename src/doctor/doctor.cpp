@@ -327,6 +327,36 @@ void Doctor::parseOutputArgs()
                         return;
                     }
                     setRgbRange(output, range);
+                } else if (ops.count() == 4 && subcmd == "hdr") {
+                    const QString _enable = ops[3].toLower();
+                    if (_enable == "enable") {
+                        setHdrEnabled(output, true);
+                    } else if (_enable == "disable") {
+                        setHdrEnabled(output, false);
+                    } else {
+                        qCDebug(KSCREEN_DOCTOR) << "Wrong input: Only allowed values for hdr are \"enable\" and \"disable\"";
+                        qApp->exit(9);
+                        return;
+                    }
+                } else if (ops.count() == 4 && subcmd == "sdr_brightness") {
+                    const uint32_t brightness = ops[3].toInt();
+                    if (brightness < 100 || brightness > 10000) {
+                        qCDebug(KSCREEN_DOCTOR) << "Wrong input: Allowed range for sdr_brightness is 100 to 10000";
+                        qApp->exit(9);
+                        return;
+                    }
+                    setSdrBrightness(output, brightness);
+                } else if (ops.count() == 4 && subcmd == "wcg") {
+                    const QString _enable = ops[3].toLower();
+                    if (_enable == "enable") {
+                        setWcgEnabled(output, true);
+                    } else if (_enable == "disable") {
+                        setWcgEnabled(output, false);
+                    } else {
+                        qCDebug(KSCREEN_DOCTOR) << "Wrong input: Only allowed values for wcg are \"enable\" and \"disable\"";
+                        qApp->exit(9);
+                        return;
+                    }
                 } else {
                     cerr << "Unable to parse arguments: " << op << Qt::endl;
                     qApp->exit(2);
@@ -446,6 +476,27 @@ void Doctor::showOutputs() const
         } else {
             cout << cr << "unknown";
         }
+        cout << yellow << " HDR: ";
+        if (output->capabilities() & Output::Capability::HighDynamicRange) {
+            if (output->isHdrEnabled()) {
+                cout << cr << "enabled";
+            } else {
+                cout << cr << "disabled";
+            }
+            cout << yellow << " SDR brightness: " << output->sdrBrightness() << " nits";
+        } else {
+            cout << cr << "incapable";
+        }
+        cout << yellow << " Wide Color Gamut: ";
+        if (output->capabilities() & Output::Capability::WideColorGamut) {
+            if (output->isWcgEnabled()) {
+                cout << cr << "enabled";
+            } else {
+                cout << cr << "disabled";
+            }
+        } else {
+            cout << cr << "incapable";
+        }
         cout << cr << Qt::endl;
     }
 }
@@ -534,6 +585,24 @@ void KScreen::Doctor::setPrimary(OutputPtr output)
 void KScreen::Doctor::setPriority(OutputPtr output, uint32_t priority)
 {
     m_config->setOutputPriority(output, priority);
+    m_changed = true;
+}
+
+void Doctor::setHdrEnabled(OutputPtr output, bool enable)
+{
+    output->setHdrEnabled(enable);
+    m_changed = true;
+}
+
+void Doctor::setSdrBrightness(OutputPtr output, uint32_t brightness)
+{
+    output->setSdrBrightness(brightness);
+    m_changed = true;
+}
+
+void Doctor::setWcgEnabled(OutputPtr output, bool enable)
+{
+    output->setWcgEnabled(enable);
     m_changed = true;
 }
 

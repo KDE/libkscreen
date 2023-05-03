@@ -192,6 +192,9 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output)
     output->setOverscan(m_overscan);
     output->setVrrPolicy(static_cast<Output::VrrPolicy>(m_vrr_policy));
     output->setRgbRange(static_cast<Output::RgbRange>(m_rgbRange));
+    output->setHdrEnabled(m_hdrEnabled);
+    output->setSdrBrightness(m_sdrBrightness);
+    output->setWcgEnabled(m_wideColorGamutEnabled);
 
     updateKScreenModes(output);
 }
@@ -267,6 +270,18 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputConfiguration *wlConfig, cons
     // always send all outputs
     if (kde_output_configuration_v2_get_version(wlConfig->object()) >= KDE_OUTPUT_CONFIGURATION_V2_SET_PRIORITY_SINCE_VERSION) {
         wlConfig->set_priority(object(), output->priority());
+    }
+    if ((output->capabilities() & Output::Capability::HighDynamicRange) && (m_hdrEnabled == 1) != output->isHdrEnabled()) {
+        wlConfig->set_high_dynamic_range(object(), output->isHdrEnabled());
+        changed = true;
+    }
+    if ((output->capabilities() & Output::Capability::HighDynamicRange) && m_sdrBrightness != output->sdrBrightness()) {
+        wlConfig->set_sdr_brightness(object(), output->sdrBrightness());
+        changed = true;
+    }
+    if ((output->capabilities() & Output::Capability::WideColorGamut) && (m_wideColorGamutEnabled == 1) != output->isWcgEnabled()) {
+        wlConfig->set_wide_color_gamut(object(), output->isWcgEnabled());
+        changed = true;
     }
 
     return changed;
@@ -362,6 +377,21 @@ void WaylandOutputDevice::kde_output_device_v2_rgb_range(uint32_t rgb_range)
 void WaylandOutputDevice::kde_output_device_v2_name(const QString &outputName)
 {
     m_outputName = outputName;
+}
+
+void WaylandOutputDevice::kde_output_device_v2_high_dynamic_range(uint32_t hdr_enabled)
+{
+    m_hdrEnabled = hdr_enabled == 1;
+}
+
+void WaylandOutputDevice::kde_output_device_v2_sdr_brightness(uint32_t sdr_brightness)
+{
+    m_sdrBrightness = sdr_brightness;
+}
+
+void WaylandOutputDevice::kde_output_device_v2_wide_color_gamut(uint32_t wcg_enabled)
+{
+    m_wideColorGamutEnabled = wcg_enabled == 1;
 }
 
 QByteArray WaylandOutputDevice::edid() const

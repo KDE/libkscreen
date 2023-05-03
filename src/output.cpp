@@ -61,6 +61,9 @@ public:
         , overscan(other.overscan)
         , vrrPolicy(other.vrrPolicy)
         , rgbRange(other.rgbRange)
+        , highDynamicRange(other.highDynamicRange)
+        , sdrBrightness(other.sdrBrightness)
+        , wideColorGamut(other.wideColorGamut)
     {
         const auto otherModeList = other.modeList;
         for (const ModePtr &otherMode : otherModeList) {
@@ -102,6 +105,9 @@ public:
     uint32_t overscan = 0;
     VrrPolicy vrrPolicy = VrrPolicy::Automatic;
     RgbRange rgbRange = RgbRange::Automatic;
+    bool highDynamicRange = false;
+    uint32_t sdrBrightness = 200;
+    bool wideColorGamut = false;
 };
 
 bool Output::Private::compareModeList(const ModeList &before, const ModeList &after)
@@ -659,6 +665,45 @@ void Output::setRgbRange(Output::RgbRange rgbRange)
     Q_EMIT rgbRangeChanged();
 }
 
+bool Output::isHdrEnabled() const
+{
+    return d->highDynamicRange;
+}
+
+void Output::setHdrEnabled(bool enable)
+{
+    if (d->highDynamicRange != enable) {
+        d->highDynamicRange = enable;
+        Q_EMIT hdrEnabledChanged();
+    }
+}
+
+uint32_t Output::sdrBrightness() const
+{
+    return d->sdrBrightness;
+}
+
+void Output::setSdrBrightness(uint32_t brightness)
+{
+    if (d->sdrBrightness != brightness) {
+        d->sdrBrightness = brightness;
+        Q_EMIT sdrBrightnessChanged();
+    }
+}
+
+bool Output::isWcgEnabled() const
+{
+    return d->wideColorGamut;
+}
+
+void Output::setWcgEnabled(bool enable)
+{
+    if (d->wideColorGamut != enable) {
+        d->wideColorGamut = enable;
+        Q_EMIT wcgEnabledChanged();
+    }
+}
+
 void Output::apply(const OutputPtr &other)
 {
     typedef void (KScreen::Output::*ChangeSignal)();
@@ -743,6 +788,18 @@ void Output::apply(const OutputPtr &other)
     if (d->rgbRange != other->d->rgbRange) {
         changes << &Output::rgbRangeChanged;
         setRgbRange(other->d->rgbRange);
+    }
+    if (d->highDynamicRange != other->d->highDynamicRange) {
+        changes << &Output::hdrEnabledChanged;
+        setHdrEnabled(other->d->highDynamicRange);
+    }
+    if (d->sdrBrightness != other->d->sdrBrightness) {
+        changes << &Output::sdrBrightnessChanged;
+        setSdrBrightness(other->d->sdrBrightness);
+    }
+    if (d->wideColorGamut != other->d->wideColorGamut) {
+        changes << &Output::wcgEnabledChanged;
+        setWcgEnabled(other->d->wideColorGamut);
     }
 
     // Non-notifyable changes
