@@ -78,6 +78,7 @@ int main(int argc, char **argv)
         "                output.eDP-1.position.1280,0\n"
         "Multiple settings are passed in order to have kscreen-doctor apply these settings in one go.\n");
 
+    QGuiApplication::setDesktopSettingsAware(false);
     QGuiApplication app(argc, argv);
 
     KScreen::Doctor server;
