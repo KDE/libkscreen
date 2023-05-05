@@ -7,3 +7,4 @@ Dependencies:
     'frameworks/extra-cmake-modules': '@latest-kf6'
     'frameworks/kwayland': '@latest-kf6'
     'frameworks/kconfig': '@latest-kf6'
+    'third-party/wayland': '@latest'
