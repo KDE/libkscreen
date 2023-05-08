@@ -25,7 +25,7 @@ target_link_libraries(kscreen_backend_launcher
 )
 
 install(TARGETS kscreen_backend_launcher
-        DESTINATION ${CMAKE_INSTALL_FULL_LIBEXECDIR_KF6}
+        DESTINATION ${KDE_INSTALL_FULL_LIBEXECDIR_KF}
 )
 
 configure_file(org.kde.kscreen.service.cmake
