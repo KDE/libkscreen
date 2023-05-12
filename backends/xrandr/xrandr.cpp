@@ -147,6 +147,7 @@ void XRandR::crtcChanged(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr
     XRandRCrtc *xCrtc = s_internalConfig->crtc(crtc);
     if (!xCrtc) {
         s_internalConfig->addNewCrtc(crtc);
+        xCrtc = s_internalConfig->crtc(crtc);
     } else {
         xCrtc->update(mode, rotation, geom);
     }
