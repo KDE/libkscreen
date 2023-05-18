@@ -243,6 +243,12 @@ case $state in
           _describe -t scale "(Wayland only) per-output scaling" scale_descr scale_comp -o nosort && ret=0
         elif compset -P 1 'vrrpolicy.' ; then
           _alternative 'vrrpolicy::(never always automatic)' && ret=0
+        elif compset -P 1 'hdr.' ; then
+          _alternative 'hdr::(enable disable)' && ret=0
+        elif compset -P 1 'sdr-brightness.' ; then
+          _numbers -t 'sdr-brightness' -u nits -l 100 -m 10000 'SDR brightness' && ret=0
+        elif compset -P 1 'wcg.' ; then
+          _alternative 'wcg::(enable disable)' && ret=0
         else
           # two groups: first without suffix, and second with '.' at the end
           _describe -t subcommands 'subcommand' '(
@@ -259,7 +265,10 @@ case $state in
             rotation:"Display orientation"
             scale:"(Wayland only) Per-output scaling"
             vrrpolicy:"(Wayland only) Variable refresh rate"
-            )' -S '.' && ret=0
+            hdr:"(Wayland only) High Dynamic Range"
+            sdr-brightness:"(Wayland only) Brightness of Standard Dynamic Range content"
+            wcg:"(Wayland only) Wide Color Gamut"
+          )' -S '.' && ret=0
         fi
       else
         _kscreen-doctor-outputs -S '.' && ret=0
