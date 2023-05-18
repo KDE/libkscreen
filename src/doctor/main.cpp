@@ -54,7 +54,7 @@ int main(int argc, char **argv)
         "\n   Set HDR mode (possible values: enable, disable)\n"
         "   $ kscreen-doctor output.HDMI-2.hdr.enable\n"
         "\n   Set SDR brightness (possible values: 100-1000)\n"
-        "   $ kscreen-doctor output.HDMI-2.sdr_brightness.300\n"
+        "   $ kscreen-doctor output.HDMI-2.sdr-brightness.300\n"
         "\n   Set wide color gamut mode (possible values: enable, disable)\n"
         "   $ kscreen-doctor output.HDMI-2.wcg.enable\n");
     /*
