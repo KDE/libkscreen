@@ -37,7 +37,7 @@ find_package(KF6Wayland ${KF6_MIN_VERSION} CONFIG REQUIRED)
 add_feature_info("KF6Wayland" KF6Wayland_FOUND "Required for building libkscreen's KWayland backend")
 find_package(KF6Config ${KF6_MIN_VERSION} CONFIG REQUIRED)
 
-find_package(PlasmaWaylandProtocols 1.10.0 CONFIG)
+find_package(PlasmaWaylandProtocols 1.10.80 CONFIG)
 set_package_properties(PlasmaWaylandProtocols PROPERTIES TYPE REQUIRED)
 
 find_package(Wayland 1.15 COMPONENTS Client)
