@@ -154,7 +154,7 @@ void WaylandDpmsHelper::trigger(KScreen::Dpms::Mode mode, const QList<QScreen *>
     case KScreen::Dpms::Toggle: {
         for (QScreen *screen : screens) {
             auto dpms = m_dpmsManager->fetch(screen);
-            if (!dpms->isSupported()) {
+            if (!dpms || !dpms->isSupported()) {
                 qCDebug(KSCREEN_DPMS) << "screen does not provide dpms" << screen;
                 continue;
             }
@@ -181,7 +181,9 @@ void WaylandDpmsHelper::trigger(KScreen::Dpms::Mode mode, const QList<QScreen *>
     }
     for (auto screen : screens) {
         auto dpms = m_dpmsManager->fetch(screen);
-        dpms->set(level);
+        if (dpms) {
+            dpms->set(level);
+        }
     }
     setHasPendingChanges(false);
 }
