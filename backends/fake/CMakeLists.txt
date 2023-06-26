@@ -16,7 +16,7 @@ qt_add_dbus_adaptor(fake_SRCS ${CMAKE_SOURCE_DIR}/interfaces/org.kde.KScreen.Fak
 
 add_library(KSC_Fake MODULE ${fake_SRCS})
 
-set_target_properties(KSC_Fake PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/kf${QT_MAJOR_VERSION}/kscreen")
+set_target_properties(KSC_Fake PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/kf6/kscreen")
 set_target_properties(KSC_Fake PROPERTIES PREFIX "")
 target_link_libraries(KSC_Fake
     Qt::Core
@@ -24,6 +24,6 @@ target_link_libraries(KSC_Fake
     KF6::Screen
 )
 
-install(TARGETS KSC_Fake DESTINATION ${KDE_INSTALL_PLUGINDIR}/kf${QT_MAJOR_VERSION}/kscreen/)
+install(TARGETS KSC_Fake DESTINATION ${KDE_INSTALL_PLUGINDIR}/kf6/kscreen/)
 
 

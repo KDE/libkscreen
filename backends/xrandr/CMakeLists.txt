@@ -16,7 +16,7 @@ target_sources(KSC_XRandR PRIVATE
     ../utils.cpp
 )
 
-set_target_properties(KSC_XRandR PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/kf${QT_MAJOR_VERSION}/kscreen")
+set_target_properties(KSC_XRandR PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/kf6/kscreen")
 set_target_properties(KSC_XRandR PROPERTIES PREFIX "")
 target_link_libraries(KSC_XRandR Qt::Core
                                  Qt::Gui
@@ -25,4 +25,4 @@ target_link_libraries(KSC_XRandR Qt::Core
                                  KF6::Screen
 )
 
-install(TARGETS KSC_XRandR DESTINATION ${KDE_INSTALL_PLUGINDIR}/kf${QT_MAJOR_VERSION}/kscreen/)
+install(TARGETS KSC_XRandR DESTINATION ${KDE_INSTALL_PLUGINDIR}/kf6/kscreen/)

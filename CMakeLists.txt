@@ -29,7 +29,7 @@ include(KDEClangFormat)
 include(KDEGitCommitHooks)
 include(ECMDeprecationSettings)
 
-find_package(Qt${QT_MAJOR_VERSION} ${QT_MIN_VERSION} CONFIG REQUIRED Core DBus Gui Test WaylandClient)
+find_package(Qt6 ${QT_MIN_VERSION} CONFIG REQUIRED Core DBus Gui Test WaylandClient)
 find_package(WaylandScanner)
 
 # Wayland backend

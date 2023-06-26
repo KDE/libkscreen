@@ -25,7 +25,7 @@ qt6_generate_wayland_protocol_client_sources(KSC_KWayland FILES
 
 target_sources(KSC_KWayland PRIVATE ${wayland_SRCS})
 
-set_target_properties(KSC_KWayland PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/kf${QT_MAJOR_VERSION}/kscreen")
+set_target_properties(KSC_KWayland PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/kf6/kscreen")
 set_target_properties(KSC_KWayland PROPERTIES PREFIX "")
 target_link_libraries(KSC_KWayland Qt::Core
                                   Qt::DBus
@@ -36,4 +36,4 @@ target_link_libraries(KSC_KWayland Qt::Core
                                   Wayland::Client
 )
 
-install(TARGETS KSC_KWayland DESTINATION ${KDE_INSTALL_PLUGINDIR}/kf${QT_MAJOR_VERSION}/kscreen/)
+install(TARGETS KSC_KWayland DESTINATION ${KDE_INSTALL_PLUGINDIR}/kf6/kscreen/)
