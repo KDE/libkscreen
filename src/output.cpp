@@ -7,6 +7,7 @@
 
 #include "output.h"
 #include "edid.h"
+#include "kscreen_debug.h"
 #include "mode.h"
 
 #include <QCryptographicHash>
@@ -496,7 +497,11 @@ bool Output::isPrimary() const
 
 void Output::setPrimary(bool primary)
 {
-    setPriority(1);
+    if (primary) {
+        setPriority(1);
+    } else {
+        qCWarning(KSCREEN) << "Calling Output::setPrimary(false) is not supported. Port your code to Config::setPrimaryOutput";
+    }
 }
 
 uint32_t Output::priority() const
