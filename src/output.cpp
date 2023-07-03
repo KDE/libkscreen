@@ -27,14 +27,14 @@ public:
     Private()
         : id(0)
         , type(Unknown)
-        , replicationSource(0)
         , rotation(None)
-        , scale(1.0)
-        , explicitLogicalSize(QSizeF())
         , connected(false)
         , enabled(false)
         , priority(0)
+        , replicationSource(0)
         , edid(nullptr)
+        , scale(1.0)
+        , explicitLogicalSize(QSizeF())
     {
     }
 
