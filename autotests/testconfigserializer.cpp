@@ -6,7 +6,7 @@
  */
 
 #include <QObject>
-#include <QtTest>
+#include <QTest>
 #include <cstdint>
 #include <utility>
 

@@ -7,7 +7,7 @@
 
 #include <QObject>
 #include <QSignalSpy>
-#include <QtTest>
+#include <QTest>
 
 #include "../src/backendmanager_p.h"
 #include "../src/config.h"

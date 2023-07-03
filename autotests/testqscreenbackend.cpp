@@ -6,8 +6,9 @@
  */
 
 #include <QElapsedTimer>
+#include <QLoggingCategory>
 #include <QObject>
-#include <QtTest>
+#include <QTest>
 
 #include <cstdint>
 

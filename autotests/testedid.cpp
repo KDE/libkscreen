@@ -6,7 +6,7 @@
 
 #include <QCoreApplication>
 #include <QObject>
-#include <QtTest>
+#include <QTest>
 
 #include "../src/edid.h"
 

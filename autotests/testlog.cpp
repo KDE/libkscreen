@@ -6,7 +6,8 @@
 
 #include <QLoggingCategory>
 #include <QObject>
-#include <QtTest>
+#include <QStandardPaths>
+#include <QTest>
 
 #include "../src/log.h"
 
