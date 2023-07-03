@@ -87,7 +87,7 @@ void BackendManager::initMethod()
 
         mResetCrashCountTimer.setSingleShot(true);
         mResetCrashCountTimer.setInterval(60000);
-        connect(&mResetCrashCountTimer, &QTimer::timeout, this, [=]() {
+        connect(&mResetCrashCountTimer, &QTimer::timeout, this, [this]() {
             mCrashCount = 0;
         });
     }
