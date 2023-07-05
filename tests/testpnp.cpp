@@ -157,3 +157,5 @@ void TestPnp::print()
         }
     }
 }
+
+#include "moc_testpnp.cpp"

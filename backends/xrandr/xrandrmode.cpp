@@ -67,3 +67,5 @@ QString XRandRMode::name() const
 {
     return m_name;
 }
+
+#include "moc_xrandrmode.cpp"

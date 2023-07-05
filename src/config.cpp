@@ -507,3 +507,5 @@ QDebug operator<<(QDebug dbg, const KScreen::ConfigPtr &config)
 }
 
 #include "config.moc"
+
+#include "moc_config.cpp"

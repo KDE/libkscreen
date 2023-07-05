@@ -112,3 +112,5 @@ void BackendLoader::quit()
 {
     qApp->quit();
 }
+
+#include "moc_backendloader.cpp"

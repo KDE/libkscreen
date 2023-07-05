@@ -51,3 +51,5 @@ void WaylandScreen::updateKScreenScreen(KScreen::ScreenPtr &screen) const
     screen->setCurrentSize(m_size);
     screen->setMaxActiveOutputsCount(m_outputCount);
 }
+
+#include "moc_waylandscreen.cpp"

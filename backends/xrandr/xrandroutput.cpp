@@ -501,3 +501,5 @@ KScreen::OutputPtr XRandROutput::toKScreenOutput() const
     kscreenOutput->blockSignals(signalsBlocked);
     return kscreenOutput;
 }
+
+#include "moc_xrandroutput.cpp"

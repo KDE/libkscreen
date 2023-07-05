@@ -125,3 +125,5 @@ QDebug operator<<(QDebug dbg, const KScreen::ModePtr &mode)
     }
     return dbg;
 }
+
+#include "moc_mode.cpp"

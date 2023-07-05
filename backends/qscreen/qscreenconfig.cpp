@@ -118,3 +118,5 @@ QMap<int, QScreenOutput *> QScreenConfig::outputMap() const
 {
     return m_outputMap;
 }
+
+#include "moc_qscreenconfig.cpp"

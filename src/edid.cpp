@@ -401,3 +401,5 @@ QString Edid::Private::edidParseString(const quint8 *data) const
     }
     return text;
 }
+
+#include "moc_edid.cpp"

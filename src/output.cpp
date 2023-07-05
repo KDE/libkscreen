@@ -848,3 +848,5 @@ QDebug operator<<(QDebug dbg, const KScreen::OutputPtr &output)
     // clang-format on
     return dbg;
 }
+
+#include "moc_output.cpp"

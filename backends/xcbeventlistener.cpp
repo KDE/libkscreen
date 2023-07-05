@@ -191,3 +191,5 @@ void XCBEventListener::handleXRandRNotify(xcb_generic_event_t *e)
         qCDebug(KSCREEN_XCB_HELPER) << "\tState (newValue, Deleted): " << property.status;
     }
 }
+
+#include "moc_xcbeventlistener.cpp"

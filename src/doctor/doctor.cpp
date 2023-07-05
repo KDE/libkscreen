@@ -616,3 +616,5 @@ void Doctor::applyConfig()
     qCDebug(KSCREEN_DOCTOR) << "setop exec returned" << m_config;
     qApp->exit(0);
 }
+
+#include "moc_doctor.cpp"

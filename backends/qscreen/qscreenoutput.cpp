@@ -95,3 +95,5 @@ void QScreenOutput::updateKScreenOutput(OutputPtr &output) const
     output->setModes(modes);
     output->setCurrentModeId(modeid);
 }
+
+#include "moc_qscreenoutput.cpp"

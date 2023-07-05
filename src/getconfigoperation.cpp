@@ -186,3 +186,5 @@ void GetConfigOperationPrivate::loadEdid(KScreen::AbstractBackend *backend)
 }
 
 #include "getconfigoperation.moc"
+
+#include "moc_getconfigoperation.cpp"

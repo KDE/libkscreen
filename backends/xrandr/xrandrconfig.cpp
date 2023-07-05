@@ -626,3 +626,5 @@ bool XRandRConfig::sendConfig(const KScreen::OutputPtr &kscreenOutput, XRandRCrt
     qCDebug(KSCREEN_XRANDR) << "\tResult: " << reply->status << " timestamp: " << reply->timestamp;
     return (reply->status == XCB_RANDR_SET_CONFIG_SUCCESS);
 }
+
+#include "moc_xrandrconfig.cpp"

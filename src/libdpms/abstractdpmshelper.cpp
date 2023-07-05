@@ -8,3 +8,5 @@
 #include "abstractdpmshelper_p.h"
 
 KScreen::AbstractDpmsHelper::~AbstractDpmsHelper() = default;
+
+#include "moc_abstractdpmshelper_p.cpp"

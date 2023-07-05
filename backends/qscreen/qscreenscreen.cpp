@@ -49,3 +49,5 @@ void QScreenScreen::updateKScreenScreen(ScreenPtr &screen) const
         screen->setMaxActiveOutputsCount(QGuiApplication::screens().count());
     }
 }
+
+#include "moc_qscreenscreen.cpp"

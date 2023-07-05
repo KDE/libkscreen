@@ -45,3 +45,5 @@ bool KScreen::Dpms::hasPendingChanges() const
 {
     return m_helper->hasPendingChanges();
 }
+
+#include "moc_dpms.cpp"

@@ -349,3 +349,5 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
     blockSignals();
     wlConfig->apply();
 }
+
+#include "moc_waylandconfig.cpp"

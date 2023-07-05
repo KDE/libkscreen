@@ -184,3 +184,5 @@ QString WaylandTestServer::modeString(KWayland::Server::OutputDeviceInterface *o
     }
     return QStringLiteral("[%1] %2 (%4 modes: %3)").arg(QString::number(mid), s, ids, QString::number(outputdevice->modes().count()));
 }
+
+#include "moc_waylandtestserver.cpp"

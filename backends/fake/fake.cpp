@@ -192,3 +192,5 @@ void Fake::removeOutput(int outputId)
     mConfig->removeOutput(outputId);
     Q_EMIT configChanged(mConfig);
 }
+
+#include "moc_fake.cpp"

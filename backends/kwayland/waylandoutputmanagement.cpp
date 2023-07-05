@@ -62,3 +62,5 @@ void WaylandOutputOrder::kde_output_order_v1_done()
     m_pendingOutputOrder.clear();
 }
 }
+
+#include "moc_waylandoutputmanagement.cpp"

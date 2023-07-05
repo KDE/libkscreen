@@ -62,3 +62,5 @@ WaylandOutputDeviceMode *WaylandOutputDeviceMode::get(struct ::kde_output_device
     auto mode = QtWayland::kde_output_device_mode_v2::fromObject(object);
     return static_cast<WaylandOutputDeviceMode *>(mode);
 }
+
+#include "moc_waylandoutputdevicemode.cpp"

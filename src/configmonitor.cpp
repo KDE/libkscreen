@@ -233,3 +233,5 @@ void ConfigMonitor::connectInProcessBackend(KScreen::AbstractBackend *backend)
 }
 
 #include "configmonitor.moc"
+
+#include "moc_configmonitor.cpp"

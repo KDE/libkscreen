@@ -195,3 +195,5 @@ void SetConfigOperationPrivate::fixPrimaryOutput()
 }
 
 #include "setconfigoperation.moc"
+
+#include "moc_setconfigoperation.cpp"

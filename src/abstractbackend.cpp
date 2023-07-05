@@ -16,3 +16,5 @@ QByteArray KScreen::AbstractBackend::edid(int outputId) const
     Q_UNUSED(outputId);
     return QByteArray();
 }
+
+#include "moc_abstractbackend.cpp"

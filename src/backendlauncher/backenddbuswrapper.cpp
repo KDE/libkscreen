@@ -113,3 +113,5 @@ void BackendDBusWrapper::doEmitConfigChanged()
     mCurrentConfig.clear();
     mChangeCollector.stop();
 }
+
+#include "moc_backenddbuswrapper.cpp"

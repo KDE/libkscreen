@@ -61,3 +61,5 @@ bool QScreenBackend::isValid() const
 {
     return m_isValid;
 }
+
+#include "moc_qscreenbackend.cpp"

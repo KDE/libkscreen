@@ -397,3 +397,5 @@ void BackendManager::shutdownBackend()
         }
     }
 }
+
+#include "moc_backendmanager_p.cpp"

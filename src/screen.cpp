@@ -118,3 +118,5 @@ void Screen::apply(const ScreenPtr &other)
     setMaxActiveOutputsCount(other->d->maxActiveOutputsCount);
     setCurrentSize(other->d->currentSize);
 }
+
+#include "moc_screen.cpp"

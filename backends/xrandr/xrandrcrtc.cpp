@@ -134,3 +134,5 @@ bool XRandRCrtc::isChangedFromOutside() const
 {
     return m_configTimestamp > m_timestamp;
 }
+
+#include "moc_xrandrcrtc.cpp"

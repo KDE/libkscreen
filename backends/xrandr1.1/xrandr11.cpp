@@ -179,3 +179,5 @@ void XRandR11::updateConfig()
     m_currentConfig = config();
     Q_EMIT configChanged(m_currentConfig);
 }
+
+#include "moc_xrandr11.cpp"

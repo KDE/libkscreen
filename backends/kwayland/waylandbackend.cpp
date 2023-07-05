@@ -106,3 +106,5 @@ bool WaylandBackend::isValid() const
 {
     return m_internalConfig->isReady();
 }
+
+#include "moc_waylandbackend.cpp"

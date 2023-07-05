@@ -195,3 +195,5 @@ void WaylandDpmsHelper::blockUntilSupported()
         setSupported(false);
     }
 }
+
+#include "moc_waylanddpmshelper_p.cpp"

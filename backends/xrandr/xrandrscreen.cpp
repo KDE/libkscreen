@@ -64,3 +64,5 @@ void XRandRScreen::updateKScreenScreen(KScreen::ScreenPtr &screen) const
 {
     screen->setCurrentSize(m_currentSize);
 }
+
+#include "moc_xrandrscreen.cpp"

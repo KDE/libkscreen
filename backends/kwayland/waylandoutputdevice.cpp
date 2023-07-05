@@ -458,3 +458,5 @@ uint32_t WaylandOutputDevice::rgbRange() const
 {
     return m_rgbRange;
 }
+
+#include "moc_waylandoutputdevice.cpp"

@@ -292,3 +292,5 @@ xcb_screen_t *XRandR::screen()
 {
     return s_screen;
 }
+
+#include "moc_xrandr.cpp"
