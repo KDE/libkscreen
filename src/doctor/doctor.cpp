@@ -483,7 +483,7 @@ void Doctor::showOutputs() const
             } else {
                 cout << cr << "disabled";
             }
-            cout << yellow << " SDR brightness: " << output->sdrBrightness() << " nits";
+            cout << yellow << " SDR brightness: " << cr << output->sdrBrightness() << " nits";
         } else {
             cout << cr << "incapable";
         }
