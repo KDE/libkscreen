@@ -35,7 +35,7 @@ ecm_qt_declare_logging_category(libkscreen_SRCS
 add_library(KF6Screen SHARED ${libkscreen_SRCS})
 generate_export_header(KF6Screen BASE_NAME KScreen)
 
-ecm_create_qm_loader(KF6Screen libkscreen5_qt)
+ecm_create_qm_loader(KF6Screen libkscreen6_qt)
 
 target_link_libraries(KF6Screen
     PUBLIC
