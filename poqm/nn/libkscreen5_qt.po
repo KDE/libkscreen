@@ -1,4 +1,4 @@
-# Translation of libkscreen5_qt to Norwegian Nynorsk
+# Translation of libkscreen6_qt to Norwegian Nynorsk
 #
 # Karl Ove Hufthammer <karl@huftis.org>, 2023.
 msgid ""
