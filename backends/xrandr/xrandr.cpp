@@ -205,17 +205,18 @@ bool XRandR::isValid() const
 
 quint8 *XRandR::getXProperty(xcb_randr_output_t output, xcb_atom_t atom, size_t &len)
 {
-    quint8 *result;
+    quint8 *result = nullptr;
 
     auto cookie = xcb_randr_get_output_property(XCB::connection(), output, atom, XCB_ATOM_ANY, 0, 100, false, false);
     auto reply = xcb_randr_get_output_property_reply(XCB::connection(), cookie, nullptr);
+    if (!reply) {
+        return result;
+    }
 
     if (reply->type == XCB_ATOM_INTEGER && reply->format == 8) {
         result = new quint8[reply->num_items];
         memcpy(result, xcb_randr_get_output_property_data(reply), reply->num_items);
         len = reply->num_items;
-    } else {
-        result = nullptr;
     }
 
     free(reply);
