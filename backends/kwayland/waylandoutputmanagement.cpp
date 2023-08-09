@@ -43,6 +43,7 @@ WaylandOutputOrder::WaylandOutputOrder(struct ::wl_registry *registry, int id, i
 
 WaylandOutputOrder::~WaylandOutputOrder()
 {
+    destroy();
 }
 
 QVector<QString> WaylandOutputOrder::order() const
