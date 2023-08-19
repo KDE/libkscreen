@@ -152,10 +152,9 @@ void XRandR::crtcChanged(xcb_randr_crtc_t crtc, xcb_randr_mode_t mode, xcb_randr
     if (!xCrtc) {
         s_internalConfig->addNewCrtc(crtc);
         xCrtc = s_internalConfig->crtc(crtc);
-    } else {
-        xCrtc->update(mode, rotation, geom);
     }
 
+    xCrtc->update(mode, rotation, geom); // BUG 472280 Still need to call update(...) because the timestamp is newer
     xCrtc->updateConfigTimestamp(timestamp);
     m_configChangeCompressor->start();
 }
