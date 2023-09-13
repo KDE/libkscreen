@@ -41,8 +41,15 @@ XcbDpmsHelper::~XcbDpmsHelper() = default;
 
 void XcbDpmsHelper::trigger(KScreen::Dpms::Mode mode, const QList<QScreen *> &screens)
 {
-    setHasPendingChanges(true);
     auto *c = QX11Info::connection();
+    auto enableCheckCookie = xcb_dpms_enable_checked(c);
+    ScopedCPointer<xcb_generic_error_t> dpmsDisabled(xcb_request_check(c, enableCheckCookie));
+    if (dpmsDisabled) {
+        qCWarning(KSCREEN_DPMS) << "DPMS is disabled";
+        return;
+    }
+
+    setHasPendingChanges(true);
 
     if (screens != qGuiApp->screens()) {
         qCWarning(KSCREEN_DPMS) << "DPMS actions are applied to all screens on X11";
