@@ -31,35 +31,8 @@ WaylandBackend::WaylandBackend()
     , m_internalConfig(new WaylandConfig(this))
 {
     qCDebug(KSCREEN_WAYLAND) << "Loading Wayland backend.";
-
-    connect(m_internalConfig, &WaylandConfig::configChanged, this, [this]() {
-        const auto newConfig = m_internalConfig->currentConfig();
-
-        KConfig cfg(QStringLiteral("kdeglobals"));
-
-        KConfigGroup kscreenGroup = cfg.group("KScreen");
-        const bool xwaylandClientsScale = kscreenGroup.readEntry("XwaylandClientsScale", true);
-
-        KConfig kwinCfg(QStringLiteral("kwinrc"));
-        KConfigGroup xwaylandGroup = kwinCfg.group("Xwayland");
-        if (xwaylandClientsScale) {
-            qreal scaleFactor = 1;
-            const auto outputs = newConfig->outputs();
-            for (auto output : outputs) {
-                if (output->isEnabled()) {
-                    scaleFactor = std::max(scaleFactor, output->scale());
-                }
-            }
-
-            xwaylandGroup.writeEntry("Scale", scaleFactor, KConfig::Notify);
-
-        } else {
-            xwaylandGroup.deleteEntry("Scale", KConfig::Notify);
-        }
-        // here we rerun the fonts kcm init that does the appropriate xrdb call with the new settings
-        QProcess::startDetached("kcminit", {"kcm_fonts", "kcm_style"});
-
-        Q_EMIT configChanged(newConfig);
+    connect(m_internalConfig, &WaylandConfig::configChanged, this, [this] {
+        Q_EMIT configChanged(m_internalConfig->currentConfig());
     });
 }
 
