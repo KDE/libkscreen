@@ -56,6 +56,7 @@ public:
     Q_PROPERTY(bool hdrEnabled READ isHdrEnabled WRITE setHdrEnabled NOTIFY hdrEnabledChanged)
     Q_PROPERTY(uint32_t sdrBrightness READ sdrBrightness WRITE setSdrBrightness NOTIFY sdrBrightnessChanged)
     Q_PROPERTY(bool wcgEnabled READ isWcgEnabled WRITE setWcgEnabled NOTIFY wcgEnabledChanged)
+    Q_PROPERTY(AutoRotatePolicy autoRotatePolicy READ autoRotatePolicy WRITE setAutoRotatePolicy NOTIFY autoRotatePolicyChanged)
 
     enum Type {
         Unknown,
@@ -90,6 +91,7 @@ public:
         RgbRange = 1 << 2,
         HighDynamicRange = 1 << 3,
         WideColorGamut = 1 << 4,
+        AutoRotation = 1 << 5,
     };
     Q_ENUM(Capability)
     Q_DECLARE_FLAGS(Capabilities, Capability)
@@ -108,6 +110,13 @@ public:
         Limited = 2,
     };
     Q_ENUM(RgbRange)
+
+    enum class AutoRotatePolicy {
+        Never = 0,
+        InTabletMode = 1,
+        Always = 2,
+    };
+    Q_ENUM(AutoRotatePolicy)
 
     explicit Output();
     ~Output() override;
@@ -443,6 +452,18 @@ public:
      */
     void setWcgEnabled(bool enable);
 
+    /**
+     * @returns the policy for auto rotation
+     * @since 6.0
+     */
+    AutoRotatePolicy autoRotatePolicy() const;
+
+    /**
+     * Set the policy for auto rotation
+     * @since 6.0
+     */
+    void setAutoRotatePolicy(AutoRotatePolicy policy);
+
     void apply(const OutputPtr &other);
 
 Q_SIGNALS:
@@ -466,6 +487,7 @@ Q_SIGNALS:
     void hdrEnabledChanged();
     void sdrBrightnessChanged();
     void wcgEnabledChanged();
+    void autoRotatePolicyChanged();
 
     /** The mode list changed.
      *

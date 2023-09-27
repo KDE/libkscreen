@@ -195,6 +195,7 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output)
     output->setHdrEnabled(m_hdrEnabled);
     output->setSdrBrightness(m_sdrBrightness);
     output->setWcgEnabled(m_wideColorGamutEnabled);
+    output->setAutoRotatePolicy(static_cast<Output::AutoRotatePolicy>(m_autoRotatePolicy));
 
     updateKScreenModes(output);
 }
@@ -281,6 +282,10 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputConfiguration *wlConfig, cons
     }
     if ((output->capabilities() & Output::Capability::WideColorGamut) && (m_wideColorGamutEnabled == 1) != output->isWcgEnabled()) {
         wlConfig->set_wide_color_gamut(object(), output->isWcgEnabled());
+        changed = true;
+    }
+    if ((output->capabilities() & Output::Capability::AutoRotation) && m_autoRotatePolicy != static_cast<uint32_t>(output->autoRotatePolicy())) {
+        wlConfig->set_auto_rotate_policy(object(), static_cast<uint32_t>(output->autoRotatePolicy()));
         changed = true;
     }
 
@@ -392,6 +397,11 @@ void WaylandOutputDevice::kde_output_device_v2_sdr_brightness(uint32_t sdr_brigh
 void WaylandOutputDevice::kde_output_device_v2_wide_color_gamut(uint32_t wcg_enabled)
 {
     m_wideColorGamutEnabled = wcg_enabled == 1;
+}
+
+void WaylandOutputDevice::kde_output_device_v2_auto_rotate_policy(uint32_t policy)
+{
+    m_autoRotatePolicy = policy;
 }
 
 QByteArray WaylandOutputDevice::edid() const

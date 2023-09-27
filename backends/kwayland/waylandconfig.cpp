@@ -121,10 +121,10 @@ void WaylandConfig::setupRegistry()
 
     connect(m_registry, &KWayland::Client::Registry::interfaceAnnounced, this, [this](const QByteArray &interface, quint32 name, quint32 version) {
         if (interface == WaylandOutputDevice::interface()->name) {
-            addOutput(name, std::min(3u, version));
+            addOutput(name, std::min(4u, version));
         }
         if (interface == WaylandOutputManagement::interface()->name) {
-            m_outputManagement = new WaylandOutputManagement(m_registry->registry(), name, std::min(4u, version));
+            m_outputManagement = new WaylandOutputManagement(m_registry->registry(), name, std::min(5u, version));
         }
         if (interface == WaylandOutputOrder::interface()->name) {
             m_outputOrder = std::make_unique<WaylandOutputOrder>(m_registry->registry(), name, std::min(1u, version));

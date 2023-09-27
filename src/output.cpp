@@ -65,6 +65,7 @@ public:
         , highDynamicRange(other.highDynamicRange)
         , sdrBrightness(other.sdrBrightness)
         , wideColorGamut(other.wideColorGamut)
+        , autoRotatePolicy(other.autoRotatePolicy)
     {
         const auto otherModeList = other.modeList;
         for (const ModePtr &otherMode : otherModeList) {
@@ -109,6 +110,7 @@ public:
     bool highDynamicRange = false;
     uint32_t sdrBrightness = 200;
     bool wideColorGamut = false;
+    AutoRotatePolicy autoRotatePolicy = AutoRotatePolicy::InTabletMode;
 };
 
 bool Output::Private::compareModeList(const ModeList &before, const ModeList &after)
@@ -709,6 +711,19 @@ void Output::setWcgEnabled(bool enable)
     }
 }
 
+Output::AutoRotatePolicy Output::autoRotatePolicy() const
+{
+    return d->autoRotatePolicy;
+}
+
+void Output::setAutoRotatePolicy(AutoRotatePolicy policy)
+{
+    if (d->autoRotatePolicy != policy) {
+        d->autoRotatePolicy = policy;
+        Q_EMIT autoRotatePolicyChanged();
+    }
+}
+
 void Output::apply(const OutputPtr &other)
 {
     typedef void (KScreen::Output::*ChangeSignal)();
@@ -805,6 +820,10 @@ void Output::apply(const OutputPtr &other)
     if (d->wideColorGamut != other->d->wideColorGamut) {
         changes << &Output::wcgEnabledChanged;
         setWcgEnabled(other->d->wideColorGamut);
+    }
+    if (d->autoRotatePolicy != other->d->autoRotatePolicy) {
+        changes << &Output::autoRotatePolicyChanged;
+        setAutoRotatePolicy(other->d->autoRotatePolicy);
     }
 
     // Non-notifyable changes
