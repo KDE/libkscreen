@@ -16,12 +16,12 @@ msgstr ""
 #: getconfigoperation.cpp:62
 msgctxt "KScreen::GetConfigOperationPrivate|"
 msgid "Failed to prepare backend"
-msgstr "Non se puido preparar o motor"
+msgstr "Non foi posíbel preparar o motor"
 
 #: getconfigoperation.cpp:87
 msgctxt "KScreen::GetConfigOperationPrivate|"
 msgid "Failed to deserialize backend response"
-msgstr "Non se puido deserializar a resposta do motor"
+msgstr "Non foi posíbel deserializar a resposta do motor"
 
 #: getconfigoperation.cpp:99
 msgctxt "KScreen::GetConfigOperationPrivate|"
@@ -31,14 +31,14 @@ msgstr "Invalidouse o motor"
 #: setconfigoperation.cpp:58
 msgctxt "KScreen::SetConfigOperationPrivate|"
 msgid "Failed to prepare backend"
-msgstr "Non se puido preparar o motor"
+msgstr "Non foi posíbel preparar o motor"
 
 #: setconfigoperation.cpp:65
 msgctxt "KScreen::SetConfigOperationPrivate|"
 msgid "Failed to serialize request"
-msgstr "Non se puido serializar a solicitude"
+msgstr "Non foi posíbel serializar a solicitude"
 
 #: setconfigoperation.cpp:89
 msgctxt "KScreen::SetConfigOperationPrivate|"
 msgid "Failed to deserialize backend response"
-msgstr "Non se puido deserializar a resposta do motor"
+msgstr "Non foi posíbel deserializar a resposta do motor"
