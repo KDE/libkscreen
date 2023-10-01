@@ -92,10 +92,6 @@ if(NOT WIN32)
      )
 endif(NOT WIN32)
 
-include(ECMGeneratePriFile)
-ecm_generate_pri_file(BASE_NAME KScreen LIB_NAME KF6Screen DEPS "core" FILENAME_VAR PRI_FILENAME)
-install(FILES ${PRI_FILENAME} DESTINATION ${ECM_MKSPECS_INSTALL_DIR})
-
 if(BUILD_QCH)
     ecm_add_qch(
         KF6Screen_QCH
