@@ -21,9 +21,6 @@
 #include <QSettings>
 #include <QStandardPaths>
 
-#include <KConfig>
-#include <KConfigGroup>
-
 using namespace KScreen;
 
 WaylandBackend::WaylandBackend()
