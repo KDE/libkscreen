@@ -127,7 +127,8 @@ KScreen::Output::Rotation XRandROutput::rotation() const
 bool XRandROutput::isHorizontal() const
 {
     const auto rot = rotation();
-    return rot == KScreen::Output::Rotation::None || rot == KScreen::Output::Rotation::Inverted;
+    return rot == KScreen::Output::Rotation::None || rot == KScreen::Output::Rotation::Inverted || rot == KScreen::Output::Rotation::Flipped
+        || rot == KScreen::Output::Rotation::Flipped180;
 }
 
 QByteArray XRandROutput::edid() const

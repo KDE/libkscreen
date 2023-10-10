@@ -104,17 +104,13 @@ Output::Rotation toKScreenRotation(int32_t transform)
     case WL_OUTPUT_TRANSFORM_270:
         return Output::Right;
     case WL_OUTPUT_TRANSFORM_FLIPPED:
-        qCWarning(KSCREEN_WAYLAND) << "flipped transform is unsupported by kscreen";
-        return Output::None;
+        return Output::Flipped;
     case WL_OUTPUT_TRANSFORM_FLIPPED_90:
-        qCWarning(KSCREEN_WAYLAND) << "flipped-90 transform is unsupported by kscreen";
-        return Output::Left;
+        return Output::Flipped90;
     case WL_OUTPUT_TRANSFORM_FLIPPED_180:
-        qCWarning(KSCREEN_WAYLAND) << "flipped-180 transform is unsupported by kscreen";
-        return Output::Inverted;
+        return Output::Flipped180;
     case WL_OUTPUT_TRANSFORM_FLIPPED_270:
-        qCWarning(KSCREEN_WAYLAND) << "flipped-270 transform is unsupported by kscreen";
-        return Output::Right;
+        return Output::Flipped270;
     default:
         Q_UNREACHABLE();
     }
@@ -131,6 +127,14 @@ wl_output_transform toKWaylandTransform(const Output::Rotation rotation)
         return WL_OUTPUT_TRANSFORM_180;
     case Output::Right:
         return WL_OUTPUT_TRANSFORM_270;
+    case Output::Flipped:
+        return WL_OUTPUT_TRANSFORM_FLIPPED;
+    case Output::Flipped90:
+        return WL_OUTPUT_TRANSFORM_FLIPPED_90;
+    case Output::Flipped180:
+        return WL_OUTPUT_TRANSFORM_FLIPPED_180;
+    case Output::Flipped270:
+        return WL_OUTPUT_TRANSFORM_FLIPPED_270;
     default:
         Q_UNREACHABLE();
     }

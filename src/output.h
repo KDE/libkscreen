@@ -78,10 +78,14 @@ public:
     Q_ENUM(Type)
 
     enum Rotation {
-        None = 1,
-        Left = 2,
-        Inverted = 4,
-        Right = 8,
+        None = 1 << 0,
+        Left = 1 << 1,
+        Inverted = 1 << 2,
+        Right = 1 << 3,
+        Flipped = 1 << 4,
+        Flipped90 = 1 << 5,
+        Flipped180 = 1 << 6,
+        Flipped270 = 1 << 7,
     };
     Q_ENUM(Rotation)
 
@@ -219,7 +223,7 @@ public:
      */
     Q_INVOKABLE inline bool isHorizontal() const
     {
-        return ((rotation() == Output::None) || (rotation() == Output::Inverted));
+        return rotation() == Output::None || rotation() == Output::Inverted || rotation() == Output::Flipped || rotation() == Output::Flipped180;
     }
 
     bool isConnected() const;

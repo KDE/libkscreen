@@ -276,7 +276,11 @@ void Doctor::parseOutputArgs()
                                                                                  {QStringLiteral("normal"), KScreen::Output::None},
                                                                                  {QStringLiteral("left"), KScreen::Output::Left},
                                                                                  {QStringLiteral("right"), KScreen::Output::Right},
-                                                                                 {QStringLiteral("inverted"), KScreen::Output::Inverted}});
+                                                                                 {QStringLiteral("inverted"), KScreen::Output::Inverted},
+                                                                                 {QStringLiteral("flipped"), KScreen::Output::Flipped},
+                                                                                 {QStringLiteral("flipped90"), KScreen::Output::Flipped90},
+                                                                                 {QStringLiteral("flipped180"), KScreen::Output::Flipped180},
+                                                                                 {QStringLiteral("flipped270"), KScreen::Output::Flipped270}});
                     KScreen::Output::Rotation rot = KScreen::Output::None;
                     // set orientation
                     if (rotationMap.contains(_rotation)) {
