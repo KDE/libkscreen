@@ -16,15 +16,14 @@
 
 #include "tabletmodemanager_interface.h"
 
+#include <QGuiApplication>
 #include <QThread>
 #include <QTimer>
 #include <configmonitor.h>
 #include <mode.h>
 #include <output.h>
 
-#include <KWayland/Client/connection_thread.h>
-#include <KWayland/Client/event_queue.h>
-#include <KWayland/Client/registry.h>
+#include <wayland-client-protocol.h>
 
 #include <utility>
 
@@ -95,7 +94,6 @@ void WaylandConfig::initKWinTabletMode()
 
 void WaylandConfig::initConnection()
 {
-    m_connection = KWayland::Client::ConnectionThread::fromApplication(this);
     setupRegistry();
 }
 
@@ -113,43 +111,53 @@ void WaylandConfig::unblockSignals()
 
 void WaylandConfig::setupRegistry()
 {
-    if (!m_connection) {
+    auto waylandApp = qGuiApp->nativeInterface<QNativeInterface::QWaylandApplication>();
+    if (!waylandApp) {
         return;
     }
 
-    m_registry = new KWayland::Client::Registry(this);
+    m_registry = wl_display_get_registry(waylandApp->display());
 
-    connect(m_registry, &KWayland::Client::Registry::interfaceAnnounced, this, [this](const QByteArray &interface, quint32 name, quint32 version) {
-        if (interface == WaylandOutputDevice::interface()->name) {
-            addOutput(name, std::min(4u, version));
-        }
+    auto globalAdded = [](void *data, wl_registry *registry, uint32_t name, const char *interface, uint32_t version) {
+        auto self = static_cast<WaylandConfig *>(data);
         if (interface == WaylandOutputManagement::interface()->name) {
-            m_outputManagement = new WaylandOutputManagement(m_registry->registry(), name, std::min(5u, version));
+            self->m_outputManagement = new WaylandOutputManagement(registry, name, std::min(5u, version));
         }
         if (interface == WaylandOutputOrder::interface()->name) {
-            m_outputOrder = std::make_unique<WaylandOutputOrder>(m_registry->registry(), name, std::min(1u, version));
-            connect(m_outputOrder.get(), &WaylandOutputOrder::outputOrderChanged, this, [this](const QVector<QString> &names) {
+            self->m_outputOrder = std::make_unique<WaylandOutputOrder>(registry, name, std::min(1u, version));
+            connect(self->m_outputOrder.get(), &WaylandOutputOrder::outputOrderChanged, self, [self](const QVector<QString> &names) {
                 bool change = false;
-                for (const auto &output : std::as_const(m_outputMap)) {
+                for (const auto &output : std::as_const(self->m_outputMap)) {
                     const uint32_t newIndex = names.indexOf(output->name()) + 1;
                     change = change || output->index() != newIndex;
                     output->setIndex(newIndex);
                 }
-                if (change && !m_blockSignals) {
-                    Q_EMIT configChanged();
+                if (change && !self->m_blockSignals) {
+                    Q_EMIT self->configChanged();
                 }
             });
         }
-    });
+    };
 
-    connect(m_registry, &KWayland::Client::Registry::interfacesAnnounced, this, [this] {
-        m_registryInitialized = true;
-        unblockSignals();
-        checkInitialized();
-    });
+    auto globalRemoved = [](void *data, wl_registry *registry, uint32_t name) {
+        Q_UNUSED(registry)
+        auto self = static_cast<WaylandConfig *>(data);
+        Q_EMIT self->globalRemoved(name);
+    };
 
-    m_registry->create(m_connection);
-    m_registry->setup();
+    static const wl_registry_listener registryListener{globalAdded, globalRemoved};
+    wl_registry_add_listener(m_registry, &registryListener, this);
+
+    static const wl_callback_listener callbackListener{[](void *data, wl_callback *callback, uint32_t callbackData) {
+        Q_UNUSED(callback)
+        Q_UNUSED(callbackData)
+        auto self = static_cast<WaylandConfig *>(data);
+        self->m_registryInitialized = true;
+        self->unblockSignals();
+        self->checkInitialized();
+    }};
+    auto callback = wl_display_sync(waylandApp->display());
+    wl_callback_add_listener(callback, &callbackListener, this);
 }
 
 int s_outputId = 0;
@@ -161,7 +169,7 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
     auto device = new WaylandOutputDevice(++s_outputId);
     m_initializingOutputs << device;
 
-    connect(m_registry, &KWayland::Client::Registry::interfaceRemoved, this, [name, device, this](const quint32 &interfaceName) {
+    connect(this, &WaylandConfig::globalRemoved, this, [name, device, this](const uint32_t &interfaceName) {
         if (name == interfaceName) {
             removeOutput(device);
         }
@@ -194,7 +202,7 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
         });
     });
 
-    device->init(*m_registry, name, version);
+    device->init(m_registry, name, version);
 }
 
 void WaylandConfig::removeOutput(WaylandOutputDevice *output)
@@ -246,7 +254,7 @@ KScreen::ConfigPtr WaylandConfig::currentConfig()
     const auto features = Config::Feature::Writable | Config::Feature::PerOutputScaling | Config::Feature::AutoRotation | Config::Feature::TabletMode
         | Config::Feature::PrimaryDisplay | Config::Feature::XwaylandScales | Config::Feature::SynchronousOutputChanges;
     m_kscreenConfig->setSupportedFeatures(features);
-    m_kscreenConfig->setValid(m_connection->display());
+    m_kscreenConfig->setValid(qGuiApp->nativeInterface<QNativeInterface::QWaylandApplication>());
 
     KScreen::ScreenPtr screen = m_kscreenConfig->screen();
     m_screen->updateKScreenScreen(screen);
@@ -307,8 +315,6 @@ WaylandOutputDevice *WaylandConfig::findOutputDevice(struct ::kde_output_device_
 
 void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
 {
-    using namespace KWayland::Client;
-
     newConfig->adjustPriorities(); // never trust input
 
     // Create a new configuration object

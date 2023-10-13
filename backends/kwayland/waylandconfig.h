@@ -16,17 +16,7 @@
 #include <QSocketNotifier>
 
 struct kde_output_device_v2;
-
-namespace KWayland
-{
-namespace Client
-{
-class ConnectionThread;
-class EventQueue;
-class Registry;
-class OutputManagement;
-}
-}
+struct wl_registry;
 
 namespace KScreen
 {
@@ -68,6 +58,7 @@ public:
 Q_SIGNALS:
     void configChanged();
     void initialized();
+    void globalRemoved(uint32_t name);
 
 private:
     void setupRegistry();
@@ -84,10 +75,9 @@ private:
     void unblockSignals();
     void tryPendingConfig();
 
-    KWayland::Client::ConnectionThread *m_connection;
+    wl_registry *m_registry;
 
-    KWayland::Client::Registry *m_registry;
-    WaylandOutputManagement *m_outputManagement = nullptr;
+    WaylandOutputManagement *m_outputManagement;
     std::unique_ptr<WaylandOutputOrder> m_outputOrder;
 
     // KWayland names as keys

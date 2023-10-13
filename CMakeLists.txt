@@ -32,9 +32,6 @@ include(ECMDeprecationSettings)
 find_package(Qt6 ${QT_MIN_VERSION} CONFIG REQUIRED Core DBus Gui Test WaylandClient)
 find_package(WaylandScanner)
 
-# Wayland backend
-find_package(KF6Wayland ${KF6_MIN_VERSION} CONFIG REQUIRED)
-add_feature_info("KF6Wayland" KF6Wayland_FOUND "Required for building libkscreen's KWayland backend")
 
 find_package(PlasmaWaylandProtocols 1.10.80 CONFIG)
 set_package_properties(PlasmaWaylandProtocols PROPERTIES TYPE REQUIRED)

@@ -5,7 +5,7 @@ configuring devices. This is described here.
 
 ## Listing outputs
 
-KScreen's outputs are created from KWayland::Client::OutputDevice objects,
+KScreen's outputs are created from kde_output_device_v2 objects,
 they copy the data into kscreen's Outputs, and update these objects. A list
 of outputs is requested from the client Registry object.
 
