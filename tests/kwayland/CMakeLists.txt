@@ -1,3 +1,4 @@
+# FIXME KWaylandServer is not a thing in KF6
 if (NOT TARGET KF6::WaylandServer)
     message(WARNING "Skipping KF6::WaylandServer based tests!")
     return()

@@ -25,6 +25,7 @@ kscreen_add_test(testlog)
 kscreen_add_test(testmodelistchange)
 kscreen_add_test(testedid)
 
+# FIXME KWaylandServer is not a thing in KF6
 if (NOT TARGET KF6::WaylandServer)
     message(WARNING "Skipping KF6::WaylandServer based unit tests!")
     return()
