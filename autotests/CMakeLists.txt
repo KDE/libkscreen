@@ -43,7 +43,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../backends/kwayland)
 
 kscreen_add_test(testkwaylandbackend)
 kscreen_add_test(testkwaylandconfig)
-kscreen_add_test(testkwaylanddpms)
 
 set(KSCREEN_WAYLAND_LIBS "")
 set(KSCREEN_WAYLAND_SRCS "")
