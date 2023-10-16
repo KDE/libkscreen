@@ -222,7 +222,7 @@ case $state in
         elif compset -P 1 'rgbrange.' ; then
           _alternative 'rgbrange::(automatic full limited)' && ret=0
         elif compset -P 1 'rotation.' || compset -P 1 'orientation.' ; then
-          _alternative 'rotation::(none normal left right inverted flipped flipped90 flipped180 flipped 270)' && ret=0
+          _alternative 'rotation::(none normal left right inverted flipped flipped90 flipped180 flipped270)' && ret=0
         elif compset -P 1 'overscan.' ; then
           local -a overscan_descr overscan_comp
           overscan_descr=(
