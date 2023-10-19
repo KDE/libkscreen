@@ -42,12 +42,12 @@ xcb_randr_rotation_t XRandRCrtc::rotation() const
     return m_rotation;
 }
 
-QVector<xcb_randr_output_t> XRandRCrtc::possibleOutputs()
+QList<xcb_randr_output_t> XRandRCrtc::possibleOutputs()
 {
     return m_possibleOutputs;
 }
 
-QVector<xcb_randr_output_t> XRandRCrtc::outputs() const
+QList<xcb_randr_output_t> XRandRCrtc::outputs() const
 {
     return m_outputs;
 }

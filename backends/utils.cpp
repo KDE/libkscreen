@@ -6,7 +6,7 @@
 
 #include "utils.h"
 
-#include <QVector>
+#include <QList>
 
 KScreen::Output::Type Utils::guessOutputType(const QString &type, const QString &name)
 {

@@ -46,7 +46,7 @@ WaylandOutputOrder::~WaylandOutputOrder()
     destroy();
 }
 
-QVector<QString> WaylandOutputOrder::order() const
+QList<QString> WaylandOutputOrder::order() const
 {
     return m_outputOrder;
 }

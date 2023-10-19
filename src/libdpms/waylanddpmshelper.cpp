@@ -9,9 +9,9 @@
 #include "qwayland-dpms.h"
 #include <QDebug>
 #include <QGuiApplication>
+#include <QList>
 #include <QPointer>
 #include <QScreen>
-#include <QVector>
 #include <QWaylandClientExtensionTemplate>
 #include <qpa/qplatformnativeinterface.h>
 

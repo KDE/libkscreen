@@ -128,7 +128,7 @@ void WaylandConfig::setupRegistry()
         }
         if (qstrcmp(interface, WaylandOutputOrder::interface()->name) == 0) {
             self->m_outputOrder = std::make_unique<WaylandOutputOrder>(registry, name, std::min(1u, version));
-            connect(self->m_outputOrder.get(), &WaylandOutputOrder::outputOrderChanged, self, [self](const QVector<QString> &names) {
+            connect(self->m_outputOrder.get(), &WaylandOutputOrder::outputOrderChanged, self, [self](const QList<QString> &names) {
                 bool change = false;
                 for (const auto &output : std::as_const(self->m_outputMap)) {
                     const uint32_t newIndex = names.indexOf(output->name()) + 1;

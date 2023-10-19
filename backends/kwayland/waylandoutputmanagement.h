@@ -49,17 +49,17 @@ public:
     WaylandOutputOrder(struct ::wl_registry *registry, int id, int version);
     ~WaylandOutputOrder();
 
-    QVector<QString> order() const;
+    QList<QString> order() const;
 
 Q_SIGNALS:
-    void outputOrderChanged(const QVector<QString> &outputs);
+    void outputOrderChanged(const QList<QString> &outputs);
 
 private:
     void kde_output_order_v1_output(const QString &output_name) override;
     void kde_output_order_v1_done() override;
 
-    QVector<QString> m_outputOrder;
-    QVector<QString> m_pendingOutputOrder;
+    QList<QString> m_outputOrder;
+    QList<QString> m_pendingOutputOrder;
 };
 }
 
