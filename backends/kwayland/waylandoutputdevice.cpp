@@ -200,6 +200,7 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output)
     output->setSdrBrightness(m_sdrBrightness);
     output->setWcgEnabled(m_wideColorGamutEnabled);
     output->setAutoRotatePolicy(static_cast<Output::AutoRotatePolicy>(m_autoRotatePolicy));
+    output->setIccProfilePath(m_iccProfilePath);
 
     updateKScreenModes(output);
 }
@@ -290,6 +291,10 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputConfiguration *wlConfig, cons
     }
     if ((output->capabilities() & Output::Capability::AutoRotation) && m_autoRotatePolicy != static_cast<uint32_t>(output->autoRotatePolicy())) {
         wlConfig->set_auto_rotate_policy(object(), static_cast<uint32_t>(output->autoRotatePolicy()));
+        changed = true;
+    }
+    if ((output->capabilities() & Output::Capability::IccProfile) && m_iccProfilePath != output->iccProfilePath()) {
+        wlConfig->set_icc_profile_path(object(), output->iccProfilePath());
         changed = true;
     }
 
@@ -406,6 +411,11 @@ void WaylandOutputDevice::kde_output_device_v2_wide_color_gamut(uint32_t wcg_ena
 void WaylandOutputDevice::kde_output_device_v2_auto_rotate_policy(uint32_t policy)
 {
     m_autoRotatePolicy = policy;
+}
+
+void WaylandOutputDevice::kde_output_device_v2_icc_profile_path(const QString &profile)
+{
+    m_iccProfilePath = profile;
 }
 
 QByteArray WaylandOutputDevice::edid() const

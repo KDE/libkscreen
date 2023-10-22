@@ -91,6 +91,7 @@ protected:
     void kde_output_device_v2_sdr_brightness(uint32_t sdr_brightness) override;
     void kde_output_device_v2_wide_color_gamut(uint32_t wcg_enabled) override;
     void kde_output_device_v2_auto_rotate_policy(uint32_t policy) override;
+    void kde_output_device_v2_icc_profile_path(const QString &profile) override;
 
 private:
     QString modeName(const WaylandOutputDeviceMode *m) const;
@@ -122,6 +123,7 @@ private:
     uint32_t m_sdrBrightness = 200;
     bool m_wideColorGamutEnabled = false;
     uint32_t m_autoRotatePolicy = 1;
+    QString m_iccProfilePath;
 };
 
 }

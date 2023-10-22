@@ -66,6 +66,7 @@ public:
         , sdrBrightness(other.sdrBrightness)
         , wideColorGamut(other.wideColorGamut)
         , autoRotatePolicy(other.autoRotatePolicy)
+        , iccProfilePath(other.iccProfilePath)
     {
         const auto otherModeList = other.modeList;
         for (const ModePtr &otherMode : otherModeList) {
@@ -111,6 +112,7 @@ public:
     uint32_t sdrBrightness = 200;
     bool wideColorGamut = false;
     AutoRotatePolicy autoRotatePolicy = AutoRotatePolicy::InTabletMode;
+    QString iccProfilePath;
 };
 
 bool Output::Private::compareModeList(const ModeList &before, const ModeList &after)
@@ -724,6 +726,19 @@ void Output::setAutoRotatePolicy(AutoRotatePolicy policy)
     }
 }
 
+QString Output::iccProfilePath() const
+{
+    return d->iccProfilePath;
+}
+
+void Output::setIccProfilePath(const QString &path)
+{
+    if (d->iccProfilePath != path) {
+        d->iccProfilePath = path;
+        Q_EMIT iccProfilePathChanged();
+    }
+}
+
 void Output::apply(const OutputPtr &other)
 {
     typedef void (KScreen::Output::*ChangeSignal)();
@@ -824,6 +839,10 @@ void Output::apply(const OutputPtr &other)
     if (d->autoRotatePolicy != other->d->autoRotatePolicy) {
         changes << &Output::autoRotatePolicyChanged;
         setAutoRotatePolicy(other->d->autoRotatePolicy);
+    }
+    if (d->iccProfilePath != other->d->iccProfilePath) {
+        changes << &Output::iccProfilePathChanged;
+        setIccProfilePath(other->d->iccProfilePath);
     }
 
     // Non-notifyable changes

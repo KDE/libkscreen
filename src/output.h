@@ -57,6 +57,7 @@ public:
     Q_PROPERTY(uint32_t sdrBrightness READ sdrBrightness WRITE setSdrBrightness NOTIFY sdrBrightnessChanged)
     Q_PROPERTY(bool wcgEnabled READ isWcgEnabled WRITE setWcgEnabled NOTIFY wcgEnabledChanged)
     Q_PROPERTY(AutoRotatePolicy autoRotatePolicy READ autoRotatePolicy WRITE setAutoRotatePolicy NOTIFY autoRotatePolicyChanged)
+    Q_PROPERTY(QString iccProfilePath READ iccProfilePath WRITE setIccProfilePath NOTIFY iccProfilePathChanged)
 
     enum Type {
         Unknown,
@@ -96,6 +97,7 @@ public:
         HighDynamicRange = 1 << 3,
         WideColorGamut = 1 << 4,
         AutoRotation = 1 << 5,
+        IccProfile = 1 << 6,
     };
     Q_ENUM(Capability)
     Q_DECLARE_FLAGS(Capabilities, Capability)
@@ -468,6 +470,15 @@ public:
      */
     void setAutoRotatePolicy(AutoRotatePolicy policy);
 
+    /**
+     * @since 6.0
+     */
+    QString iccProfilePath() const;
+    /**
+     * @since 6.0
+     */
+    void setIccProfilePath(const QString &path);
+
     void apply(const OutputPtr &other);
 
 Q_SIGNALS:
@@ -492,6 +503,7 @@ Q_SIGNALS:
     void sdrBrightnessChanged();
     void wcgEnabledChanged();
     void autoRotatePolicyChanged();
+    void iccProfilePathChanged();
 
     /** The mode list changed.
      *

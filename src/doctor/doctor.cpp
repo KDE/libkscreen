@@ -361,6 +361,13 @@ void Doctor::parseOutputArgs()
                         qApp->exit(9);
                         return;
                     }
+                } else if (ops.count() >= 4 && subcmd == "iccprofile") {
+                    QString profilePath = ops[3];
+                    for (uint32_t i = 4; i < ops.size(); i++) {
+                        profilePath += "." + ops[i];
+                    }
+                    output->setIccProfilePath(profilePath);
+                    m_changed = true;
                 } else {
                     cerr << "Unable to parse arguments: " << op << Qt::endl;
                     qApp->exit(2);
