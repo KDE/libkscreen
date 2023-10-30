@@ -5,8 +5,7 @@
  *
  */
 
-#ifndef KSCREEN_GETCONFIGOPERATION_H
-#define KSCREEN_GETCONFIGOPERATION_H
+#pragma once
 
 #include "configoperation.h"
 #include "kscreen_export.h"
@@ -33,5 +32,3 @@ private:
     Q_DECLARE_PRIVATE(GetConfigOperation)
 };
 }
-
-#endif // KSCREEN_GETCONFIGOPERATION_H

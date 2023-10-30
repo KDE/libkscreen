@@ -4,8 +4,7 @@
  *  SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
-#ifndef XRANDRX11HELPER_H
-#define XRANDRX11HELPER_H
+#pragma once
 
 #include <QAbstractNativeEventFilter>
 #include <QLoggingCategory>
@@ -54,4 +53,3 @@ protected:
 };
 
 Q_DECLARE_LOGGING_CATEGORY(KSCREEN_XCB_HELPER)
-#endif // XRANDRX11HELPER_H

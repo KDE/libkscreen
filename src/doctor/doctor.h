@@ -4,8 +4,7 @@
  *  SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
-#ifndef KSCREEN_DOCTOR_H
-#define KSCREEN_DOCTOR_H
+#pragma once
 
 #include <QCommandLineParser>
 #include <QObject>
@@ -67,5 +66,3 @@ private:
 };
 
 } // namespace
-
-#endif // KSCREEN_WAYLAND_SCREEN_H

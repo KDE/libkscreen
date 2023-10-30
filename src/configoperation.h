@@ -6,8 +6,7 @@
  *
  */
 
-#ifndef KSCREEN_CONFIGOPERATION_H
-#define KSCREEN_CONFIGOPERATION_H
+#pragma once
 
 #include <QObject>
 
@@ -55,5 +54,3 @@ protected:
     Q_DECLARE_PRIVATE(ConfigOperation)
 };
 }
-
-#endif // KSCREEN_CONFIGOPERATION_H

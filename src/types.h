@@ -4,8 +4,7 @@
  *  SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
-#ifndef KSCREEN_TYPES_H
-#define KSCREEN_TYPES_H
+#pragma once
 
 #include <QMap>
 #include <QSharedPointer>
@@ -25,5 +24,3 @@ typedef QSharedPointer<KScreen::Mode> ModePtr;
 typedef QMap<QString, KScreen::ModePtr> ModeList;
 
 }
-
-#endif

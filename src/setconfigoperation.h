@@ -5,8 +5,7 @@
  *
  */
 
-#ifndef KSCREEN_SETCONFIGOPERATION_H
-#define KSCREEN_SETCONFIGOPERATION_H
+#pragma once
 
 #include "configoperation.h"
 #include "kscreen_export.h"
@@ -33,5 +32,3 @@ private:
 };
 
 }
-
-#endif // KSCREEN_SETCONFIGOPERATION_H

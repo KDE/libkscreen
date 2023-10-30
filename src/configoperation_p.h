@@ -5,8 +5,7 @@
  *
  */
 
-#ifndef CONFIGOPERATIONPRIVATE_H
-#define CONFIGOPERATIONPRIVATE_H
+#pragma once
 
 #include <QObject>
 
@@ -44,4 +43,3 @@ protected:
 };
 
 }
-#endif

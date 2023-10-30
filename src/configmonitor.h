@@ -4,8 +4,7 @@
  *  SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
-#ifndef KSCREEN_CONFIGMONITOR_H
-#define KSCREEN_CONFIGMONITOR_H
+#pragma once
 
 #include <QObject>
 #include <QPointer>
@@ -45,5 +44,3 @@ private:
 };
 
 } /* namespace KScreen */
-
-#endif // KSCREEN_CONFIGMONITOR_H

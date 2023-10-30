@@ -6,8 +6,7 @@
  *  SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
-#ifndef QSCREEN_BACKEND_H
-#define QSCREEN_BACKEND_H
+#pragma once
 
 #include "abstractbackend.h"
 
@@ -39,5 +38,3 @@ private:
 } // namespace
 
 Q_DECLARE_LOGGING_CATEGORY(KSCREEN_QSCREEN)
-
-#endif // QSCREEN_BACKEND_H

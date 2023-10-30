@@ -5,8 +5,7 @@
  *
  */
 
-#ifndef CONFIGSERIALIZER_H
-#define CONFIGSERIALIZER_H
+#pragma once
 
 #include <QDBusArgument>
 #include <QJsonArray>
@@ -58,5 +57,3 @@ KSCREEN_EXPORT KScreen::ScreenPtr deserializeScreen(const QDBusArgument &screen)
 }
 
 }
-
-#endif // CONFIGSERIALIZER_H

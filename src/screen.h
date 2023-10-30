@@ -4,8 +4,7 @@
  *  SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
-#ifndef SCREEN_CONFIG_H
-#define SCREEN_CONFIG_H
+#pragma once
 
 #include "kscreen_export.h"
 #include "types.h"
@@ -93,4 +92,3 @@ private:
 };
 
 } // KScreen namespace
-#endif // SCREEN_H

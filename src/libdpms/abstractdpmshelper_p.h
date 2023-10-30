@@ -3,8 +3,7 @@
 //
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
-#ifndef ABSTRACTDPMSHELPER_H
-#define ABSTRACTDPMSHELPER_H
+#pragma once
 
 #include "dpms.h"
 #include <QObject>
@@ -60,5 +59,3 @@ private:
 };
 
 }
-
-#endif

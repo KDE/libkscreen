@@ -4,8 +4,7 @@
  *  SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
-#ifndef KSCREEN_TESTPNP_H
-#define KSCREEN_TESTPNP_H
+#pragma once
 
 #include "../src/config.h"
 #include "../src/screen.h"
@@ -36,5 +35,3 @@ private:
 };
 
 } // namespace
-
-#endif // KSCREEN_TESTPNP_H

@@ -4,8 +4,7 @@
  *
  *  SPDX-License-Identifier: LGPL-2.1-or-later
  */
-#ifndef WAYLANDOUTPUTDEVICE_H
-#define WAYLANDOUTPUTDEVICE_H
+#pragma once
 
 #include "waylandoutputdevicemode.h"
 
@@ -129,5 +128,3 @@ private:
 }
 
 KSCREEN_EXPORT QDebug operator<<(QDebug dbg, const KScreen::WaylandOutputDevice *output);
-
-#endif // WAYLANDOUTPUTDEVICE_H

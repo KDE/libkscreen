@@ -5,8 +5,7 @@
  *
  */
 
-#ifndef BACKENDLAUNCHER_H
-#define BACKENDLAUNCHER_H
+#pragma once
 
 #include <QDBusContext>
 #include <QObject>
@@ -41,5 +40,3 @@ private:
     QPluginLoader *mLoader = nullptr;
     BackendDBusWrapper *mBackend = nullptr;
 };
-
-#endif // BACKENDLAUNCHER_H

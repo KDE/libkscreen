@@ -5,8 +5,7 @@
  *  SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
-#ifndef OUTPUT_CONFIG_H
-#define OUTPUT_CONFIG_H
+#pragma once
 
 #include "kscreen_export.h"
 #include "types.h"
@@ -525,5 +524,3 @@ private:
 } // KScreen namespace
 
 KSCREEN_EXPORT QDebug operator<<(QDebug dbg, const KScreen::OutputPtr &output);
-
-#endif // OUTPUT_H

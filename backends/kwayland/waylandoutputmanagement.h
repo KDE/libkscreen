@@ -4,8 +4,7 @@
  *
  *  SPDX-License-Identifier: LGPL-2.1-or-later
  */
-#ifndef WAYLANDOUTPUTMANAGEMENT_H
-#define WAYLANDOUTPUTMANAGEMENT_H
+#pragma once
 
 #include "qwayland-kde-output-management-v2.h"
 #include "qwayland-kde-output-order-v1.h"
@@ -62,5 +61,3 @@ private:
     QList<QString> m_pendingOutputOrder;
 };
 }
-
-#endif // WAYLANDOUTPUTMANAGEMENT_H

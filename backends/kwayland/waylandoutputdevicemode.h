@@ -3,8 +3,7 @@
  *
  *  SPDX-License-Identifier: LGPL-2.1-or-later
  */
-#ifndef WAYLANDOUTPUTDEVICEMODE_H
-#define WAYLANDOUTPUTDEVICEMODE_H
+#pragma once
 
 #include "qwayland-kde-output-device-v2.h"
 
@@ -46,5 +45,3 @@ private:
 };
 
 }
-
-#endif // WAYLANDOUTPUTDEVICEMODE_H

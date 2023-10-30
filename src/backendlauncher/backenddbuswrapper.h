@@ -5,8 +5,7 @@
  *
  */
 
-#ifndef BACKENDDBUSWRAPPER_H
-#define BACKENDDBUSWRAPPER_H
+#pragma once
 
 #include <QObject>
 #include <QTimer>
@@ -51,5 +50,3 @@ private:
     QTimer mChangeCollector;
     KScreen::ConfigPtr mCurrentConfig;
 };
-
-#endif // BACKENDDBUSWRAPPER_H

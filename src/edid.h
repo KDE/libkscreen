@@ -5,8 +5,7 @@
  *  SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
-#ifndef KSCREEN_EDID_H
-#define KSCREEN_EDID_H
+#pragma once
 
 #include "kscreen_export.h"
 
@@ -68,5 +67,3 @@ private:
 };
 
 }
-
-#endif // EDID_H

@@ -5,8 +5,7 @@
  *  SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
-#ifndef KSCREEN_CONFIG_H
-#define KSCREEN_CONFIG_H
+#pragma once
 
 #include "kscreen_export.h"
 #include "output.h"
@@ -278,5 +277,3 @@ private:
 Q_DECLARE_OPERATORS_FOR_FLAGS(KScreen::Config::Features)
 
 KSCREEN_EXPORT QDebug operator<<(QDebug dbg, const KScreen::ConfigPtr &config);
-
-#endif // KSCREEN_CONFIG_H

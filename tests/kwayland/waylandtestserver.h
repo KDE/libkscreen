@@ -4,8 +4,7 @@
  *  SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
-#ifndef KSCREEN_WAYLAND_TESTSERVER_H
-#define KSCREEN_WAYLAND_TESTSERVER_H
+#pragma once
 
 #include <QObject>
 
@@ -68,5 +67,3 @@ private:
 };
 
 } // namespace
-
-#endif // KSCREEN_WAYLAND_SCREEN_H

@@ -5,8 +5,7 @@
  *  SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
-#ifndef MODE_CONFIG_H
-#define MODE_CONFIG_H
+#pragma once
 
 #include "kscreen_export.h"
 #include "types.h"
@@ -59,5 +58,3 @@ private:
 } // KSCreen namespace
 
 KSCREEN_EXPORT QDebug operator<<(QDebug dbg, const KScreen::ModePtr &mode);
-
-#endif // MODE_H

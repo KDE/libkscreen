@@ -12,8 +12,7 @@
  * releases
  */
 
-#ifndef KSCREEN_BACKENDMANAGER_H
-#define KSCREEN_BACKENDMANAGER_H
+#pragma once
 
 #include <QDBusServiceWatcher>
 #include <QEventLoop>
@@ -158,5 +157,3 @@ private:
 };
 
 }
-
-#endif // KSCREEN_BACKENDMANAGER_H

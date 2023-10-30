@@ -3,8 +3,7 @@
 //
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
-#ifndef WAYLANDDPMSHELPER_H
-#define WAYLANDDPMSHELPER_H
+#pragma once
 
 #include "abstractdpmshelper_p.h"
 
@@ -24,5 +23,3 @@ public:
 private:
     DpmsManager *m_dpmsManager = nullptr;
 };
-
-#endif

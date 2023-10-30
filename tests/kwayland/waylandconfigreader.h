@@ -4,8 +4,7 @@
  *  SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
-#ifndef KSCREEN_WAYLAND_CONFIGREADER_H
-#define KSCREEN_WAYLAND_CONFIGREADER_H
+#pragma once
 
 #include <QObject>
 #include <QRect>
@@ -34,5 +33,3 @@ public:
 };
 
 } // namespace
-
-#endif // KSCREEN_WAYLAND_CONFIGREADER_H

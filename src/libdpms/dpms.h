@@ -3,8 +3,7 @@
 //
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
-#ifndef KSCREENDPMS_DPMS_H
-#define KSCREENDPMS_DPMS_H
+#pragma once
 
 #include <QScreen>
 
@@ -79,5 +78,3 @@ private:
 };
 
 } // namespace
-
-#endif // KSCREENDPMS_DPMS_H

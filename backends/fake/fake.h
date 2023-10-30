@@ -4,8 +4,7 @@
  *  SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
-#ifndef FAKE_BACKEND_H
-#define FAKE_BACKEND_H
+#pragma once
 
 #include "abstractbackend.h"
 #include "config.h"
@@ -48,4 +47,3 @@ private:
     mutable KScreen::ConfigPtr mConfig;
 };
 Q_DECLARE_LOGGING_CATEGORY(KSCREEN_FAKE)
-#endif // FAKE_BACKEND_H

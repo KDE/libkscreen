@@ -4,8 +4,7 @@
  *  SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
-#ifndef PARSER_H
-#define PARSER_H
+#pragma once
 
 #include <QByteArray>
 #include <QPoint>
@@ -33,5 +32,3 @@ private:
     static QRect rectFromJson(const QVariant &data);
     static QPoint pointFromJson(const QVariant &data);
 };
-
-#endif // PARSER_H

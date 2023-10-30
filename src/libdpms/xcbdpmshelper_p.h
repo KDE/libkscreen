@@ -5,8 +5,7 @@
 //
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
-#ifndef XCBDPMSHELPER_H
-#define XCBDPMSHELPER_H
+#pragma once
 
 #include "abstractdpmshelper_p.h"
 
@@ -20,5 +19,3 @@ public:
 
     void trigger(KScreen::Dpms::Mode mode, const QList<QScreen *> &screens) override;
 };
-
-#endif

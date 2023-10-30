@@ -5,8 +5,7 @@
  *  SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
-#ifndef ABSTRACT_BACKEND_H
-#define ABSTRACT_BACKEND_H
+#pragma once
 
 #include "kscreen_export.h"
 #include "types.h"
@@ -100,5 +99,3 @@ Q_SIGNALS:
 };
 
 } // namespace KScreen
-
-#endif // ABSTRACT_BACKEND_H

@@ -4,8 +4,7 @@
  *  SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
-#ifndef QSCREEN_OUTPUT_H
-#define QSCREEN_OUTPUT_H
+#pragma once
 
 #include "types.h"
 
@@ -35,5 +34,3 @@ private:
 };
 
 } // namespace
-
-#endif

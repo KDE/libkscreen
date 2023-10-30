@@ -8,8 +8,7 @@
     SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-#ifndef XCB_WRAPPER_H
-#define XCB_WRAPPER_H
+#pragma once
 
 #include <functional>
 #include <type_traits>
@@ -205,5 +204,3 @@ XCB_DECLARE_TYPE(CRTCInfo, xcb_randr_get_crtc_info, xcb_randr_crtc_t, xcb_timest
 XCB_DECLARE_TYPE(AtomName, xcb_get_atom_name, xcb_atom_t);
 
 }
-
-#endif
