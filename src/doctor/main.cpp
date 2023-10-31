@@ -56,7 +56,9 @@ int main(int argc, char **argv)
         "\n   Set SDR brightness (possible values: 100-1000)\n"
         "   $ kscreen-doctor output.HDMI-2.sdr-brightness.300\n"
         "\n   Set wide color gamut mode (possible values: enable, disable)\n"
-        "   $ kscreen-doctor output.HDMI-2.wcg.enable\n");
+        "   $ kscreen-doctor output.HDMI-2.wcg.enable\n"
+        "\n   Set ICC profile path\n"
+        "   $ kscreen-doctor output.HDMI-2.iccprofile.\"/path/to/profile.icc\"\n");
     /*
         "\nError codes:\n"
         "   2 : general parse error\n"
