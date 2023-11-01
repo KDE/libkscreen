@@ -510,7 +510,7 @@ void Doctor::showOutputs() const
         }
         cout << yellow << " ICC profile: ";
         if (output->capabilities() & Output::Capability::IccProfile) {
-            if (output->iccProfilePath().isEmpty()) {
+            if (!output->iccProfilePath().isEmpty()) {
                 cout << cr << output->iccProfilePath();
             } else {
                 cout << cr << "none";
