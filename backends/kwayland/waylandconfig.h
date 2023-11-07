@@ -9,7 +9,6 @@
 #include "config.h"
 
 #include <QDir>
-#include <QEventLoop>
 #include <QLoggingCategory>
 #include <QScreen>
 #include <QSize>
@@ -45,7 +44,6 @@ class WaylandConfig : public QObject
 
 public:
     explicit WaylandConfig(QObject *parent = nullptr);
-    ~WaylandConfig() override;
 
     KScreen::ConfigPtr currentConfig();
     QMap<int, WaylandOutputDevice *> outputMap() const;
@@ -66,7 +64,6 @@ private:
     void disconnected();
 
     void initKWinTabletMode();
-    void initConnection();
 
     void addOutput(quint32 name, quint32 version);
     void removeOutput(WaylandOutputDevice *output);
@@ -89,7 +86,6 @@ private:
 
     bool m_registryInitialized;
     bool m_blockSignals;
-    QEventLoop m_syncLoop;
     KScreen::ConfigPtr m_kscreenConfig;
     KScreen::ConfigPtr m_kscreenPendingConfig;
     WaylandScreen *m_screen;

@@ -17,6 +17,7 @@
 #include <mode.h>
 #include <output.h>
 
+#include <QEventLoop>
 #include <QProcess>
 #include <QSettings>
 #include <QStandardPaths>

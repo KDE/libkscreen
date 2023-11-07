@@ -16,6 +16,7 @@
 
 #include "tabletmodemanager_interface.h"
 
+#include <QElapsedTimer>
 #include <QGuiApplication>
 #include <QThread>
 #include <QTimer>
@@ -25,9 +26,11 @@
 
 #include <wayland-client-protocol.h>
 
+#include <chrono>
 #include <utility>
 
 using namespace KScreen;
+using namespace std::chrono_literals;
 
 WaylandConfig::WaylandConfig(QObject *parent)
     : QObject(parent)
@@ -41,22 +44,7 @@ WaylandConfig::WaylandConfig(QObject *parent)
     , m_tabletModeEngaged(false)
 {
     initKWinTabletMode();
-
-    connect(this, &WaylandConfig::initialized, &m_syncLoop, &QEventLoop::quit);
-    QTimer::singleShot(3000, this, [this] {
-        if (m_syncLoop.isRunning()) {
-            qCWarning(KSCREEN_WAYLAND) << "Connection to Wayland server timed out.";
-            m_syncLoop.quit();
-        }
-    });
-
-    initConnection();
-    m_syncLoop.exec();
-}
-
-WaylandConfig::~WaylandConfig()
-{
-    m_syncLoop.quit();
+    setupRegistry();
 }
 
 void WaylandConfig::initKWinTabletMode()
@@ -92,11 +80,6 @@ void WaylandConfig::initKWinTabletMode()
     });
 }
 
-void WaylandConfig::initConnection()
-{
-    setupRegistry();
-}
-
 void WaylandConfig::blockSignals()
 {
     Q_ASSERT(m_blockSignals == false);
@@ -116,7 +99,8 @@ void WaylandConfig::setupRegistry()
         return;
     }
 
-    m_registry = wl_display_get_registry(waylandApp->display());
+    auto display = waylandApp->display();
+    m_registry = wl_display_get_registry(display);
 
     auto globalAdded = [](void *data, wl_registry *registry, uint32_t name, const char *interface, uint32_t version) {
         auto self = static_cast<WaylandConfig *>(data);
@@ -161,6 +145,15 @@ void WaylandConfig::setupRegistry()
     }};
     auto callback = wl_display_sync(waylandApp->display());
     wl_callback_add_listener(callback, &callbackListener, this);
+    QElapsedTimer timer;
+    timer.start();
+    while (!m_initialized) {
+        if (timer.durationElapsed() >= 300ms) {
+            qCWarning(KSCREEN_WAYLAND) << "Connection to Wayland server timed out.";
+            break;
+        }
+        wl_display_roundtrip(display);
+    }
 }
 
 int s_outputId = 0;
