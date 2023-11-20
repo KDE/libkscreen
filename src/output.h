@@ -16,6 +16,7 @@
 #include <QPoint>
 #include <QSize>
 #include <QStringList>
+#include <optional>
 
 namespace KScreen
 {
@@ -478,6 +479,27 @@ public:
      */
     void setIccProfilePath(const QString &path);
 
+    double sdrGamutWideness() const;
+    void setSdrGamutWideness(double value);
+
+    double maxPeakBrightness() const;
+    void setMaxPeakBrightness(double value);
+
+    double maxAverageBrightness() const;
+    void setMaxAverageBrightness(double value);
+
+    double minBrightness() const;
+    void setMinBrightness(double value);
+
+    std::optional<double> maxPeakBrightnessOverride() const;
+    void setMaxPeakBrightnessOverride(std::optional<double> value);
+
+    std::optional<double> maxAverageBrightnessOverride() const;
+    void setMaxAverageBrightnessOverride(std::optional<double> value);
+
+    std::optional<double> minBrightnessOverride() const;
+    void setMinBrightnessOverride(std::optional<double> value);
+
     void apply(const OutputPtr &other);
 
 Q_SIGNALS:
@@ -503,6 +525,13 @@ Q_SIGNALS:
     void wcgEnabledChanged();
     void autoRotatePolicyChanged();
     void iccProfilePathChanged();
+    void sdrGamutWidenessChanged();
+    void maxPeakBrightnessChanged();
+    void maxAverageBrightnessChanged();
+    void minBrightnessChanged();
+    void maxPeakBrightnessOverrideChanged();
+    void maxAverageBrightnessOverrideChanged();
+    void minBrightnessOverrideChanged();
 
     /** The mode list changed.
      *

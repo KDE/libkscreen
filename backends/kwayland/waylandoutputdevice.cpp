@@ -201,6 +201,13 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output)
     output->setWcgEnabled(m_wideColorGamutEnabled);
     output->setAutoRotatePolicy(static_cast<Output::AutoRotatePolicy>(m_autoRotatePolicy));
     output->setIccProfilePath(m_iccProfilePath);
+    output->setSdrGamutWideness(m_sdrGamutWideness);
+    output->setMaxPeakBrightness(m_maxPeakBrightness);
+    output->setMaxAverageBrightness(m_maxAverageBrightness);
+    output->setMinBrightness(m_minBrightness);
+    output->setMaxPeakBrightnessOverride(m_maxPeakBrightnessOverride);
+    output->setMaxAverageBrightnessOverride(m_maxAverageBrightnessOverride);
+    output->setMinBrightnessOverride(m_minBrightnessOverride);
 
     updateKScreenModes(output);
 }
@@ -295,6 +302,20 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputConfiguration *wlConfig, cons
     }
     if ((output->capabilities() & Output::Capability::IccProfile) && m_iccProfilePath != output->iccProfilePath()) {
         wlConfig->set_icc_profile_path(object(), output->iccProfilePath());
+        changed = true;
+    }
+    if (kde_output_configuration_v2_get_version(wlConfig->object()) >= KDE_OUTPUT_CONFIGURATION_V2_SET_SDR_GAMUT_WIDENESS_SINCE_VERSION
+        && m_sdrGamutWideness != output->sdrGamutWideness()) {
+        wlConfig->set_sdr_gamut_wideness(object(), std::clamp<uint32_t>(std::round(output->sdrGamutWideness() * 10'000), 0, 10'000));
+        changed = true;
+    }
+    if (kde_output_configuration_v2_get_version(wlConfig->object()) >= KDE_OUTPUT_CONFIGURATION_V2_SET_BRIGHTNESS_OVERRIDES_SINCE_VERSION
+        && (m_maxPeakBrightnessOverride != output->maxPeakBrightnessOverride() || m_maxAverageBrightnessOverride != output->maxAverageBrightnessOverride()
+            || m_minBrightnessOverride != output->minBrightnessOverride())) {
+        wlConfig->set_brightness_overrides(object(),
+                                           output->maxPeakBrightnessOverride().value_or(-1),
+                                           output->maxAverageBrightnessOverride().value_or(-1),
+                                           std::round(output->minBrightnessOverride().value_or(-0.000'1) * 10'000.0));
         changed = true;
     }
 
@@ -416,6 +437,25 @@ void WaylandOutputDevice::kde_output_device_v2_auto_rotate_policy(uint32_t polic
 void WaylandOutputDevice::kde_output_device_v2_icc_profile_path(const QString &profile)
 {
     m_iccProfilePath = profile;
+}
+
+void WaylandOutputDevice::kde_output_device_v2_brightness_metadata(uint32_t max_peak_brightness, uint32_t max_frame_average_brightness, uint32_t min_brightness)
+{
+    m_maxPeakBrightness = max_peak_brightness;
+    m_maxAverageBrightness = max_frame_average_brightness;
+    m_minBrightness = min_brightness / 10'000.0;
+}
+
+void WaylandOutputDevice::kde_output_device_v2_brightness_overrides(int32_t max_peak_brightness, int32_t max_average_brightness, int32_t min_brightness)
+{
+    m_maxPeakBrightnessOverride = max_peak_brightness == -1 ? std::nullopt : std::optional(max_peak_brightness);
+    m_maxAverageBrightnessOverride = max_average_brightness == -1 ? std::nullopt : std::optional(max_average_brightness);
+    m_minBrightnessOverride = min_brightness == -1 ? std::nullopt : std::optional(min_brightness / 10'000.0);
+}
+
+void WaylandOutputDevice::kde_output_device_v2_sdr_gamut_wideness(uint32_t value)
+{
+    m_sdrGamutWideness = value / 10'000.0;
 }
 
 QByteArray WaylandOutputDevice::edid() const

@@ -67,6 +67,13 @@ public:
         , wideColorGamut(other.wideColorGamut)
         , autoRotatePolicy(other.autoRotatePolicy)
         , iccProfilePath(other.iccProfilePath)
+        , sdrGamutWideness(other.sdrGamutWideness)
+        , maxPeakBrightness(other.maxPeakBrightness)
+        , maxAverageBrightness(other.maxAverageBrightness)
+        , minBrightness(other.minBrightness)
+        , maxPeakBrightnessOverride(other.maxPeakBrightnessOverride)
+        , maxAverageBrightnessOverride(other.maxAverageBrightnessOverride)
+        , minBrightnessOverride(other.minBrightnessOverride)
     {
         const auto otherModeList = other.modeList;
         for (const ModePtr &otherMode : otherModeList) {
@@ -113,6 +120,13 @@ public:
     bool wideColorGamut = false;
     AutoRotatePolicy autoRotatePolicy = AutoRotatePolicy::InTabletMode;
     QString iccProfilePath;
+    double sdrGamutWideness = 0;
+    double maxPeakBrightness = 0;
+    double maxAverageBrightness = 0;
+    double minBrightness = 0;
+    std::optional<double> maxPeakBrightnessOverride;
+    std::optional<double> maxAverageBrightnessOverride;
+    std::optional<double> minBrightnessOverride;
 };
 
 bool Output::Private::compareModeList(const ModeList &before, const ModeList &after)
@@ -739,6 +753,97 @@ void Output::setIccProfilePath(const QString &path)
     }
 }
 
+double Output::sdrGamutWideness() const
+{
+    return d->sdrGamutWideness;
+}
+
+void Output::setSdrGamutWideness(double value)
+{
+    if (d->sdrGamutWideness != value) {
+        d->sdrGamutWideness = value;
+        Q_EMIT sdrGamutWidenessChanged();
+    }
+}
+
+double Output::maxPeakBrightness() const
+{
+    return d->maxPeakBrightness;
+}
+
+void Output::setMaxPeakBrightness(double value)
+{
+    if (d->maxPeakBrightness != value) {
+        d->maxPeakBrightness = value;
+        Q_EMIT maxPeakBrightnessChanged();
+    }
+}
+
+double Output::maxAverageBrightness() const
+{
+    return d->maxAverageBrightness;
+}
+
+void Output::setMaxAverageBrightness(double value)
+{
+    if (d->maxAverageBrightness != value) {
+        d->maxAverageBrightness = value;
+        Q_EMIT maxAverageBrightnessChanged();
+    }
+}
+
+double Output::minBrightness() const
+{
+    return d->minBrightness;
+}
+
+void Output::setMinBrightness(double value)
+{
+    if (d->minBrightness != value) {
+        d->minBrightness = value;
+        Q_EMIT minBrightnessChanged();
+    }
+}
+
+std::optional<double> Output::maxPeakBrightnessOverride() const
+{
+    return d->maxPeakBrightnessOverride;
+}
+
+void Output::setMaxPeakBrightnessOverride(std::optional<double> value)
+{
+    if (d->maxPeakBrightnessOverride != value) {
+        d->maxPeakBrightnessOverride = value;
+        Q_EMIT maxPeakBrightnessOverrideChanged();
+    }
+}
+
+std::optional<double> Output::maxAverageBrightnessOverride() const
+{
+    return d->maxAverageBrightnessOverride;
+}
+
+void Output::setMaxAverageBrightnessOverride(std::optional<double> value)
+{
+    if (d->maxAverageBrightnessOverride != value) {
+        d->maxAverageBrightnessOverride = value;
+        Q_EMIT maxAverageBrightnessOverrideChanged();
+    }
+}
+
+std::optional<double> Output::minBrightnessOverride() const
+{
+    return d->minBrightnessOverride;
+}
+
+void Output::setMinBrightnessOverride(std::optional<double> value)
+{
+    if (d->minBrightnessOverride != value) {
+        d->minBrightnessOverride = value;
+        Q_EMIT minBrightnessOverrideChanged();
+    }
+}
+
 void Output::apply(const OutputPtr &other)
 {
     typedef void (KScreen::Output::*ChangeSignal)();
@@ -843,6 +948,35 @@ void Output::apply(const OutputPtr &other)
     if (d->iccProfilePath != other->d->iccProfilePath) {
         changes << &Output::iccProfilePathChanged;
         setIccProfilePath(other->d->iccProfilePath);
+    }
+    if (d->sdrGamutWideness != other->d->sdrGamutWideness) {
+        changes << &Output::sdrGamutWidenessChanged;
+        setSdrGamutWideness(other->d->sdrGamutWideness);
+    }
+    if (d->maxPeakBrightness != other->d->maxPeakBrightness) {
+        changes << &Output::maxPeakBrightnessChanged;
+        setMaxPeakBrightness(other->d->maxPeakBrightness);
+    }
+    if (d->maxAverageBrightness != other->d->maxAverageBrightness) {
+        changes << &Output::maxAverageBrightnessChanged;
+        setMaxAverageBrightness(other->d->maxAverageBrightness);
+    }
+    if (d->minBrightness != other->d->minBrightness) {
+        changes << &Output::minBrightnessChanged;
+        setMinBrightness(other->d->minBrightness);
+    }
+
+    if (d->maxPeakBrightnessOverride != other->d->maxPeakBrightnessOverride) {
+        changes << &Output::maxPeakBrightnessOverrideChanged;
+        setMaxPeakBrightnessOverride(other->d->maxPeakBrightnessOverride);
+    }
+    if (d->maxAverageBrightnessOverride != other->d->maxAverageBrightnessOverride) {
+        changes << &Output::maxAverageBrightnessOverrideChanged;
+        setMaxAverageBrightnessOverride(other->d->maxAverageBrightnessOverride);
+    }
+    if (d->minBrightnessOverride != other->d->minBrightnessOverride) {
+        changes << &Output::minBrightnessOverrideChanged;
+        setMinBrightnessOverride(other->d->minBrightnessOverride);
     }
 
     // Non-notifyable changes

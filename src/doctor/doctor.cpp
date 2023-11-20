@@ -368,6 +368,48 @@ void Doctor::parseOutputArgs()
                     }
                     output->setIccProfilePath(profilePath);
                     m_changed = true;
+                } else if (ops.count() >= 4 && subcmd == "sdrGamut") {
+                    const uint32_t wideness = ops[3].toUInt();
+                    if (wideness > 100) {
+                        qCDebug(KSCREEN_DOCTOR) << "Wrong input: Allowed range for sdr wideness is 0 to 100";
+                        qApp->exit(9);
+                        return;
+                    }
+                    output->setSdrGamutWideness(wideness / 100.0);
+                    m_changed = true;
+                } else if (ops.count() >= 4 && subcmd == "maxBrightnessOverride") {
+                    if (ops[3] == "disable") {
+                        output->setMaxPeakBrightnessOverride(std::nullopt);
+                    } else if (const uint32_t nits = ops[3].toUInt(); nits != 0) {
+                        output->setMaxPeakBrightnessOverride(nits);
+                    } else {
+                        qCDebug(KSCREEN_DOCTOR) << "Wrong input: max brightness must be bigger than 0";
+                        qApp->exit(9);
+                        return;
+                    }
+                    m_changed = true;
+                } else if (ops.count() >= 4 && subcmd == "maxAverageBrightnessOverride") {
+                    if (ops[3] == "disable") {
+                        output->setMaxPeakBrightnessOverride(std::nullopt);
+                    } else if (const uint32_t nits = ops[3].toUInt(); nits != 0) {
+                        output->setMaxAverageBrightnessOverride(nits);
+                    } else {
+                        qCDebug(KSCREEN_DOCTOR) << "Wrong input: max average brightness must be bigger than 0";
+                        qApp->exit(9);
+                        return;
+                    }
+                    m_changed = true;
+                } else if (ops.count() >= 4 && subcmd == "minBrightnessOverride") {
+                    if (ops[3] == "disable") {
+                        output->setMinBrightnessOverride(std::nullopt);
+                    } else if (const uint32_t nits10k = ops[3].toUInt(); nits10k != 0) {
+                        output->setMinBrightnessOverride(nits10k / 10'000.0);
+                    } else {
+                        qCDebug(KSCREEN_DOCTOR) << "Wrong input: max average brightness must be bigger than 0";
+                        qApp->exit(9);
+                        return;
+                    }
+                    m_changed = true;
                 } else {
                     cerr << "Unable to parse arguments: " << op << Qt::endl;
                     qApp->exit(2);
@@ -495,6 +537,19 @@ void Doctor::showOutputs() const
                 cout << cr << "disabled";
             }
             cout << yellow << " SDR brightness: " << cr << output->sdrBrightness() << " nits";
+            cout << yellow << " SDR gamut wideness: " << cr << std::round(output->sdrGamutWideness() * 100) << "%";
+            cout << yellow << " Peak brightness: " << cr << output->maxPeakBrightness() << " nits";
+            if (const auto used = output->maxPeakBrightnessOverride()) {
+                cout << yellow << ", overridden with: " << cr << *used << " nits";
+            }
+            cout << yellow << " Max average brightness: " << cr << output->maxAverageBrightness() << " nits";
+            if (const auto used = output->maxAverageBrightnessOverride()) {
+                cout << yellow << ", overridden with: " << cr << *used << " nits";
+            }
+            cout << yellow << " Min brightness: " << cr << output->minBrightness() << " nits";
+            if (const auto used = output->minBrightnessOverride()) {
+                cout << yellow << ", overridden with: " << cr << (*used) / 10'000.0 << " nits";
+            }
         } else {
             cout << cr << "incapable";
         }

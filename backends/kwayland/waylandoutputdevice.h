@@ -91,6 +91,9 @@ protected:
     void kde_output_device_v2_wide_color_gamut(uint32_t wcg_enabled) override;
     void kde_output_device_v2_auto_rotate_policy(uint32_t policy) override;
     void kde_output_device_v2_icc_profile_path(const QString &profile) override;
+    void kde_output_device_v2_brightness_metadata(uint32_t max_peak_brightness, uint32_t max_frame_average_brightness, uint32_t min_brightness) override;
+    void kde_output_device_v2_brightness_overrides(int32_t max_peak_brightness, int32_t max_average_brightness, int32_t min_brightness) override;
+    void kde_output_device_v2_sdr_gamut_wideness(uint32_t value) override;
 
 private:
     QString modeName(const WaylandOutputDeviceMode *m) const;
@@ -123,6 +126,13 @@ private:
     bool m_wideColorGamutEnabled = false;
     uint32_t m_autoRotatePolicy = 1;
     QString m_iccProfilePath;
+    double m_maxPeakBrightness = 0;
+    double m_maxAverageBrightness = 0;
+    double m_minBrightness = 0;
+    std::optional<double> m_maxPeakBrightnessOverride;
+    std::optional<double> m_maxAverageBrightnessOverride;
+    std::optional<double> m_minBrightnessOverride;
+    double m_sdrGamutWideness = 0;
 };
 
 }
