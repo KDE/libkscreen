@@ -469,13 +469,14 @@ void Doctor::showOutputs() const
     collator.setNumericMode(true);
 
     for (const auto &output : m_config->outputs()) {
-        cout << green << "Output: " << cr << output->id() << " " << output->name();
-        cout << " " << (output->isEnabled() ? green + QStringLiteral("enabled") : red + QStringLiteral("disabled")) << cr;
-        cout << " " << (output->isConnected() ? green + QStringLiteral("connected") : red + QStringLiteral("disconnected")) << cr;
-        cout << " " << (output->isEnabled() ? green : red) + QStringLiteral("priority ") << output->priority() << cr;
+        const auto endl = '\n';
+        cout << green << "Output: " << cr << output->id() << " " << output->name() << endl;
+        cout << "\t" << (output->isEnabled() ? green + QStringLiteral("enabled") : red + QStringLiteral("disabled")) << cr << endl;
+        cout << "\t" << (output->isConnected() ? green + QStringLiteral("connected") : red + QStringLiteral("disconnected")) << cr << endl;
+        cout << "\t" << (output->isEnabled() ? green : red) + QStringLiteral("priority ") << output->priority() << cr << endl;
         auto _type = typeString[output->type()];
-        cout << " " << yellow << (_type.isEmpty() ? QStringLiteral("UnmappedOutputType") : _type);
-        cout << blue << " Modes: " << cr;
+        cout << "\t" << yellow << (_type.isEmpty() ? QStringLiteral("UnmappedOutputType") : _type) << endl;
+        cout << blue << "\tModes: " << cr;
 
         const auto modes = output->modes();
         auto modeKeys = modes.keys();
@@ -492,88 +493,91 @@ void Doctor::showOutputs() const
             if (mode == output->preferredMode()) {
                 name = name + QLatin1Char('!');
             }
-            cout << mode->id() << ":" << name << " ";
+            cout << " " << mode->id() << ":" << name << " ";
         }
+        cout << endl;
         const auto g = output->geometry();
-        cout << yellow << "Geometry: " << cr << g.x() << "," << g.y() << " " << g.width() << "x" << g.height() << " ";
-        cout << yellow << "Scale: " << cr << output->scale() << " ";
-        cout << yellow << "Rotation: " << cr << output->rotation() << " ";
-        cout << yellow << "Overscan: " << cr << output->overscan() << " ";
-        cout << yellow << "Vrr: ";
+        cout << yellow << "\tGeometry: " << cr << g.x() << "," << g.y() << " " << g.width() << "x" << g.height() << endl;
+        cout << yellow << "\tScale: " << cr << output->scale() << endl;
+        cout << yellow << "\tRotation: " << cr << output->rotation() << endl;
+        cout << yellow << "\tOverscan: " << cr << output->overscan() << endl;
+        cout << yellow << "\tVrr: ";
         if (output->capabilities() & Output::Capability::Vrr) {
             switch (output->vrrPolicy()) {
             case Output::VrrPolicy::Never:
-                cout << cr << "Never ";
+                cout << cr << "Never" << endl;
                 break;
             case Output::VrrPolicy::Automatic:
-                cout << cr << "Automatic ";
+                cout << cr << "Automatic" << endl;
                 break;
             case Output::VrrPolicy::Always:
-                cout << cr << "Always ";
+                cout << cr << "Always" << endl;
             }
         } else {
-            cout << cr << "incapable ";
+            cout << cr << "incapable" << endl;
         }
-        cout << yellow << "RgbRange: ";
+        cout << yellow << "\tRgbRange: ";
         if (output->capabilities() & Output::Capability::RgbRange) {
             switch (output->rgbRange()) {
             case Output::RgbRange::Automatic:
-                cout << cr << "Automatic";
+                cout << cr << "Automatic" << endl;
                 break;
             case Output::RgbRange::Full:
-                cout << cr << "Full";
+                cout << cr << "Full" << endl;
                 break;
             case Output::RgbRange::Limited:
-                cout << cr << "Limited";
+                cout << cr << "Limited" << endl;
             }
         } else {
-            cout << cr << "unknown";
+            cout << cr << "unknown" << endl;
         }
-        cout << yellow << " HDR: ";
+        cout << yellow << "\tHDR: ";
         if (output->capabilities() & Output::Capability::HighDynamicRange) {
             if (output->isHdrEnabled()) {
-                cout << cr << "enabled";
+                cout << cr << "enabled" << endl;
+                cout << yellow << "\t\tSDR brightness: " << cr << output->sdrBrightness() << " nits" << endl;
+                cout << yellow << "\t\tSDR gamut wideness: " << cr << std::round(output->sdrGamutWideness() * 100) << "%" << endl;
+                cout << yellow << "\t\tPeak brightness: " << cr << output->maxPeakBrightness() << " nits";
+                if (const auto used = output->maxPeakBrightnessOverride()) {
+                    cout << yellow << ", overridden with: " << cr << *used << " nits";
+                }
+                cout << endl;
+                cout << yellow << "\t\tMax average brightness: " << cr << output->maxAverageBrightness() << " nits";
+                if (const auto used = output->maxAverageBrightnessOverride()) {
+                    cout << yellow << ", overridden with: " << cr << *used << " nits";
+                }
+                cout << endl;
+                cout << yellow << "\t\tMin brightness: " << cr << output->minBrightness() << " nits";
+                if (const auto used = output->minBrightnessOverride()) {
+                    cout << yellow << ", overridden with: " << cr << (*used) / 10'000.0 << " nits";
+                }
+                cout << endl;
             } else {
-                cout << cr << "disabled";
-            }
-            cout << yellow << " SDR brightness: " << cr << output->sdrBrightness() << " nits";
-            cout << yellow << " SDR gamut wideness: " << cr << std::round(output->sdrGamutWideness() * 100) << "%";
-            cout << yellow << " Peak brightness: " << cr << output->maxPeakBrightness() << " nits";
-            if (const auto used = output->maxPeakBrightnessOverride()) {
-                cout << yellow << ", overridden with: " << cr << *used << " nits";
-            }
-            cout << yellow << " Max average brightness: " << cr << output->maxAverageBrightness() << " nits";
-            if (const auto used = output->maxAverageBrightnessOverride()) {
-                cout << yellow << ", overridden with: " << cr << *used << " nits";
-            }
-            cout << yellow << " Min brightness: " << cr << output->minBrightness() << " nits";
-            if (const auto used = output->minBrightnessOverride()) {
-                cout << yellow << ", overridden with: " << cr << (*used) / 10'000.0 << " nits";
+                cout << cr << "disabled" << endl;
             }
         } else {
-            cout << cr << "incapable";
+            cout << cr << "incapable" << endl;
         }
-        cout << yellow << " Wide Color Gamut: ";
+        cout << yellow << "\tWide Color Gamut: ";
         if (output->capabilities() & Output::Capability::WideColorGamut) {
             if (output->isWcgEnabled()) {
-                cout << cr << "enabled";
+                cout << cr << "enabled" << endl;
             } else {
-                cout << cr << "disabled";
+                cout << cr << "disabled" << endl;
             }
         } else {
-            cout << cr << "incapable";
+            cout << cr << "incapable" << endl;
         }
-        cout << yellow << " ICC profile: ";
+        cout << yellow << "\tICC profile: ";
         if (output->capabilities() & Output::Capability::IccProfile) {
             if (!output->iccProfilePath().isEmpty()) {
-                cout << cr << output->iccProfilePath();
+                cout << cr << output->iccProfilePath() << endl;
             } else {
-                cout << cr << "none";
+                cout << cr << "none" << endl;
             }
         } else {
-            cout << cr << "incapable";
+            cout << cr << "incapable" << endl;
         }
-        cout << cr << Qt::endl;
     }
 }
 
