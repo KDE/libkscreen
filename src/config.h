@@ -260,6 +260,13 @@ public:
 
     QSizeF logicalSizeForOutput(const KScreen::Output &output) const;
 
+    /**
+     * Returns the logical size of the output, converted to an integer.
+     *
+     * Takes the ceiling of non-integer sizes.
+     */
+    QSize logicalSizeForOutputInt(const KScreen::Output &output) const;
+
 Q_SIGNALS:
     void outputAdded(const KScreen::OutputPtr &output);
     void outputRemoved(int outputId);
