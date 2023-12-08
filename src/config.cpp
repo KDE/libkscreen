@@ -460,7 +460,7 @@ void Config::apply(const ConfigPtr &other)
 
 QRect Config::outputGeometryForOutput(const KScreen::Output &output) const
 {
-    QSize size = logicalSizeForOutput(output).toSize();
+    QSize size = logicalSizeForOutputInt(output);
     if (!size.isValid()) {
         return QRect();
     }
@@ -487,6 +487,12 @@ QSizeF Config::logicalSizeForOutput(const KScreen::Output &output) const
         size = size.transposed();
     }
     return size;
+}
+
+QSize Config::logicalSizeForOutputInt(const KScreen::Output &output) const
+{
+    const QSizeF sizeF = logicalSizeForOutput(output);
+    return QSize(std::ceil(sizeF.width()), std::ceil(sizeF.height()));
 }
 
 QDebug operator<<(QDebug dbg, const KScreen::ConfigPtr &config)

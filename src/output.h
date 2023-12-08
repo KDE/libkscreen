@@ -326,6 +326,17 @@ public:
     QSizeF explicitLogicalSize() const;
 
     /**
+     * The logical size is the output's representation internal to the display
+     * server and its overall screen geometry.
+     *
+     * returns the logical size of this output, rounded up to the next integer;
+     * is an invalid size if not set
+     *
+     * @since 6.0
+     */
+    QSize explicitLogicalSizeInt() const;
+
+    /**
      * Specifies explicitly the logical size of this output and by that overrides any other
      * logical size calculation through mode and scale. To enable this instead again call this
      * function with an invalid size as argument.

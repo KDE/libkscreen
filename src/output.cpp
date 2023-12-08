@@ -453,6 +453,12 @@ QSizeF Output::explicitLogicalSize() const
     return d->explicitLogicalSize;
 }
 
+QSize Output::explicitLogicalSizeInt() const
+{
+    const QSizeF sizeF = explicitLogicalSize();
+    return QSize(std::ceil(sizeF.width()), std::ceil(sizeF.height()));
+}
+
 void Output::setExplicitLogicalSize(const QSizeF &size)
 {
     if (qFuzzyCompare(d->explicitLogicalSize.width(), size.width()) && qFuzzyCompare(d->explicitLogicalSize.height(), size.height())) {
@@ -600,7 +606,7 @@ QSize Output::enforcedModeSize() const
 
 QRect Output::geometry() const
 {
-    QSize size = explicitLogicalSize().toSize();
+    QSize size = explicitLogicalSizeInt();
     if (!size.isValid()) {
         return QRect();
     }
