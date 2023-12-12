@@ -119,7 +119,11 @@ public:
 private:
     void addScreen(QScreen *screen)
     {
+#if QT_VERSION < QT_VERSION_CHECK(6, 7, 0)
         auto waylandScreen = screen->nativeInterface<QNativeInterface::Private::QWaylandScreen>();
+#else
+        auto waylandScreen = screen->nativeInterface<QNativeInterface::QWaylandScreen>();
+#endif
         if (waylandScreen && waylandScreen->output()) {
             m_dpmsPerScreen[screen] = new Dpms(get(waylandScreen->output()), m_dpms, screen);
         }
