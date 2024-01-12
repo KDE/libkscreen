@@ -3,10 +3,11 @@
 //
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
-#include "kscreendpms_debug.h"
 #include "waylanddpmshelper_p.h"
 
-#include "qwayland-dpms.h"
+#include <kscreendpms_debug.h>
+#include <qwayland-dpms.h>
+
 #include <QDebug>
 #include <QGuiApplication>
 #include <QList>
@@ -14,7 +15,6 @@
 #include <QScreen>
 #include <QWaylandClientExtensionTemplate>
 #include <qpa/qplatformscreen_p.h>
-
 
 class Dpms : public QObject, public QtWayland::org_kde_kwin_dpms
 {
@@ -84,26 +84,31 @@ public:
         : QWaylandClientExtensionTemplate<DpmsManager>(1)
         , m_dpms(dpms)
     {
-        connect(this, &DpmsManager::activeChanged, this, [this] {
-            const bool hasDpms = isActive();
-            if (hasDpms) {
-                qCDebug(KSCREEN_DPMS) << "Compositor provides a DpmsManager";
-            } else {
-                qCDebug(KSCREEN_DPMS) << "Compositor does not provide a DpmsManager";
-                m_dpms->setSupported(hasDpms);
-                return;
-            }
+        connect(
+            this,
+            &DpmsManager::activeChanged,
+            this,
+            [this] {
+                const bool hasDpms = isActive();
+                if (hasDpms) {
+                    qCDebug(KSCREEN_DPMS) << "Compositor provides a DpmsManager";
+                } else {
+                    qCDebug(KSCREEN_DPMS) << "Compositor does not provide a DpmsManager";
+                    m_dpms->setSupported(hasDpms);
+                    return;
+                }
 
-            const auto screens = qGuiApp->screens();
-            for (QScreen *screen : screens) {
-                addScreen(screen);
-            }
-            connect(qGuiApp, &QGuiApplication::screenAdded, this, &DpmsManager::addScreen);
-            connect(qGuiApp, &QGuiApplication::screenRemoved, this, [this](QScreen *screen) {
-                delete m_dpmsPerScreen.take(screen);
-            });
-            m_dpms->setSupported(hasDpms);
-        });
+                const auto screens = qGuiApp->screens();
+                for (QScreen *screen : screens) {
+                    addScreen(screen);
+                }
+                connect(qGuiApp, &QGuiApplication::screenAdded, this, &DpmsManager::addScreen);
+                connect(qGuiApp, &QGuiApplication::screenRemoved, this, [this](QScreen *screen) {
+                    delete m_dpmsPerScreen.take(screen);
+                });
+                m_dpms->setSupported(hasDpms);
+            },
+            Qt::QueuedConnection); // let the creator connect to supportedChanged first
         initialize();
     }
     ~DpmsManager()

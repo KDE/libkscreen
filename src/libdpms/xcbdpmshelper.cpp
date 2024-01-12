@@ -8,9 +8,10 @@
 #include "xcbdpmshelper_p.h"
 
 #include <QGuiApplication>
+#include <QTimer>
 #include <QtGui/private/qtx11extras_p.h>
 
-#include "kscreendpms_debug.h"
+#include <kscreendpms_debug.h>
 
 #include <xcb/dpms.h>
 
@@ -19,6 +20,12 @@ using ScopedCPointer = QScopedPointer<T, QScopedPointerPodDeleter>;
 
 XcbDpmsHelper::XcbDpmsHelper()
     : AbstractDpmsHelper()
+{
+    // let the creator connect to supportedChanged first
+    QTimer::singleShot(0, this, &XcbDpmsHelper::delayedInit);
+}
+
+void XcbDpmsHelper::delayedInit()
 {
     auto *c = QX11Info::connection();
 
