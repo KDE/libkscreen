@@ -37,10 +37,9 @@ public:
     void setHasPendingChanges(bool hasThem)
     {
         if (m_hasPendingChanges != hasThem) {
-            return;
+            m_hasPendingChanges = hasThem;
+            Q_EMIT hasPendingChangesChanged(hasThem);
         }
-        m_hasPendingChanges = hasThem;
-        Q_EMIT hasPendingChangesChanged(hasThem);
     }
 
     bool hasPendingChanges() const
