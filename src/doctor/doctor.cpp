@@ -107,25 +107,18 @@ void Doctor::start(QCommandLineParser *parser)
         const QString dpmsArg = m_parser->value(QStringLiteral("dpms"));
         if (dpmsArg == QLatin1String("show")) {
         } else {
-            auto performSwitch = [this, dpmsArg, screens](bool supported) {
-                if (!supported) {
-                    cerr << "DPMS not supported in this system";
-                    qGuiApp->quit();
-                    return;
-                }
+            if (!m_dpmsClient->isSupported()) {
+                cerr << "DPMS not supported in this system";
+                qGuiApp->quit();
+                return;
+            }
 
-                if (dpmsArg == QLatin1String("off")) {
-                    m_dpmsClient->switchMode(KScreen::Dpms::Off, screens);
-                } else if (dpmsArg == QLatin1String("on")) {
-                    m_dpmsClient->switchMode(KScreen::Dpms::On, screens);
-                } else {
-                    cerr << "--dpms argument not understood (" << dpmsArg << ")";
-                }
-            };
-            if (m_dpmsClient->isSupported()) {
-                performSwitch(m_dpmsClient->isSupported());
+            if (dpmsArg == QLatin1String("off")) {
+                m_dpmsClient->switchMode(KScreen::Dpms::Off, screens);
+            } else if (dpmsArg == QLatin1String("on")) {
+                m_dpmsClient->switchMode(KScreen::Dpms::On, screens);
             } else {
-                connect(m_dpmsClient, &Dpms::supportedChanged, this, performSwitch);
+                cerr << "--dpms argument not understood (" << dpmsArg << ")";
             }
         }
         return;
