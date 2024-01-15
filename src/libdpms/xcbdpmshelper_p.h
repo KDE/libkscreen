@@ -18,7 +18,4 @@ public:
     ~XcbDpmsHelper() override;
 
     void trigger(KScreen::Dpms::Mode mode, const QList<QScreen *> &screens) override;
-
-private Q_SLOTS:
-    void delayedInit();
 };

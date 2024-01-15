@@ -41,9 +41,7 @@ public:
     Q_ENUM(Mode)
 
     /**
-     * @returns true if the DPMS system is supported, false if unsupported or still initializing
-     *
-     * @see supportedChanged
+     * @returns true if the DPMS system is supported
      */
     bool isSupported() const;
 

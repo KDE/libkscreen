@@ -84,31 +84,26 @@ public:
         : QWaylandClientExtensionTemplate<DpmsManager>(1)
         , m_dpms(dpms)
     {
-        connect(
-            this,
-            &DpmsManager::activeChanged,
-            this,
-            [this] {
-                const bool hasDpms = isActive();
-                if (hasDpms) {
-                    qCDebug(KSCREEN_DPMS) << "Compositor provides a DpmsManager";
-                } else {
-                    qCDebug(KSCREEN_DPMS) << "Compositor does not provide a DpmsManager";
-                    m_dpms->setSupported(hasDpms);
-                    return;
-                }
-
-                const auto screens = qGuiApp->screens();
-                for (QScreen *screen : screens) {
-                    addScreen(screen);
-                }
-                connect(qGuiApp, &QGuiApplication::screenAdded, this, &DpmsManager::addScreen);
-                connect(qGuiApp, &QGuiApplication::screenRemoved, this, [this](QScreen *screen) {
-                    delete m_dpmsPerScreen.take(screen);
-                });
+        connect(this, &DpmsManager::activeChanged, this, [this] {
+            const bool hasDpms = isActive();
+            if (hasDpms) {
+                qCDebug(KSCREEN_DPMS) << "Compositor provides a DpmsManager";
+            } else {
+                qCDebug(KSCREEN_DPMS) << "Compositor does not provide a DpmsManager";
                 m_dpms->setSupported(hasDpms);
-            },
-            Qt::QueuedConnection); // let the creator connect to supportedChanged first
+                return;
+            }
+
+            const auto screens = qGuiApp->screens();
+            for (QScreen *screen : screens) {
+                addScreen(screen);
+            }
+            connect(qGuiApp, &QGuiApplication::screenAdded, this, &DpmsManager::addScreen);
+            connect(qGuiApp, &QGuiApplication::screenRemoved, this, [this](QScreen *screen) {
+                delete m_dpmsPerScreen.take(screen);
+            });
+            m_dpms->setSupported(hasDpms);
+        });
         initialize();
     }
     ~DpmsManager()
