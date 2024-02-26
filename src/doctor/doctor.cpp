@@ -360,6 +360,11 @@ void Doctor::parseOutputArgs()
                         profilePath += "." + ops[i];
                     }
                     output->setIccProfilePath(profilePath);
+                    if (profilePath.isEmpty()) {
+                        output->setColorProfileSource(Output::ColorProfileSource::sRGB);
+                    } else {
+                        output->setColorProfileSource(Output::ColorProfileSource::ICC);
+                    }
                     m_changed = true;
                 } else if (ops.count() >= 4 && subcmd == "sdrGamut") {
                     const uint32_t wideness = ops[3].toUInt();
@@ -399,6 +404,19 @@ void Doctor::parseOutputArgs()
                         output->setMinBrightnessOverride(nits10k / 10'000.0);
                     } else {
                         qCDebug(KSCREEN_DOCTOR) << "Wrong input: max average brightness must be bigger than 0";
+                        qApp->exit(9);
+                        return;
+                    }
+                    m_changed = true;
+                } else if (ops.count() >= 4 && subcmd == "colorProfileSource") {
+                    if (ops[3] == "sRGB") {
+                        output->setColorProfileSource(Output::ColorProfileSource::sRGB);
+                    } else if (ops[3] == "ICC") {
+                        output->setColorProfileSource(Output::ColorProfileSource::ICC);
+                    } else if (ops[3] == "EDID") {
+                        output->setColorProfileSource(Output::ColorProfileSource::EDID);
+                    } else {
+                        qCDebug(KSCREEN_DOCTOR) << "Wrong input: only allowed values for colorProfileSource are \"sRGB\", \"ICC\" and \"EDID\"";
                         qApp->exit(9);
                         return;
                     }
@@ -568,6 +586,24 @@ void Doctor::showOutputs() const
             } else {
                 cout << cr << "none" << endl;
             }
+        } else {
+            cout << cr << "incapable" << endl;
+        }
+        cout << yellow << "\tColor profile source: ";
+        if (output->capabilities() & Output::Capability::IccProfile) {
+            cout << cr;
+            switch (output->colorProfileSource()) {
+            case Output::ColorProfileSource::sRGB:
+                cout << "sRGB";
+                break;
+            case Output::ColorProfileSource::ICC:
+                cout << "ICC";
+                break;
+            case Output::ColorProfileSource::EDID:
+                cout << "EDID";
+                break;
+            }
+            cout << endl;
         } else {
             cout << cr << "incapable" << endl;
         }
