@@ -208,6 +208,7 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output)
     output->setMaxPeakBrightnessOverride(m_maxPeakBrightnessOverride);
     output->setMaxAverageBrightnessOverride(m_maxAverageBrightnessOverride);
     output->setMinBrightnessOverride(m_minBrightnessOverride);
+    output->setEdidColorProfile(m_edidColorProfile);
 
     updateKScreenModes(output);
 }
@@ -304,18 +305,22 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputConfiguration *wlConfig, cons
         wlConfig->set_icc_profile_path(object(), output->iccProfilePath());
         changed = true;
     }
-    if (kde_output_configuration_v2_get_version(wlConfig->object()) >= KDE_OUTPUT_CONFIGURATION_V2_SET_SDR_GAMUT_WIDENESS_SINCE_VERSION
-        && m_sdrGamutWideness != output->sdrGamutWideness()) {
+    const auto version = kde_output_configuration_v2_get_version(wlConfig->object());
+    if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_SDR_GAMUT_WIDENESS_SINCE_VERSION && m_sdrGamutWideness != output->sdrGamutWideness()) {
         wlConfig->set_sdr_gamut_wideness(object(), std::clamp<uint32_t>(std::round(output->sdrGamutWideness() * 10'000), 0, 10'000));
         changed = true;
     }
-    if (kde_output_configuration_v2_get_version(wlConfig->object()) >= KDE_OUTPUT_CONFIGURATION_V2_SET_BRIGHTNESS_OVERRIDES_SINCE_VERSION
+    if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_BRIGHTNESS_OVERRIDES_SINCE_VERSION
         && (m_maxPeakBrightnessOverride != output->maxPeakBrightnessOverride() || m_maxAverageBrightnessOverride != output->maxAverageBrightnessOverride()
             || m_minBrightnessOverride != output->minBrightnessOverride())) {
         wlConfig->set_brightness_overrides(object(),
                                            output->maxPeakBrightnessOverride().value_or(-1),
                                            output->maxAverageBrightnessOverride().value_or(-1),
                                            std::round(output->minBrightnessOverride().value_or(-0.000'1) * 10'000.0));
+        changed = true;
+    }
+    if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_EDID_COLOR_PROFILE_SINCE_VERSION && m_edidColorProfile != output->edidColorProfile()) {
+        wlConfig->set_edid_color_profile(object(), output->edidColorProfile());
         changed = true;
     }
 
@@ -456,6 +461,11 @@ void WaylandOutputDevice::kde_output_device_v2_brightness_overrides(int32_t max_
 void WaylandOutputDevice::kde_output_device_v2_sdr_gamut_wideness(uint32_t value)
 {
     m_sdrGamutWideness = value / 10'000.0;
+}
+
+void WaylandOutputDevice::kde_output_device_v2_edid_color_profile(uint32_t edid_color_profile)
+{
+    m_edidColorProfile = edid_color_profile;
 }
 
 QByteArray WaylandOutputDevice::edid() const

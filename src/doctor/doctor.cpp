@@ -403,6 +403,9 @@ void Doctor::parseOutputArgs()
                         return;
                     }
                     m_changed = true;
+                } else if (ops.count() >= 4 && subcmd == "edidColorProfile") {
+                    output->setEdidColorProfile(ops[3] == "true");
+                    m_changed = true;
                 } else {
                     cerr << "Unable to parse arguments: " << op << Qt::endl;
                     qApp->exit(2);
@@ -568,6 +571,12 @@ void Doctor::showOutputs() const
             } else {
                 cout << cr << "none" << endl;
             }
+        } else {
+            cout << cr << "incapable" << endl;
+        }
+        cout << yellow << "\tColor profile from EDID: ";
+        if (output->capabilities() & Output::Capability::IccProfile) {
+            cout << cr << (output->edidColorProfile() ? "enabled" : "disabled") << endl;
         } else {
             cout << cr << "incapable" << endl;
         }

@@ -58,6 +58,7 @@ public:
     Q_PROPERTY(bool wcgEnabled READ isWcgEnabled WRITE setWcgEnabled NOTIFY wcgEnabledChanged)
     Q_PROPERTY(AutoRotatePolicy autoRotatePolicy READ autoRotatePolicy WRITE setAutoRotatePolicy NOTIFY autoRotatePolicyChanged)
     Q_PROPERTY(QString iccProfilePath READ iccProfilePath WRITE setIccProfilePath NOTIFY iccProfilePathChanged)
+    Q_PROPERTY(bool edidColorProfile READ edidColorProfile WRITE setEdidColorProfile NOTIFY edidColorProfileChanged)
 
     enum Type {
         Unknown,
@@ -511,6 +512,9 @@ public:
     std::optional<double> minBrightnessOverride() const;
     void setMinBrightnessOverride(std::optional<double> value);
 
+    bool edidColorProfile() const;
+    void setEdidColorProfile(bool enable);
+
     void apply(const OutputPtr &other);
 
 Q_SIGNALS:
@@ -543,6 +547,7 @@ Q_SIGNALS:
     void maxPeakBrightnessOverrideChanged();
     void maxAverageBrightnessOverrideChanged();
     void minBrightnessOverrideChanged();
+    void edidColorProfileChanged();
 
     /** The mode list changed.
      *

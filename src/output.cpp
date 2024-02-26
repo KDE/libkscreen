@@ -74,6 +74,7 @@ public:
         , maxPeakBrightnessOverride(other.maxPeakBrightnessOverride)
         , maxAverageBrightnessOverride(other.maxAverageBrightnessOverride)
         , minBrightnessOverride(other.minBrightnessOverride)
+        , edidColorProfile(other.edidColorProfile)
     {
         const auto otherModeList = other.modeList;
         for (const ModePtr &otherMode : otherModeList) {
@@ -127,6 +128,7 @@ public:
     std::optional<double> maxPeakBrightnessOverride;
     std::optional<double> maxAverageBrightnessOverride;
     std::optional<double> minBrightnessOverride;
+    bool edidColorProfile = false;
 };
 
 bool Output::Private::compareModeList(const ModeList &before, const ModeList &after)
@@ -850,6 +852,19 @@ void Output::setMinBrightnessOverride(std::optional<double> value)
     }
 }
 
+bool Output::edidColorProfile() const
+{
+    return d->edidColorProfile;
+}
+
+void Output::setEdidColorProfile(bool enable)
+{
+    if (d->edidColorProfile != enable) {
+        d->edidColorProfile = enable;
+        Q_EMIT edidColorProfileChanged();
+    }
+}
+
 void Output::apply(const OutputPtr &other)
 {
     typedef void (KScreen::Output::*ChangeSignal)();
@@ -983,6 +998,10 @@ void Output::apply(const OutputPtr &other)
     if (d->minBrightnessOverride != other->d->minBrightnessOverride) {
         changes << &Output::minBrightnessOverrideChanged;
         setMinBrightnessOverride(other->d->minBrightnessOverride);
+    }
+    if (d->edidColorProfile != other->d->edidColorProfile) {
+        changes << &Output::edidColorProfileChanged;
+        setEdidColorProfile(other->d->edidColorProfile);
     }
 
     // Non-notifyable changes
