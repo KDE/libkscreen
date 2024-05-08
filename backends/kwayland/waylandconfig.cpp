@@ -105,10 +105,10 @@ void WaylandConfig::setupRegistry()
     auto globalAdded = [](void *data, wl_registry *registry, uint32_t name, const char *interface, uint32_t version) {
         auto self = static_cast<WaylandConfig *>(data);
         if (qstrcmp(interface, WaylandOutputDevice::interface()->name) == 0) {
-            self->addOutput(name, std::min(7u, version));
+            self->addOutput(name, std::min(8u, version));
         }
         if (qstrcmp(interface, WaylandOutputManagement::interface()->name) == 0) {
-            self->m_outputManagement = new WaylandOutputManagement(registry, name, std::min(8u, version));
+            self->m_outputManagement = new WaylandOutputManagement(registry, name, std::min(9u, version));
         }
         if (qstrcmp(interface, WaylandOutputOrder::interface()->name) == 0) {
             self->m_outputOrder = std::make_unique<WaylandOutputOrder>(registry, name, std::min(1u, version));

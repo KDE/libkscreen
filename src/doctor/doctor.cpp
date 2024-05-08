@@ -421,6 +421,15 @@ void Doctor::parseOutputArgs()
                         return;
                     }
                     m_changed = true;
+                } else if (ops.count() >= 4 && subcmd == "brightness") {
+                    const uint32_t brightness = ops[3].toUInt();
+                    if (brightness > 100) {
+                        qCDebug(KSCREEN_DOCTOR) << "Wrong input: Allowed range for brightness is 0 to 100";
+                        qApp->exit(9);
+                        return;
+                    }
+                    output->setBrightness(brightness / 100.0);
+                    m_changed = true;
                 } else {
                     cerr << "Unable to parse arguments: " << op << Qt::endl;
                     qApp->exit(2);
@@ -562,6 +571,7 @@ void Doctor::showOutputs() const
                 if (const auto used = output->minBrightnessOverride()) {
                     cout << yellow << ", overridden with: " << cr << (*used) / 10'000.0 << " nits";
                 }
+                cout << yellow << "\t\tBrightness factor: " << cr << std::round(output->brightness() * 100) << "%";
                 cout << endl;
             } else {
                 cout << cr << "disabled" << endl;

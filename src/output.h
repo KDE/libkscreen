@@ -59,6 +59,7 @@ public:
     Q_PROPERTY(AutoRotatePolicy autoRotatePolicy READ autoRotatePolicy WRITE setAutoRotatePolicy NOTIFY autoRotatePolicyChanged)
     Q_PROPERTY(QString iccProfilePath READ iccProfilePath WRITE setIccProfilePath NOTIFY iccProfilePathChanged)
     Q_PROPERTY(ColorProfileSource colorProfileSource READ colorProfileSource WRITE setColorProfileSource NOTIFY colorProfileSourceChanged)
+    Q_PROPERTY(double brightness READ brightness WRITE setBrightness NOTIFY brightnessChanged)
 
     enum Type {
         Unknown,
@@ -522,6 +523,9 @@ public:
     ColorProfileSource colorProfileSource() const;
     void setColorProfileSource(ColorProfileSource source);
 
+    double brightness() const;
+    void setBrightness(double brightness);
+
     void apply(const OutputPtr &other);
 
 Q_SIGNALS:
@@ -555,6 +559,7 @@ Q_SIGNALS:
     void maxAverageBrightnessOverrideChanged();
     void minBrightnessOverrideChanged();
     void colorProfileSourceChanged();
+    void brightnessChanged();
 
     /** The mode list changed.
      *

@@ -95,6 +95,7 @@ protected:
     void kde_output_device_v2_brightness_overrides(int32_t max_peak_brightness, int32_t max_average_brightness, int32_t min_brightness) override;
     void kde_output_device_v2_sdr_gamut_wideness(uint32_t value) override;
     void kde_output_device_v2_color_profile_source(uint32_t source) override;
+    void kde_output_device_v2_brightness(uint32_t brightness) override;
 
 private:
     QString modeName(const WaylandOutputDeviceMode *m) const;
@@ -135,6 +136,7 @@ private:
     std::optional<double> m_minBrightnessOverride;
     double m_sdrGamutWideness = 0;
     uint32_t m_colorProfileSource = color_profile_source_sRGB;
+    uint32_t m_brightness = 10'000;
 };
 
 }
