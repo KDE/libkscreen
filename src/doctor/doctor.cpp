@@ -243,11 +243,7 @@ void Doctor::parseOutputArgs()
                         qApp->exit(5);
                         return;
                     }
-
-                    QPoint p(x, y);
-                    qCDebug(KSCREEN_DOCTOR) << "Output position" << p;
-                    setPosition(output, p);
-
+                    setPosition(output, QPoint(x, y));
                 } else if ((ops.count() == 4 || ops.count() == 5) && subcmd == QLatin1String("scale")) {
                     // be lenient about . vs. comma as separator
                     qreal scale = ops[3].replace(QLatin1Char(','), QLatin1Char('.')).toDouble(&ok);
@@ -257,7 +253,7 @@ void Doctor::parseOutputArgs()
                     };
                     // set scale
                     if (!ok || qFuzzyCompare(scale, 0.0)) {
-                        qCDebug(KSCREEN_DOCTOR) << "Could not set scale " << scale << " to output " << output_id;
+                        qCWarning(KSCREEN_DOCTOR) << "Could not set scale " << scale << " to output " << output_id;
                         qApp->exit(9);
                         return;
                     }
@@ -281,7 +277,7 @@ void Doctor::parseOutputArgs()
                         rot = rotationMap[_rotation];
                     }
                     if (!ok) {
-                        qCDebug(KSCREEN_DOCTOR) << "Could not set orientation " << _rotation << " to output " << output_id;
+                        qCWarning(KSCREEN_DOCTOR) << "Could not set orientation " << _rotation << " to output " << output_id;
                         qApp->exit(9);
                         return;
                     }
@@ -304,7 +300,7 @@ void Doctor::parseOutputArgs()
                     } else if (_policy == QStringLiteral("automatic")) {
                         policy = KScreen::Output::VrrPolicy::Automatic;
                     } else {
-                        qCDebug(KSCREEN_DOCTOR) << "Wrong input: Only allowed values are \"never\", \"always\" and \"automatic\"";
+                        qCWarning(KSCREEN_DOCTOR) << "Wrong input: Only allowed values are \"never\", \"always\" and \"automatic\"";
                         qApp->exit(9);
                         return;
                     }
@@ -319,7 +315,7 @@ void Doctor::parseOutputArgs()
                     } else if (_range == QStringLiteral("limited")) {
                         range = KScreen::Output::RgbRange::Limited;
                     } else {
-                        qCDebug(KSCREEN_DOCTOR) << "Wrong input: Only allowed values for rgbrange are \"automatic\", \"full\" and \"limited\"";
+                        qCWarning(KSCREEN_DOCTOR) << "Wrong input: Only allowed values for rgbrange are \"automatic\", \"full\" and \"limited\"";
                         qApp->exit(9);
                         return;
                     }
@@ -331,14 +327,14 @@ void Doctor::parseOutputArgs()
                     } else if (_enable == "disable") {
                         setHdrEnabled(output, false);
                     } else {
-                        qCDebug(KSCREEN_DOCTOR) << "Wrong input: Only allowed values for hdr are \"enable\" and \"disable\"";
+                        qCWarning(KSCREEN_DOCTOR) << "Wrong input: Only allowed values for hdr are \"enable\" and \"disable\"";
                         qApp->exit(9);
                         return;
                     }
                 } else if (ops.count() == 4 && subcmd == "sdr-brightness") {
                     const uint32_t brightness = ops[3].toInt();
                     if (brightness < 100 || brightness > 10000) {
-                        qCDebug(KSCREEN_DOCTOR) << "Wrong input: Allowed range for sdr-brightness is 100 to 10000";
+                        qCWarning(KSCREEN_DOCTOR) << "Wrong input: Allowed range for sdr-brightness is 100 to 10000";
                         qApp->exit(9);
                         return;
                     }
@@ -350,7 +346,7 @@ void Doctor::parseOutputArgs()
                     } else if (_enable == "disable") {
                         setWcgEnabled(output, false);
                     } else {
-                        qCDebug(KSCREEN_DOCTOR) << "Wrong input: Only allowed values for wcg are \"enable\" and \"disable\"";
+                        qCWarning(KSCREEN_DOCTOR) << "Wrong input: Only allowed values for wcg are \"enable\" and \"disable\"";
                         qApp->exit(9);
                         return;
                     }
@@ -369,7 +365,7 @@ void Doctor::parseOutputArgs()
                 } else if (ops.count() >= 4 && subcmd == "sdrGamut") {
                     const uint32_t wideness = ops[3].toUInt();
                     if (wideness > 100) {
-                        qCDebug(KSCREEN_DOCTOR) << "Wrong input: Allowed range for sdr wideness is 0 to 100";
+                        qCWarning(KSCREEN_DOCTOR) << "Wrong input: Allowed range for sdr wideness is 0 to 100";
                         qApp->exit(9);
                         return;
                     }
@@ -381,7 +377,7 @@ void Doctor::parseOutputArgs()
                     } else if (const uint32_t nits = ops[3].toUInt(); nits != 0) {
                         output->setMaxPeakBrightnessOverride(nits);
                     } else {
-                        qCDebug(KSCREEN_DOCTOR) << "Wrong input: max brightness must be bigger than 0";
+                        qCWarning(KSCREEN_DOCTOR) << "Wrong input: max brightness must be bigger than 0";
                         qApp->exit(9);
                         return;
                     }
@@ -392,7 +388,7 @@ void Doctor::parseOutputArgs()
                     } else if (const uint32_t nits = ops[3].toUInt(); nits != 0) {
                         output->setMaxAverageBrightnessOverride(nits);
                     } else {
-                        qCDebug(KSCREEN_DOCTOR) << "Wrong input: max average brightness must be bigger than 0";
+                        qCWarning(KSCREEN_DOCTOR) << "Wrong input: max average brightness must be bigger than 0";
                         qApp->exit(9);
                         return;
                     }
@@ -403,7 +399,7 @@ void Doctor::parseOutputArgs()
                     } else if (const uint32_t nits10k = ops[3].toUInt(); nits10k != 0) {
                         output->setMinBrightnessOverride(nits10k / 10'000.0);
                     } else {
-                        qCDebug(KSCREEN_DOCTOR) << "Wrong input: max average brightness must be bigger than 0";
+                        qCWarning(KSCREEN_DOCTOR) << "Wrong input: max average brightness must be bigger than 0";
                         qApp->exit(9);
                         return;
                     }
@@ -416,7 +412,7 @@ void Doctor::parseOutputArgs()
                     } else if (ops[3] == "EDID") {
                         output->setColorProfileSource(Output::ColorProfileSource::EDID);
                     } else {
-                        qCDebug(KSCREEN_DOCTOR) << "Wrong input: only allowed values for colorProfileSource are \"sRGB\", \"ICC\" and \"EDID\"";
+                        qCWarning(KSCREEN_DOCTOR) << "Wrong input: only allowed values for colorProfileSource are \"sRGB\", \"ICC\" and \"EDID\"";
                         qApp->exit(9);
                         return;
                     }
@@ -424,7 +420,7 @@ void Doctor::parseOutputArgs()
                 } else if (ops.count() >= 4 && subcmd == "brightness") {
                     const uint32_t brightness = ops[3].toUInt();
                     if (brightness > 100) {
-                        qCDebug(KSCREEN_DOCTOR) << "Wrong input: Allowed range for brightness is 0 to 100";
+                        qCWarning(KSCREEN_DOCTOR) << "Wrong input: Allowed range for brightness is 0 to 100";
                         qApp->exit(9);
                         return;
                     }
