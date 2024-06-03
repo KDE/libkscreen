@@ -118,7 +118,7 @@ private:
     QString m_serialNumber;
     QString m_outputName;
     QString m_eisaId;
-    uint32_t m_flags;
+    uint32_t m_capabilities;
     uint32_t m_overscan;
     uint32_t m_vrr_policy;
     uint32_t m_rgbRange;

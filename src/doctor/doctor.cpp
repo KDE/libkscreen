@@ -613,6 +613,12 @@ void Doctor::showOutputs() const
         } else {
             cout << cr << "incapable" << endl;
         }
+        cout << yellow << "\tBrightness control: ";
+        if (output->capabilities() & Output::Capability::BrightnessControl) {
+            cout << cr << "supported" << endl;
+        } else {
+            cout << cr << "unsupported" << endl;
+        }
     }
 }
 
