@@ -192,7 +192,7 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output)
     output->setSize(output->isHorizontal() ? currentSize : currentSize.transposed());
     output->setScale(m_factor);
     output->setType(Utils::guessOutputType(m_outputName, m_outputName));
-    output->setCapabilities(static_cast<Output::Capabilities>(static_cast<uint32_t>(m_flags)));
+    output->setCapabilities(static_cast<Output::Capabilities>(static_cast<uint32_t>(m_capabilities)));
     output->setOverscan(m_overscan);
     output->setVrrPolicy(static_cast<Output::VrrPolicy>(m_vrr_policy));
     output->setRgbRange(static_cast<Output::RgbRange>(m_rgbRange));
@@ -402,7 +402,7 @@ void WaylandOutputDevice::kde_output_device_v2_eisa_id(const QString &eisaId)
 
 void WaylandOutputDevice::kde_output_device_v2_capabilities(uint32_t flags)
 {
-    m_flags = flags;
+    m_capabilities = flags;
 }
 
 void WaylandOutputDevice::kde_output_device_v2_overscan(uint32_t overscan)
@@ -428,6 +428,14 @@ void WaylandOutputDevice::kde_output_device_v2_name(const QString &outputName)
 void WaylandOutputDevice::kde_output_device_v2_high_dynamic_range(uint32_t hdr_enabled)
 {
     m_hdrEnabled = hdr_enabled == 1;
+    if (version() < KDE_OUTPUT_DEVICE_V2_CAPABILITY_BRIGHTNESS_SINCE_VERSION) {
+        // make the capabilities API be consistent with older versions even if the protocol isn't
+        if (m_hdrEnabled) {
+            m_capabilities |= KDE_OUTPUT_DEVICE_V2_CAPABILITY_BRIGHTNESS;
+        } else {
+            m_capabilities &= ~KDE_OUTPUT_DEVICE_V2_CAPABILITY_BRIGHTNESS;
+        }
+    }
 }
 
 void WaylandOutputDevice::kde_output_device_v2_sdr_brightness(uint32_t sdr_brightness)
@@ -536,7 +544,7 @@ uint32_t WaylandOutputDevice::overscan() const
 
 uint32_t WaylandOutputDevice::capabilities() const
 {
-    return m_flags;
+    return m_capabilities;
 }
 
 uint32_t WaylandOutputDevice::rgbRange() const

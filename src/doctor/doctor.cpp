@@ -568,7 +568,6 @@ void Doctor::showOutputs() const
                 if (const auto used = output->minBrightnessOverride()) {
                     cout << yellow << ", overridden with: " << cr << (*used) / 10'000.0 << " nits";
                 }
-                cout << yellow << "\t\tBrightness factor: " << cr << std::round(output->brightness() * 100) << "%";
                 cout << endl;
             } else {
                 cout << cr << "disabled" << endl;
@@ -613,6 +612,12 @@ void Doctor::showOutputs() const
             cout << endl;
         } else {
             cout << cr << "incapable" << endl;
+        }
+        cout << yellow << "\tBrightness control: ";
+        if (output->capabilities() & Output::Capability::BrightnessControl) {
+            cout << cr << "supported, set to " << std::round(output->brightness() * 100) << "%" << endl;
+        } else {
+            cout << cr << "unsupported" << endl;
         }
     }
 }

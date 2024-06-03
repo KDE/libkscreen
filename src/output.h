@@ -100,6 +100,7 @@ public:
         WideColorGamut = 1 << 4,
         AutoRotation = 1 << 5,
         IccProfile = 1 << 6,
+        BrightnessControl = 1 << 7,
     };
     Q_ENUM(Capability)
     Q_DECLARE_FLAGS(Capabilities, Capability)
