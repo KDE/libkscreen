@@ -426,6 +426,9 @@ void Doctor::parseOutputArgs()
                     }
                     output->setBrightness(brightness / 100.0);
                     m_changed = true;
+                } else if (ops.count() >= 4 && subcmd == "allowColorPowerSaving") {
+                    output->setAllowColorPowerSaving(ops[3] == "allow");
+                    m_changed = true;
                 } else {
                     cerr << "Unable to parse arguments: " << op << Qt::endl;
                     qApp->exit(2);
@@ -612,6 +615,15 @@ void Doctor::showOutputs() const
             cout << endl;
         } else {
             cout << cr << "incapable" << endl;
+        }
+        if (output->capabilities() & Output::Capability::ColorPowerSaving) {
+            cout << yellow << "\tColor power saving: ";
+            if (output->allowColorPowerSaving()) {
+                cout << cr << "allowed";
+            } else {
+                cout << cr << "not allowed";
+            }
+            cout << endl;
         }
     }
 }

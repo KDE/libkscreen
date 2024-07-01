@@ -76,6 +76,7 @@ public:
         , minBrightnessOverride(other.minBrightnessOverride)
         , colorProfileSource(other.colorProfileSource)
         , brightness(other.brightness)
+        , allowColorPowerSaving(other.allowColorPowerSaving)
     {
         const auto otherModeList = other.modeList;
         for (const ModePtr &otherMode : otherModeList) {
@@ -131,6 +132,7 @@ public:
     std::optional<double> minBrightnessOverride;
     ColorProfileSource colorProfileSource = ColorProfileSource::sRGB;
     double brightness = 1.0;
+    bool allowColorPowerSaving = true;
 };
 
 bool Output::Private::compareModeList(const ModeList &before, const ModeList &after)
@@ -880,6 +882,19 @@ void Output::setBrightness(double brightness)
     }
 }
 
+bool Output::allowColorPowerSaving() const
+{
+    return d->allowColorPowerSaving;
+}
+
+void Output::setAllowColorPowerSaving(bool allow)
+{
+    if (d->allowColorPowerSaving != allow) {
+        d->allowColorPowerSaving = allow;
+        Q_EMIT allowColorPowerSavingChanged();
+    }
+}
+
 void Output::apply(const OutputPtr &other)
 {
     typedef void (KScreen::Output::*ChangeSignal)();
@@ -1021,6 +1036,10 @@ void Output::apply(const OutputPtr &other)
     if (d->brightness != other->d->brightness) {
         changes << &Output::brightnessChanged;
         setBrightness(other->d->brightness);
+    }
+    if (d->allowColorPowerSaving != other->d->allowColorPowerSaving) {
+        changes << &Output::allowColorPowerSavingChanged;
+        setAllowColorPowerSaving(other->d->allowColorPowerSaving);
     }
 
     // Non-notifyable changes

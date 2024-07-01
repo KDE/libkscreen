@@ -60,6 +60,7 @@ public:
     Q_PROPERTY(QString iccProfilePath READ iccProfilePath WRITE setIccProfilePath NOTIFY iccProfilePathChanged)
     Q_PROPERTY(ColorProfileSource colorProfileSource READ colorProfileSource WRITE setColorProfileSource NOTIFY colorProfileSourceChanged)
     Q_PROPERTY(double brightness READ brightness WRITE setBrightness NOTIFY brightnessChanged)
+    Q_PROPERTY(bool allowColorPowerSaving READ allowColorPowerSaving WRITE setAllowColorPowerSaving NOTIFY allowColorPowerSavingChanged)
 
     enum Type {
         Unknown,
@@ -100,6 +101,7 @@ public:
         WideColorGamut = 1 << 4,
         AutoRotation = 1 << 5,
         IccProfile = 1 << 6,
+        ColorPowerSaving = 1 << 7,
     };
     Q_ENUM(Capability)
     Q_DECLARE_FLAGS(Capabilities, Capability)
@@ -526,6 +528,9 @@ public:
     double brightness() const;
     void setBrightness(double brightness);
 
+    bool allowColorPowerSaving() const;
+    void setAllowColorPowerSaving(bool allow);
+
     void apply(const OutputPtr &other);
 
 Q_SIGNALS:
@@ -560,6 +565,7 @@ Q_SIGNALS:
     void minBrightnessOverrideChanged();
     void colorProfileSourceChanged();
     void brightnessChanged();
+    void allowColorPowerSavingChanged();
 
     /** The mode list changed.
      *
