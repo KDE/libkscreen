@@ -394,12 +394,13 @@ void Doctor::parseOutputArgs()
                     }
                     m_changed = true;
                 } else if (ops.count() >= 4 && subcmd == "minBrightnessOverride") {
+                    bool ok = false;
                     if (ops[3] == "disable") {
                         output->setMinBrightnessOverride(std::nullopt);
-                    } else if (const uint32_t nits10k = ops[3].toUInt(); nits10k != 0) {
+                    } else if (const uint32_t nits10k = ops[3].toUInt(&ok); ok) {
                         output->setMinBrightnessOverride(nits10k / 10'000.0);
                     } else {
-                        qCWarning(KSCREEN_DOCTOR) << "Wrong input: max average brightness must be bigger than 0";
+                        qCWarning(KSCREEN_DOCTOR) << "Wrong input: couldn't parse" << ops[3];
                         qApp->exit(9);
                         return;
                     }
