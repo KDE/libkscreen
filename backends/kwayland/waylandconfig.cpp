@@ -47,6 +47,13 @@ WaylandConfig::WaylandConfig(QObject *parent)
     setupRegistry();
 }
 
+WaylandConfig::~WaylandConfig()
+{
+    if (m_registry) {
+        wl_registry_destroy(m_registry);
+    }
+}
+
 void WaylandConfig::initKWinTabletMode()
 {
     auto *interface =

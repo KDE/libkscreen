@@ -44,6 +44,7 @@ class WaylandConfig : public QObject
 
 public:
     explicit WaylandConfig(QObject *parent = nullptr);
+    ~WaylandConfig();
 
     KScreen::ConfigPtr currentConfig();
     QMap<int, WaylandOutputDevice *> outputMap() const;
@@ -72,7 +73,7 @@ private:
     void unblockSignals();
     void tryPendingConfig();
 
-    wl_registry *m_registry;
+    wl_registry *m_registry = nullptr;
 
     WaylandOutputManagement *m_outputManagement;
     std::unique_ptr<WaylandOutputOrder> m_outputOrder;
