@@ -267,6 +267,15 @@ public:
      */
     QSize logicalSizeForOutputInt(const KScreen::Output &output) const;
 
+    /**
+     * @returns a name for showing the user, for example in a list of outputs.
+     *          This is better than just the output's name directly;
+     *          for example a single internal display becomes "Built-in Screen"
+     *          and serial numbers and connector names are added if needed to
+     *          disambiguate between multiple screens with the same name
+     */
+    QString displayName(const KScreen::Output *output) const;
+
 Q_SIGNALS:
     void outputAdded(const KScreen::OutputPtr &output);
     void outputRemoved(int outputId);

@@ -8,15 +8,17 @@
 #include "config.h"
 
 #include "backendmanager_p.h"
+#include "edid.h"
 #include "kscreen_debug.h"
 #include "mode.h"
 
+#include <KLocalizedString>
 #include <QCryptographicHash>
 #include <QDebug>
 #include <QRect>
 #include <QStringList>
-
 #include <algorithm>
+#include <ranges>
 #include <utility>
 
 using namespace KScreen;
@@ -493,6 +495,50 @@ QSize Config::logicalSizeForOutputInt(const KScreen::Output &output) const
 {
     const QSizeF sizeF = logicalSizeForOutput(output);
     return QSize(std::ceil(sizeF.width()), std::ceil(sizeF.height()));
+}
+
+static QString outputName(const KScreen::Output *output, bool shouldShowSerialNumber, bool shouldShowConnector)
+{
+    if (output->type() == KScreen::Output::Panel) {
+        return i18nd("kscreen_common", "Built-in Screen");
+    }
+
+    if (output->edid()) {
+        // The name will be "VendorName ModelName (ConnectorName)",
+        // but some components may be empty.
+        QString name;
+        if (!(output->edid()->vendor().isEmpty())) {
+            name = output->edid()->vendor() + QLatin1Char(' ');
+        }
+        if (!output->edid()->name().isEmpty()) {
+            name += output->edid()->name() + QLatin1Char(' ');
+        }
+        if (!output->edid()->serial().isEmpty() && shouldShowSerialNumber) {
+            name += output->edid()->serial() + QLatin1Char(' ');
+        }
+        if (shouldShowConnector) {
+            name += output->name();
+        }
+        if (!name.trimmed().isEmpty()) {
+            return name;
+        }
+    }
+    return output->name();
+}
+
+QString Config::displayName(const KScreen::Output *output) const
+{
+    const bool shouldShowSerialNumber = std::ranges::any_of(d->outputs, [output](const KScreen::OutputPtr &other) {
+        return other->id() != output->id() // avoid same output
+            && other->edid() && output->edid() //
+            && other->edid()->vendor() == output->edid()->vendor() //
+            && other->edid()->name() == output->edid()->name(); // model
+    });
+    const bool shouldShowConnector = shouldShowSerialNumber && std::ranges::any_of(d->outputs, [output](const KScreen::OutputPtr &other) {
+        return other->id() != output->id() // avoid same output
+            && other->edid()->serial() == output->edid()->serial();
+    });
+    return outputName(output, shouldShowSerialNumber, shouldShowConnector);
 }
 
 QDebug operator<<(QDebug dbg, const KScreen::ConfigPtr &config)
