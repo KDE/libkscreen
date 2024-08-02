@@ -64,8 +64,8 @@ ecm_setup_version(${PROJECT_VERSION} VARIABLE_PREFIX KSCREEN
                         PACKAGE_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/KF6ScreenConfigVersion.cmake"
                         SOVERSION 8)
 
-ecm_set_disabled_deprecation_versions(QT 5.15.2
-    KF 5.101
+ecm_set_disabled_deprecation_versions(QT 5.15.0
+    KF 6.4.0
 )
 
 add_subdirectory(src)
