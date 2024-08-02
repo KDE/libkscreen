@@ -23,12 +23,16 @@ ecm_qt_declare_logging_category(libkscreen_SRCS
                                 HEADER kscreen_debug.h
                                 IDENTIFIER KSCREEN 
                                 CATEGORY_NAME org.kde.kscreen
+				DESCRIPTION "kscreen"
+				EXPORT KSCREEN
 )
 
 ecm_qt_declare_logging_category(libkscreen_SRCS
                                 HEADER kscreen_debug_edid.h
                                 IDENTIFIER KSCREEN_EDID
                                 CATEGORY_NAME org.kde.kscreen.edid
+				DESCRIPTION "Kscreen edid"
+				EXPORT KSCREEN
 )
 
 

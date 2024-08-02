@@ -14,6 +14,8 @@ ecm_qt_declare_logging_category(wayland_SRCS
                                 HEADER kscreen_kwayland_logging.h
                                 IDENTIFIER KSCREEN_WAYLAND
                                 CATEGORY_NAME kscreen.kwayland
+				DESCRIPTION "kscreen wayland"
+				EXPORT KSCREEN
 )
 
 add_library(KSC_KWayland MODULE)

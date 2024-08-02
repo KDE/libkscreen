@@ -8,6 +8,8 @@ ecm_qt_declare_logging_category(backendlauncher_SRCS
                                 HEADER kscreen_backendLauncher_debug.h
                                 IDENTIFIER KSCREEN_BACKEND_LAUNCHER
                                 CATEGORY_NAME org.kde.kscreen.backendLauncher
+				DESCRIPTION "Screen backend launcher"
+				EXPORT KSCREEN
 )
 
 qt_add_dbus_adaptor(backendlauncher_SRCS ${CMAKE_SOURCE_DIR}/interfaces/org.kde.KScreen.Backend.xml

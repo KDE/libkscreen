@@ -24,6 +24,8 @@ ecm_qt_declare_logging_category(KF6ScreenDpms
                                 HEADER kscreendpms_debug.h
                                 IDENTIFIER KSCREEN_DPMS
                                 CATEGORY_NAME org.kde.kscreen.dpms
+				DESCRIPTION "kscreen dpms"
+				EXPORT KSCREEN
 )
 
 ecm_generate_headers(KScreenDpms_HEADERS
