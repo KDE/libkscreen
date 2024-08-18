@@ -46,6 +46,7 @@ public:
 
     Private(const Private &other)
         : valid(other.valid)
+        , rawData(other.rawData)
         , monitorName(other.monitorName)
         , vendorName(other.vendorName)
         , serialNumber(other.serialNumber)
@@ -69,6 +70,7 @@ public:
     QString edidParseString(const quint8 *data) const;
 
     bool valid;
+    QByteArray rawData;
     QString monitorName;
     QString vendorName;
     QString serialNumber;
@@ -227,10 +229,18 @@ QQuaternion Edid::white() const
     return d->white;
 }
 
-bool Edid::Private::parse(const QByteArray &rawData)
+QByteArray Edid::rawData() const
+{
+    if (d->valid) {
+        return d->rawData;
+    }
+    return QByteArray();
+}
+
+bool Edid::Private::parse(const QByteArray &rawData_)
 {
     quint32 serial;
-    const quint8 *data = reinterpret_cast<const quint8 *>(rawData.constData());
+    const quint8 *data = reinterpret_cast<const quint8 *>(rawData_.constData());
     int length = rawData.length();
 
     /* check header */
@@ -361,6 +371,7 @@ bool Edid::Private::parse(const QByteArray &rawData)
     hash.addData(reinterpret_cast<const char *>(data), length);
     checksum = QString::fromLatin1(hash.result().toHex());
 
+    rawData = rawData_;
     valid = true;
     return valid;
 }

@@ -9,6 +9,7 @@
 
 #include "kscreen_export.h"
 
+#include <QByteArray>
 #include <QObject>
 #include <QQuaternion>
 #include <QtGlobal>
@@ -32,6 +33,7 @@ class KSCREEN_EXPORT Edid : public QObject
     Q_PROPERTY(QQuaternion green READ green CONSTANT)
     Q_PROPERTY(QQuaternion blue READ blue CONSTANT)
     Q_PROPERTY(QQuaternion white READ white CONSTANT)
+    Q_PROPERTY(QByteArray rawData READ rawData CONSTANT)
 
 public:
     explicit Edid();
@@ -56,6 +58,7 @@ public:
     QQuaternion green() const;
     QQuaternion blue() const;
     QQuaternion white() const;
+    QByteArray rawData() const;
 
 private:
     Q_DISABLE_COPY(Edid)
