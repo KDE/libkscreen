@@ -59,7 +59,10 @@ void WaylandBackend::setConfig(const KScreen::ConfigPtr &newconfig)
     QEventLoop loop;
 
     connect(m_internalConfig, &WaylandConfig::configChanged, &loop, &QEventLoop::quit);
-    m_internalConfig->applyConfig(newconfig);
+    connect(m_internalConfig, &WaylandConfig::activeChanged, &loop, &QEventLoop::quit);
+    if (!m_internalConfig->applyConfig(newconfig)) {
+        return;
+    }
 
     loop.exec();
 }

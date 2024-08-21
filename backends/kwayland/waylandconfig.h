@@ -49,7 +49,7 @@ public:
     KScreen::ConfigPtr currentConfig();
     QMap<int, WaylandOutputDevice *> outputMap() const;
 
-    void applyConfig(const KScreen::ConfigPtr &newConfig);
+    bool applyConfig(const KScreen::ConfigPtr &newConfig);
     WaylandOutputDevice *findOutputDevice(struct ::kde_output_device_v2 *outputdevice) const;
 
     bool isReady() const;
@@ -58,6 +58,7 @@ Q_SIGNALS:
     void configChanged();
     void initialized();
     void globalRemoved(uint32_t name);
+    void activeChanged();
 
 private:
     void setupRegistry();
@@ -75,7 +76,7 @@ private:
 
     wl_registry *m_registry = nullptr;
 
-    WaylandOutputManagement *m_outputManagement;
+    std::unique_ptr<WaylandOutputManagement> m_outputManagement;
     std::unique_ptr<WaylandOutputOrder> m_outputOrder;
 
     // KWayland names as keys

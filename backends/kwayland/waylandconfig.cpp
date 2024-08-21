@@ -34,7 +34,7 @@ using namespace std::chrono_literals;
 
 WaylandConfig::WaylandConfig(QObject *parent)
     : QObject(parent)
-    , m_outputManagement(nullptr)
+    , m_outputManagement(std::make_unique<WaylandOutputManagement>(9))
     , m_registryInitialized(false)
     , m_blockSignals(true)
     , m_kscreenConfig(new Config)
@@ -43,6 +43,7 @@ WaylandConfig::WaylandConfig(QObject *parent)
     , m_tabletModeAvailable(false)
     , m_tabletModeEngaged(false)
 {
+    connect(m_outputManagement.get(), &WaylandOutputManagement::activeChanged, this, &WaylandConfig::activeChanged);
     initKWinTabletMode();
     setupRegistry();
 }
@@ -113,9 +114,6 @@ void WaylandConfig::setupRegistry()
         auto self = static_cast<WaylandConfig *>(data);
         if (qstrcmp(interface, WaylandOutputDevice::interface()->name) == 0) {
             self->addOutput(name, std::min(9u, version));
-        }
-        if (qstrcmp(interface, WaylandOutputManagement::interface()->name) == 0) {
-            self->m_outputManagement = new WaylandOutputManagement(registry, name, std::min(9u, version));
         }
         if (qstrcmp(interface, WaylandOutputOrder::interface()->name) == 0) {
             self->m_outputOrder = std::make_unique<WaylandOutputOrder>(registry, name, std::min(1u, version));
@@ -237,7 +235,7 @@ bool WaylandConfig::isReady() const
             && m_registryInitialized
             && m_initializingOutputs.isEmpty()
             && m_outputMap.count() > 0
-            && m_outputManagement != nullptr;
+            && m_outputManagement->isActive();
     // clang-format on
 }
 
@@ -316,18 +314,21 @@ WaylandOutputDevice *WaylandConfig::findOutputDevice(struct ::kde_output_device_
     return nullptr;
 }
 
-void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
+bool WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
 {
     newConfig->adjustPriorities(); // never trust input
 
     // Create a new configuration object
     auto wlConfig = m_outputManagement->createConfiguration();
+    if (!wlConfig) {
+        return false;
+    }
     bool changed = false;
 
     if (m_blockSignals) {
         // Last apply still pending, remember new changes and apply afterwards
         m_kscreenPendingConfig = newConfig;
-        return;
+        return true;
     }
 
     for (const auto &output : newConfig->outputs()) {
@@ -335,7 +336,7 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
     }
 
     if (!changed) {
-        return;
+        return false;
     }
 
     // We now block changes in order to compress events while the compositor is doing its thing
@@ -357,6 +358,7 @@ void WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
     // Now block signals and ask the compositor to apply the changes.
     blockSignals();
     wlConfig->apply();
+    return true;
 }
 
 #include "moc_waylandconfig.cpp"

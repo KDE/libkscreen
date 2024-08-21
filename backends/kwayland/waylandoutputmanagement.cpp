@@ -9,15 +9,31 @@
 
 namespace KScreen
 {
-WaylandOutputManagement::WaylandOutputManagement(struct ::wl_registry *registry, int id, int version)
-    : QObject()
-    , QtWayland::kde_output_management_v2(registry, id, version)
+WaylandOutputManagement::WaylandOutputManagement(int version)
+    : QWaylandClientExtensionTemplate<WaylandOutputManagement>(version)
 {
+    connect(this, &WaylandOutputManagement::activeChanged, this, [this]() {
+        if (!isActive()) {
+            kde_output_management_v2_destroy(object());
+        }
+    });
+    initialize();
+}
+
+WaylandOutputManagement::~WaylandOutputManagement()
+{
+    if (isActive()) {
+        kde_output_management_v2_destroy(object());
+    }
 }
 
 WaylandOutputConfiguration *WaylandOutputManagement::createConfiguration()
 {
-    return new WaylandOutputConfiguration(create_configuration());
+    if (isActive()) {
+        return new WaylandOutputConfiguration(create_configuration());
+    } else {
+        return nullptr;
+    }
 }
 
 WaylandOutputConfiguration::WaylandOutputConfiguration(struct ::kde_output_configuration_v2 *object)

@@ -11,6 +11,7 @@
 
 #include <QObject>
 #include <QSize>
+#include <QWaylandClientExtension>
 
 namespace KScreen
 {
@@ -32,11 +33,12 @@ protected:
     void kde_output_configuration_v2_failed() override;
 };
 
-class WaylandOutputManagement : public QObject, public QtWayland::kde_output_management_v2
+class WaylandOutputManagement : public QWaylandClientExtensionTemplate<WaylandOutputManagement>, public QtWayland::kde_output_management_v2
 {
     Q_OBJECT
 public:
-    WaylandOutputManagement(struct ::wl_registry *registry, int id, int version);
+    explicit WaylandOutputManagement(int version);
+    ~WaylandOutputManagement() override;
 
     WaylandOutputConfiguration *createConfiguration();
 };
