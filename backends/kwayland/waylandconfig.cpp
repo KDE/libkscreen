@@ -43,7 +43,7 @@ WaylandConfig::WaylandConfig(QObject *parent)
     , m_tabletModeAvailable(false)
     , m_tabletModeEngaged(false)
 {
-    connect(m_outputManagement.get(), &WaylandOutputManagement::activeChanged, this, &WaylandConfig::activeChanged);
+    connect(m_outputManagement.get(), &WaylandOutputManagement::activeChanged, this, &WaylandConfig::handleActiveChanged);
     initKWinTabletMode();
     setupRegistry();
 }
@@ -158,6 +158,33 @@ void WaylandConfig::setupRegistry()
             break;
         }
         wl_display_roundtrip(display);
+    }
+}
+
+void WaylandConfig::handleActiveChanged()
+{
+    if (m_outputManagement->isActive()) {
+        if (!m_registry) {
+            setupRegistry();
+        }
+        return;
+    }
+    // the compositor went away, clean up all the Wayland resources
+    if (!m_registry) {
+        return;
+    }
+    qDeleteAll(m_initializingOutputs);
+    m_initializingOutputs.clear();
+    auto outputs = std::move(m_outputMap);
+    m_screen->setOutputs({});
+    qDeleteAll(outputs);
+
+    m_outputOrder.reset();
+    wl_registry_destroy(m_registry);
+    m_registry = nullptr;
+
+    if (!m_blockSignals) {
+        Q_EMIT configChanged();
     }
 }
 

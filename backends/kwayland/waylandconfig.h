@@ -58,12 +58,11 @@ Q_SIGNALS:
     void configChanged();
     void initialized();
     void globalRemoved(uint32_t name);
-    void activeChanged();
 
 private:
     void setupRegistry();
     void checkInitialized();
-    void disconnected();
+    void handleActiveChanged();
 
     void initKWinTabletMode();
 
