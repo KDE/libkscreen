@@ -21,6 +21,7 @@
 #include <cstdint>
 #include <optional>
 
+using namespace Qt::StringLiterals;
 using namespace KScreen;
 
 QJsonObject ConfigSerializer::serializePoint(const QPoint &point)
@@ -309,6 +310,12 @@ OutputPtr ConfigSerializer::deserializeOutput(const QDBusArgument &arg)
             output->setVrrPolicy(static_cast<Output::VrrPolicy>(value.toInt()));
         } else if (key == QLatin1String("rgbRange")) {
             output->setRgbRange(static_cast<Output::RgbRange>(value.toInt()));
+        } else if (key == "hdr"_L1) {
+            output->setHdrEnabled(value.toBool());
+        } else if (key == "sdr-brightness"_L1) {
+            output->setSdrBrightness(value.toUInt());
+        } else if (key == "wcg"_L1) {
+            output->setWcgEnabled(value.toBool());
         } else {
             qCWarning(KSCREEN) << "Invalid key in Output map: " << key;
             return OutputPtr();
