@@ -241,7 +241,7 @@ bool Edid::Private::parse(const QByteArray &rawData_)
 {
     quint32 serial;
     const quint8 *data = reinterpret_cast<const quint8 *>(rawData_.constData());
-    int length = rawData.length();
+    int length = rawData_.length();
 
     /* check header */
     if (length < 128) {
