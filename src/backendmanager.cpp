@@ -308,7 +308,7 @@ void BackendManager::onBackendRequestDone(QDBusPendingCallWatcher *watcher)
     }
 
     // The launcher has successfully loaded the backend we wanted and registered
-    // it to DBus (hopefuly), let's try to get an interface for the backend.
+    // it to DBus (hopefully), let's try to get an interface for the backend.
     if (mInterface) {
         invalidateInterface();
     }
@@ -324,7 +324,7 @@ void BackendManager::onBackendRequestDone(QDBusPendingCallWatcher *watcher)
     // can invalidate the interface
     mServiceWatcher.addWatchedService(mBackendService);
 
-    // Immediatelly request config
+    // Immediately request config
     connect(new GetConfigOperation(GetConfigOperation::NoEDID), &GetConfigOperation::finished, [&](ConfigOperation *op) {
         mConfig = qobject_cast<GetConfigOperation *>(op)->config();
         emitBackendReady();
