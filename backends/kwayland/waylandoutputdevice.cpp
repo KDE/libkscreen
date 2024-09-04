@@ -151,9 +151,8 @@ void KScreen::WaylandOutputDevice::updateKScreenModes(OutputPtr &output)
         ModePtr mode(new Mode());
 
         const QString modeIdStr = QString::number(modeId);
-        // KWayland gives the refresh rate as int in mHz
         mode->setId(modeIdStr);
-        mode->setRefreshRate(wlMode->refreshRate() / 1000.0);
+        mode->setRefreshRate(wlMode->refreshRate());
         mode->setSize(wlMode->size());
         mode->setName(modeName(wlMode));
 
@@ -336,7 +335,7 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputConfiguration *wlConfig, cons
 QString WaylandOutputDevice::modeName(const WaylandOutputDeviceMode *m) const
 {
     return QString::number(m->size().width()) + QLatin1Char('x') + QString::number(m->size().height()) + QLatin1Char('@')
-        + QString::number(qRound(m->refreshRate() / 1000.0));
+        + QString::number(qRound(m->refreshRate()));
 }
 
 QString WaylandOutputDevice::name() const
@@ -527,7 +526,7 @@ QSize WaylandOutputDevice::pixelSize() const
     return m_mode->size();
 }
 
-int WaylandOutputDevice::refreshRate() const
+float WaylandOutputDevice::refreshRate() const
 {
     return m_mode->refreshRate();
 }

@@ -24,7 +24,7 @@ void WaylandOutputDeviceMode::kde_output_device_mode_v2_size(int32_t width, int3
 
 void WaylandOutputDeviceMode::kde_output_device_mode_v2_refresh(int32_t refresh)
 {
-    m_refreshRate = refresh;
+    m_refreshRate = refresh / 1000.0;
 }
 
 void WaylandOutputDeviceMode::kde_output_device_mode_v2_preferred()
@@ -37,7 +37,7 @@ void WaylandOutputDeviceMode::kde_output_device_mode_v2_removed()
     Q_EMIT removed();
 }
 
-int WaylandOutputDeviceMode::refreshRate() const
+float WaylandOutputDeviceMode::refreshRate() const
 {
     return m_refreshRate;
 }

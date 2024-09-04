@@ -38,7 +38,7 @@ public:
     qreal scale() const;
     QPoint globalPosition() const;
     QSize pixelSize() const;
-    int refreshRate() const;
+    float refreshRate() const;
     uint32_t vrrPolicy() const;
     uint32_t overscan() const;
     uint32_t capabilities() const;
