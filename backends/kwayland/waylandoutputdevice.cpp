@@ -53,13 +53,7 @@ void WaylandOutputDevice::kde_output_device_v2_geometry(int32_t x,
 
 void WaylandOutputDevice::kde_output_device_v2_current_mode(struct ::kde_output_device_mode_v2 *mode)
 {
-    auto m = WaylandOutputDeviceMode::get(mode);
-
-    if (*m == *m_mode) {
-        // unchanged
-        return;
-    }
-    m_mode = m;
+    m_mode = WaylandOutputDeviceMode::get(mode);
 }
 
 void WaylandOutputDevice::kde_output_device_v2_mode(struct ::kde_output_device_mode_v2 *mode)
