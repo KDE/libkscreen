@@ -21,6 +21,7 @@ public:
 
     ~WaylandOutputDeviceMode() override;
 
+    QString id() const;
     float refreshRate() const;
     QSize size() const;
     bool preferred() const;
@@ -39,6 +40,7 @@ protected:
     void kde_output_device_mode_v2_removed() override;
 
 private:
+    QString m_id;
     float m_refreshRate = 60.0;
     QSize m_size;
     bool m_preferred = false;

@@ -144,29 +144,26 @@ void KScreen::WaylandOutputDevice::updateKScreenModes(OutputPtr &output)
 {
     ModeList modeList;
     QStringList preferredModeIds;
-    QString currentModeId = QStringLiteral("-1");
-    int modeId = 0;
+    QString currentModeId;
 
     for (const WaylandOutputDeviceMode *wlMode : std::as_const(m_modes)) {
         ModePtr mode(new Mode());
 
-        const QString modeIdStr = QString::number(modeId);
-        mode->setId(modeIdStr);
+        mode->setId(wlMode->id());
         mode->setRefreshRate(wlMode->refreshRate());
         mode->setSize(wlMode->size());
         mode->setName(modeName(wlMode));
 
         if (m_mode == wlMode) {
-            currentModeId = modeIdStr;
+            currentModeId = wlMode->id();
         }
 
         if (wlMode->preferred()) {
-            preferredModeIds << modeIdStr;
+            preferredModeIds << wlMode->id();
         }
 
         // Add to the modelist which gets set on the output
-        modeList[modeIdStr] = mode;
-        modeId++;
+        modeList[wlMode->id()] = mode;
     }
     output->setCurrentModeId(currentModeId);
     output->setPreferredModes(preferredModeIds);
@@ -215,12 +212,17 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output)
 
 QString WaylandOutputDevice::modeId() const
 {
-    return QString::number(m_modes.indexOf(m_mode));
+    return m_mode->id();
 }
 
-WaylandOutputDeviceMode *WaylandOutputDevice::deviceModeFromId(const int modeId) const
+WaylandOutputDeviceMode *WaylandOutputDevice::deviceModeFromId(const QString &id) const
 {
-    return m_modes.at(modeId);
+    for (WaylandOutputDeviceMode *mode : m_modes) {
+        if (mode->id() == id) {
+            return mode;
+        }
+    }
+    return nullptr;
 }
 
 bool WaylandOutputDevice::setWlConfig(WaylandOutputConfiguration *wlConfig, const KScreen::OutputPtr &output)
@@ -253,13 +255,9 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputConfiguration *wlConfig, cons
 
     // mode
     const ModePtr mode = output->currentMode();
-    if (mode->size() != pixelSize() || mode->refreshRate() != refreshRate()) {
-        bool toIntOk;
-        int modeId = mode->id().toInt(&toIntOk);
-        Q_ASSERT(toIntOk);
-
+    if (mode->id() != modeId()) {
         changed = true;
-        wlConfig->mode(object(), deviceModeFromId(modeId)->object());
+        wlConfig->mode(object(), deviceModeFromId(mode->id())->object());
     }
 
     // overscan
