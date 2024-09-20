@@ -99,7 +99,7 @@ protected:
 
 private:
     QString modeName(const WaylandOutputDeviceMode *m) const;
-    WaylandOutputDeviceMode *deviceModeFromId(const int modeId) const;
+    WaylandOutputDeviceMode *deviceModeFromId(const QString &id) const;
 
     WaylandOutputDeviceMode *m_mode;
     QList<WaylandOutputDeviceMode *> m_modes;

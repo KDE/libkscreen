@@ -7,8 +7,15 @@
 
 using namespace KScreen;
 
+static QString nextId()
+{
+    static uint id = 1;
+    return QString::number(id++);
+}
+
 WaylandOutputDeviceMode::WaylandOutputDeviceMode(struct ::kde_output_device_mode_v2 *object)
     : QtWayland::kde_output_device_mode_v2(object)
+    , m_id(nextId())
 {
 }
 
@@ -35,6 +42,11 @@ void WaylandOutputDeviceMode::kde_output_device_mode_v2_preferred()
 void WaylandOutputDeviceMode::kde_output_device_mode_v2_removed()
 {
     Q_EMIT removed();
+}
+
+QString WaylandOutputDeviceMode::id() const
+{
+    return m_id;
 }
 
 float WaylandOutputDeviceMode::refreshRate() const
