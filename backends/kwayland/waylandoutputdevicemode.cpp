@@ -64,11 +64,6 @@ bool WaylandOutputDeviceMode::preferred() const
     return m_preferred;
 }
 
-bool WaylandOutputDeviceMode::operator==(const WaylandOutputDeviceMode &other)
-{
-    return m_size == other.m_size && m_refreshRate == other.m_refreshRate && m_preferred == other.m_preferred;
-}
-
 WaylandOutputDeviceMode *WaylandOutputDeviceMode::get(struct ::kde_output_device_mode_v2 *object)
 {
     auto mode = QtWayland::kde_output_device_mode_v2::fromObject(object);

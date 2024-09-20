@@ -26,8 +26,6 @@ public:
     QSize size() const;
     bool preferred() const;
 
-    bool operator==(const WaylandOutputDeviceMode &other);
-
     static WaylandOutputDeviceMode *get(struct ::kde_output_device_mode_v2 *object);
 
 Q_SIGNALS:
