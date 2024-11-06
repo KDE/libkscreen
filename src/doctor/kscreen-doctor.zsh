@@ -251,24 +251,27 @@ case $state in
           _alternative 'wcg::(enable disable)' && ret=0
         else
           # two groups: first without suffix, and second with '.' at the end
-          _describe -t subcommands 'subcommand' '(
-            enable:"Toggle output"
-            disable:"Toggle output"
-            primary:"Make this output primary (same as priority.1)"
-          )' -- '(
-            mode:"Resolution and refresh rate"
-            orientation:"Display orientation"
-            overscan:"(Wayland only) Overscan area size"
-            position:"x and y coordinates"
-            priority:"Set output priority"
-            rgbrange:"RGB range"
-            rotation:"Display orientation"
-            scale:"(Wayland only) Per-output scaling"
-            vrrpolicy:"(Wayland only) Variable refresh rate"
-            hdr:"(Wayland only) High Dynamic Range"
-            sdr-brightness:"(Wayland only) Brightness of Standard Dynamic Range content"
-            wcg:"(Wayland only) Wide Color Gamut"
-          )' -S '.' && ret=0
+          local group1 group2
+          group1=(
+            'enable:Toggle output'
+            'disable:Toggle output'
+            'primary:Make this output primary (same as priority.1)'
+          )
+          group2=(
+            'mode:Resolution and refresh rate'
+            'orientation:Display orientation'
+            'overscan:(Wayland only) Overscan area size'
+            'position:x and y coordinates'
+            'priority:Set output priority'
+            'rgbrange:RGB range'
+            'rotation:Display orientation'
+            'scale:(Wayland only) Per-output scaling'
+            'vrrpolicy:(Wayland only) Variable refresh rate'
+            'hdr:(Wayland only) High Dynamic Range'
+            'sdr-brightness:(Wayland only) Brightness of Standard Dynamic Range content'
+            'wcg:(Wayland only) Wide Color Gamut'
+          )
+          _describe -t subcommands 'subcommand' group1 -- group2 -S '.' && ret=0
         fi
       else
         _kscreen-doctor-outputs -S '.' && ret=0
