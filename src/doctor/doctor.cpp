@@ -554,12 +554,20 @@ void Doctor::showOutputs() const
                 cout << cr << "enabled" << endl;
                 cout << yellow << "\t\tSDR brightness: " << cr << output->sdrBrightness() << " nits" << endl;
                 cout << yellow << "\t\tSDR gamut wideness: " << cr << std::round(output->sdrGamutWideness() * 100) << "%" << endl;
-                cout << yellow << "\t\tPeak brightness: " << cr << output->maxPeakBrightness() << " nits";
+                if (output->maxPeakBrightness() == 0) {
+                    cout << yellow << "\t\tPeak brightness: " << cr << "unknown";
+                } else {
+                    cout << yellow << "\t\tPeak brightness: " << cr << output->maxPeakBrightness() << " nits";
+                }
                 if (const auto used = output->maxPeakBrightnessOverride()) {
                     cout << yellow << ", overridden with: " << cr << *used << " nits";
                 }
                 cout << endl;
-                cout << yellow << "\t\tMax average brightness: " << cr << output->maxAverageBrightness() << " nits";
+                if (output->maxAverageBrightness() == 0) {
+                    cout << yellow << "\t\tMax average brightness: " << cr << "unknown";
+                } else {
+                    cout << yellow << "\t\tMax average brightness: " << cr << output->maxAverageBrightness() << " nits";
+                }
                 if (const auto used = output->maxAverageBrightnessOverride()) {
                     cout << yellow << ", overridden with: " << cr << *used << " nits";
                 }
