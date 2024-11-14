@@ -30,6 +30,8 @@ class KSCREEN_EXPORT Output : public QObject
 public:
     Q_PROPERTY(int id READ id CONSTANT)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY outputChanged)
+    Q_PROPERTY(QString vendor READ vendor WRITE setVendor NOTIFY vendorChanged)
+    Q_PROPERTY(QString model READ model WRITE setModel NOTIFY modelChanged)
     Q_PROPERTY(Type type READ type WRITE setType NOTIFY outputChanged)
     Q_PROPERTY(QString icon READ icon WRITE setIcon NOTIFY outputChanged)
     Q_PROPERTY(ModeList modes READ modes NOTIFY modesChanged)
@@ -144,6 +146,12 @@ public:
 
     QString name() const;
     void setName(const QString &name);
+
+    QString vendor() const;
+    void setVendor(const QString &vendor);
+
+    QString model() const;
+    void setModel(const QString &model);
 
     /**
      * Returns an identifying hash for this output.
@@ -561,6 +569,8 @@ Q_SIGNALS:
     void minBrightnessOverrideChanged();
     void colorProfileSourceChanged();
     void brightnessChanged();
+    void vendorChanged();
+    void modelChanged();
 
     /** The mode list changed.
      *

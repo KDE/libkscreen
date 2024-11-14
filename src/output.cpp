@@ -41,6 +41,8 @@ public:
     Private(const Private &other)
         : id(other.id)
         , name(other.name)
+        , vendor(other.vendor)
+        , model(other.model)
         , type(other.type)
         , icon(other.icon)
         , pos(other.pos)
@@ -92,6 +94,8 @@ public:
     // please keep them consistent with order of Q_PROPERTY declarations
     int id;
     QString name;
+    QString vendor;
+    QString model;
     Type type;
     QString icon;
     ModeList modeList;
@@ -239,6 +243,34 @@ void Output::setName(const QString &name)
     }
     d->name = name;
     Q_EMIT outputChanged();
+}
+
+QString Output::vendor() const
+{
+    return d->vendor;
+}
+
+void Output::setVendor(const QString &vendor)
+{
+    if (d->vendor == vendor) {
+        return;
+    }
+    d->vendor = vendor;
+    Q_EMIT vendorChanged();
+}
+
+QString Output::model() const
+{
+    return d->model;
+}
+
+void Output::setModel(const QString &model)
+{
+    if (d->model == model) {
+        return;
+    }
+    d->model = model;
+    Q_EMIT modelChanged();
 }
 
 // TODO KF6: remove this deprecated method
@@ -584,6 +616,12 @@ void Output::setEdid(const QByteArray &rawData)
 {
     Q_ASSERT(d->edid.isNull());
     d->edid.reset(new Edid(rawData));
+    if (d->vendor.isEmpty()) {
+        setVendor(d->edid->vendor());
+    }
+    if (d->model.isEmpty()) {
+        setModel(d->edid->name());
+    }
 }
 
 Edid *Output::edid() const

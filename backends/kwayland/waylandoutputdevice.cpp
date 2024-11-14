@@ -171,6 +171,8 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output)
     output->setEnabled(enabled());
     output->setConnected(true);
     output->setName(name());
+    output->setVendor(m_manufacturer);
+    output->setModel(m_model);
     output->setSizeMm(m_physicalSize);
     output->setPos(m_pos);
     output->setRotation(toKScreenRotation(m_transform));
