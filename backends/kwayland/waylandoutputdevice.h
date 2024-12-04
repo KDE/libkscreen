@@ -97,6 +97,7 @@ protected:
     void kde_output_device_v2_color_profile_source(uint32_t source) override;
     void kde_output_device_v2_brightness(uint32_t brightness) override;
     void kde_output_device_v2_color_power_tradeoff(uint32_t preference) override;
+    void kde_output_device_v2_dimming(uint32_t dimming) override;
 
 private:
     QString modeName(const WaylandOutputDeviceMode *m) const;
@@ -139,6 +140,7 @@ private:
     uint32_t m_colorProfileSource = color_profile_source_sRGB;
     uint32_t m_brightness = 10'000;
     color_power_tradeoff m_colorPowerPreference = color_power_tradeoff_efficiency;
+    uint32_t m_dimming = 10'000;
 };
 
 }

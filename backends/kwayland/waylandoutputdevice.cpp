@@ -203,6 +203,7 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output)
     output->setColorProfileSource(static_cast<Output::ColorProfileSource>(m_colorProfileSource));
     output->setBrightness(m_brightness / 10'000.0);
     output->setColorPowerPreference(static_cast<Output::ColorPowerTradeoff>(m_colorPowerPreference));
+    output->setDimming(m_dimming / 10'000.0);
 
     updateKScreenModes(output);
 }
@@ -326,6 +327,10 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputConfiguration *wlConfig, cons
     if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_COLOR_POWER_TRADEOFF_SINCE_VERSION
         && m_colorPowerPreference != static_cast<color_power_tradeoff>(output->colorPowerPreference())) {
         wlConfig->set_color_power_tradeoff(object(), static_cast<color_power_tradeoff>(output->colorPowerPreference()));
+        changed = true;
+    }
+    if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_DIMMING_SINCE_VERSION && m_dimming != uint32_t(std::round(output->dimming() * 10'000))) {
+        wlConfig->set_dimming(object(), std::round(output->dimming() * 10'000));
         changed = true;
     }
 
@@ -489,6 +494,11 @@ void WaylandOutputDevice::kde_output_device_v2_brightness(uint32_t brightness)
 void WaylandOutputDevice::kde_output_device_v2_color_power_tradeoff(uint32_t preference)
 {
     m_colorPowerPreference = static_cast<color_power_tradeoff>(preference);
+}
+
+void WaylandOutputDevice::kde_output_device_v2_dimming(uint32_t dimming)
+{
+    m_dimming = dimming;
 }
 
 QByteArray WaylandOutputDevice::edid() const

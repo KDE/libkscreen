@@ -137,6 +137,7 @@ public:
     ColorProfileSource colorProfileSource = ColorProfileSource::sRGB;
     double brightness = 1.0;
     ColorPowerTradeoff colorPowerPreference = ColorPowerTradeoff::PreferEfficiency;
+    double dimming = 1.0;
 };
 
 bool Output::Private::compareModeList(const ModeList &before, const ModeList &after)
@@ -933,6 +934,19 @@ void Output::setColorPowerPreference(ColorPowerTradeoff tradeoff)
     }
 }
 
+double Output::dimming() const
+{
+    return d->dimming;
+}
+
+void Output::setDimming(double dimming)
+{
+    if (d->dimming != dimming) {
+        d->dimming = dimming;
+        Q_EMIT dimmingChanged();
+    }
+}
+
 void Output::apply(const OutputPtr &other)
 {
     typedef void (KScreen::Output::*ChangeSignal)();
@@ -1078,6 +1092,10 @@ void Output::apply(const OutputPtr &other)
     if (d->colorPowerPreference != other->d->colorPowerPreference) {
         changes << &Output::colorPowerPreferenceChanged;
         setColorPowerPreference(other->d->colorPowerPreference);
+    }
+    if (d->dimming != other->d->dimming) {
+        changes << &Output::dimmingChanged;
+        setDimming(other->d->dimming);
     }
 
     // Non-notifyable changes

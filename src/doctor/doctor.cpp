@@ -438,6 +438,15 @@ void Doctor::parseOutputArgs()
                         return;
                     }
                     m_changed = true;
+                } else if (ops.count() >= 4 && subcmd == "dimming") {
+                    const uint32_t dimming = ops[3].toUInt();
+                    if (dimming > 100) {
+                        qCWarning(KSCREEN_DOCTOR) << "Wrong input: Allowed range for dimming is 0 to 100";
+                        qApp->exit(9);
+                        return;
+                    }
+                    output->setDimming(dimming / 100.0);
+                    m_changed = true;
                 } else {
                     cerr << "Unable to parse arguments: " << op << Qt::endl;
                     qApp->exit(2);
@@ -643,7 +652,8 @@ void Doctor::showOutputs() const
         }
         cout << yellow << "\tBrightness control: ";
         if (output->capabilities() & Output::Capability::BrightnessControl) {
-            cout << cr << "supported, set to " << std::round(output->brightness() * 100) << "%" << endl;
+            cout << cr << "supported, set to " << std::round(output->brightness() * 100) << "%"
+                 << " and dimming to " << std::round(output->dimming() * 100) << "%" << endl;
         } else {
             cout << cr << "unsupported" << endl;
         }

@@ -63,6 +63,7 @@ public:
     Q_PROPERTY(ColorProfileSource colorProfileSource READ colorProfileSource WRITE setColorProfileSource NOTIFY colorProfileSourceChanged)
     Q_PROPERTY(double brightness READ brightness WRITE setBrightness NOTIFY brightnessChanged)
     Q_PROPERTY(ColorPowerTradeoff colorPowerPreference READ colorPowerPreference WRITE setColorPowerPreference NOTIFY colorPowerPreferenceChanged)
+    Q_PROPERTY(double dimming READ dimming WRITE setDimming NOTIFY dimmingChanged)
 
     enum Type {
         Unknown,
@@ -545,6 +546,9 @@ public:
     ColorPowerTradeoff colorPowerPreference() const;
     void setColorPowerPreference(ColorPowerTradeoff tradeoff);
 
+    double dimming() const;
+    void setDimming(double dimming);
+
     void apply(const OutputPtr &other);
 
 Q_SIGNALS:
@@ -582,6 +586,7 @@ Q_SIGNALS:
     void vendorChanged();
     void modelChanged();
     void colorPowerPreferenceChanged();
+    void dimmingChanged();
 
     /** The mode list changed.
      *
