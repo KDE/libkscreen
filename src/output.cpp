@@ -78,6 +78,7 @@ public:
         , minBrightnessOverride(other.minBrightnessOverride)
         , colorProfileSource(other.colorProfileSource)
         , brightness(other.brightness)
+        , colorPowerPreference(other.colorPowerPreference)
     {
         const auto otherModeList = other.modeList;
         for (const ModePtr &otherMode : otherModeList) {
@@ -135,6 +136,7 @@ public:
     std::optional<double> minBrightnessOverride;
     ColorProfileSource colorProfileSource = ColorProfileSource::sRGB;
     double brightness = 1.0;
+    ColorPowerTradeoff colorPowerPreference = ColorPowerTradeoff::PreferEfficiency;
 };
 
 bool Output::Private::compareModeList(const ModeList &before, const ModeList &after)
@@ -918,6 +920,19 @@ void Output::setBrightness(double brightness)
     }
 }
 
+Output::ColorPowerTradeoff Output::colorPowerPreference() const
+{
+    return d->colorPowerPreference;
+}
+
+void Output::setColorPowerPreference(ColorPowerTradeoff tradeoff)
+{
+    if (d->colorPowerPreference != tradeoff) {
+        d->colorPowerPreference = tradeoff;
+        Q_EMIT colorPowerPreferenceChanged();
+    }
+}
+
 void Output::apply(const OutputPtr &other)
 {
     typedef void (KScreen::Output::*ChangeSignal)();
@@ -1059,6 +1074,10 @@ void Output::apply(const OutputPtr &other)
     if (d->brightness != other->d->brightness) {
         changes << &Output::brightnessChanged;
         setBrightness(other->d->brightness);
+    }
+    if (d->colorPowerPreference != other->d->colorPowerPreference) {
+        changes << &Output::colorPowerPreferenceChanged;
+        setColorPowerPreference(other->d->colorPowerPreference);
     }
 
     // Non-notifyable changes

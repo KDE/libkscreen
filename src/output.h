@@ -62,6 +62,7 @@ public:
     Q_PROPERTY(QString iccProfilePath READ iccProfilePath WRITE setIccProfilePath NOTIFY iccProfilePathChanged)
     Q_PROPERTY(ColorProfileSource colorProfileSource READ colorProfileSource WRITE setColorProfileSource NOTIFY colorProfileSourceChanged)
     Q_PROPERTY(double brightness READ brightness WRITE setBrightness NOTIFY brightnessChanged)
+    Q_PROPERTY(ColorPowerTradeoff colorPowerPreference READ colorPowerPreference WRITE setColorPowerPreference NOTIFY colorPowerPreferenceChanged)
 
     enum Type {
         Unknown,
@@ -135,6 +136,12 @@ public:
         EDID = 2,
     };
     Q_ENUM(ColorProfileSource)
+
+    enum class ColorPowerTradeoff {
+        PreferEfficiency = 0,
+        PreferAccuracy = 1,
+    };
+    Q_ENUM(ColorPowerTradeoff)
 
     explicit Output();
     ~Output() override;
@@ -535,6 +542,9 @@ public:
     double brightness() const;
     void setBrightness(double brightness);
 
+    ColorPowerTradeoff colorPowerPreference() const;
+    void setColorPowerPreference(ColorPowerTradeoff tradeoff);
+
     void apply(const OutputPtr &other);
 
 Q_SIGNALS:
@@ -571,6 +581,7 @@ Q_SIGNALS:
     void brightnessChanged();
     void vendorChanged();
     void modelChanged();
+    void colorPowerPreferenceChanged();
 
     /** The mode list changed.
      *

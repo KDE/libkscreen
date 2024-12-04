@@ -427,6 +427,17 @@ void Doctor::parseOutputArgs()
                     }
                     output->setBrightness(brightness / 100.0);
                     m_changed = true;
+                } else if (ops.count() >= 4 && subcmd == "colorPowerTradeoff") {
+                    if (ops[3] == "preferEfficiency") {
+                        output->setColorPowerPreference(Output::ColorPowerTradeoff::PreferEfficiency);
+                    } else if (ops[3] == "preferAccuracy") {
+                        output->setColorPowerPreference(Output::ColorPowerTradeoff::PreferAccuracy);
+                    } else {
+                        qCWarning(KSCREEN_DOCTOR) << "Wrong input: only allowed values for colorPowerTradeoff are \"preferEfficiency\" and \"preferAccuracy\"";
+                        qApp->exit(9);
+                        return;
+                    }
+                    m_changed = true;
                 } else {
                     cerr << "Unable to parse arguments: " << op << Qt::endl;
                     qApp->exit(2);
@@ -615,6 +626,15 @@ void Doctor::showOutputs() const
                 break;
             case Output::ColorProfileSource::EDID:
                 cout << "EDID";
+                break;
+            }
+            cout << endl << yellow << "\tColor power preference: " << cr;
+            switch (output->colorPowerPreference()) {
+            case Output::ColorPowerTradeoff::PreferEfficiency:
+                cout << "prefer efficiency and performance";
+                break;
+            case Output::ColorPowerTradeoff::PreferAccuracy:
+                cout << "prefer accuracy";
                 break;
             }
             cout << endl;

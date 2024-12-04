@@ -202,6 +202,7 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output)
     output->setMinBrightnessOverride(m_minBrightnessOverride);
     output->setColorProfileSource(static_cast<Output::ColorProfileSource>(m_colorProfileSource));
     output->setBrightness(m_brightness / 10'000.0);
+    output->setColorPowerPreference(static_cast<Output::ColorPowerTradeoff>(m_colorPowerPreference));
 
     updateKScreenModes(output);
 }
@@ -320,6 +321,11 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputConfiguration *wlConfig, cons
     }
     if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_BRIGHTNESS_SINCE_VERSION && m_brightness != uint32_t(std::round(output->brightness() * 10'000))) {
         wlConfig->set_brightness(object(), std::round(output->brightness() * 10'000));
+        changed = true;
+    }
+    if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_COLOR_POWER_TRADEOFF_SINCE_VERSION
+        && m_colorPowerPreference != static_cast<color_power_tradeoff>(output->colorPowerPreference())) {
+        wlConfig->set_color_power_tradeoff(object(), static_cast<color_power_tradeoff>(output->colorPowerPreference()));
         changed = true;
     }
 
@@ -478,6 +484,11 @@ void WaylandOutputDevice::kde_output_device_v2_color_profile_source(uint32_t sou
 void WaylandOutputDevice::kde_output_device_v2_brightness(uint32_t brightness)
 {
     m_brightness = brightness;
+}
+
+void WaylandOutputDevice::kde_output_device_v2_color_power_tradeoff(uint32_t preference)
+{
+    m_colorPowerPreference = static_cast<color_power_tradeoff>(preference);
 }
 
 QByteArray WaylandOutputDevice::edid() const
