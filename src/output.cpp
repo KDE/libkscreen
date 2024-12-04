@@ -135,6 +135,7 @@ public:
     std::optional<double> minBrightnessOverride;
     ColorProfileSource colorProfileSource = ColorProfileSource::sRGB;
     double brightness = 1.0;
+    double dimming = 1.0;
 };
 
 bool Output::Private::compareModeList(const ModeList &before, const ModeList &after)
@@ -918,6 +919,19 @@ void Output::setBrightness(double brightness)
     }
 }
 
+double Output::dimmingMultiplier() const
+{
+    return d->dimming;
+}
+
+void Output::setDimmingMultiplier(double dimming)
+{
+    if (d->dimming != dimming) {
+        d->dimming = dimming;
+        Q_EMIT dimmingMultiplierChanged();
+    }
+}
+
 void Output::apply(const OutputPtr &other)
 {
     typedef void (KScreen::Output::*ChangeSignal)();
@@ -1059,6 +1073,10 @@ void Output::apply(const OutputPtr &other)
     if (d->brightness != other->d->brightness) {
         changes << &Output::brightnessChanged;
         setBrightness(other->d->brightness);
+    }
+    if (d->dimming != other->d->dimming) {
+        changes << &Output::dimmingMultiplierChanged;
+        setDimmingMultiplier(other->d->dimming);
     }
 
     // Non-notifyable changes

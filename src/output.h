@@ -62,6 +62,7 @@ public:
     Q_PROPERTY(QString iccProfilePath READ iccProfilePath WRITE setIccProfilePath NOTIFY iccProfilePathChanged)
     Q_PROPERTY(ColorProfileSource colorProfileSource READ colorProfileSource WRITE setColorProfileSource NOTIFY colorProfileSourceChanged)
     Q_PROPERTY(double brightness READ brightness WRITE setBrightness NOTIFY brightnessChanged)
+    Q_PROPERTY(double dimmingMultiplier READ dimmingMultiplier WRITE setDimmingMultiplier NOTIFY dimmingMultiplierChanged)
 
     enum Type {
         Unknown,
@@ -535,6 +536,9 @@ public:
     double brightness() const;
     void setBrightness(double brightness);
 
+    double dimmingMultiplier() const;
+    void setDimmingMultiplier(double dimming);
+
     void apply(const OutputPtr &other);
 
 Q_SIGNALS:
@@ -571,6 +575,7 @@ Q_SIGNALS:
     void brightnessChanged();
     void vendorChanged();
     void modelChanged();
+    void dimmingMultiplierChanged();
 
     /** The mode list changed.
      *
