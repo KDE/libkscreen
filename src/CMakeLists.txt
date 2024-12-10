@@ -2,19 +2,19 @@ add_subdirectory(backendlauncher)
 add_subdirectory(doctor)
 add_subdirectory(libdpms)
 set(libkscreen_SRCS
-    abstractbackend.cpp
+    abstractbackend.cpp abstractbackend.h
     backendmanager.cpp
     config.cpp
-    configoperation.cpp
-    getconfigoperation.cpp
-    setconfigoperation.cpp
-    configmonitor.cpp
+    configoperation.cpp configoperation.h
+    getconfigoperation.cpp getconfigoperation.h
+    setconfigoperation.cpp setconfigoperation.h
+    configmonitor.cpp configmonitor.h
     configserializer.cpp
     screen.cpp
     output.cpp
     edid.cpp
     mode.cpp
-    log.cpp
+    log.cpp log.h
 )
 
 qt_add_dbus_interface(libkscreen_SRCS ${CMAKE_SOURCE_DIR}/interfaces/org.kde.KScreen.Backend.xml backendinterface)

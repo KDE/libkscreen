@@ -1,4 +1,4 @@
-add_executable(kscreen-doctor main.cpp doctor.cpp)
+add_executable(kscreen-doctor main.cpp doctor.cpp doctor.h)
 
 target_link_libraries(kscreen-doctor Qt::DBus KF6::Screen KF6::ScreenDpms)
 install(TARGETS kscreen-doctor ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})

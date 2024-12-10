@@ -5,15 +5,15 @@ include_directories(${CMAKE_SOURCE_DIR}/src
 
 add_library(KSC_XRandR MODULE)
 target_sources(KSC_XRandR PRIVATE
-    xrandr.cpp
-    xrandrconfig.cpp
-    xrandrcrtc.cpp
-    xrandroutput.cpp
-    xrandrmode.cpp
-    xrandrscreen.cpp
-    ../xcbwrapper.cpp
-    ../xcbeventlistener.cpp
-    ../utils.cpp
+    xrandr.cpp xrandr.h
+    xrandrconfig.cpp xrandrconfig.h
+    xrandrcrtc.cpp xrandrcrtc.h
+    xrandroutput.cpp xrandroutput.h
+    xrandrmode.cpp xrandrmode.h
+    xrandrscreen.cpp xrandrscreen.h
+    ../xcbwrapper.cpp ../xcbwrapper.h
+    ../xcbeventlistener.cpp ../xcbeventlistener.h
+    ../utils.cpp ../utils.h
 )
 
 set_target_properties(KSC_XRandR PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/kf6/kscreen")

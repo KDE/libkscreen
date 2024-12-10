@@ -6,6 +6,6 @@ endif()
 
 add_definitions(-DTEST_DATA="${CMAKE_SOURCE_DIR}/autotests/configs/")
 
-add_executable(waylandtestserver main.cpp waylandtestserver.cpp waylandconfigreader.cpp)
+add_executable(waylandtestserver main.cpp waylandtestserver.cpp waylandtestserver.h waylandconfigreader.cpp waylandconfigreader.h)
 target_link_libraries(waylandtestserver KF6::Screen KF6::WaylandServer)
 

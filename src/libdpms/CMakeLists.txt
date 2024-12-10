@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2022 Aleix Pol Gonzalez <aleixpol@kde.org>
 
 add_library(KF6ScreenDpms SHARED)
-target_sources(KF6ScreenDpms PRIVATE dpms.cpp abstractdpmshelper.cpp waylanddpmshelper.cpp xcbdpmshelper.cpp waylanddpmshelper.cpp)
+target_sources(KF6ScreenDpms PRIVATE dpms.cpp dpms.h abstractdpmshelper.cpp waylanddpmshelper.cpp xcbdpmshelper.cpp waylanddpmshelper.cpp)
 target_link_libraries(KF6ScreenDpms PUBLIC Qt::Gui
                                     PRIVATE XCB::XCB XCB::DPMS XCB::RANDR
                                             Qt::GuiPrivate Qt::WaylandClient Wayland::Client
