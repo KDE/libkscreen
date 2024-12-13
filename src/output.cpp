@@ -79,6 +79,7 @@ public:
         , colorProfileSource(other.colorProfileSource)
         , brightness(other.brightness)
         , colorPowerPreference(other.colorPowerPreference)
+        , dimming(other.dimming)
     {
         const auto otherModeList = other.modeList;
         for (const ModePtr &otherMode : otherModeList) {
