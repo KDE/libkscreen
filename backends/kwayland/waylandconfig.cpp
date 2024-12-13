@@ -34,7 +34,7 @@ using namespace std::chrono_literals;
 
 WaylandConfig::WaylandConfig(QObject *parent)
     : QObject(parent)
-    , m_outputManagement(std::make_unique<WaylandOutputManagement>(11))
+    , m_outputManagement(std::make_unique<WaylandOutputManagement>(12))
     , m_registryInitialized(false)
     , m_blockSignals(true)
     , m_kscreenConfig(new Config)
@@ -375,9 +375,10 @@ bool WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
         Q_EMIT configChanged();
         tryPendingConfig();
     });
-    connect(wlConfig, &WaylandOutputConfiguration::failed, this, [this, wlConfig] {
+    connect(wlConfig, &WaylandOutputConfiguration::failed, this, [this, wlConfig](const QString &errorMessage) {
         wlConfig->deleteLater();
         unblockSignals();
+        Q_EMIT configFailed(errorMessage);
         Q_EMIT configChanged();
         tryPendingConfig();
     });

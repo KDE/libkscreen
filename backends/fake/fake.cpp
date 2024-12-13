@@ -88,11 +88,12 @@ ConfigPtr Fake::config() const
     return mConfig;
 }
 
-void Fake::setConfig(const ConfigPtr &config)
+QString Fake::setConfig(const ConfigPtr &config)
 {
     qCDebug(KSCREEN_FAKE) << "set config" << config->outputs();
     mConfig = config->clone();
     Q_EMIT configChanged(mConfig);
+    return QString();
 }
 
 bool Fake::isValid() const

@@ -176,15 +176,16 @@ ConfigPtr XRandR::config() const
     return s_internalConfig->toKScreenConfig();
 }
 
-void XRandR::setConfig(const ConfigPtr &config)
+QString XRandR::setConfig(const ConfigPtr &config)
 {
     if (!config) {
-        return;
+        return QString();
     }
 
     qCDebug(KSCREEN_XRANDR) << "XRandR::setConfig";
     s_internalConfig->applyKScreenConfig(config);
     qCDebug(KSCREEN_XRANDR) << "XRandR::setConfig done!";
+    return QString();
 }
 
 QByteArray XRandR::edid(int outputId) const

@@ -46,15 +46,16 @@ ConfigPtr QScreenBackend::config() const
     return s_internalConfig->toKScreenConfig();
 }
 
-void QScreenBackend::setConfig(const ConfigPtr &config)
+QString QScreenBackend::setConfig(const ConfigPtr &config)
 {
     if (!config) {
-        return;
+        return QString();
     }
 
     qWarning() << "The QScreen backend for libkscreen is read-only,";
     qWarning() << "setting a configuration is not supported.";
     qWarning() << "You can force another backend using the KSCREEN_BACKEND env var.";
+    return QString();
 }
 
 bool QScreenBackend::isValid() const

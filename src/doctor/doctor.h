@@ -56,7 +56,7 @@ Q_SIGNALS:
 
 private:
     // static QString modeString(KWayland::Server::OutputDeviceInterface* outputdevice, int mid);
-    void applyConfig();
+    std::optional<QString> applyConfig();
     void parseOutputArgs();
     KScreen::ConfigPtr m_config;
     QCommandLineParser *m_parser;

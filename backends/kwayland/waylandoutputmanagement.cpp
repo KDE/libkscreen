@@ -47,9 +47,15 @@ void WaylandOutputConfiguration::kde_output_configuration_v2_applied()
 {
     Q_EMIT applied();
 }
+
 void WaylandOutputConfiguration::kde_output_configuration_v2_failed()
 {
-    Q_EMIT failed();
+    Q_EMIT failed(m_errorMessage);
+}
+
+void WaylandOutputConfiguration::kde_output_configuration_v2_failure_reason(const QString &reason)
+{
+    m_errorMessage = reason;
 }
 
 WaylandOutputOrder::WaylandOutputOrder(struct ::wl_registry *registry, int id, int version)

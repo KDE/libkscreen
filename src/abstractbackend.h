@@ -64,8 +64,9 @@ public:
      * Apply a config object to the system.
      *
      * @param config Configuration to apply
+     * @returns an error message in the case of failure
      */
-    virtual void setConfig(const KScreen::ConfigPtr &config) = 0;
+    virtual QString setConfig(const KScreen::ConfigPtr &config) = 0;
 
     /**
      * Returns whether the backend is in valid state.

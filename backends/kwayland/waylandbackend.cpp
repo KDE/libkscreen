@@ -50,20 +50,25 @@ ConfigPtr WaylandBackend::config() const
     return m_internalConfig->currentConfig();
 }
 
-void WaylandBackend::setConfig(const KScreen::ConfigPtr &newconfig)
+QString WaylandBackend::setConfig(const KScreen::ConfigPtr &newconfig)
 {
     if (!newconfig) {
-        return;
+        return QString();
     }
     // wait for KWin reply
     QEventLoop loop;
 
+    QString ret;
     connect(m_internalConfig, &WaylandConfig::configChanged, &loop, &QEventLoop::quit);
+    connect(m_internalConfig, &WaylandConfig::configFailed, [&ret](const QString &reason) {
+        ret = reason;
+    });
     if (!m_internalConfig->applyConfig(newconfig)) {
-        return;
+        return QString();
     }
 
     loop.exec();
+    return ret;
 }
 
 QByteArray WaylandBackend::edid(int outputId) const

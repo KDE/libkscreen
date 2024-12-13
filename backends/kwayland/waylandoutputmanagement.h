@@ -26,11 +26,14 @@ public:
 
 Q_SIGNALS:
     void applied();
-    void failed();
+    void failed(QString errorMessage);
 
 protected:
     void kde_output_configuration_v2_applied() override;
     void kde_output_configuration_v2_failed() override;
+    void kde_output_configuration_v2_failure_reason(const QString &reason) override;
+
+    QString m_errorMessage;
 };
 
 class WaylandOutputManagement : public QWaylandClientExtensionTemplate<WaylandOutputManagement>, public QtWayland::kde_output_management_v2
