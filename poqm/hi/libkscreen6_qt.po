@@ -1,0 +1,41 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"PO-Revision-Date: 2024-12-15 17:36+0530\n"
+"Last-Translator: Kali <EMAIL@ADDRESS>\n"
+"Language-Team: Hindi <fedora-trans-hi@redhat.com>\n"
+"Language: hi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Qt-Contexts: true\n"
+
+#: getconfigoperation.cpp:62
+msgctxt "KScreen::GetConfigOperationPrivate|"
+msgid "Failed to prepare backend"
+msgstr "बैकएंड तैयार करने में विफल"
+
+#: getconfigoperation.cpp:87
+msgctxt "KScreen::GetConfigOperationPrivate|"
+msgid "Failed to deserialize backend response"
+msgstr "बैकएंड प्रतिक्रिया को डीसेरीलाइज़ करने में विफल"
+
+#: getconfigoperation.cpp:99
+msgctxt "KScreen::GetConfigOperationPrivate|"
+msgid "Backend invalidated"
+msgstr "बैकएंड अमान्य"
+
+#: setconfigoperation.cpp:58
+msgctxt "KScreen::SetConfigOperationPrivate|"
+msgid "Failed to prepare backend"
+msgstr "बैकएंड तैयार करने में विफल"
+
+#: setconfigoperation.cpp:65
+msgctxt "KScreen::SetConfigOperationPrivate|"
+msgid "Failed to serialize request"
+msgstr "अनुरोध को क्रमबद्ध करने में विफल"
+
+#: setconfigoperation.cpp:89
+msgctxt "KScreen::SetConfigOperationPrivate|"
+msgid "Failed to deserialize backend response"
+msgstr "बैकएंड प्रतिक्रिया को डीसेरीलाइज़ करने में विफल"
