@@ -26,7 +26,7 @@ public:
 
 Q_SIGNALS:
     void applied();
-    void failed(QString errorMessage);
+    void failed(const QString &errorMessage);
 
 protected:
     void kde_output_configuration_v2_applied() override;

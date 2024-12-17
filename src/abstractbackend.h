@@ -12,6 +12,7 @@
 
 #include <QObject>
 #include <QString>
+#include <expected>
 
 namespace KScreen
 {
@@ -66,7 +67,7 @@ public:
      * @param config Configuration to apply
      * @returns an error message in the case of failure
      */
-    virtual QString setConfig(const KScreen::ConfigPtr &config) = 0;
+    virtual std::expected<void, QString> setConfig(const KScreen::ConfigPtr &config) = 0;
 
     /**
      * Returns whether the backend is in valid state.
