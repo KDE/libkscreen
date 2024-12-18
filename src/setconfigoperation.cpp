@@ -114,7 +114,7 @@ void SetConfigOperation::start()
     d->fixPrimaryOutput();
     if (BackendManager::instance()->method() == BackendManager::InProcess) {
         auto backend = d->loadBackend();
-        setError(backend->setConfig(d->config));
+        setError(backend->setConfig(d->config).error_or(QString()));
         emitResult();
     } else {
         d->requestBackend();
