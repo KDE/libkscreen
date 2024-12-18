@@ -8,7 +8,6 @@
 
 #include <QCommandLineParser>
 #include <QObject>
-#include <expected>
 
 #include "output.h"
 #include "types.h"
@@ -57,7 +56,7 @@ Q_SIGNALS:
 
 private:
     // static QString modeString(KWayland::Server::OutputDeviceInterface* outputdevice, int mid);
-    std::expected<void, QString> applyConfig();
+    std::optional<QString> applyConfig();
     void parseOutputArgs();
     KScreen::ConfigPtr m_config;
     QCommandLineParser *m_parser;

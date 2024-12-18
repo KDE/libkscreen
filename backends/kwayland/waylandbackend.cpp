@@ -50,22 +50,21 @@ ConfigPtr WaylandBackend::config() const
     return m_internalConfig->currentConfig();
 }
 
-std::expected<void, QString> WaylandBackend::setConfig(const KScreen::ConfigPtr &newconfig)
+QString WaylandBackend::setConfig(const KScreen::ConfigPtr &newconfig)
 {
     if (!newconfig) {
-        return std::unexpected(QStringLiteral("config is nullptr!"));
+        return QString();
     }
     // wait for KWin reply
     QEventLoop loop;
 
-    std::expected<void, QString> ret;
+    QString ret;
     connect(m_internalConfig, &WaylandConfig::configChanged, &loop, &QEventLoop::quit);
     connect(m_internalConfig, &WaylandConfig::configFailed, [&ret](const QString &reason) {
-        ret = std::unexpected(reason);
+        ret = reason;
     });
     if (!m_internalConfig->applyConfig(newconfig)) {
-        // nothing changed
-        return {};
+        return QString();
     }
 
     loop.exec();

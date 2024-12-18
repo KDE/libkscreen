@@ -477,9 +477,8 @@ void Doctor::configReceived(KScreen::ConfigOperation *op)
 
     parseOutputArgs();
 
-    const auto ret = applyConfig();
-    if (!ret.has_value()) {
-        cout << "applying config failed! " << ret.error() << "\n";
+    if (const auto error = applyConfig()) {
+        cout << "applying config failed! " << *error << "\n";
     }
     qApp->exit(0);
 }
@@ -766,16 +765,16 @@ void Doctor::setWcgEnabled(OutputPtr output, bool enable)
     m_changed = true;
 }
 
-std::expected<void, QString> Doctor::applyConfig()
+std::optional<QString> Doctor::applyConfig()
 {
     if (!m_changed) {
-        return {};
+        return std::nullopt;
     }
     auto setop = new SetConfigOperation(m_config, this);
     if (setop->exec()) {
-        return {};
+        return std::nullopt;
     } else {
-        return std::unexpected(setop->errorString());
+        return setop->errorString();
     }
 }
 

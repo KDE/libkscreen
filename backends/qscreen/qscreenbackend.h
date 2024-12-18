@@ -28,7 +28,7 @@ public:
     QString name() const override;
     QString serviceName() const override;
     KScreen::ConfigPtr config() const override;
-    std::expected<void, QString> setConfig(const KScreen::ConfigPtr &config) override;
+    QString setConfig(const KScreen::ConfigPtr &config) override;
     bool isValid() const override;
 
 private:
