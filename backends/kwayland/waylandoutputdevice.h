@@ -44,13 +44,13 @@ public:
     uint32_t capabilities() const;
     uint32_t rgbRange() const;
 
-    OutputPtr toKScreenOutput();
-    void updateKScreenOutput(OutputPtr &output);
+    OutputPtr toKScreenOutput(const QMap<int, WaylandOutputDevice *> &outputMap);
+    void updateKScreenOutput(OutputPtr &output, const QMap<int, WaylandOutputDevice *> &outputMap);
     void updateKScreenModes(OutputPtr &output);
 
     void setIndex(uint32_t priority);
     uint32_t index() const;
-    bool setWlConfig(WaylandOutputConfiguration *wlConfig, const KScreen::OutputPtr &output);
+    bool setWlConfig(WaylandOutputConfiguration *wlConfig, const KScreen::OutputPtr &output, const QMap<int, WaylandOutputDevice *> &outputMap);
 
     QString modeId() const;
     QString uuid() const
@@ -96,6 +96,7 @@ protected:
     void kde_output_device_v2_brightness(uint32_t brightness) override;
     void kde_output_device_v2_color_power_tradeoff(uint32_t preference) override;
     void kde_output_device_v2_dimming(uint32_t dimming) override;
+    void kde_output_device_v2_replication_source(const QString &source) override;
 
 private:
     QString modeName(const WaylandOutputDeviceMode *m) const;
@@ -139,6 +140,7 @@ private:
     uint32_t m_brightness = 10'000;
     color_power_tradeoff m_colorPowerPreference = color_power_tradeoff_efficiency;
     uint32_t m_dimming = 10'000;
+    QString m_replicationSource;
 };
 
 }

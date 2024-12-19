@@ -34,7 +34,7 @@ using namespace std::chrono_literals;
 
 WaylandConfig::WaylandConfig(QObject *parent)
     : QObject(parent)
-    , m_outputManagement(std::make_unique<WaylandOutputManagement>(12))
+    , m_outputManagement(std::make_unique<WaylandOutputManagement>(13))
     , m_registryInitialized(false)
     , m_blockSignals(false)
     , m_kscreenConfig(new Config)
@@ -113,7 +113,7 @@ void WaylandConfig::setupRegistry()
     auto globalAdded = [](void *data, wl_registry *registry, uint32_t name, const char *interface, uint32_t version) {
         auto self = static_cast<WaylandConfig *>(data);
         if (qstrcmp(interface, WaylandOutputDevice::interface()->name) == 0) {
-            self->addOutput(name, std::min(12u, version));
+            self->addOutput(name, std::min(13u, version));
         }
         if (qstrcmp(interface, WaylandOutputOrder::interface()->name) == 0) {
             self->m_outputOrder = std::make_unique<WaylandOutputOrder>(registry, name, std::min(1u, version));
@@ -290,15 +290,14 @@ KScreen::ConfigPtr WaylandConfig::currentConfig()
     }
 
     // Add KScreen::Outputs that aren't in the list yet
-    KScreen::OutputList kscreenOutputs = m_kscreenConfig->outputs();
     QMap<OutputPtr, uint32_t> priorities;
     for (const auto &output : m_outputMap) {
         KScreen::OutputPtr kscreenOutput;
         if (m_kscreenConfig->outputs().contains(output->id())) {
             kscreenOutput = m_kscreenConfig->outputs()[output->id()];
-            output->updateKScreenOutput(kscreenOutput);
+            output->updateKScreenOutput(kscreenOutput, m_outputMap);
         } else {
-            kscreenOutput = output->toKScreenOutput();
+            kscreenOutput = output->toKScreenOutput(m_outputMap);
             m_kscreenConfig->addOutput(kscreenOutput);
         }
         priorities[kscreenOutput] = output->index();
@@ -359,7 +358,7 @@ bool WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
     bool changed = false;
 
     for (const auto &output : newConfig->outputs()) {
-        changed |= m_outputMap[output->id()]->setWlConfig(wlConfig, output);
+        changed |= m_outputMap[output->id()]->setWlConfig(wlConfig, output, m_outputMap);
     }
 
     if (!changed) {

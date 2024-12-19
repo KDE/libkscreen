@@ -116,6 +116,11 @@ void Mode::setRefreshRate(float refresh)
     Q_EMIT modeChanged();
 }
 
+bool Mode::operator==(const Mode &other) const
+{
+    return d->size == other.d->size && d->rate == other.d->rate;
+}
+
 QDebug operator<<(QDebug dbg, const KScreen::ModePtr &mode)
 {
     if (mode) {

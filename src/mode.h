@@ -43,6 +43,8 @@ public:
     float refreshRate() const;
     void setRefreshRate(float refresh);
 
+    bool operator==(const Mode &other) const;
+
 Q_SIGNALS:
     void modeChanged();
 

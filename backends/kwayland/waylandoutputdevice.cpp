@@ -78,11 +78,11 @@ void WaylandOutputDevice::kde_output_device_v2_mode(struct ::kde_output_device_m
     });
 }
 
-OutputPtr WaylandOutputDevice::toKScreenOutput()
+OutputPtr WaylandOutputDevice::toKScreenOutput(const QMap<int, WaylandOutputDevice *> &outputMap)
 {
     OutputPtr output(new Output());
     output->setId(m_id);
-    updateKScreenOutput(output);
+    updateKScreenOutput(output, outputMap);
     return output;
 }
 
@@ -164,7 +164,7 @@ void KScreen::WaylandOutputDevice::updateKScreenModes(OutputPtr &output)
     output->setModes(modeList);
 }
 
-void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output)
+void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output, const QMap<int, WaylandOutputDevice *> &outputMap)
 {
     // Initialize primary output
     output->setId(m_id);
@@ -205,6 +205,14 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output)
     output->setColorPowerPreference(static_cast<Output::ColorPowerTradeoff>(m_colorPowerPreference));
     output->setDimming(m_dimming / 10'000.0);
     output->setUuid(m_uuid);
+    int replicationSourceId = 0;
+    for (auto it = outputMap.begin(); it != outputMap.end(); it++) {
+        if (it.value()->uuid() == m_replicationSource) {
+            replicationSourceId = it.key();
+            break;
+        }
+    }
+    output->setReplicationSource(replicationSourceId);
 
     updateKScreenModes(output);
 }
@@ -224,7 +232,7 @@ WaylandOutputDeviceMode *WaylandOutputDevice::deviceModeFromId(const QString &id
     return nullptr;
 }
 
-bool WaylandOutputDevice::setWlConfig(WaylandOutputConfiguration *wlConfig, const KScreen::OutputPtr &output)
+bool WaylandOutputDevice::setWlConfig(WaylandOutputConfiguration *wlConfig, const KScreen::OutputPtr &output, const QMap<int, WaylandOutputDevice *> &outputMap)
 {
     bool changed = false;
 
@@ -332,6 +340,15 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputConfiguration *wlConfig, cons
     }
     if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_DIMMING_SINCE_VERSION && m_dimming != uint32_t(std::round(output->dimming() * 10'000))) {
         wlConfig->set_dimming(object(), std::round(output->dimming() * 10'000));
+        changed = true;
+    }
+    if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_REPLICATION_SOURCE_SINCE_VERSION) {
+        const auto source = outputMap[output->replicationSource()];
+        if (source) {
+            wlConfig->set_replication_source(object(), source->uuid());
+        } else {
+            wlConfig->set_replication_source(object(), QString());
+        }
         changed = true;
     }
 
@@ -500,6 +517,11 @@ void WaylandOutputDevice::kde_output_device_v2_color_power_tradeoff(uint32_t pre
 void WaylandOutputDevice::kde_output_device_v2_dimming(uint32_t dimming)
 {
     m_dimming = dimming;
+}
+
+void WaylandOutputDevice::kde_output_device_v2_replication_source(const QString &source)
+{
+    m_replicationSource = source;
 }
 
 QByteArray WaylandOutputDevice::edid() const

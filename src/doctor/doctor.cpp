@@ -462,6 +462,19 @@ void Doctor::parseOutputArgs()
                     }
                     output->setDimming(dimming / 100.0);
                     m_changed = true;
+                } else if (ops.count() >= 4 && subcmd == "mirror") {
+                    if (ops[3] == "none") {
+                        output->setReplicationSource(0);
+                    } else {
+                        const auto source = findOutput(ops[3]);
+                        if (!source) {
+                            qCWarning(KSCREEN_DOCTOR, "No output %s", qPrintable(ops[3]));
+                            qApp->exit(9);
+                            return;
+                        }
+                        output->setReplicationSource(source->id());
+                    }
+                    m_changed = true;
                 } else {
                     cerr << "Unable to parse arguments: " << op << Qt::endl;
                     qApp->exit(2);
@@ -529,6 +542,7 @@ void Doctor::showOutputs() const
         cout << "\t" << (output->isEnabled() ? green : red) + QStringLiteral("priority ") << output->priority() << cr << endl;
         auto _type = typeString[output->type()];
         cout << "\t" << yellow << (_type.isEmpty() ? QStringLiteral("UnmappedOutputType") : _type) << cr << endl;
+        cout << "\t" << yellow << "replication source:" << cr << output->replicationSource() << endl;
         cout << "\t" << blue << "Modes: " << cr;
 
         const auto modes = output->modes();
