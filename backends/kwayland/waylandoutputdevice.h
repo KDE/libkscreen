@@ -48,8 +48,6 @@ public:
     void updateKScreenOutput(OutputPtr &output);
     void updateKScreenModes(OutputPtr &output);
 
-    bool isPrimary() const;
-    void setPrimary(bool primary);
     void setIndex(uint32_t priority);
     uint32_t index() const;
     bool setWlConfig(WaylandOutputConfiguration *wlConfig, const KScreen::OutputPtr &output);
