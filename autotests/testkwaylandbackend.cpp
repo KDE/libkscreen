@@ -7,7 +7,7 @@
 #include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QObject>
-#include <QtTest>
+#include <QTest>
 
 #include "../src/backendmanager_p.h"
 #include "../src/config.h"

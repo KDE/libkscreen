@@ -7,7 +7,7 @@
 #define QT_GUI_LIB
 
 #include <QObject>
-#include <QtTest>
+#include <QTest>
 
 #include "../src/config.h"
 #include "../src/getconfigoperation.h"
