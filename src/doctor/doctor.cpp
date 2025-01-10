@@ -104,15 +104,25 @@ void Doctor::start(QCommandLineParser *parser)
             }
         });
 
+        if (!m_dpmsClient->isSupported()) {
+            cerr << "DPMS not supported in this system";
+            qGuiApp->quit();
+            return;
+        }
+
         const QString dpmsArg = m_parser->value(QStringLiteral("dpms"));
         if (dpmsArg == QLatin1String("show")) {
+            connect(m_dpmsClient, &Dpms::modeChanged, [](Dpms::Mode mode, QScreen *screen) {
+                if (mode == Dpms::Mode::On) {
+                    cout << "dpms mode for screen " << screen->name() << ": off\n";
+                } else {
+                    cout << "dpms mode for screen " << screen->name() << ": on\n";
+                }
+                // More correctly checking if the mode for all displays have been sent is tricky,
+                // so this just assumes KWin sends the state for all displays in one go
+                QTimer::singleShot(0, qApp->quit);
+            });
         } else {
-            if (!m_dpmsClient->isSupported()) {
-                cerr << "DPMS not supported in this system";
-                qGuiApp->quit();
-                return;
-            }
-
             if (dpmsArg == QLatin1String("off")) {
                 m_dpmsClient->switchMode(KScreen::Dpms::Off, screens);
             } else if (dpmsArg == QLatin1String("on")) {
