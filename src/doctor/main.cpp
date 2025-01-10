@@ -58,7 +58,11 @@ int main(int argc, char **argv)
         "\n   Set wide color gamut mode (possible values: enable, disable)\n"
         "   $ kscreen-doctor output.HDMI-2.wcg.enable\n"
         "\n   Set ICC profile path\n"
-        "   $ kscreen-doctor output.HDMI-2.iccprofile.\"/path/to/profile.icc\"\n");
+        "   $ kscreen-doctor output.HDMI-2.iccprofile.\"/path/to/profile.icc\"\n\n"
+        "   Show dpms information:\n"
+        "   $ kscreen-doctor --dpms show\n\n"
+        "   Set dpms mode: (possible values: on, off)\n"
+        "   $ kscreen-doctor --dpms on");
     /*
         "\nError codes:\n"
         "   2 : general parse error\n"
