@@ -202,31 +202,26 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
         }
     });
 
-    QMetaObject::Connection *const connection = new QMetaObject::Connection;
-    *connection = connect(device, &WaylandOutputDevice::done, this, [this, connection, device]() {
-        QObject::disconnect(*connection);
-        delete connection;
+    connect(device, &WaylandOutputDevice::done, this, [this, device]() {
+        if (m_initializingOutputs.removeOne(device)) {
+            m_outputMap.insert(device->id(), device);
+            if (m_outputOrder) {
+                device->setIndex(m_outputOrder->order().indexOf(device->name()) + 1);
+            }
+            checkInitialized();
 
-        m_initializingOutputs.removeOne(device);
-        m_outputMap.insert(device->id(), device);
-        if (m_outputOrder) {
-            device->setIndex(m_outputOrder->order().indexOf(device->name()) + 1);
-        }
-        checkInitialized();
-
-        if (m_initializingOutputs.isEmpty()) {
-            m_screen->setOutputs(m_outputMap.values());
-        }
-        if (!m_blockSignals && m_initializingOutputs.isEmpty()) {
-            Q_EMIT configChanged();
-        }
-
-        connect(device, &WaylandOutputDevice::done, this, [this]() {
+            if (m_initializingOutputs.isEmpty()) {
+                m_screen->setOutputs(m_outputMap.values());
+            }
+            if (!m_blockSignals && m_initializingOutputs.isEmpty()) {
+                Q_EMIT configChanged();
+            }
+        } else {
             // output got update must update current config
             if (!m_blockSignals) {
                 Q_EMIT configChanged();
             }
-        });
+        }
     });
 
     device->init(m_registry, name, version);
