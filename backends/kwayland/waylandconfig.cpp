@@ -350,6 +350,11 @@ bool WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
     }
 
     newConfig->adjustPriorities(); // never trust input
+    if (m_blockSignals) {
+        // Last apply still pending, remember new changes and apply afterwards
+        m_kscreenPendingConfig = newConfig;
+        return true;
+    }
 
     // Create a new configuration object
     auto wlConfig = m_outputManagement->createConfiguration();
@@ -357,12 +362,6 @@ bool WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
         return false;
     }
     bool changed = false;
-
-    if (m_blockSignals) {
-        // Last apply still pending, remember new changes and apply afterwards
-        m_kscreenPendingConfig = newConfig;
-        return true;
-    }
 
     for (const auto &output : newConfig->outputs()) {
         changed |= m_outputMap[output->id()]->setWlConfig(wlConfig, output);
