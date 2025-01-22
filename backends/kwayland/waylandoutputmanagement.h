@@ -23,6 +23,7 @@ class WaylandOutputConfiguration : public QObject, public QtWayland::kde_output_
     Q_OBJECT
 public:
     WaylandOutputConfiguration(struct ::kde_output_configuration_v2 *object);
+    ~WaylandOutputConfiguration() override;
 
 Q_SIGNALS:
     void applied();

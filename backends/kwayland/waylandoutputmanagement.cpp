@@ -43,6 +43,11 @@ WaylandOutputConfiguration::WaylandOutputConfiguration(struct ::kde_output_confi
     init(object);
 }
 
+WaylandOutputConfiguration::~WaylandOutputConfiguration()
+{
+    destroy();
+}
+
 void WaylandOutputConfiguration::kde_output_configuration_v2_applied()
 {
     Q_EMIT applied();
