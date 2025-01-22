@@ -49,7 +49,7 @@ public:
     KScreen::ConfigPtr currentConfig();
     QMap<int, WaylandOutputDevice *> outputMap() const;
 
-    bool applyConfig(const KScreen::ConfigPtr &newConfig);
+    QFuture<QString> applyConfig(const KScreen::ConfigPtr &newConfig);
     WaylandOutputDevice *findOutputDevice(struct ::kde_output_device_v2 *outputdevice) const;
 
     bool isReady() const;
@@ -58,7 +58,6 @@ Q_SIGNALS:
     void configChanged();
     void initialized();
     void globalRemoved(uint32_t name);
-    void configFailed(const QString &reason);
 
 private:
     void setupRegistry();
@@ -69,10 +68,6 @@ private:
 
     void addOutput(quint32 name, quint32 version);
     void removeOutput(WaylandOutputDevice *output);
-
-    void blockSignals();
-    void unblockSignals();
-    void tryPendingConfig();
 
     wl_registry *m_registry = nullptr;
 
@@ -87,9 +82,7 @@ private:
     int m_lastOutputId = -1;
 
     bool m_registryInitialized;
-    bool m_blockSignals;
     KScreen::ConfigPtr m_kscreenConfig;
-    KScreen::ConfigPtr m_kscreenPendingConfig;
     WaylandScreen *m_screen;
 
     bool m_tabletModeAvailable;

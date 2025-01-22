@@ -9,7 +9,9 @@
 #include "qwayland-kde-output-management-v2.h"
 #include "qwayland-kde-output-order-v1.h"
 
+#include <QFuture>
 #include <QObject>
+#include <QPromise>
 #include <QSize>
 #include <QWaylandClientExtension>
 
@@ -25,6 +27,8 @@ public:
     WaylandOutputConfiguration(struct ::kde_output_configuration_v2 *object);
     ~WaylandOutputConfiguration() override;
 
+    QFuture<QString> future() const;
+
 Q_SIGNALS:
     void applied();
     void failed(QString errorMessage);
@@ -35,6 +39,7 @@ protected:
     void kde_output_configuration_v2_failure_reason(const QString &reason) override;
 
     QString m_errorMessage;
+    QPromise<QString> m_promise;
 };
 
 class WaylandOutputManagement : public QWaylandClientExtensionTemplate<WaylandOutputManagement>, public QtWayland::kde_output_management_v2

@@ -10,6 +10,7 @@
 #include "kscreen_export.h"
 #include "types.h"
 
+#include <QFuture>
 #include <QObject>
 #include <QString>
 
@@ -67,7 +68,7 @@ public:
      * @returns an error message in the case of failure
      * TODO Plasma 6.4 port back to std::expected
      */
-    virtual QString setConfig(const KScreen::ConfigPtr &config) = 0;
+    virtual QFuture<QString> setConfig(const KScreen::ConfigPtr &config) = 0;
 
     /**
      * Returns whether the backend is in valid state.

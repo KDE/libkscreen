@@ -17,7 +17,6 @@
 #include <mode.h>
 #include <output.h>
 
-#include <QEventLoop>
 #include <QProcess>
 #include <QSettings>
 #include <QStandardPaths>
@@ -50,25 +49,9 @@ ConfigPtr WaylandBackend::config() const
     return m_internalConfig->currentConfig();
 }
 
-QString WaylandBackend::setConfig(const KScreen::ConfigPtr &newconfig)
+QFuture<QString> WaylandBackend::setConfig(const KScreen::ConfigPtr &newconfig)
 {
-    if (!newconfig) {
-        return QString();
-    }
-    // wait for KWin reply
-    QEventLoop loop;
-
-    QString ret;
-    connect(m_internalConfig, &WaylandConfig::configChanged, &loop, &QEventLoop::quit);
-    connect(m_internalConfig, &WaylandConfig::configFailed, [&ret](const QString &reason) {
-        ret = reason;
-    });
-    if (!m_internalConfig->applyConfig(newconfig)) {
-        return QString();
-    }
-
-    loop.exec();
-    return ret;
+    return m_internalConfig->applyConfig(newconfig);
 }
 
 QByteArray WaylandBackend::edid(int outputId) const

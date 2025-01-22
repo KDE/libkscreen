@@ -88,12 +88,17 @@ ConfigPtr Fake::config() const
     return mConfig;
 }
 
-QString Fake::setConfig(const ConfigPtr &config)
+QFuture<QString> Fake::setConfig(const ConfigPtr &config)
 {
     qCDebug(KSCREEN_FAKE) << "set config" << config->outputs();
     mConfig = config->clone();
     Q_EMIT configChanged(mConfig);
-    return QString();
+
+    QPromise<QString> promise;
+    promise.addResult(QString());
+    promise.finish();
+
+    return promise.future();
 }
 
 bool Fake::isValid() const

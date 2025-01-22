@@ -66,16 +66,25 @@ QVariantMap BackendDBusWrapper::setConfig(const QVariantMap &configMap)
         return QVariantMap();
     }
 
+    setDelayedReply(true);
+
+    const QDBusMessage response = message();
+    auto watcher = new QFutureWatcher<QString>(this);
+    connect(watcher, &QFutureWatcher<QString>::finished, this, [this, response, watcher]() {
+        watcher->deleteLater();
+
+        mCurrentConfig = mBackend->config();
+        QMetaObject::invokeMethod(this, "doEmitConfigChanged", Qt::QueuedConnection);
+
+        // TODO: setConfig should return adjusted config that was actually applied
+        const QJsonObject obj = KScreen::ConfigSerializer::serializeConfig(mCurrentConfig);
+        Q_ASSERT(!obj.isEmpty());
+        QDBusConnection::sessionBus().send(response.createReply(obj.toVariantMap()));
+    });
+
     const KScreen::ConfigPtr config = KScreen::ConfigSerializer::deserializeConfig(configMap);
-    mBackend->setConfig(config);
-
-    mCurrentConfig = mBackend->config();
-    QMetaObject::invokeMethod(this, "doEmitConfigChanged", Qt::QueuedConnection);
-
-    // TODO: setConfig should return adjusted config that was actually applied
-    const QJsonObject obj = KScreen::ConfigSerializer::serializeConfig(mCurrentConfig);
-    Q_ASSERT(!obj.isEmpty());
-    return obj.toVariantMap();
+    watcher->setFuture(mBackend->setConfig(config));
+    return QVariantMap();
 }
 
 QByteArray BackendDBusWrapper::getEdid(int output) const

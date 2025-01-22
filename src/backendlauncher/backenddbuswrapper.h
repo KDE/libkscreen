@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <QDBusContext>
 #include <QObject>
 #include <QTimer>
 #include <QVariant>
@@ -18,7 +19,7 @@ namespace KScreen
 class AbstractBackend;
 }
 
-class BackendDBusWrapper : public QObject
+class BackendDBusWrapper : public QObject, public QDBusContext
 {
     Q_OBJECT
     Q_CLASSINFO("D-Bus Interface", "org.kde.KScreen.Backend")

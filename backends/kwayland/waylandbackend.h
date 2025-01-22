@@ -27,7 +27,7 @@ public:
     QString name() const override;
     QString serviceName() const override;
     KScreen::ConfigPtr config() const override;
-    QString setConfig(const KScreen::ConfigPtr &config) override;
+    QFuture<QString> setConfig(const KScreen::ConfigPtr &config) override;
     bool isValid() const override;
     QByteArray edid(int outputId) const override;
 

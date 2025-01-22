@@ -48,14 +48,25 @@ WaylandOutputConfiguration::~WaylandOutputConfiguration()
     destroy();
 }
 
+QFuture<QString> WaylandOutputConfiguration::future() const
+{
+    return m_promise.future();
+}
+
 void WaylandOutputConfiguration::kde_output_configuration_v2_applied()
 {
     Q_EMIT applied();
+
+    m_promise.addResult(QString());
+    m_promise.finish();
 }
 
 void WaylandOutputConfiguration::kde_output_configuration_v2_failed()
 {
     Q_EMIT failed(m_errorMessage);
+
+    m_promise.addResult(m_errorMessage);
+    m_promise.finish();
 }
 
 void WaylandOutputConfiguration::kde_output_configuration_v2_failure_reason(const QString &reason)

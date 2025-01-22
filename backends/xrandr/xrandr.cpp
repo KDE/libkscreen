@@ -176,16 +176,21 @@ ConfigPtr XRandR::config() const
     return s_internalConfig->toKScreenConfig();
 }
 
-QString XRandR::setConfig(const ConfigPtr &config)
+QFuture<QString> XRandR::setConfig(const ConfigPtr &config)
 {
     if (!config) {
-        return QString();
+        return QFuture<QString>();
     }
 
     qCDebug(KSCREEN_XRANDR) << "XRandR::setConfig";
     s_internalConfig->applyKScreenConfig(config);
     qCDebug(KSCREEN_XRANDR) << "XRandR::setConfig done!";
-    return QString();
+
+    QPromise<QString> promise;
+    promise.addResult(QString());
+    promise.finish();
+
+    return promise.future();
 }
 
 QByteArray XRandR::edid(int outputId) const
