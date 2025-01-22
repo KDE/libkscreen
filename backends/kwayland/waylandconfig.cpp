@@ -145,7 +145,6 @@ void WaylandConfig::setupRegistry()
         Q_UNUSED(callbackData)
         auto self = static_cast<WaylandConfig *>(data);
         self->m_registryInitialized = true;
-        self->unblockSignals();
         self->checkInitialized();
     }};
     auto callback = wl_display_sync(waylandApp->display());
