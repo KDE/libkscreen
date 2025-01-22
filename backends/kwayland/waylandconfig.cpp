@@ -343,6 +343,13 @@ WaylandOutputDevice *WaylandConfig::findOutputDevice(struct ::kde_output_device_
 
 bool WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
 {
+    for (const auto &output : newConfig->outputs()) {
+        if (!m_outputMap.contains(output->id())) {
+            qCWarning(KSCREEN_WAYLAND) << "Cannot find output with id" << output->id();
+            return false;
+        }
+    }
+
     newConfig->adjustPriorities(); // never trust input
 
     // Create a new configuration object
