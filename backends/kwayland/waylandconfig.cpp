@@ -368,6 +368,7 @@ bool WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
     }
 
     if (!changed) {
+        delete wlConfig;
         return false;
     }
 
