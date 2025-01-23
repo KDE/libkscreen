@@ -197,7 +197,7 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
     auto device = new WaylandOutputDevice(++s_outputId);
     m_initializingOutputs << device;
 
-    connect(this, &WaylandConfig::globalRemoved, this, [name, device, this](const uint32_t &interfaceName) {
+    connect(this, &WaylandConfig::globalRemoved, device, [name, device, this](const uint32_t &interfaceName) {
         if (name == interfaceName) {
             removeOutput(device);
         }
