@@ -105,6 +105,7 @@ public:
         AutoRotation = 1 << 5,
         IccProfile = 1 << 6,
         BrightnessControl = 1 << 7,
+        BuiltInColorProfile = 1 << 8,
     };
     Q_ENUM(Capability)
     Q_DECLARE_FLAGS(Capabilities, Capability)

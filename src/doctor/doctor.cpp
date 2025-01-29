@@ -634,7 +634,7 @@ void Doctor::showOutputs() const
             cout << cr << "incapable" << endl;
         }
         cout << yellow << "\tColor profile source: ";
-        if (output->capabilities() & Output::Capability::IccProfile) {
+        if (output->capabilities() & (Output::Capabilities(Output::Capability::IccProfile) | Output::Capability::BuiltInColorProfile)) {
             cout << cr;
             switch (output->colorProfileSource()) {
             case Output::ColorProfileSource::sRGB:
