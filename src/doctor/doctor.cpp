@@ -114,9 +114,9 @@ void Doctor::start(QCommandLineParser *parser)
         if (dpmsArg == QLatin1String("show")) {
             connect(m_dpmsClient, &Dpms::modeChanged, [](Dpms::Mode mode, QScreen *screen) {
                 if (mode == Dpms::Mode::On) {
-                    cout << "dpms mode for screen " << screen->name() << ": off\n";
-                } else {
                     cout << "dpms mode for screen " << screen->name() << ": on\n";
+                } else {
+                    cout << "dpms mode for screen " << screen->name() << ": off\n";
                 }
                 // More correctly checking if the mode for all displays have been sent is tricky,
                 // so this just assumes KWin sends the state for all displays in one go
