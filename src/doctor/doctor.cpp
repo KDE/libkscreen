@@ -343,8 +343,8 @@ void Doctor::parseOutputArgs()
                     }
                 } else if (ops.count() == 4 && subcmd == "sdr-brightness") {
                     const uint32_t brightness = ops[3].toInt();
-                    if (brightness < 100 || brightness > 10000) {
-                        qCWarning(KSCREEN_DOCTOR) << "Wrong input: Allowed range for sdr-brightness is 100 to 10000";
+                    if (brightness < 50 || brightness > 10000) {
+                        qCWarning(KSCREEN_DOCTOR) << "Wrong input: Allowed range for sdr-brightness is 50 to 10000";
                         qApp->exit(9);
                         return;
                     }
