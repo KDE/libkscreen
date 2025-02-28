@@ -214,6 +214,12 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output, const QMap<int,
     }
     output->setReplicationSource(replicationSourceId);
     output->setDdcCiAllowed(m_ddcCiAllowed);
+    output->setMaxBitsPerColor(m_maxBpc);
+    output->setAutomaticMaxBitsPerColorLimit(m_autoMaxBpcLimit);
+    output->setBitsPerColorRange(Output::BpcRange{
+        .min = bpcRange.min,
+        .max = bpcRange.max,
+    });
 
     updateKScreenModes(output);
 }
@@ -354,6 +360,9 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputConfiguration *wlConfig, cons
     }
     if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_DDC_CI_ALLOWED_SINCE_VERSION && m_ddcCiAllowed != output->ddcCiAllowed()) {
         wlConfig->set_ddc_ci_allowed(object(), output->ddcCiAllowed() ? 1 : 0);
+    }
+    if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_MAX_BITS_PER_COLOR_SINCE_VERSION && m_maxBpc != output->maxBitsPerColor()) {
+        wlConfig->set_max_bits_per_color(object(), output->maxBitsPerColor());
         changed = true;
     }
 
@@ -532,6 +541,24 @@ void WaylandOutputDevice::kde_output_device_v2_replication_source(const QString 
 void WaylandOutputDevice::kde_output_device_v2_ddc_ci_allowed(uint32_t allowed)
 {
     m_ddcCiAllowed = allowed == 1;
+}
+
+void WaylandOutputDevice::kde_output_device_v2_max_bits_per_color(uint32_t max_bpc)
+{
+    m_maxBpc = max_bpc;
+}
+
+void WaylandOutputDevice::kde_output_device_v2_max_bits_per_color_range(uint32_t min_value, uint32_t max_value)
+{
+    bpcRange = {
+        .min = min_value,
+        .max = max_value,
+    };
+}
+
+void WaylandOutputDevice::kde_output_device_v2_automatic_max_bits_per_color_limit(uint32_t value)
+{
+    m_autoMaxBpcLimit = value;
 }
 
 QByteArray WaylandOutputDevice::edid() const

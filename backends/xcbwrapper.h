@@ -21,7 +21,8 @@
 
 namespace XCB
 {
-template<typename T> using ScopedPointer = QScopedPointer<T, QScopedPointerPodDeleter>;
+template<typename T>
+using ScopedPointer = QScopedPointer<T, QScopedPointerPodDeleter>;
 
 xcb_connection_t *connection();
 void closeConnection();
@@ -44,7 +45,7 @@ public:
         m_cookie.sequence = 0;
     }
 
-    explicit Wrapper(const RequestFuncArgs &... args)
+    explicit Wrapper(const RequestFuncArgs &...args)
         : m_retrieved(false)
         , m_cookie(requestFunc(connection(), args...))
         , m_window(requestWindow<RequestFuncArgs...>(args...))
@@ -167,7 +168,8 @@ private:
         }
     }
 
-    template<typename... Args> constexpr xcb_window_t requestWindow(const Args &... args) const
+    template<typename... Args>
+    constexpr xcb_window_t requestWindow(const Args &...args) const
     {
         return std::is_same<typename std::tuple_element<0, std::tuple<Args...>>::type, xcb_window_t>::value ? std::get<0>(std::tuple<Args...>(args...))
                                                                                                             : static_cast<xcb_window_t>(XCB_WINDOW_NONE);

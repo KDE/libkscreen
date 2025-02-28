@@ -82,6 +82,9 @@ public:
         , dimming(other.dimming)
         , uuid(other.uuid)
         , ddcCiAllowed(other.ddcCiAllowed)
+        , maxBitsPerColor(other.maxBitsPerColor)
+        , bitsPerColorRange(other.bitsPerColorRange)
+        , automaticMaxBitsPerColorLimit(other.automaticMaxBitsPerColorLimit)
     {
         const auto otherModeList = other.modeList;
         for (const ModePtr &otherMode : otherModeList) {
@@ -143,6 +146,9 @@ public:
     double dimming = 1.0;
     QString uuid;
     bool ddcCiAllowed = true;
+    uint32_t maxBitsPerColor = 0;
+    BpcRange bitsPerColorRange;
+    uint32_t automaticMaxBitsPerColorLimit = 0;
 };
 
 bool Output::Private::compareModeList(const ModeList &before, const ModeList &after)
@@ -978,6 +984,45 @@ void Output::setDdcCiAllowed(bool allowed)
     }
 }
 
+uint32_t Output::maxBitsPerColor() const
+{
+    return d->maxBitsPerColor;
+}
+
+void Output::setMaxBitsPerColor(uint32_t value)
+{
+    if (d->maxBitsPerColor != value) {
+        d->maxBitsPerColor = value;
+        Q_EMIT maxBitsPerColorChanged();
+    }
+}
+
+Output::BpcRange Output::bitsPerColorRange() const
+{
+    return d->bitsPerColorRange;
+}
+
+void Output::setBitsPerColorRange(BpcRange range)
+{
+    if (d->bitsPerColorRange != range) {
+        d->bitsPerColorRange = range;
+        Q_EMIT maxBitsPerColorChanged();
+    }
+}
+
+uint32_t Output::automaticMaxBitsPerColorLimit() const
+{
+    return d->automaticMaxBitsPerColorLimit;
+}
+
+void Output::setAutomaticMaxBitsPerColorLimit(uint32_t chosenValue)
+{
+    if (d->automaticMaxBitsPerColorLimit != chosenValue) {
+        d->automaticMaxBitsPerColorLimit = chosenValue;
+        Q_EMIT maxBitsPerColorChanged();
+    }
+}
+
 void Output::apply(const OutputPtr &other)
 {
     typedef void (KScreen::Output::*ChangeSignal)();
@@ -1135,6 +1180,13 @@ void Output::apply(const OutputPtr &other)
     if (d->ddcCiAllowed != other->d->ddcCiAllowed) {
         changes << &Output::ddcCiAllowedChanged;
         setDdcCiAllowed(other->d->ddcCiAllowed);
+    }
+    if (d->maxBitsPerColor != other->d->maxBitsPerColor || d->bitsPerColorRange != other->d->bitsPerColorRange
+        || d->automaticMaxBitsPerColorLimit != other->d->automaticMaxBitsPerColorLimit) {
+        changes << &Output::maxBitsPerColorChanged;
+        setMaxBitsPerColor(other->d->maxBitsPerColor);
+        setBitsPerColorRange(other->d->bitsPerColorRange);
+        setAutomaticMaxBitsPerColorLimit(other->d->automaticMaxBitsPerColorLimit);
     }
 
     // Non-notifyable changes

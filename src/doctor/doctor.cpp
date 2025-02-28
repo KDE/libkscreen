@@ -487,6 +487,20 @@ void Doctor::parseOutputArgs()
                         return;
                     }
                     m_changed = true;
+                } else if (ops.count() >= 4 && subcmd == "maxbpc") {
+                    if (ops[3] == "automatic") {
+                        output->setMaxBitsPerColor(0);
+                    } else {
+                        bool ok = false;
+                        const uint32_t bpc = ops[3].toUInt(&ok);
+                        if (!ok || bpc < 6 || bpc > 16 || bpc % 2 != 0) {
+                            qCWarning(KSCREEN_DOCTOR) << "Wrong input: Only 'automatic' and whole numbers between 6 and 16 are allowed";
+                            qApp->exit(9);
+                            return;
+                        }
+                        output->setMaxBitsPerColor(bpc);
+                    }
+                    m_changed = true;
                 } else {
                     cerr << "Unable to parse arguments: " << op << Qt::endl;
                     qApp->exit(2);
@@ -702,6 +716,27 @@ void Doctor::showOutputs() const
         if (output->capabilities() & Output::Capability::DdcCi) {
             cout << yellow << "\tDDC/CI: ";
             cout << cr << (output->ddcCiAllowed() ? "allowed" : "disallowed") << endl;
+        }
+        cout << yellow << "\tColor resolution: ";
+        if (output->capabilities() & Output::Capability::MaxBitsPerColor) {
+            cout << cr;
+            if (output->maxBitsPerColor() != 0) {
+                cout << output->maxBitsPerColor() << " bits per color";
+            } else {
+                uint32_t autoBpc = 0;
+                if (output->colorPowerPreference() == Output::ColorPowerTradeoff::PreferEfficiency) {
+                    autoBpc = 10;
+                } else {
+                    autoBpc = 16;
+                }
+                if (output->automaticMaxBitsPerColorLimit()) {
+                    autoBpc = std::min(autoBpc, output->automaticMaxBitsPerColorLimit());
+                }
+                cout << "automatic (" << autoBpc << ")";
+            }
+            cout << ", range: [" << output->bitsPerColorRange().min << "; " << output->bitsPerColorRange().max << "] bits per color" << endl;
+        } else {
+            cout << "unknown" << endl;
         }
     }
 }

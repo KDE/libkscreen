@@ -108,6 +108,7 @@ public:
         BrightnessControl = 1 << 7,
         BuiltInColorProfile = 1 << 8,
         DdcCi = 1 << 9,
+        MaxBitsPerColor = 1 << 10,
     };
     Q_ENUM(Capability)
     Q_DECLARE_FLAGS(Capabilities, Capability)
@@ -558,6 +559,21 @@ public:
     bool ddcCiAllowed() const;
     void setDdcCiAllowed(bool allowed);
 
+    /**
+     * 0 if no limit is set
+     */
+    uint32_t maxBitsPerColor() const;
+    void setMaxBitsPerColor(uint32_t maxBitsPerColor);
+    struct BpcRange {
+        uint32_t min = 0;
+        uint32_t max = 0;
+        auto operator<=>(const BpcRange &) const = default;
+    };
+    BpcRange bitsPerColorRange() const;
+    void setBitsPerColorRange(BpcRange range);
+    uint32_t automaticMaxBitsPerColorLimit() const;
+    void setAutomaticMaxBitsPerColorLimit(uint32_t chosenValue);
+
     void apply(const OutputPtr &other);
 
 Q_SIGNALS:
@@ -598,6 +614,7 @@ Q_SIGNALS:
     void dimmingChanged();
     void uuidChanged();
     void ddcCiAllowedChanged();
+    void maxBitsPerColorChanged();
 
     /** The mode list changed.
      *

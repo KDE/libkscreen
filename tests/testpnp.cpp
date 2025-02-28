@@ -17,7 +17,7 @@
 #include <QRect>
 #include <QScreen>
 #include <cstdint>
-//#include <QX11Info>
+// #include <QX11Info>
 
 using namespace KScreen;
 
