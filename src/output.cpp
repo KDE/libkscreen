@@ -80,6 +80,9 @@ public:
         , brightness(other.brightness)
         , colorPowerPreference(other.colorPowerPreference)
         , dimming(other.dimming)
+        , maxBitsPerColor(other.maxBitsPerColor)
+        , bitsPerColorRange(other.bitsPerColorRange)
+        , automaticMaxBitsPerColorLimit(other.automaticMaxBitsPerColorLimit)
     {
         const auto otherModeList = other.modeList;
         for (const ModePtr &otherMode : otherModeList) {
@@ -139,6 +142,9 @@ public:
     double brightness = 1.0;
     ColorPowerTradeoff colorPowerPreference = ColorPowerTradeoff::PreferEfficiency;
     double dimming = 1.0;
+    std::optional<uint32_t> maxBitsPerColor;
+    BpcRange bitsPerColorRange;
+    std::optional<uint32_t> automaticMaxBitsPerColorLimit;
 };
 
 bool Output::Private::compareModeList(const ModeList &before, const ModeList &after)
@@ -948,6 +954,45 @@ void Output::setDimming(double dimming)
     }
 }
 
+std::optional<uint32_t> Output::maxBitsPerColor() const
+{
+    return d->maxBitsPerColor;
+}
+
+void Output::setMaxBitsPerColor(std::optional<uint32_t> value)
+{
+    if (d->maxBitsPerColor != value) {
+        d->maxBitsPerColor = value;
+        Q_EMIT maxBitsPerColorChanged();
+    }
+}
+
+Output::BpcRange Output::bitsPerColorRange() const
+{
+    return d->bitsPerColorRange;
+}
+
+void Output::setBitsPerColorRange(BpcRange range)
+{
+    if (d->bitsPerColorRange != range) {
+        d->bitsPerColorRange = range;
+        Q_EMIT maxBitsPerColorChanged();
+    }
+}
+
+std::optional<uint32_t> Output::automaticMaxBitsPerColorLimit() const
+{
+    return d->automaticMaxBitsPerColorLimit;
+}
+
+void Output::setAutomaticMaxBitsPerColorLimit(std::optional<uint32_t> chosenValue)
+{
+    if (d->automaticMaxBitsPerColorLimit != chosenValue) {
+        d->automaticMaxBitsPerColorLimit = chosenValue;
+        Q_EMIT maxBitsPerColorChanged();
+    }
+}
+
 void Output::apply(const OutputPtr &other)
 {
     typedef void (KScreen::Output::*ChangeSignal)();
@@ -1097,6 +1142,13 @@ void Output::apply(const OutputPtr &other)
     if (d->dimming != other->d->dimming) {
         changes << &Output::dimmingChanged;
         setDimming(other->d->dimming);
+    }
+    if (d->maxBitsPerColor != other->d->maxBitsPerColor || d->bitsPerColorRange != other->d->bitsPerColorRange
+        || d->automaticMaxBitsPerColorLimit != other->d->automaticMaxBitsPerColorLimit) {
+        changes << &Output::maxBitsPerColorChanged;
+        setMaxBitsPerColor(other->d->maxBitsPerColor);
+        setBitsPerColorRange(other->d->bitsPerColorRange);
+        setAutomaticMaxBitsPerColorLimit(other->d->automaticMaxBitsPerColorLimit);
     }
 
     // Non-notifyable changes

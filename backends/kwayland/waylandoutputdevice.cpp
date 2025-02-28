@@ -204,6 +204,12 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output)
     output->setBrightness(m_brightness / 10'000.0);
     output->setColorPowerPreference(static_cast<Output::ColorPowerTradeoff>(m_colorPowerPreference));
     output->setDimming(m_dimming / 10'000.0);
+    output->setMaxBitsPerColor(m_maxBpc);
+    output->setAutomaticMaxBitsPerColorLimit(m_autoMaxBpcLimit);
+    output->setBitsPerColorRange(Output::BpcRange{
+        .min = bpcRange.min,
+        .max = bpcRange.max,
+    });
 
     updateKScreenModes(output);
 }
@@ -331,6 +337,10 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputConfiguration *wlConfig, cons
     }
     if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_DIMMING_SINCE_VERSION && m_dimming != uint32_t(std::round(output->dimming() * 10'000))) {
         wlConfig->set_dimming(object(), std::round(output->dimming() * 10'000));
+        changed = true;
+    }
+    if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_MAX_BITS_PER_COLOR_SINCE_VERSION && m_maxBpc != output->maxBitsPerColor()) {
+        wlConfig->set_max_bits_per_color(object(), output->maxBitsPerColor().value_or(0));
         changed = true;
     }
 
@@ -499,6 +509,32 @@ void WaylandOutputDevice::kde_output_device_v2_color_power_tradeoff(uint32_t pre
 void WaylandOutputDevice::kde_output_device_v2_dimming(uint32_t dimming)
 {
     m_dimming = dimming;
+}
+
+void WaylandOutputDevice::kde_output_device_v2_max_bits_per_color(uint32_t max_bpc)
+{
+    if (max_bpc == 0) {
+        m_maxBpc.reset();
+    } else {
+        m_maxBpc = max_bpc;
+    }
+}
+
+void WaylandOutputDevice::kde_output_device_v2_max_bits_per_color_range(uint32_t min_value, uint32_t max_value)
+{
+    bpcRange = {
+        .min = min_value,
+        .max = max_value,
+    };
+}
+
+void WaylandOutputDevice::kde_output_device_v2_automatic_max_bits_per_color_limit(uint32_t value)
+{
+    if (value == 0) {
+        m_autoMaxBpcLimit.reset();
+    } else {
+        m_autoMaxBpcLimit = value;
+    }
 }
 
 QByteArray WaylandOutputDevice::edid() const
