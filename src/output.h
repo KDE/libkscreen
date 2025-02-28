@@ -106,6 +106,7 @@ public:
         IccProfile = 1 << 6,
         BrightnessControl = 1 << 7,
         BuiltInColorProfile = 1 << 8,
+        MaxBitsPerColor = 1 << 9,
     };
     Q_ENUM(Capability)
     Q_DECLARE_FLAGS(Capabilities, Capability)
@@ -550,6 +551,18 @@ public:
     double dimming() const;
     void setDimming(double dimming);
 
+    std::optional<uint32_t> maxBitsPerColor() const;
+    void setMaxBitsPerColor(std::optional<uint32_t> maxBitsPerColor);
+    struct BpcRange {
+        uint32_t min = 0;
+        uint32_t max = 0;
+        auto operator<=>(const BpcRange &) const = default;
+    };
+    BpcRange bitsPerColorRange() const;
+    void setBitsPerColorRange(BpcRange range);
+    uint32_t automaticMaxBitsPerColor() const;
+    void setAutomaticMaxBitsPerColor(uint32_t chosenValue);
+
     void apply(const OutputPtr &other);
 
 Q_SIGNALS:
@@ -588,6 +601,7 @@ Q_SIGNALS:
     void modelChanged();
     void colorPowerPreferenceChanged();
     void dimmingChanged();
+    void maxBitsPerColorChanged();
 
     /** The mode list changed.
      *

@@ -96,6 +96,7 @@ protected:
     void kde_output_device_v2_brightness(uint32_t brightness) override;
     void kde_output_device_v2_color_power_tradeoff(uint32_t preference) override;
     void kde_output_device_v2_dimming(uint32_t dimming) override;
+    void kde_output_device_v2_max_bits_per_color(uint32_t max_bpc, uint32_t autoValue, uint32_t min_value, uint32_t max_value) override;
 
 private:
     QString modeName(const WaylandOutputDeviceMode *m) const;
@@ -139,6 +140,12 @@ private:
     uint32_t m_brightness = 10'000;
     color_power_tradeoff m_colorPowerPreference = color_power_tradeoff_efficiency;
     uint32_t m_dimming = 10'000;
+    std::optional<uint32_t> m_maxBpc;
+    uint32_t m_autoMaxBpc = 0;
+    struct {
+        uint32_t min;
+        uint32_t max;
+    } bpcRange;
 };
 
 }
