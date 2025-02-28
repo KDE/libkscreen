@@ -187,7 +187,8 @@ void XCBEventListener::handleXRandRNotify(xcb_generic_event_t *e)
         qCDebug(KSCREEN_XCB_HELPER) << "RRNotify_OutputProperty (ignored)";
         qCDebug(KSCREEN_XCB_HELPER) << "\tTimestamp: " << property.timestamp;
         qCDebug(KSCREEN_XCB_HELPER) << "\tOutput: " << property.output;
-        qCDebug(KSCREEN_XCB_HELPER) << "\tProperty: " << QByteArray::fromRawData(xcb_get_atom_name_name(reply.data()), xcb_get_atom_name_name_length(reply.data()));
+        qCDebug(KSCREEN_XCB_HELPER) << "\tProperty: "
+                                    << QByteArray::fromRawData(xcb_get_atom_name_name(reply.data()), xcb_get_atom_name_name_length(reply.data()));
         qCDebug(KSCREEN_XCB_HELPER) << "\tState (newValue, Deleted): " << property.status;
     }
 }

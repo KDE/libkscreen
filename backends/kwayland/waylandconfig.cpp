@@ -34,7 +34,7 @@ using namespace std::chrono_literals;
 
 WaylandConfig::WaylandConfig(QObject *parent)
     : QObject(parent)
-    , m_outputManagement(std::make_unique<WaylandOutputManagement>(14))
+    , m_outputManagement(std::make_unique<WaylandOutputManagement>(15))
     , m_registryInitialized(false)
     , m_blockSignals(false)
     , m_kscreenConfig(new Config)
@@ -113,7 +113,7 @@ void WaylandConfig::setupRegistry()
     auto globalAdded = [](void *data, wl_registry *registry, uint32_t name, const char *interface, uint32_t version) {
         auto self = static_cast<WaylandConfig *>(data);
         if (qstrcmp(interface, WaylandOutputDevice::interface()->name) == 0) {
-            self->addOutput(name, std::min(14u, version));
+            self->addOutput(name, std::min(15u, version));
         }
         if (qstrcmp(interface, WaylandOutputOrder::interface()->name) == 0) {
             self->m_outputOrder = std::make_unique<WaylandOutputOrder>(registry, name, std::min(1u, version));
