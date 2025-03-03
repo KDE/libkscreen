@@ -77,6 +77,7 @@ public:
         , maxAverageBrightnessOverride(other.maxAverageBrightnessOverride)
         , minBrightnessOverride(other.minBrightnessOverride)
         , colorProfileSource(other.colorProfileSource)
+        , brightnessControlMode(other.brightnessControlMode)
         , brightness(other.brightness)
         , colorPowerPreference(other.colorPowerPreference)
         , dimming(other.dimming)
@@ -136,6 +137,7 @@ public:
     std::optional<double> maxAverageBrightnessOverride;
     std::optional<double> minBrightnessOverride;
     ColorProfileSource colorProfileSource = ColorProfileSource::sRGB;
+    BrightnessControlMode brightnessControlMode = BrightnessControlMode::Disabled;
     double brightness = 1.0;
     ColorPowerTradeoff colorPowerPreference = ColorPowerTradeoff::PreferEfficiency;
     double dimming = 1.0;
@@ -909,6 +911,19 @@ void Output::setColorProfileSource(ColorProfileSource source)
     }
 }
 
+Output::BrightnessControlMode Output::brightnessControlMode() const
+{
+    return d->brightnessControlMode;
+}
+
+void Output::setBrightnessControlMode(BrightnessControlMode mode)
+{
+    if (d->brightnessControlMode != mode) {
+        d->brightnessControlMode = mode;
+        Q_EMIT brightnessControlModeChanged();
+    }
+}
+
 double Output::brightness() const
 {
     return d->brightness;
@@ -1085,6 +1100,10 @@ void Output::apply(const OutputPtr &other)
     if (d->colorProfileSource != other->d->colorProfileSource) {
         changes << &Output::colorProfileSourceChanged;
         setColorProfileSource(other->d->colorProfileSource);
+    }
+    if (d->brightnessControlMode != other->d->brightnessControlMode) {
+        changes << &Output::brightnessControlModeChanged;
+        setBrightnessControlMode(other->d->brightnessControlMode);
     }
     if (d->brightness != other->d->brightness) {
         changes << &Output::brightnessChanged;

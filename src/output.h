@@ -61,6 +61,7 @@ public:
     Q_PROPERTY(AutoRotatePolicy autoRotatePolicy READ autoRotatePolicy WRITE setAutoRotatePolicy NOTIFY autoRotatePolicyChanged)
     Q_PROPERTY(QString iccProfilePath READ iccProfilePath WRITE setIccProfilePath NOTIFY iccProfilePathChanged)
     Q_PROPERTY(ColorProfileSource colorProfileSource READ colorProfileSource WRITE setColorProfileSource NOTIFY colorProfileSourceChanged)
+    Q_PROPERTY(BrightnessControlMode brightnessControlMode READ brightnessControlMode WRITE setBrightnessControlMode NOTIFY brightnessControlModeChanged)
     Q_PROPERTY(double brightness READ brightness WRITE setBrightness NOTIFY brightnessChanged)
     Q_PROPERTY(ColorPowerTradeoff colorPowerPreference READ colorPowerPreference WRITE setColorPowerPreference NOTIFY colorPowerPreferenceChanged)
     Q_PROPERTY(double dimming READ dimming WRITE setDimming NOTIFY dimmingChanged)
@@ -106,6 +107,10 @@ public:
         IccProfile = 1 << 6,
         BrightnessControl = 1 << 7,
         BuiltInColorProfile = 1 << 8,
+        DisabledBrightnessControlMode = 1 << 9,
+        SoftwareBrightnessControlMode = 1 << 10,
+        HardwareBrightnessControlMode = 1 << 11,
+        HybridBrightnessControlMode = 1 << 12,
     };
     Q_ENUM(Capability)
     Q_DECLARE_FLAGS(Capabilities, Capability)
@@ -144,6 +149,14 @@ public:
         PreferAccuracy = 1,
     };
     Q_ENUM(ColorPowerTradeoff)
+
+    enum class BrightnessControlMode {
+        Disabled = 0,
+        Software = 1,
+        Hardware = 2,
+        Hybrid = 3,
+    };
+    Q_ENUM(BrightnessControlMode)
 
     explicit Output();
     ~Output() override;
@@ -547,6 +560,9 @@ public:
     ColorPowerTradeoff colorPowerPreference() const;
     void setColorPowerPreference(ColorPowerTradeoff tradeoff);
 
+    BrightnessControlMode brightnessControlMode() const;
+    void setBrightnessControlMode(BrightnessControlMode mode);
+
     double dimming() const;
     void setDimming(double dimming);
 
@@ -583,6 +599,7 @@ Q_SIGNALS:
     void maxAverageBrightnessOverrideChanged();
     void minBrightnessOverrideChanged();
     void colorProfileSourceChanged();
+    void brightnessControlModeChanged();
     void brightnessChanged();
     void vendorChanged();
     void modelChanged();

@@ -428,6 +428,22 @@ void Doctor::parseOutputArgs()
                         return;
                     }
                     m_changed = true;
+                } else if (ops.count() >= 4 && subcmd == "brightnessControlMode") {
+                    if (ops[3] == "disabled") {
+                        output->setBrightnessControlMode(Output::BrightnessControlMode::Disabled);
+                    } else if (ops[3] == "software") {
+                        output->setBrightnessControlMode(Output::BrightnessControlMode::Software);
+                    } else if (ops[3] == "hardware") {
+                        output->setBrightnessControlMode(Output::BrightnessControlMode::Hardware);
+                    } else if (ops[3] == "hybrid") {
+                        output->setBrightnessControlMode(Output::BrightnessControlMode::Hybrid);
+                    } else {
+                        qCWarning(KSCREEN_DOCTOR)
+                            << "Wrong input: only allowed values for brightnessControlMode are \"disabled\", \"software\", \"hardware\" and \"hybrid\"";
+                        qApp->exit(9);
+                        return;
+                    }
+                    m_changed = true;
                 } else if (ops.count() >= 4 && subcmd == "brightness") {
                     const uint32_t brightness = ops[3].toUInt();
                     if (brightness > 100) {
@@ -659,6 +675,21 @@ void Doctor::showOutputs() const
             cout << endl;
         } else {
             cout << cr << "incapable" << endl;
+        }
+        cout << yellow << "\tBrightness control mode: ";
+        switch (output->brightnessControlMode()) {
+        case Output::BrightnessControlMode::Disabled:
+            cout << cr << "disabled" << endl;
+            break;
+        case Output::BrightnessControlMode::Software:
+            cout << cr << "software" << endl;
+            break;
+        case Output::BrightnessControlMode::Hardware:
+            cout << cr << "hardware" << endl;
+            break;
+        case Output::BrightnessControlMode::Hybrid:
+            cout << cr << "hybrid hardware & software (extended range)" << endl;
+            break;
         }
         cout << yellow << "\tBrightness control: ";
         if (output->capabilities() & Output::Capability::BrightnessControl) {
