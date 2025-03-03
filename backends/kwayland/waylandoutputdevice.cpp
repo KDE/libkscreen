@@ -204,6 +204,7 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output)
     output->setBrightness(m_brightness / 10'000.0);
     output->setColorPowerPreference(static_cast<Output::ColorPowerTradeoff>(m_colorPowerPreference));
     output->setDimming(m_dimming / 10'000.0);
+    output->setDdcCiAllowed(m_ddcCiAllowed);
 
     updateKScreenModes(output);
 }
@@ -331,6 +332,10 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputConfiguration *wlConfig, cons
     }
     if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_DIMMING_SINCE_VERSION && m_dimming != uint32_t(std::round(output->dimming() * 10'000))) {
         wlConfig->set_dimming(object(), std::round(output->dimming() * 10'000));
+        changed = true;
+    }
+    if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_DDC_CI_ALLOWED_SINCE_VERSION && m_ddcCiAllowed != output->ddcCiAllowed()) {
+        wlConfig->set_ddc_ci_allowed(object(), output->ddcCiAllowed() ? 1 : 0);
         changed = true;
     }
 
@@ -499,6 +504,11 @@ void WaylandOutputDevice::kde_output_device_v2_color_power_tradeoff(uint32_t pre
 void WaylandOutputDevice::kde_output_device_v2_dimming(uint32_t dimming)
 {
     m_dimming = dimming;
+}
+
+void WaylandOutputDevice::kde_output_device_v2_ddc_ci_allowed(uint32_t allowed)
+{
+    m_ddcCiAllowed = allowed == 1;
 }
 
 QByteArray WaylandOutputDevice::edid() const
