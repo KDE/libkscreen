@@ -213,6 +213,7 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output, const QMap<int,
         }
     }
     output->setReplicationSource(replicationSourceId);
+    output->setDdcCiAllowed(m_ddcCiAllowed);
 
     updateKScreenModes(output);
 }
@@ -349,6 +350,10 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputConfiguration *wlConfig, cons
         } else {
             wlConfig->set_replication_source(object(), QString());
         }
+        changed = true;
+    }
+    if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_DDC_CI_ALLOWED_SINCE_VERSION && m_ddcCiAllowed != output->ddcCiAllowed()) {
+        wlConfig->set_ddc_ci_allowed(object(), output->ddcCiAllowed() ? 1 : 0);
         changed = true;
     }
 
@@ -522,6 +527,11 @@ void WaylandOutputDevice::kde_output_device_v2_dimming(uint32_t dimming)
 void WaylandOutputDevice::kde_output_device_v2_replication_source(const QString &source)
 {
     m_replicationSource = source;
+}
+
+void WaylandOutputDevice::kde_output_device_v2_ddc_ci_allowed(uint32_t allowed)
+{
+    m_ddcCiAllowed = allowed == 1;
 }
 
 QByteArray WaylandOutputDevice::edid() const

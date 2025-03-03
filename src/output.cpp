@@ -81,6 +81,7 @@ public:
         , colorPowerPreference(other.colorPowerPreference)
         , dimming(other.dimming)
         , uuid(other.uuid)
+        , ddcCiAllowed(other.ddcCiAllowed)
     {
         const auto otherModeList = other.modeList;
         for (const ModePtr &otherMode : otherModeList) {
@@ -141,6 +142,7 @@ public:
     ColorPowerTradeoff colorPowerPreference = ColorPowerTradeoff::PreferEfficiency;
     double dimming = 1.0;
     QString uuid;
+    bool ddcCiAllowed = true;
 };
 
 bool Output::Private::compareModeList(const ModeList &before, const ModeList &after)
@@ -963,6 +965,19 @@ void Output::setUuid(const QString &id)
     }
 }
 
+bool Output::ddcCiAllowed() const
+{
+    return d->ddcCiAllowed;
+}
+
+void Output::setDdcCiAllowed(bool allowed)
+{
+    if (d->ddcCiAllowed != allowed) {
+        d->ddcCiAllowed = allowed;
+        Q_EMIT ddcCiAllowedChanged();
+    }
+}
+
 void Output::apply(const OutputPtr &other)
 {
     typedef void (KScreen::Output::*ChangeSignal)();
@@ -1116,6 +1131,10 @@ void Output::apply(const OutputPtr &other)
     if (d->uuid != other->d->uuid) {
         changes << &Output::uuidChanged;
         setUuid(other->d->uuid);
+    }
+    if (d->ddcCiAllowed != other->d->ddcCiAllowed) {
+        changes << &Output::ddcCiAllowedChanged;
+        setDdcCiAllowed(other->d->ddcCiAllowed);
     }
 
     // Non-notifyable changes
