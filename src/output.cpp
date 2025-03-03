@@ -80,6 +80,7 @@ public:
         , brightness(other.brightness)
         , colorPowerPreference(other.colorPowerPreference)
         , dimming(other.dimming)
+        , ddcCiAllowed(other.ddcCiAllowed)
     {
         const auto otherModeList = other.modeList;
         for (const ModePtr &otherMode : otherModeList) {
@@ -139,6 +140,7 @@ public:
     double brightness = 1.0;
     ColorPowerTradeoff colorPowerPreference = ColorPowerTradeoff::PreferEfficiency;
     double dimming = 1.0;
+    bool ddcCiAllowed = true;
 };
 
 bool Output::Private::compareModeList(const ModeList &before, const ModeList &after)
@@ -948,6 +950,19 @@ void Output::setDimming(double dimming)
     }
 }
 
+bool Output::ddcCiAllowed() const
+{
+    return d->ddcCiAllowed;
+}
+
+void Output::setDdcCiAllowed(bool allowed)
+{
+    if (d->ddcCiAllowed != allowed) {
+        d->ddcCiAllowed = allowed;
+        Q_EMIT ddcCiAllowedChanged();
+    }
+}
+
 void Output::apply(const OutputPtr &other)
 {
     typedef void (KScreen::Output::*ChangeSignal)();
@@ -1097,6 +1112,10 @@ void Output::apply(const OutputPtr &other)
     if (d->dimming != other->d->dimming) {
         changes << &Output::dimmingChanged;
         setDimming(other->d->dimming);
+    }
+    if (d->ddcCiAllowed != other->d->ddcCiAllowed) {
+        changes << &Output::ddcCiAllowedChanged;
+        setDdcCiAllowed(other->d->ddcCiAllowed);
     }
 
     // Non-notifyable changes

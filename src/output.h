@@ -64,6 +64,7 @@ public:
     Q_PROPERTY(double brightness READ brightness WRITE setBrightness NOTIFY brightnessChanged)
     Q_PROPERTY(ColorPowerTradeoff colorPowerPreference READ colorPowerPreference WRITE setColorPowerPreference NOTIFY colorPowerPreferenceChanged)
     Q_PROPERTY(double dimming READ dimming WRITE setDimming NOTIFY dimmingChanged)
+    Q_PROPERTY(bool ddcCiAllowed READ ddcCiAllowed WRITE setDdcCiAllowed NOTIFY ddcCiAllowedChanged)
 
     enum Type {
         Unknown,
@@ -106,6 +107,7 @@ public:
         IccProfile = 1 << 6,
         BrightnessControl = 1 << 7,
         BuiltInColorProfile = 1 << 8,
+        DdcCi = 1 << 9,
     };
     Q_ENUM(Capability)
     Q_DECLARE_FLAGS(Capabilities, Capability)
@@ -550,6 +552,9 @@ public:
     double dimming() const;
     void setDimming(double dimming);
 
+    bool ddcCiAllowed() const;
+    void setDdcCiAllowed(bool allowed);
+
     void apply(const OutputPtr &other);
 
 Q_SIGNALS:
@@ -588,6 +593,7 @@ Q_SIGNALS:
     void modelChanged();
     void colorPowerPreferenceChanged();
     void dimmingChanged();
+    void ddcCiAllowedChanged();
 
     /** The mode list changed.
      *

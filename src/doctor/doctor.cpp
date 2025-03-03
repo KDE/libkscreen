@@ -461,6 +461,18 @@ void Doctor::parseOutputArgs()
                     }
                     output->setDimming(dimming / 100.0);
                     m_changed = true;
+                } else if (ops.count() >= 4 && subcmd == "ddcCiAllowed") {
+                    const QString _enable = ops[3].toLower();
+                    if (_enable == "enable") {
+                        output->setDdcCiAllowed(true);
+                    } else if (_enable == "disable") {
+                        output->setDdcCiAllowed(false);
+                    } else {
+                        qCWarning(KSCREEN_DOCTOR) << "Wrong input: Only allowed values for ddcCiAllowed are \"enable\" and \"disable\"";
+                        qApp->exit(9);
+                        return;
+                    }
+                    m_changed = true;
                 } else {
                     cerr << "Unable to parse arguments: " << op << Qt::endl;
                     qApp->exit(2);
@@ -670,6 +682,10 @@ void Doctor::showOutputs() const
                  << " and dimming to " << std::round(output->dimming() * 100) << "%" << endl;
         } else {
             cout << cr << "unsupported" << endl;
+        }
+        if (output->capabilities() & Output::Capability::DdcCi) {
+            cout << yellow << "\tDDC/CI: ";
+            cout << cr << (output->ddcCiAllowed() ? "allowed" : "disabled") << endl;
         }
     }
 }
