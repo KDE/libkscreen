@@ -336,8 +336,10 @@ void Doctor::parseOutputArgs()
                         setHdrEnabled(output, true);
                     } else if (_enable == "disable") {
                         setHdrEnabled(output, false);
+                    } else if (_enable == "toggle") {
+                        setHdrEnabled(output, !output->isHdrEnabled());
                     } else {
-                        qCWarning(KSCREEN_DOCTOR) << "Wrong input: Only allowed values for hdr are \"enable\" and \"disable\"";
+                        qCWarning(KSCREEN_DOCTOR) << "Wrong input: Only allowed values for hdr are \"enable\", \"disable\" and \"toggle\"";
                         qApp->exit(9);
                         return;
                     }
@@ -355,8 +357,10 @@ void Doctor::parseOutputArgs()
                         setWcgEnabled(output, true);
                     } else if (_enable == "disable") {
                         setWcgEnabled(output, false);
+                    } else if (_enable == "toggle") {
+                        setWcgEnabled(output, !output->isWcgEnabled());
                     } else {
-                        qCWarning(KSCREEN_DOCTOR) << "Wrong input: Only allowed values for wcg are \"enable\" and \"disable\"";
+                        qCWarning(KSCREEN_DOCTOR) << "Wrong input: Only allowed values for wcg are \"enable\", \"disable\" and \"toggle\"";
                         qApp->exit(9);
                         return;
                     }
