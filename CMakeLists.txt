@@ -69,7 +69,7 @@ ecm_setup_version(${PROJECT_VERSION} VARIABLE_PREFIX KSCREEN
                         SOVERSION 8)
 
 ecm_set_disabled_deprecation_versions(QT 5.15.0
-    KF 6.4.0
+    KF 6.12.0
 )
 
 add_subdirectory(src)
