@@ -80,6 +80,7 @@ public:
         , brightness(other.brightness)
         , colorPowerPreference(other.colorPowerPreference)
         , dimming(other.dimming)
+        , uuid(other.uuid)
     {
         const auto otherModeList = other.modeList;
         for (const ModePtr &otherMode : otherModeList) {
@@ -139,6 +140,7 @@ public:
     double brightness = 1.0;
     ColorPowerTradeoff colorPowerPreference = ColorPowerTradeoff::PreferEfficiency;
     double dimming = 1.0;
+    QString uuid;
 };
 
 bool Output::Private::compareModeList(const ModeList &before, const ModeList &after)
@@ -948,6 +950,19 @@ void Output::setDimming(double dimming)
     }
 }
 
+QString Output::uuid() const
+{
+    return d->uuid;
+}
+
+void Output::setUuid(const QString &id)
+{
+    if (d->uuid != id) {
+        d->uuid = id;
+        Q_EMIT uuidChanged();
+    }
+}
+
 void Output::apply(const OutputPtr &other)
 {
     typedef void (KScreen::Output::*ChangeSignal)();
@@ -1097,6 +1112,10 @@ void Output::apply(const OutputPtr &other)
     if (d->dimming != other->d->dimming) {
         changes << &Output::dimmingChanged;
         setDimming(other->d->dimming);
+    }
+    if (d->uuid != other->d->uuid) {
+        changes << &Output::uuidChanged;
+        setUuid(other->d->uuid);
     }
 
     // Non-notifyable changes

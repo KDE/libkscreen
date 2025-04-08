@@ -204,6 +204,7 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output)
     output->setBrightness(m_brightness / 10'000.0);
     output->setColorPowerPreference(static_cast<Output::ColorPowerTradeoff>(m_colorPowerPreference));
     output->setDimming(m_dimming / 10'000.0);
+    output->setUuid(m_uuid);
 
     updateKScreenModes(output);
 }

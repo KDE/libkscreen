@@ -178,21 +178,22 @@ void Doctor::setOptionList(const QStringList &outputArgs)
 
 OutputPtr Doctor::findOutput(const QString &query)
 {
-    // try as an output name or ID
-    for (const auto &output : m_config->outputs()) {
-        if (output->name() == query) {
-            return output;
-        }
+    const auto outputs = m_config->outputs();
+    const auto it = std::ranges::find_if(outputs, [&query](const auto &output) {
+        return query == output->name() || query == output->uuid();
+    });
+    if (it != outputs.end()) {
+        return *it;
     }
     bool ok;
     int id = query.toInt(&ok);
     if (!ok) {
-        cerr << "Output with name " << query << " not found." << Qt::endl;
+        cerr << "Output with name or uuid " << query << " not found." << Qt::endl;
         return OutputPtr();
     }
 
-    if (m_config->outputs().contains(id)) {
-        return m_config->outputs()[id];
+    if (const auto it = outputs.find(id); it != outputs.end()) {
+        return *it;
     } else {
         cerr << "Output with id " << id << " not found." << Qt::endl;
         return OutputPtr();
@@ -522,7 +523,7 @@ void Doctor::showOutputs() const
 
     for (const auto &output : m_config->outputs()) {
         const auto endl = '\n';
-        cout << green << "Output: " << cr << output->id() << " " << output->name() << endl;
+        cout << green << "Output: " << cr << output->id() << " " << output->name() << " " << output->uuid() << endl;
         cout << "\t" << (output->isEnabled() ? green + QStringLiteral("enabled") : red + QStringLiteral("disabled")) << cr << endl;
         cout << "\t" << (output->isConnected() ? green + QStringLiteral("connected") : red + QStringLiteral("disconnected")) << cr << endl;
         cout << "\t" << (output->isEnabled() ? green : red) + QStringLiteral("priority ") << output->priority() << cr << endl;

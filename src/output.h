@@ -550,6 +550,9 @@ public:
     double dimming() const;
     void setDimming(double dimming);
 
+    QString uuid() const;
+    void setUuid(const QString &id);
+
     void apply(const OutputPtr &other);
 
 Q_SIGNALS:
@@ -588,6 +591,7 @@ Q_SIGNALS:
     void modelChanged();
     void colorPowerPreferenceChanged();
     void dimmingChanged();
+    void uuidChanged();
 
     /** The mode list changed.
      *
