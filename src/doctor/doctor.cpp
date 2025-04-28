@@ -501,6 +501,17 @@ void Doctor::parseOutputArgs()
                         output->setMaxBitsPerColor(bpc);
                     }
                     m_changed = true;
+                } else if (ops.count() >= 4 && subcmd == "edrPolicy") {
+                    if (ops[3] == "never") {
+                        output->setEdrPolicy(Output::EdrPolicy::Never);
+                    } else if (ops[3] == "always") {
+                        output->setEdrPolicy(Output::EdrPolicy::Always);
+                    } else {
+                        qCWarning(KSCREEN_DOCTOR) << "Wrong input: Only 'never' and 'automatic' are valid";
+                        qApp->exit(9);
+                        return;
+                    }
+                    m_changed = true;
                 } else {
                     cerr << "Unable to parse arguments: " << op << Qt::endl;
                     qApp->exit(2);
@@ -737,6 +748,21 @@ void Doctor::showOutputs() const
             cout << ", range: [" << output->bitsPerColorRange().min << "; " << output->bitsPerColorRange().max << "] bits per color" << endl;
         } else {
             cout << "unknown" << endl;
+        }
+        cout << yellow << "\tAllow EDR: ";
+        if (output->capabilities() & Output::Capability::ExtendedDynamicRange) {
+            cout << cr;
+            switch (output->edrPolicy()) {
+            case Output::EdrPolicy::Never:
+                cout << "never";
+                break;
+            case Output::EdrPolicy::Always:
+                cout << "always";
+                break;
+            }
+            cout << endl;
+        } else {
+            cout << cr << "unsupported" << endl;
         }
     }
 }
