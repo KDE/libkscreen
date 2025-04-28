@@ -85,6 +85,7 @@ public:
         , maxBitsPerColor(other.maxBitsPerColor)
         , bitsPerColorRange(other.bitsPerColorRange)
         , automaticMaxBitsPerColorLimit(other.automaticMaxBitsPerColorLimit)
+        , edrPolicy(other.edrPolicy)
     {
         const auto otherModeList = other.modeList;
         for (const ModePtr &otherMode : otherModeList) {
@@ -149,6 +150,7 @@ public:
     uint32_t maxBitsPerColor = 0;
     BpcRange bitsPerColorRange;
     uint32_t automaticMaxBitsPerColorLimit = 0;
+    EdrPolicy edrPolicy = EdrPolicy::Always;
 };
 
 bool Output::Private::compareModeList(const ModeList &before, const ModeList &after)
@@ -1023,6 +1025,19 @@ void Output::setAutomaticMaxBitsPerColorLimit(uint32_t chosenValue)
     }
 }
 
+Output::EdrPolicy Output::edrPolicy() const
+{
+    return d->edrPolicy;
+}
+
+void Output::setEdrPolicy(EdrPolicy policy)
+{
+    if (d->edrPolicy != policy) {
+        d->edrPolicy = policy;
+        Q_EMIT edrPolicy();
+    }
+}
+
 void Output::apply(const OutputPtr &other)
 {
     typedef void (KScreen::Output::*ChangeSignal)();
@@ -1187,6 +1202,10 @@ void Output::apply(const OutputPtr &other)
         setMaxBitsPerColor(other->d->maxBitsPerColor);
         setBitsPerColorRange(other->d->bitsPerColorRange);
         setAutomaticMaxBitsPerColorLimit(other->d->automaticMaxBitsPerColorLimit);
+    }
+    if (d->edrPolicy != other->d->edrPolicy) {
+        changes << &Output::edrPolicyChanged;
+        setEdrPolicy(other->d->edrPolicy);
     }
 
     // Non-notifyable changes

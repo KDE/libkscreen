@@ -220,6 +220,7 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output, const QMap<int,
         .min = bpcRange.min,
         .max = bpcRange.max,
     });
+    output->setEdrPolicy(static_cast<Output::EdrPolicy>(m_edrPolicy));
 
     updateKScreenModes(output);
 }
@@ -363,6 +364,10 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputConfiguration *wlConfig, cons
     }
     if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_MAX_BITS_PER_COLOR_SINCE_VERSION && m_maxBpc != output->maxBitsPerColor()) {
         wlConfig->set_max_bits_per_color(object(), output->maxBitsPerColor());
+        changed = true;
+    }
+    if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_EDR_POLICY_SINCE_VERSION && m_edrPolicy != uint32_t(output->edrPolicy())) {
+        wlConfig->set_edr_policy(object(), uint32_t(output->edrPolicy()));
         changed = true;
     }
 
@@ -559,6 +564,11 @@ void WaylandOutputDevice::kde_output_device_v2_max_bits_per_color_range(uint32_t
 void WaylandOutputDevice::kde_output_device_v2_automatic_max_bits_per_color_limit(uint32_t value)
 {
     m_autoMaxBpcLimit = value;
+}
+
+void WaylandOutputDevice::kde_output_device_v2_edr_policy(uint32_t policy)
+{
+    m_edrPolicy = policy;
 }
 
 QByteArray WaylandOutputDevice::edid() const

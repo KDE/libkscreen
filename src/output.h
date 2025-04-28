@@ -109,6 +109,7 @@ public:
         BuiltInColorProfile = 1 << 8,
         DdcCi = 1 << 9,
         MaxBitsPerColor = 1 << 10,
+        ExtendedDynamicRange = 1 << 11,
     };
     Q_ENUM(Capability)
     Q_DECLARE_FLAGS(Capabilities, Capability)
@@ -147,6 +148,12 @@ public:
         PreferAccuracy = 1,
     };
     Q_ENUM(ColorPowerTradeoff)
+
+    enum class EdrPolicy {
+        Never = 0,
+        Always,
+    };
+    Q_ENUM(EdrPolicy)
 
     explicit Output();
     ~Output() override;
@@ -574,6 +581,9 @@ public:
     uint32_t automaticMaxBitsPerColorLimit() const;
     void setAutomaticMaxBitsPerColorLimit(uint32_t chosenValue);
 
+    EdrPolicy edrPolicy() const;
+    void setEdrPolicy(EdrPolicy policy);
+
     void apply(const OutputPtr &other);
 
 Q_SIGNALS:
@@ -615,6 +625,7 @@ Q_SIGNALS:
     void uuidChanged();
     void ddcCiAllowedChanged();
     void maxBitsPerColorChanged();
+    void edrPolicyChanged();
 
     /** The mode list changed.
      *
