@@ -1,5 +1,4 @@
 add_subdirectory(fake)
-add_subdirectory(qscreen)
 add_subdirectory(kwayland)
 
 if(${XCB_RANDR_FOUND})
