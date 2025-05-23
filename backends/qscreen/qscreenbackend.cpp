@@ -46,11 +46,11 @@ ConfigPtr QScreenBackend::config() const
     return s_internalConfig->toKScreenConfig();
 }
 
-std::expected<void, QString> QScreenBackend::setConfig(const ConfigPtr &config)
+QFuture<SetConfigResult> QScreenBackend::setConfig(const ConfigPtr &config)
 {
-    return std::unexpected(
+    return QtFuture::makeReadyFuture<SetConfigResult>(std::unexpected(
         QStringLiteral("The QScreen backend for libkscreen is read-only, setting a configuration is not supported. You can force another backend using the "
-                       "KSCREEN_BACKEND env var"));
+                       "KSCREEN_BACKEND env var")));
 }
 
 bool QScreenBackend::isValid() const

@@ -67,7 +67,8 @@ QVariantMap BackendDBusWrapper::setConfig(const QVariantMap &configMap)
     }
 
     const KScreen::ConfigPtr config = KScreen::ConfigSerializer::deserializeConfig(configMap);
-    mBackend->setConfig(config);
+    auto result = mBackend->setConfig(config);
+    Q_ASSERT(result.isFinished());
 
     mCurrentConfig = mBackend->config();
     QMetaObject::invokeMethod(this, "doEmitConfigChanged", Qt::QueuedConnection);

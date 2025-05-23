@@ -114,8 +114,18 @@ void SetConfigOperation::start()
     d->fixPrimaryOutput();
     if (BackendManager::instance()->method() == BackendManager::InProcess) {
         auto backend = d->loadBackend();
-        setError(backend->setConfig(d->config).error_or(QString()));
-        emitResult();
+        QFutureWatcher<SetConfigResult> *watcher = new QFutureWatcher<SetConfigResult>(this);
+        connect(watcher, &QFutureWatcher<SetConfigResult>::finished, this, [this, watcher]() {
+            watcher->deleteLater();
+            const SetConfigResult result = watcher->result();
+            if (!result.has_value()) {
+                setError(result.error());
+            }
+            emitResult();
+        });
+
+        QFuture<SetConfigResult> pendingResult = backend->setConfig(d->config);
+        watcher->setFuture(pendingResult);
     } else {
         d->requestBackend();
     }

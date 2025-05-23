@@ -17,12 +17,43 @@
 #include <mode.h>
 #include <output.h>
 
-#include <QEventLoop>
 #include <QProcess>
 #include <QSettings>
 #include <QStandardPaths>
 
 using namespace KScreen;
+
+// This class scopes the connections to the internal config changes signals to the matching request
+// TODO it would be better if WaylandConfig::applyConfig handled the QFuture itself.
+class SetConfigJob : public QObject
+{
+    Q_OBJECT
+public:
+    explicit SetConfigJob(QObject *parent = nullptr)
+        : QObject(parent)
+    {
+        m_pendingResult.start();
+    }
+    void fail(const QString &error)
+    {
+        deleteLater();
+        m_pendingResult.addResult(std::unexpected(error));
+        m_pendingResult.finish();
+    }
+    void finish()
+    {
+        deleteLater();
+        m_pendingResult.addResult(SetConfigResult());
+        m_pendingResult.finish();
+    }
+    QFuture<SetConfigResult> future()
+    {
+        return m_pendingResult.future();
+    }
+
+private:
+    QPromise<SetConfigResult> m_pendingResult;
+};
 
 WaylandBackend::WaylandBackend()
     : KScreen::AbstractBackend()
@@ -50,26 +81,20 @@ ConfigPtr WaylandBackend::config() const
     return m_internalConfig->currentConfig();
 }
 
-std::expected<void, QString> WaylandBackend::setConfig(const KScreen::ConfigPtr &newconfig)
+QFuture<SetConfigResult> WaylandBackend::setConfig(const KScreen::ConfigPtr &newconfig)
 {
     if (!newconfig) {
-        return std::unexpected(QStringLiteral("config is nullptr!"));
+        return QtFuture::makeReadyFuture<SetConfigResult>(std::unexpected(QStringLiteral("config is nullptr!")));
     }
-    // wait for KWin reply
-    QEventLoop loop;
 
-    std::expected<void, QString> ret;
-    connect(m_internalConfig, &WaylandConfig::configChanged, &loop, &QEventLoop::quit);
-    connect(m_internalConfig, &WaylandConfig::configFailed, [&ret](const QString &reason) {
-        ret = std::unexpected(reason);
-    });
+    SetConfigJob *job = new SetConfigJob(this);
+    connect(m_internalConfig, &WaylandConfig::configChanged, job, &SetConfigJob::finish);
+    connect(m_internalConfig, &WaylandConfig::configFailed, job, &SetConfigJob::fail);
     if (!m_internalConfig->applyConfig(newconfig)) {
         // nothing changed
-        return {};
+        job->finish();
     }
-
-    loop.exec();
-    return ret;
+    return job->future();
 }
 
 QByteArray WaylandBackend::edid(int outputId) const
@@ -87,3 +112,4 @@ bool WaylandBackend::isValid() const
 }
 
 #include "moc_waylandbackend.cpp"
+#include "waylandbackend.moc"

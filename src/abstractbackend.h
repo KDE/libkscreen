@@ -10,6 +10,7 @@
 #include "kscreen_export.h"
 #include "types.h"
 
+#include <QFuture>
 #include <QObject>
 #include <QString>
 #include <expected>
@@ -17,6 +18,9 @@
 namespace KScreen
 {
 class Config;
+
+
+typedef std::expected<void, QString> SetConfigResult;
 
 /**
  * Abstract class for backends.
@@ -65,9 +69,10 @@ public:
      * Apply a config object to the system.
      *
      * @param config Configuration to apply
-     * @returns an error message in the case of failure
+     * @returns a future leading to a SetConfigResult
+     * Out-of process backends must return a completed future.
      */
-    virtual std::expected<void, QString> setConfig(const KScreen::ConfigPtr &config) = 0;
+    virtual QFuture<SetConfigResult> setConfig(const KScreen::ConfigPtr &config) = 0;
 
     /**
      * Returns whether the backend is in valid state.
