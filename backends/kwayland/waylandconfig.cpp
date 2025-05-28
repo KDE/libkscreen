@@ -276,7 +276,7 @@ KScreen::ConfigPtr WaylandConfig::currentConfig()
     const auto features = Config::Feature::Writable | Config::Feature::PerOutputScaling | Config::Feature::AutoRotation | Config::Feature::TabletMode
         | Config::Feature::PrimaryDisplay | Config::Feature::XwaylandScales | Config::Feature::SynchronousOutputChanges | Config::Feature::OutputReplication;
     m_kscreenConfig->setSupportedFeatures(features);
-    m_kscreenConfig->setValid(qGuiApp->nativeInterface<QNativeInterface::QWaylandApplication>());
+    m_kscreenConfig->setValid(m_outputManagement->isActive());
 
     KScreen::ScreenPtr screen = m_kscreenConfig->screen();
     m_screen->updateKScreenScreen(screen);
