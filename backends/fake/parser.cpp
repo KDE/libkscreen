@@ -203,6 +203,11 @@ OutputPtr Parser::outputFromJson(QMap<QString, QVariant> map)
         map.remove(QStringLiteral("priority"));
     }
 
+    if (map.contains(QStringLiteral("rotation"))) {
+        output->setRotation(static_cast<KScreen::Output::Rotation>(map[QStringLiteral("rotation")].toUInt()));
+        map.remove(QStringLiteral("rotation"));
+    }
+
     // Remove some extra properties that we do not want or need special treatment
     map.remove(QStringLiteral("edid"));
 
