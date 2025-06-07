@@ -97,25 +97,38 @@ QJsonObject ConfigSerializer::serializeOutput(const OutputPtr &output)
     if (output->capabilities() & Output::Capability::Overscan) {
         obj[QLatin1String("overscan")] = static_cast<int>(output->overscan());
     }
-
     if (output->capabilities() & Output::Capability::Vrr) {
         obj[QLatin1String("vrrPolicy")] = static_cast<int>(output->vrrPolicy());
     }
-
     if (output->capabilities() & Output::Capability::RgbRange) {
         obj[QLatin1String("rgbRange")] = static_cast<int>(output->rgbRange());
     }
-
     if (output->capabilities() & Output::Capability::HighDynamicRange) {
         obj[QLatin1String("hdr")] = output->isHdrEnabled();
     }
-
     if (output->capabilities() & Output::Capability::HighDynamicRange) {
         obj[QLatin1String("sdr-brightness")] = static_cast<int>(output->sdrBrightness());
     }
-
     if (output->capabilities() & Output::Capability::WideColorGamut) {
         obj[QLatin1String("wcg")] = output->isWcgEnabled();
+    }
+    if (output->capabilities() & Output::Capability::AutoRotation) {
+        obj[QLatin1String("autoRotatePolicy")] = static_cast<int>(output->autoRotatePolicy());
+    }
+    if (output->capabilities() & Output::Capability::IccProfile) {
+        obj[QLatin1String("iccProfilePath")] = output->iccProfilePath();
+    }
+    if (output->capabilities() & Output::Capability::BrightnessControl) {
+        obj[QLatin1String("brightness")] = output->brightness();
+    }
+    if (output->capabilities() & Output::Capability::DdcCi) {
+        obj[QLatin1String("ddcCiAllowed")] = output->ddcCiAllowed();
+    }
+    if (output->capabilities() & Output::Capability::MaxBitsPerColor) {
+        obj[QLatin1String("maxBpc")] = int(output->maxBitsPerColor());
+    }
+    if (output->capabilities() & Output::Capability::ExtendedDynamicRange) {
+        obj[QLatin1String("edrPolicy")] = static_cast<int>(output->edrPolicy());
     }
 
     return obj;
