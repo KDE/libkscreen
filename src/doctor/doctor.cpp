@@ -512,6 +512,15 @@ void Doctor::parseOutputArgs()
                         return;
                     }
                     m_changed = true;
+                } else if (ops.count() >= 4 && subcmd == "sharpness") {
+                    const uint32_t sharpness = ops[3].toUInt();
+                    if (sharpness > 100) {
+                        qCWarning(KSCREEN_DOCTOR) << "Wrong input: Allowed range for sharpness is 0 to 100";
+                        qApp->exit(9);
+                        return;
+                    }
+                    output->setSharpness(sharpness / 100.0);
+                    m_changed = true;
                 } else {
                     cerr << "Unable to parse arguments: " << op << Qt::endl;
                     qApp->exit(2);
@@ -764,6 +773,13 @@ void Doctor::showOutputs() const
         } else {
             cout << cr << "unsupported" << endl;
         }
+        cout << yellow << "\tSharpness control: ";
+        if (output->capabilities() & Output::Capability::SharpnessControl) {
+            cout << cr << "supported, set to " << std::round(output->sharpness() * 100) << "%"
+                 << endl;
+         } else {
+             cout << cr << "unsupported" << endl;
+         }
     }
 }
 

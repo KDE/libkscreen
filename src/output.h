@@ -110,6 +110,7 @@ public:
         DdcCi = 1 << 9,
         MaxBitsPerColor = 1 << 10,
         ExtendedDynamicRange = 1 << 11,
+        SharpnessControl = 1 << 12,
     };
     Q_ENUM(Capability)
     Q_DECLARE_FLAGS(Capabilities, Capability)
@@ -584,6 +585,9 @@ public:
     EdrPolicy edrPolicy() const;
     void setEdrPolicy(EdrPolicy policy);
 
+    double sharpness() const;
+    void setSharpness(double sharpness);
+
     void apply(const OutputPtr &other);
 
 Q_SIGNALS:
@@ -626,6 +630,7 @@ Q_SIGNALS:
     void ddcCiAllowedChanged();
     void maxBitsPerColorChanged();
     void edrPolicyChanged();
+    void sharpnessChanged();
 
     /** The mode list changed.
      *

@@ -86,6 +86,7 @@ public:
         , bitsPerColorRange(other.bitsPerColorRange)
         , automaticMaxBitsPerColorLimit(other.automaticMaxBitsPerColorLimit)
         , edrPolicy(other.edrPolicy)
+        , sharpness(other.sharpness)
     {
         const auto otherModeList = other.modeList;
         for (const ModePtr &otherMode : otherModeList) {
@@ -151,6 +152,7 @@ public:
     BpcRange bitsPerColorRange;
     uint32_t automaticMaxBitsPerColorLimit = 0;
     EdrPolicy edrPolicy = EdrPolicy::Always;
+    double sharpness = 0;
 };
 
 bool Output::Private::compareModeList(const ModeList &before, const ModeList &after)
@@ -1038,6 +1040,19 @@ void Output::setEdrPolicy(EdrPolicy policy)
     }
 }
 
+double Output::sharpness() const
+{
+    return d->sharpness;
+}
+
+void Output::setSharpness(double sharpness)
+{
+    if (d->sharpness != sharpness) {
+        d->sharpness = sharpness;
+        Q_EMIT sharpnessChanged();
+    }
+}
+
 void Output::apply(const OutputPtr &other)
 {
     typedef void (KScreen::Output::*ChangeSignal)();
@@ -1206,6 +1221,10 @@ void Output::apply(const OutputPtr &other)
     if (d->edrPolicy != other->d->edrPolicy) {
         changes << &Output::edrPolicyChanged;
         setEdrPolicy(other->d->edrPolicy);
+    }
+    if (d->sharpness != other->d->sharpness) {
+        changes << &Output::sharpnessChanged;
+        setSharpness(other->d->sharpness);
     }
 
     // Non-notifyable changes

@@ -102,6 +102,7 @@ protected:
     void kde_output_device_v2_max_bits_per_color_range(uint32_t min_value, uint32_t max_value) override;
     void kde_output_device_v2_automatic_max_bits_per_color_limit(uint32_t max_bpc_limit) override;
     void kde_output_device_v2_edr_policy(uint32_t policy) override;
+    void kde_output_device_v2_sharpness(uint32_t sharpness) override;
 
 private:
     QString modeName(const WaylandOutputDeviceMode *m) const;
@@ -154,6 +155,7 @@ private:
         uint32_t max = 0;
     } bpcRange;
     uint32_t m_edrPolicy = edr_policy_always;
+    uint32_t m_sharpness = 0;
 };
 
 }
