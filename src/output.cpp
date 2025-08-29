@@ -87,6 +87,7 @@ public:
         , automaticMaxBitsPerColorLimit(other.automaticMaxBitsPerColorLimit)
         , edrPolicy(other.edrPolicy)
         , sharpness(other.sharpness)
+        , abmLevel(other.abmLevel)
     {
         const auto otherModeList = other.modeList;
         for (const ModePtr &otherMode : otherModeList) {
@@ -153,6 +154,7 @@ public:
     uint32_t automaticMaxBitsPerColorLimit = 0;
     EdrPolicy edrPolicy = EdrPolicy::Always;
     double sharpness = 0;
+    AbmLevel abmLevel = AbmLevel::Off;
 };
 
 bool Output::Private::compareModeList(const ModeList &before, const ModeList &after)
@@ -1053,6 +1055,19 @@ void Output::setSharpness(double sharpness)
     }
 }
 
+Output::AbmLevel Output::abmLevel() const
+{
+    return d->abmLevel;
+}
+
+void Output::setAbmLevel(AbmLevel level)
+{
+    if (d->abmLevel != level) {
+        d->abmLevel = level;
+        Q_EMIT abmLevelChanged();
+    }
+}
+
 void Output::apply(const OutputPtr &other)
 {
     typedef void (KScreen::Output::*ChangeSignal)();
@@ -1225,6 +1240,10 @@ void Output::apply(const OutputPtr &other)
     if (d->sharpness != other->d->sharpness) {
         changes << &Output::sharpnessChanged;
         setSharpness(other->d->sharpness);
+    }
+    if (d->abmLevel != other->d->abmLevel) {
+        changes << &Output::abmLevelChanged;
+        setAbmLevel(other->d->abmLevel);
     }
 
     // Non-notifyable changes

@@ -222,6 +222,7 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output, const QMap<int,
     });
     output->setEdrPolicy(static_cast<Output::EdrPolicy>(m_edrPolicy));
     output->setSharpness(m_sharpness / 10'000.0);
+    output->setAbmLevel(Output::AbmLevel(m_abmLevel));
 
     updateKScreenModes(output);
 }
@@ -373,6 +374,10 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputConfiguration *wlConfig, cons
     }
     if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_SHARPNESS_SINCE_VERSION && m_sharpness != uint32_t(std::round(output->sharpness() * 10'000))) {
         wlConfig->set_sharpness(object(), std::round(output->sharpness() * 10'000));
+        changed = true;
+    }
+    if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_ABM_LEVEL_SINCE_VERSION && m_abmLevel != uint32_t(output->abmLevel())) {
+        wlConfig->set_abm_level(object(), uint32_t(output->abmLevel()));
         changed = true;
     }
 
@@ -579,6 +584,11 @@ void WaylandOutputDevice::kde_output_device_v2_edr_policy(uint32_t policy)
 void WaylandOutputDevice::kde_output_device_v2_sharpness(uint32_t sharpness)
 {
     m_sharpness = sharpness;
+}
+
+void WaylandOutputDevice::kde_output_device_v2_abm_level(uint32_t level)
+{
+    m_abmLevel = level;
 }
 
 QByteArray WaylandOutputDevice::edid() const
