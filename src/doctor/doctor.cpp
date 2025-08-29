@@ -200,6 +200,14 @@ OutputPtr Doctor::findOutput(const QString &query)
     }
 }
 
+static const std::unordered_map<Output::AbmLevel, QString> s_abmMap = {
+    std::make_pair(Output::AbmLevel::Off, QByteArrayLiteral("off")),
+    std::make_pair(Output::AbmLevel::Min, QByteArrayLiteral("min")),
+    std::make_pair(Output::AbmLevel::MinBias, QByteArrayLiteral("minbias")),
+    std::make_pair(Output::AbmLevel::MaxBias, QByteArrayLiteral("maxbias")),
+    std::make_pair(Output::AbmLevel::Max, QByteArrayLiteral("max")),
+};
+
 void Doctor::parseOutputArgs()
 {
     // qCDebug(KSCREEN_DOCTOR) << "POSARGS" << m_positionalArgs;
@@ -521,6 +529,17 @@ void Doctor::parseOutputArgs()
                     }
                     output->setSharpness(sharpness / 100.0);
                     m_changed = true;
+                } else if (ops.count() >= 4 && subcmd == "abm") {
+                    const auto it = std::ranges::find_if(s_abmMap, [&ops](const auto &pair) {
+                        return pair.second == ops[3];
+                    });
+                    if (it == s_abmMap.end()) {
+                        qCWarning(KSCREEN_DOCTOR) << "Invalid input: Allowed values for abm level are 'off', 'min, 'minbias', 'maxbias', 'max'";
+                        qApp->exit(9);
+                        return;
+                    }
+                    output->setAbmLevel(it->first);
+                    m_changed = true;
                 } else {
                     cerr << "Unable to parse arguments: " << op << Qt::endl;
                     qApp->exit(2);
@@ -777,9 +796,15 @@ void Doctor::showOutputs() const
         if (output->capabilities() & Output::Capability::SharpnessControl) {
             cout << cr << "supported, set to " << std::round(output->sharpness() * 100) << "%"
                  << endl;
-         } else {
-             cout << cr << "unsupported" << endl;
-         }
+        } else {
+            cout << cr << "unsupported" << endl;
+        }
+        cout << yellow << "\tAdaptive backlight modulation: ";
+        if (output->capabilities() & Output::Capability::AbmLevel) {
+            cout << cr << "supported, set to " << s_abmMap.at(output->abmLevel()) << endl;
+        } else {
+            cout << cr << "unsupported" << endl;
+        }
     }
 }
 

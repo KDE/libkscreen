@@ -111,6 +111,7 @@ public:
         MaxBitsPerColor = 1 << 10,
         ExtendedDynamicRange = 1 << 11,
         SharpnessControl = 1 << 12,
+        AbmLevel = 1 << 13,
     };
     Q_ENUM(Capability)
     Q_DECLARE_FLAGS(Capabilities, Capability)
@@ -155,6 +156,15 @@ public:
         Always,
     };
     Q_ENUM(EdrPolicy)
+
+    enum class AbmLevel {
+        Off,
+        Min,
+        MinBias,
+        MaxBias,
+        Max,
+    };
+    Q_ENUM(AbmLevel);
 
     explicit Output();
     ~Output() override;
@@ -588,6 +598,9 @@ public:
     double sharpness() const;
     void setSharpness(double sharpness);
 
+    AbmLevel abmLevel() const;
+    void setAbmLevel(AbmLevel level);
+
     void apply(const OutputPtr &other);
 
 Q_SIGNALS:
@@ -631,6 +644,7 @@ Q_SIGNALS:
     void maxBitsPerColorChanged();
     void edrPolicyChanged();
     void sharpnessChanged();
+    void abmLevelChanged();
 
     /** The mode list changed.
      *
