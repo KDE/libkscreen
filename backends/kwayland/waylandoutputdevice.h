@@ -131,6 +131,7 @@ protected:
     void kde_output_device_v2_removed() override;
     void kde_output_device_v2_hdr_icc_profile_path(const QString &profile_path) override;
     void kde_output_device_v2_hdr_color_profile_source(uint32_t source) override;
+    void kde_output_device_v2_abm_level(uint32_t level) override;
 
 private:
     QString modeName(const WaylandOutputDeviceMode *m) const;
@@ -188,6 +189,7 @@ private:
     bool m_autoBrightness = false;
     QString m_hdrIccProfilePath;
     uint32_t m_hdrColorProfileSource = color_profile_source_EDID;
+    uint32_t m_abmLevel = 0;
 };
 
 }

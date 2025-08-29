@@ -23,7 +23,7 @@
 using namespace KScreen;
 
 WaylandOutputDeviceRegistry::WaylandOutputDeviceRegistry()
-    : QWaylandClientExtensionTemplate<WaylandOutputDeviceRegistry>(22)
+    : QWaylandClientExtensionTemplate<WaylandOutputDeviceRegistry>(23)
 {
     initialize();
 }
@@ -267,6 +267,7 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output, const QMap<int,
     output->setAutomaticBrightness(m_autoBrightness);
     output->setHdrIccProfilePath(m_hdrIccProfilePath);
     output->setHdrColorProfileSource(Output::ColorProfileSource(m_hdrColorProfileSource));
+    output->setAbmLevel(m_abmLevel);
 
     updateKScreenModes(output);
 
@@ -461,6 +462,9 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputManagement *management,
     if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_HDR_COLOR_PROFILE_SOURCE_SINCE_VERSION
         && m_hdrColorProfileSource != uint32_t(output->hdrColorProfileSource())) {
         wlConfig->set_hdr_color_profile_source(object(), uint32_t(output->hdrColorProfileSource()));
+    }
+    if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_ABM_LEVEL_SINCE_VERSION && m_abmLevel != output->abmLevel()) {
+        wlConfig->set_abm_level(object(), output->abmLevel());
         changed = true;
     }
 
@@ -682,6 +686,11 @@ void WaylandOutputDevice::kde_output_device_v2_hdr_icc_profile_path(const QStrin
 void WaylandOutputDevice::kde_output_device_v2_hdr_color_profile_source(uint32_t source)
 {
     m_hdrColorProfileSource = source;
+}
+
+void WaylandOutputDevice::kde_output_device_v2_abm_level(uint32_t level)
+{
+    m_abmLevel = level;
 }
 
 QByteArray WaylandOutputDevice::edid() const

@@ -131,6 +131,7 @@ public:
         CustomModes = 1 << 13,
         AutomaticBrightness = 1 << 14,
         HdrIccProfile = 1 << 15,
+        AbmLevel = 1 << 16,
     };
     Q_ENUM(Capability)
     Q_DECLARE_FLAGS(Capabilities, Capability)
@@ -617,6 +618,9 @@ public:
     bool automaticBrightness() const;
     void setAutomaticBrightness(bool enable);
 
+    uint32_t abmLevel() const;
+    void setAbmLevel(uint32_t level);
+
     void apply(const OutputPtr &other);
 
 Q_SIGNALS:
@@ -664,6 +668,7 @@ Q_SIGNALS:
     void customModesChanged();
     void automaticBrightnessChanged();
     void hdrIccProfilePathChanged();
+    void abmLevelChanged();
 
     /** The mode list changed.
      *

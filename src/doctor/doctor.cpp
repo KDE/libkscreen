@@ -631,6 +631,16 @@ void Doctor::parseOutputArgs()
                         qApp->exit(9);
                         return;
                     }
+                } else if (ops.count() >= 4 && subcmd == "abm") {
+                    bool ok = false;
+                    const uint32_t level = ops[3].toUInt(&ok);
+                    if (level >= 5 || !ok) {
+                        qCWarning(KSCREEN_DOCTOR) << "Invalid input: Allowed values for abm level are 0, 1, 2, 3, 4";
+                        qApp->exit(9);
+                        return;
+                    }
+                    output->setAbmLevel(level);
+                    m_changed = true;
                 } else {
                     cerr << "Unable to parse arguments: " << op << Qt::endl;
                     qApp->exit(2);
@@ -953,6 +963,13 @@ void Doctor::showOutputs() const
             }
         } else {
             cout << cr << "incapable" << endl;
+        }
+
+        cout << yellow << "\tAdaptive backlight modulation: ";
+        if (output->capabilities() & Output::Capability::AbmLevel) {
+            cout << cr << "supported, set to " << output->abmLevel() << endl;
+        } else {
+            cout << cr << "unsupported" << endl;
         }
     }
 }

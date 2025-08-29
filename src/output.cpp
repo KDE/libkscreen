@@ -91,6 +91,7 @@ public:
         , sharpness(other.sharpness)
         , customModes(other.customModes)
         , automaticBrightness(other.automaticBrightness)
+        , abmLevel(other.abmLevel)
     {
         const auto otherModeList = other.modeList;
         for (const ModePtr &otherMode : otherModeList) {
@@ -161,6 +162,7 @@ public:
     double sharpness = 0;
     QList<ModeInfo> customModes;
     bool automaticBrightness = false;
+    uint32_t abmLevel = 0;
 };
 
 bool Output::Private::compareModeList(const ModeList &before, const ModeList &after)
@@ -1099,6 +1101,19 @@ void Output::setAutomaticBrightness(bool enable)
     }
 }
 
+uint32_t Output::abmLevel() const
+{
+    return d->abmLevel;
+}
+
+void Output::setAbmLevel(uint32_t level)
+{
+    if (d->abmLevel != level) {
+        d->abmLevel = level;
+        Q_EMIT abmLevelChanged();
+    }
+}
+
 void Output::apply(const OutputPtr &other)
 {
     typedef void (KScreen::Output::*ChangeSignal)();
@@ -1287,6 +1302,10 @@ void Output::apply(const OutputPtr &other)
     if (d->hdrColorProfileSource != other->d->hdrColorProfileSource) {
         changes << &Output::hdrColorProfileSourceChanged;
         setHdrColorProfileSource(other->d->hdrColorProfileSource);
+    }
+    if (d->abmLevel != other->d->abmLevel) {
+        changes << &Output::abmLevelChanged;
+        setAbmLevel(other->d->abmLevel);
     }
 
     // Non-notifyable changes
