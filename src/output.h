@@ -23,6 +23,24 @@ namespace KScreen
 class Edid;
 class Mode;
 
+class KSCREEN_EXPORT ModeInfo
+{
+    Q_GADGET
+public:
+    enum class Flag {
+        Custom = 0x1,
+        ReducedBlanking = 0x2,
+    };
+    Q_ENUM(Flag);
+    Q_DECLARE_FLAGS(Flags, Flag)
+
+    QSize size;
+    float refreshRate = 60.0;
+    Flags flags;
+
+    bool operator==(const ModeInfo &other) const = default;
+};
+
 class KSCREEN_EXPORT Output : public QObject
 {
     Q_OBJECT
@@ -584,6 +602,9 @@ public:
     double sharpness() const;
     void setSharpness(double sharpness);
 
+    QList<ModeInfo> customModes() const;
+    void setCustomModes(const QList<ModeInfo> &modes);
+
     void apply(const OutputPtr &other);
 
 Q_SIGNALS:
@@ -627,6 +648,7 @@ Q_SIGNALS:
     void maxBitsPerColorChanged();
     void edrPolicyChanged();
     void sharpnessChanged();
+    void customModesChanged();
 
     /** The mode list changed.
      *

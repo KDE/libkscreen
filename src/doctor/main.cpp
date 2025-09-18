@@ -64,7 +64,11 @@ int main(int argc, char **argv)
         "   Show dpms information:\n"
         "   $ kscreen-doctor --dpms show\n\n"
         "   Set dpms mode: (possible values: on, off)\n"
-        "   $ kscreen-doctor --dpms on");
+        "   $ kscreen-doctor --dpms on\n"
+        "   Add a custom mode: (arguments: width,height,refresh rate in mHz,blanking 'reduced' or 'full')\n"
+        "   $ kscreen-doctor output.1.addCustomMode.1920.1080.75000.full\n"
+        "   Remove a custom mode: (arguments: index in the custom mode list)\n"
+        "   $ kscreen-doctor output.1.removeCustomMode.0");
     /*
         "\nError codes:\n"
         "   2 : general parse error\n"

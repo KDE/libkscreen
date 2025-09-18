@@ -224,6 +224,19 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output, const QMap<int,
     output->setSharpness(m_sharpness / 10'000.0);
 
     updateKScreenModes(output);
+
+    m_customModes.clear();
+    for (const auto &mode : m_modes) {
+        if (!(mode->flags() & ModeInfo::Flag::Custom)) {
+            continue;
+        }
+        m_customModes.push_back(ModeInfo{
+            .size = mode->size(),
+            .refreshRate = mode->refreshRate(),
+            .flags = mode->flags(),
+        });
+    }
+    output->setCustomModes(m_customModes);
 }
 
 QString WaylandOutputDevice::modeId() const
@@ -241,7 +254,10 @@ WaylandOutputDeviceMode *WaylandOutputDevice::deviceModeFromId(const QString &id
     return nullptr;
 }
 
-bool WaylandOutputDevice::setWlConfig(WaylandOutputConfiguration *wlConfig, const KScreen::OutputPtr &output, const QMap<int, WaylandOutputDevice *> &outputMap)
+bool WaylandOutputDevice::setWlConfig(WaylandOutputManagement *management,
+                                      WaylandOutputConfiguration *wlConfig,
+                                      const KScreen::OutputPtr &output,
+                                      const QMap<int, WaylandOutputDevice *> &outputMap)
 {
     bool changed = false;
 
@@ -373,6 +389,19 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputConfiguration *wlConfig, cons
     }
     if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_SHARPNESS_SINCE_VERSION && m_sharpness != uint32_t(std::round(output->sharpness() * 10'000))) {
         wlConfig->set_sharpness(object(), std::round(output->sharpness() * 10'000));
+        changed = true;
+    }
+    if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_CUSTOM_MODES_SINCE_VERSION && m_customModes != output->customModes()) {
+        auto list = management->create_mode_list();
+        const auto modes = output->customModes();
+        for (const auto &mode : modes) {
+            kde_mode_list_v2_set_resolution(list, mode.size.width(), mode.size.height());
+            kde_mode_list_v2_set_refresh_rate(list, std::round(mode.refreshRate * 1000));
+            kde_mode_list_v2_set_reduced_blanking(list, mode.flags & ModeInfo::Flag::ReducedBlanking ? 1 : 0);
+            kde_mode_list_v2_add_mode(list);
+        }
+        wlConfig->set_custom_modes(object(), list);
+        kde_mode_list_v2_destroy(list);
         changed = true;
     }
 
