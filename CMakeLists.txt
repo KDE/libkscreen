@@ -37,7 +37,7 @@ endif()
 
 find_package(WaylandScanner)
 
-find_package(PlasmaWaylandProtocols 1.16 CONFIG)
+find_package(PlasmaWaylandProtocols 1.19 CONFIG)
 set_package_properties(PlasmaWaylandProtocols PROPERTIES TYPE REQUIRED)
 
 find_package(Wayland 1.15 COMPONENTS Client)
