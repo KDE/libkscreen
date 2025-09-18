@@ -19,6 +19,7 @@
 namespace KScreen
 {
 class WaylandOutputConfiguration;
+class WaylandOutputManagement;
 
 class WaylandOutputDevice : public QObject, public QtWayland::kde_output_device_v2
 {
@@ -49,7 +50,10 @@ public:
     void updateKScreenModes(OutputPtr &output);
 
     uint32_t index() const;
-    bool setWlConfig(WaylandOutputConfiguration *wlConfig, const KScreen::OutputPtr &output, const QMap<int, WaylandOutputDevice *> &outputMap);
+    bool setWlConfig(WaylandOutputManagement *management,
+                     WaylandOutputConfiguration *wlConfig,
+                     const KScreen::OutputPtr &output,
+                     const QMap<int, WaylandOutputDevice *> &outputMap);
 
     QString modeId() const;
     QString uuid() const
@@ -156,6 +160,7 @@ private:
     } bpcRange;
     uint32_t m_edrPolicy = edr_policy_always;
     uint32_t m_sharpness = 0;
+    QList<ModeInfo> m_customModes;
 };
 
 }

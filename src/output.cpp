@@ -87,6 +87,7 @@ public:
         , automaticMaxBitsPerColorLimit(other.automaticMaxBitsPerColorLimit)
         , edrPolicy(other.edrPolicy)
         , sharpness(other.sharpness)
+        , customModes(other.customModes)
     {
         const auto otherModeList = other.modeList;
         for (const ModePtr &otherMode : otherModeList) {
@@ -153,6 +154,7 @@ public:
     uint32_t automaticMaxBitsPerColorLimit = 0;
     EdrPolicy edrPolicy = EdrPolicy::Always;
     double sharpness = 0;
+    QList<ModeInfo> customModes;
 };
 
 bool Output::Private::compareModeList(const ModeList &before, const ModeList &after)
@@ -1039,6 +1041,19 @@ void Output::setSharpness(double sharpness)
     }
 }
 
+QList<ModeInfo> Output::customModes() const
+{
+    return d->customModes;
+}
+
+void Output::setCustomModes(const QList<ModeInfo> &modes)
+{
+    if (d->customModes != modes) {
+        d->customModes = modes;
+        Q_EMIT customModesChanged();
+    }
+}
+
 void Output::apply(const OutputPtr &other)
 {
     typedef void (KScreen::Output::*ChangeSignal)();
@@ -1211,6 +1226,10 @@ void Output::apply(const OutputPtr &other)
     if (d->sharpness != other->d->sharpness) {
         changes << &Output::sharpnessChanged;
         setSharpness(other->d->sharpness);
+    }
+    if (d->customModes != other->d->customModes) {
+        changes << &Output::customModesChanged;
+        setCustomModes(other->d->customModes);
     }
 
     // Non-notifyable changes
