@@ -44,6 +44,16 @@ void WaylandOutputDeviceMode::kde_output_device_mode_v2_removed()
     Q_EMIT removed();
 }
 
+void WaylandOutputDeviceMode::kde_output_device_mode_v2_flags(uint32_t flags)
+{
+    if (flags & KDE_OUTPUT_DEVICE_MODE_V2_FLAGS_CUSTOM) {
+        m_flags |= ModeInfo::Flag::Custom;
+    }
+    if (flags & KDE_OUTPUT_DEVICE_MODE_V2_FLAGS_REDUCED_BLANKING) {
+        m_flags |= ModeInfo::Flag::ReducedBlanking;
+    }
+}
+
 QString WaylandOutputDeviceMode::id() const
 {
     return m_id;
@@ -62,6 +72,11 @@ QSize WaylandOutputDeviceMode::size() const
 bool WaylandOutputDeviceMode::preferred() const
 {
     return m_preferred;
+}
+
+ModeInfo::Flags WaylandOutputDeviceMode::flags() const
+{
+    return m_flags;
 }
 
 WaylandOutputDeviceMode *WaylandOutputDeviceMode::get(struct ::kde_output_device_mode_v2 *object)

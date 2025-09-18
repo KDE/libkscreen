@@ -21,6 +21,7 @@
 #include <QScreen>
 #include <QStandardPaths>
 
+#include <print>
 #include <utility>
 
 #include "../backendmanager_p.h"
@@ -521,6 +522,30 @@ void Doctor::parseOutputArgs()
                     }
                     output->setSharpness(sharpness / 100.0);
                     m_changed = true;
+                } else if (ops.count() == 7 && subcmd == "addmode") {
+                    auto modes = output->customModes();
+                    ModeInfo::Flags flags = ModeInfo::Flag::Custom;
+                    if (ops[6].toUInt() == 1) {
+                        flags |= ModeInfo::Flag::ReducedBlanking;
+                    }
+                    modes.push_back(ModeInfo{
+                        .size = QSize(ops[3].toUInt(), ops[4].toUInt()),
+                        .refreshRate = ops[5].toUInt() / 1000.0f,
+                        .flags = flags,
+                    });
+                    output->setCustomModes(modes);
+                    m_changed = true;
+                } else if (ops.count() == 4 && subcmd == "removemode") {
+                    auto modes = output->customModes();
+                    const int index = ops[3].toInt();
+                    if (index < 0 || index > modes.size()) {
+                        qCWarning(KSCREEN_DOCTOR) << "Invalid index";
+                        qApp->exit(9);
+                        return;
+                    }
+                    modes.erase(modes.begin() + index);
+                    output->setCustomModes(modes);
+                    m_changed = true;
                 } else {
                     cerr << "Unable to parse arguments: " << op << Qt::endl;
                     qApp->exit(2);
@@ -609,6 +634,18 @@ void Doctor::showOutputs() const
             cout << " " << mode->id() << ":" << name << " ";
         }
         cout << endl;
+
+        cout << yellow << "\tCustom modes:" << cr;
+        const auto customModes = output->customModes();
+        if (customModes.empty()) {
+            cout << " None" << endl;
+        } else {
+            cout << endl;
+            for (const auto &info : customModes) {
+                cout << QString::fromStdString(std::format("\t\t{}x{}@{:.2f}", info.size.width(), info.size.height(), info.refreshRate)) << endl;
+            }
+        }
+
         const auto g = output->geometry();
         cout << yellow << "\tGeometry: " << cr << g.x() << "," << g.y() << " " << g.width() << "x" << g.height() << endl;
         cout << yellow << "\tScale: " << cr << output->scale() << endl;
