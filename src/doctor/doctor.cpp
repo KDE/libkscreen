@@ -599,7 +599,7 @@ void Doctor::showOutputs() const
             auto mode = *modes.find(key);
 
             auto name = QStringLiteral("%1x%2@%3")
-                            .arg(QString::number(mode->size().width()), QString::number(mode->size().height()), QString::number(qRound(mode->refreshRate())));
+                            .arg(QString::number(mode->size().width()), QString::number(mode->size().height()), QString::number(mode->refreshRate(), 'f', 2));
             if (mode == output->currentMode()) {
                 name = green + name + QLatin1Char('*') + cr;
             }
