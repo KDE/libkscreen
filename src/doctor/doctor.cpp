@@ -399,7 +399,7 @@ void Doctor::parseOutputArgs()
                     m_changed = true;
                 } else if (ops.count() >= 4 && subcmd == "maxAverageBrightnessOverride") {
                     if (ops[3] == "disable") {
-                        output->setMaxPeakBrightnessOverride(std::nullopt);
+                        output->setMaxAverageBrightnessOverride(std::nullopt);
                     } else if (const uint32_t nits = ops[3].toUInt(); nits != 0) {
                         output->setMaxAverageBrightnessOverride(nits);
                     } else {
