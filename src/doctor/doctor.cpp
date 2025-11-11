@@ -521,6 +521,17 @@ void Doctor::parseOutputArgs()
                     }
                     output->setSharpness(sharpness / 100.0);
                     m_changed = true;
+                } else if (ops.count() >= 4 && subcmd == "autoBrightness") {
+                    if (ops[3] == "enable") {
+                        output->setAutomaticBrightness(true);
+                    } else if (ops[3] == "disable") {
+                        output->setAutomaticBrightness(false);
+                    } else {
+                        qCWarning(KSCREEN_DOCTOR) << "Invalid input: Only 'enable' and 'disable' are allowed";
+                        qApp->exit(9);
+                        return;
+                    }
+                    m_changed = true;
                 } else {
                     cerr << "Unable to parse arguments: " << op << Qt::endl;
                     qApp->exit(2);
@@ -777,9 +788,15 @@ void Doctor::showOutputs() const
         if (output->capabilities() & Output::Capability::SharpnessControl) {
             cout << cr << "supported, set to " << std::round(output->sharpness() * 100) << "%"
                  << endl;
-         } else {
-             cout << cr << "unsupported" << endl;
-         }
+        } else {
+            cout << cr << "unsupported" << endl;
+        }
+        cout << yellow << "\tAutomatic brightness: ";
+        if (output->capabilities() & Output::Capability::AutomaticBrightness) {
+            cout << cr << "supported, " << (output->automaticBrightness() ? "enabled" : "disabled") << endl;
+        } else {
+            cout << cr << "unsupported" << endl;
+        }
     }
 }
 

@@ -111,6 +111,7 @@ public:
         MaxBitsPerColor = 1 << 10,
         ExtendedDynamicRange = 1 << 11,
         SharpnessControl = 1 << 12,
+        AutomaticBrightness = 1 << 13,
     };
     Q_ENUM(Capability)
     Q_DECLARE_FLAGS(Capabilities, Capability)
@@ -588,6 +589,9 @@ public:
     double sharpness() const;
     void setSharpness(double sharpness);
 
+    bool automaticBrightness() const;
+    void setAutomaticBrightness(bool enable);
+
     void apply(const OutputPtr &other);
 
 Q_SIGNALS:
@@ -631,6 +635,7 @@ Q_SIGNALS:
     void maxBitsPerColorChanged();
     void edrPolicyChanged();
     void sharpnessChanged();
+    void automaticBrightnessChanged();
 
     /** The mode list changed.
      *
