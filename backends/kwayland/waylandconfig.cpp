@@ -34,7 +34,7 @@ using namespace std::chrono_literals;
 
 WaylandConfig::WaylandConfig(QObject *parent)
     : QObject(parent)
-    , m_outputManagement(std::make_unique<WaylandOutputManagement>(18))
+    , m_outputManagement(std::make_unique<WaylandOutputManagement>(19))
     , m_registryInitialized(false)
     , m_blockSignals(false)
     , m_kscreenConfig(new Config)
