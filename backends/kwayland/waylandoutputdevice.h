@@ -107,6 +107,7 @@ protected:
     void kde_output_device_v2_edr_policy(uint32_t policy) override;
     void kde_output_device_v2_sharpness(uint32_t sharpness) override;
     void kde_output_device_v2_priority(uint32_t priority) override;
+    void kde_output_device_v2_auto_brightness(uint32_t enabled) override;
 
 private:
     QString modeName(const WaylandOutputDeviceMode *m) const;
@@ -161,6 +162,7 @@ private:
     uint32_t m_edrPolicy = edr_policy_always;
     uint32_t m_sharpness = 0;
     QList<ModeInfo> m_customModes;
+    bool m_autoBrightness = false;
 };
 
 }

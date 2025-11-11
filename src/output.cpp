@@ -88,6 +88,7 @@ public:
         , edrPolicy(other.edrPolicy)
         , sharpness(other.sharpness)
         , customModes(other.customModes)
+        , automaticBrightness(other.automaticBrightness)
     {
         const auto otherModeList = other.modeList;
         for (const ModePtr &otherMode : otherModeList) {
@@ -155,6 +156,7 @@ public:
     EdrPolicy edrPolicy = EdrPolicy::Always;
     double sharpness = 0;
     QList<ModeInfo> customModes;
+    bool automaticBrightness = false;
 };
 
 bool Output::Private::compareModeList(const ModeList &before, const ModeList &after)
@@ -1054,6 +1056,19 @@ void Output::setCustomModes(const QList<ModeInfo> &modes)
     }
 }
 
+bool Output::automaticBrightness() const
+{
+    return d->automaticBrightness;
+}
+
+void Output::setAutomaticBrightness(bool enable)
+{
+    if (d->automaticBrightness != enable) {
+        d->automaticBrightness = enable;
+        Q_EMIT automaticBrightnessChanged();
+    }
+}
+
 void Output::apply(const OutputPtr &other)
 {
     typedef void (KScreen::Output::*ChangeSignal)();
@@ -1230,6 +1245,10 @@ void Output::apply(const OutputPtr &other)
     if (d->customModes != other->d->customModes) {
         changes << &Output::customModesChanged;
         setCustomModes(other->d->customModes);
+    }
+    if (d->automaticBrightness != other->d->automaticBrightness) {
+        changes << &Output::automaticBrightnessChanged;
+        setAutomaticBrightness(other->d->automaticBrightness);
     }
 
     // Non-notifyable changes

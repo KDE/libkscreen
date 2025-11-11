@@ -222,6 +222,7 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output, const QMap<int,
     });
     output->setEdrPolicy(static_cast<Output::EdrPolicy>(m_edrPolicy));
     output->setSharpness(m_sharpness / 10'000.0);
+    output->setAutomaticBrightness(m_autoBrightness);
 
     updateKScreenModes(output);
 
@@ -402,6 +403,10 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputManagement *management,
         }
         wlConfig->set_custom_modes(object(), list);
         kde_mode_list_v2_destroy(list);
+        changed = true;
+    }
+    if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_AUTO_BRIGHTNESS_SINCE_VERSION && m_autoBrightness != output->automaticBrightness()) {
+        wlConfig->set_auto_brightness(object(), output->automaticBrightness() ? 1 : 0);
         changed = true;
     }
 
@@ -608,6 +613,11 @@ void WaylandOutputDevice::kde_output_device_v2_sharpness(uint32_t sharpness)
 void WaylandOutputDevice::kde_output_device_v2_priority(uint32_t priority)
 {
     m_index = priority;
+}
+
+void WaylandOutputDevice::kde_output_device_v2_auto_brightness(uint32_t enabled)
+{
+    m_autoBrightness = enabled;
 }
 
 QByteArray WaylandOutputDevice::edid() const
