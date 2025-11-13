@@ -37,10 +37,12 @@ public:
 
     KScreen::OutputPtr findPrimaryOutput() const
     {
-        auto iter = std::find_if(outputs.constBegin(), outputs.constEnd(), [](const KScreen::OutputPtr &output) -> bool {
-            return output->isPrimary();
+        if (outputs.empty()) {
+            return nullptr;
+        }
+        return *std::ranges::min_element(outputs, [](const auto &left, const auto &right) {
+            return left->priority() < right->priority();
         });
-        return iter == outputs.constEnd() ? KScreen::OutputPtr() : iter.value();
     }
 
     // output priorities may be inconsistent after this call
@@ -213,6 +215,11 @@ QString Config::connectedOutputsHash() const
     return QString::fromLatin1(hash.toHex());
 }
 
+OutputPtr Config::primaryOutput() const
+{
+    return d->findPrimaryOutput();
+}
+
 ScreenPtr Config::screen() const
 {
     return d->screen;
@@ -276,16 +283,6 @@ OutputList Config::connectedOutputs() const
     return outputs;
 }
 
-OutputPtr Config::primaryOutput() const
-{
-    return d->findPrimaryOutput();
-}
-
-void Config::setPrimaryOutput(const OutputPtr &newPrimary)
-{
-    setOutputPriority(newPrimary, 1);
-}
-
 void Config::addOutput(const OutputPtr &output)
 {
     d->outputs.insert(output->id(), output);
@@ -322,9 +319,8 @@ void Config::setOutputPriority(const OutputPtr &output, uint32_t priority)
     if (output->priority() == priority) {
         return;
     }
-    output->setEnabled(priority != 0);
     output->setPriority(priority);
-    adjustPriorities((priority != 0) ? std::optional(output) : std::nullopt);
+    adjustPriorities(output->isEnabled() ? std::optional(output) : std::nullopt);
 }
 
 void Config::setOutputPriorities(QMap<OutputPtr, uint32_t> &priorities)
@@ -337,7 +333,6 @@ void Config::setOutputPriorities(QMap<OutputPtr, uint32_t> &priorities)
             qCDebug(KSCREEN) << "The output" << output << "does not belong to this config";
             return;
         }
-        output->setEnabled(priority != 0);
         output->setPriority(priority);
     }
     adjustPriorities();
@@ -364,21 +359,11 @@ void Config::adjustPriorities(std::optional<OutputPtr> keep)
         maxPriority = std::max(maxPriority, output->priority());
     }
 
-    if (keep.has_value() && keep.value()->priority() == 0) {
-        qCDebug(KSCREEN) << "The output to keep" << keep.value() << "has zero priority. Did you forget to set priority after enabling it?";
-        keep.reset();
-    }
     for (const OutputPtr &output : d->outputs) {
         if (keep.has_value() && keep.value() == output) {
             found = true;
         }
-        if (!output->isEnabled()) {
-            output->setPriority(0);
-        } else {
-            // XXX: we are currently not enforcing consistency after enabling an output.
-            if (output->priority() == 0) {
-                output->setPriority(maxPriority + 1);
-            }
+        if (output->isEnabled()) {
             QList<OutputPtr> &entry = multimap[output->priority()];
             entry.append(output);
         }

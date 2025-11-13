@@ -47,7 +47,6 @@ public:
 
     bool isEnabled() const;
     bool isConnected() const;
-    bool isPrimary() const;
 
     Priority priority() const;
     void setPriority(Priority priority);

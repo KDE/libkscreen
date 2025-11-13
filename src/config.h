@@ -134,15 +134,10 @@ public:
     OutputList connectedOutputs() const;
 
     /**
-     * Find primary output. Primary output is the output with priority 1. May be
-     * null.
+     * Find primary output. Primary output is the output with the lowest priority.
+     * May be null.
      */
     OutputPtr primaryOutput() const;
-    /**
-     * Setting output to be the primary one is equivalent to setting its
-     * priority to 1.
-     */
-    void setPrimaryOutput(const OutputPtr &output);
     /**
      * Add an output to this configuration.
      *

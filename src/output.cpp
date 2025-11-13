@@ -574,20 +574,6 @@ void Output::setEnabled(bool enabled)
     Q_EMIT isEnabledChanged();
 }
 
-bool Output::isPrimary() const
-{
-    return d->enabled && (d->priority == 1);
-}
-
-void Output::setPrimary(bool primary)
-{
-    if (primary) {
-        setPriority(1);
-    } else {
-        qCWarning(KSCREEN) << "Calling Output::setPrimary(false) is not supported. Port your code to Config::setPrimaryOutput";
-    }
-}
-
 uint32_t Output::priority() const
 {
     return d->priority;

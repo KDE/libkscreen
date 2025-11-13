@@ -9,10 +9,6 @@
       <arg type="i" name="outputId" direction="in" />
       <arg type="b" name="enabled" direction="in" />
     </method>
-    <method name="setPrimary">
-      <arg type="i" name="outputId" direction="in" />
-      <arg type="b" name="primary" direction="in" />
-    </method>
     <method name="setCurrentModeId">
       <arg type="i" name="outputId" direction="in" />
       <arg type="s" name="currentModeId" direction="in" />

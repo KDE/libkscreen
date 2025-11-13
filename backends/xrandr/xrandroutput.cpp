@@ -55,11 +55,6 @@ bool XRandROutput::isEnabled() const
     return m_crtc != nullptr && m_crtc->mode() != XCB_NONE;
 }
 
-bool XRandROutput::isPrimary() const
-{
-    return priority() == 1;
-}
-
 uint32_t XRandROutput::priority() const
 {
     if (isConnected() && isEnabled()) {

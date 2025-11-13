@@ -99,7 +99,6 @@ void testScreenConfig::singleOutput()
     QCOMPARE(output->scale(), 1.0);
     QCOMPARE(output->isConnected(), true);
     QCOMPARE(output->isEnabled(), true);
-    QCOMPARE(output->isPrimary(), true);
     // QCOMPARE(output->isEmbedded(), true);
     QVERIFY2(output->clones().isEmpty(), "In singleOutput is impossible to have clones");
 
@@ -152,7 +151,7 @@ void testScreenConfig::multiOutput()
     QCOMPARE(output->scale(), 1.4);
     QCOMPARE(output->isConnected(), true);
     QCOMPARE(output->isEnabled(), true);
-    QCOMPARE(output->isPrimary(), false);
+    QCOMPARE(output->priority(), 2);
     QVERIFY2(output->clones().isEmpty(), "This simulates extended output, no clones");
 
     const ModePtr mode = output->currentMode();

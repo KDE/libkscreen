@@ -87,19 +87,12 @@ void testQScreenBackend::verifyScreen()
 
 void testQScreenBackend::verifyOutputs()
 {
-    bool primaryFound = false;
-    for (const KScreen::OutputPtr &op : m_config->outputs()) {
-        if (op->isPrimary()) {
-            primaryFound = true;
-        }
-    }
-    qDebug() << "Primary found? " << primaryFound;
-    QVERIFY(primaryFound);
     if (m_backend == QLatin1String("screen")) {
         QCOMPARE(m_config->outputs().count(), QGuiApplication::screens().count());
     }
 
     const KScreen::OutputPtr primary = m_config->primaryOutput();
+    QVERIFY(primary);
     QVERIFY(primary->isEnabled());
     QVERIFY(primary->isConnected());
     // qDebug() << "Primary geometry? " << primary->geometry();

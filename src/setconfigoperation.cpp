@@ -32,7 +32,7 @@ public:
     void backendReady(org::kde::kscreen::Backend *backend) override;
     void onConfigSet(QDBusPendingCallWatcher *watcher);
     void normalizeOutputPositions();
-    void fixPrimaryOutput();
+    void fixPriorities();
 
     KScreen::ConfigPtr config;
 
@@ -111,7 +111,7 @@ void SetConfigOperation::start()
 {
     Q_D(SetConfigOperation);
     d->normalizeOutputPositions();
-    d->fixPrimaryOutput();
+    d->fixPriorities();
     if (BackendManager::instance()->method() == BackendManager::InProcess) {
         auto backend = d->loadBackend();
         QFutureWatcher<SetConfigResult> *watcher = new QFutureWatcher<SetConfigResult>(this);
@@ -161,46 +161,30 @@ void SetConfigOperationPrivate::normalizeOutputPositions()
     }
 }
 
-void SetConfigOperationPrivate::fixPrimaryOutput()
+void SetConfigOperationPrivate::fixPriorities()
 {
     if (!config || !(config->supportedFeatures() & Config::Feature::PrimaryDisplay)) {
         return;
     }
+    // Here we make sure that among enabled outputs, each
+    // priority value is unique
     const auto outputs = config->outputs();
-    if (outputs.isEmpty()) {
+    auto enabled = outputs | std::views::filter([](const auto &output) {
+                       return output->isEnabled();
+                   })
+        | std::ranges::to<QList>();
+    if (enabled.isEmpty()) {
         return;
     }
-
-    // Here we make sure that:
-    // - that our primary is enabled
-    // - we have at least a primary
-    // - we have exactly 1 primary
-    // - we have a primary at all
-    bool found = false;
-    KScreen::OutputPtr primary;
-    KScreen::OutputPtr candidate;
-    for (const KScreen::OutputPtr &output : outputs) {
-        if (output->isPrimary()) {
-            if (!output->isEnabled()) {
-                qCDebug(KSCREEN) << "can't be primary if disabled!!" << output;
-            } else if (found) {
-                qCDebug(KSCREEN) << "can only have 1 primary" << output;
-            } else {
-                found = true;
-                primary = output;
-            }
-        } else if (output->isEnabled()) {
-            candidate = output;
+    std::ranges::sort(enabled, [](const auto &left, const auto &right) {
+        return left->priority() < right->priority();
+    });
+    uint32_t priority = enabled.front()->priority();
+    for (const auto &output : enabled | std::views::drop(1)) {
+        if (output->priority() <= priority) {
+            output->setPriority(priority + 1);
         }
-    }
-
-    if (!found && candidate) {
-        qCDebug(KSCREEN) << "setting primary instead" << candidate;
-        config->setPrimaryOutput(candidate);
-    } else if (primary) {
-        // ensures all others are set to non-primary. It's OK if all outputs
-        // are disabled and `primary` is essentially nullptr.
-        config->setPrimaryOutput(primary);
+        priority++;
     }
 }
 

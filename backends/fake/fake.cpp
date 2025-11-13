@@ -145,17 +145,6 @@ void Fake::setEnabled(int outputId, bool enabled)
     Q_EMIT configChanged(mConfig);
 }
 
-void Fake::setPrimary(int outputId, bool primary)
-{
-    KScreen::OutputPtr output = config()->output(outputId);
-    if (!output || output->isPrimary() == primary) {
-        return;
-    }
-
-    mConfig->setPrimaryOutput(output);
-    Q_EMIT configChanged(mConfig);
-}
-
 void Fake::setCurrentModeId(int outputId, const QString &modeId)
 {
     KScreen::OutputPtr output = config()->output(outputId);
