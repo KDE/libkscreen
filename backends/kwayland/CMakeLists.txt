@@ -27,7 +27,6 @@ qt6_generate_wayland_protocol_client_sources(KSC_KWayland
     FILES
         ${PLASMA_WAYLAND_PROTOCOLS_DIR}/kde-output-device-v2.xml
         ${PLASMA_WAYLAND_PROTOCOLS_DIR}/kde-output-management-v2.xml
-        ${PLASMA_WAYLAND_PROTOCOLS_DIR}/kde-output-order-v1.xml
     ${private_code_option}
 )
 

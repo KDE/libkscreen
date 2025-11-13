@@ -396,11 +396,6 @@ QDebug operator<<(QDebug dbg, const WaylandOutputDevice *output)
     return dbg;
 }
 
-void WaylandOutputDevice::setIndex(uint32_t index)
-{
-    m_index = index;
-}
-
 uint32_t WaylandOutputDevice::index() const
 {
     return m_index;
@@ -579,6 +574,11 @@ void WaylandOutputDevice::kde_output_device_v2_edr_policy(uint32_t policy)
 void WaylandOutputDevice::kde_output_device_v2_sharpness(uint32_t sharpness)
 {
     m_sharpness = sharpness;
+}
+
+void WaylandOutputDevice::kde_output_device_v2_priority(uint32_t priority)
+{
+    m_index = priority;
 }
 
 QByteArray WaylandOutputDevice::edid() const

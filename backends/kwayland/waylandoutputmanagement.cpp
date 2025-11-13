@@ -62,33 +62,6 @@ void WaylandOutputConfiguration::kde_output_configuration_v2_failure_reason(cons
 {
     m_errorMessage = reason;
 }
-
-WaylandOutputOrder::WaylandOutputOrder(struct ::wl_registry *registry, int id, int version)
-    : QtWayland::kde_output_order_v1(registry, id, version)
-{
-}
-
-WaylandOutputOrder::~WaylandOutputOrder()
-{
-    destroy();
-}
-
-QList<QString> WaylandOutputOrder::order() const
-{
-    return m_outputOrder;
-}
-
-void WaylandOutputOrder::kde_output_order_v1_output(const QString &output_name)
-{
-    m_pendingOutputOrder.push_back(output_name);
-}
-
-void WaylandOutputOrder::kde_output_order_v1_done()
-{
-    m_outputOrder = m_pendingOutputOrder;
-    Q_EMIT outputOrderChanged(m_pendingOutputOrder);
-    m_pendingOutputOrder.clear();
-}
 }
 
 #include "moc_waylandoutputmanagement.cpp"

@@ -7,7 +7,6 @@
 #pragma once
 
 #include "qwayland-kde-output-management-v2.h"
-#include "qwayland-kde-output-order-v1.h"
 
 #include <QObject>
 #include <QSize>
@@ -45,25 +44,5 @@ public:
     ~WaylandOutputManagement() override;
 
     WaylandOutputConfiguration *createConfiguration();
-};
-
-class WaylandOutputOrder : public QObject, public QtWayland::kde_output_order_v1
-{
-    Q_OBJECT
-public:
-    WaylandOutputOrder(struct ::wl_registry *registry, int id, int version);
-    ~WaylandOutputOrder();
-
-    QList<QString> order() const;
-
-Q_SIGNALS:
-    void outputOrderChanged(const QList<QString> &outputs);
-
-private:
-    void kde_output_order_v1_output(const QString &output_name) override;
-    void kde_output_order_v1_done() override;
-
-    QList<QString> m_outputOrder;
-    QList<QString> m_pendingOutputOrder;
 };
 }

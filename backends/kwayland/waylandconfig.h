@@ -23,7 +23,6 @@ class Output;
 class WaylandOutputDevice;
 class WaylandScreen;
 class WaylandOutputManagement;
-class WaylandOutputOrder;
 
 /**
  * @class WaylandConfig
@@ -77,7 +76,6 @@ private:
     wl_registry *m_registry = nullptr;
 
     std::unique_ptr<WaylandOutputManagement> m_outputManagement;
-    std::unique_ptr<WaylandOutputOrder> m_outputOrder;
 
     // KWayland names as keys
     QMap<int, WaylandOutputDevice *> m_outputMap;

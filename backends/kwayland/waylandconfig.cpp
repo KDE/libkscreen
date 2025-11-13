@@ -113,21 +113,7 @@ void WaylandConfig::setupRegistry()
     auto globalAdded = [](void *data, wl_registry *registry, uint32_t name, const char *interface, uint32_t version) {
         auto self = static_cast<WaylandConfig *>(data);
         if (qstrcmp(interface, WaylandOutputDevice::interface()->name) == 0) {
-            self->addOutput(name, std::min(17u, version));
-        }
-        if (qstrcmp(interface, WaylandOutputOrder::interface()->name) == 0) {
-            self->m_outputOrder = std::make_unique<WaylandOutputOrder>(registry, name, std::min(1u, version));
-            connect(self->m_outputOrder.get(), &WaylandOutputOrder::outputOrderChanged, self, [self](const QList<QString> &names) {
-                bool change = false;
-                for (const auto &output : std::as_const(self->m_outputMap)) {
-                    const uint32_t newIndex = names.indexOf(output->name()) + 1;
-                    change = change || output->index() != newIndex;
-                    output->setIndex(newIndex);
-                }
-                if (change && !self->m_blockSignals) {
-                    Q_EMIT self->configChanged();
-                }
-            });
+            self->addOutput(name, std::min(18u, version));
         }
     };
 
@@ -178,7 +164,6 @@ void WaylandConfig::handleActiveChanged()
     m_screen->setOutputs({});
     qDeleteAll(outputs);
 
-    m_outputOrder.reset();
     wl_registry_destroy(m_registry);
     m_registry = nullptr;
 
@@ -205,9 +190,6 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
     connect(device, &WaylandOutputDevice::done, this, [this, device]() {
         if (m_initializingOutputs.removeOne(device)) {
             m_outputMap.insert(device->id(), device);
-            if (m_outputOrder) {
-                device->setIndex(m_outputOrder->order().indexOf(device->name()) + 1);
-            }
             checkInitialized();
 
             if (m_initializingOutputs.isEmpty()) {

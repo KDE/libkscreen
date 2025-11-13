@@ -48,7 +48,6 @@ public:
     void updateKScreenOutput(OutputPtr &output, const QMap<int, WaylandOutputDevice *> &outputMap);
     void updateKScreenModes(OutputPtr &output);
 
-    void setIndex(uint32_t priority);
     uint32_t index() const;
     bool setWlConfig(WaylandOutputConfiguration *wlConfig, const KScreen::OutputPtr &output, const QMap<int, WaylandOutputDevice *> &outputMap);
 
@@ -103,6 +102,7 @@ protected:
     void kde_output_device_v2_automatic_max_bits_per_color_limit(uint32_t max_bpc_limit) override;
     void kde_output_device_v2_edr_policy(uint32_t policy) override;
     void kde_output_device_v2_sharpness(uint32_t sharpness) override;
+    void kde_output_device_v2_priority(uint32_t priority) override;
 
 private:
     QString modeName(const WaylandOutputDeviceMode *m) const;

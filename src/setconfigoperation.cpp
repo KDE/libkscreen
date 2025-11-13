@@ -17,6 +17,7 @@
 
 #include <QDBusPendingCall>
 #include <QDBusPendingCallWatcher>
+#include <ranges>
 
 using namespace KScreen;
 
