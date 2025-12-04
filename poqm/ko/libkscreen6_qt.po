@@ -28,17 +28,17 @@ msgctxt "KScreen::GetConfigOperationPrivate|"
 msgid "Backend invalidated"
 msgstr "백엔드가 무효화됨"
 
-#: setconfigoperation.cpp:58
+#: setconfigoperation.cpp:59
 msgctxt "KScreen::SetConfigOperationPrivate|"
 msgid "Failed to prepare backend"
 msgstr "백엔드를 준비할 수 없음"
 
-#: setconfigoperation.cpp:65
+#: setconfigoperation.cpp:66
 msgctxt "KScreen::SetConfigOperationPrivate|"
 msgid "Failed to serialize request"
 msgstr "요청을 직렬화할 수 없음"
 
-#: setconfigoperation.cpp:89
+#: setconfigoperation.cpp:90
 msgctxt "KScreen::SetConfigOperationPrivate|"
 msgid "Failed to deserialize backend response"
 msgstr "백엔드 응답의 직렬화를 해석할 수 없음"

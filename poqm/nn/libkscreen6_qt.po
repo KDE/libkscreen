@@ -33,17 +33,17 @@ msgctxt "KScreen::GetConfigOperationPrivate|"
 msgid "Backend invalidated"
 msgstr "Motor er gjort ugyldig"
 
-#: setconfigoperation.cpp:58
+#: setconfigoperation.cpp:59
 msgctxt "KScreen::SetConfigOperationPrivate|"
 msgid "Failed to prepare backend"
 msgstr "Klarte ikkje gjera klar motor"
 
-#: setconfigoperation.cpp:65
+#: setconfigoperation.cpp:66
 msgctxt "KScreen::SetConfigOperationPrivate|"
 msgid "Failed to serialize request"
 msgstr "Klarte ikkje serialisera førespurnad"
 
-#: setconfigoperation.cpp:89
+#: setconfigoperation.cpp:90
 msgctxt "KScreen::SetConfigOperationPrivate|"
 msgid "Failed to deserialize backend response"
 msgstr "Klarte ikkje avseralisera svar frå motor"

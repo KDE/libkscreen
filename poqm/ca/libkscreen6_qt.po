@@ -33,17 +33,17 @@ msgctxt "KScreen::GetConfigOperationPrivate|"
 msgid "Backend invalidated"
 msgstr "Dorsal invalidat"
 
-#: setconfigoperation.cpp:58
+#: setconfigoperation.cpp:59
 msgctxt "KScreen::SetConfigOperationPrivate|"
 msgid "Failed to prepare backend"
 msgstr "Ha fallat en preparar el dorsal"
 
-#: setconfigoperation.cpp:65
+#: setconfigoperation.cpp:66
 msgctxt "KScreen::SetConfigOperationPrivate|"
 msgid "Failed to serialize request"
 msgstr "Ha fallat en serialitzar la sol·licitud"
 
-#: setconfigoperation.cpp:89
+#: setconfigoperation.cpp:90
 msgctxt "KScreen::SetConfigOperationPrivate|"
 msgid "Failed to deserialize backend response"
 msgstr "Ha fallat en desserialitzar la resposta del dorsal"

@@ -28,17 +28,17 @@ msgctxt "KScreen::GetConfigOperationPrivate|"
 msgid "Backend invalidated"
 msgstr "已將後端無效化"
 
-#: setconfigoperation.cpp:58
+#: setconfigoperation.cpp:59
 msgctxt "KScreen::SetConfigOperationPrivate|"
 msgid "Failed to prepare backend"
 msgstr "準備後端失敗"
 
-#: setconfigoperation.cpp:65
+#: setconfigoperation.cpp:66
 msgctxt "KScreen::SetConfigOperationPrivate|"
 msgid "Failed to serialize request"
 msgstr "序列化要求失敗"
 
-#: setconfigoperation.cpp:89
+#: setconfigoperation.cpp:90
 msgctxt "KScreen::SetConfigOperationPrivate|"
 msgid "Failed to deserialize backend response"
 msgstr "反序列化後端回應失敗"
