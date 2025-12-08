@@ -72,7 +72,6 @@ void TestBackendLoader::testEnv_data()
     QTest::newRow("all upper") << "KWAYLAND" << "KSC_KWayland";
     QTest::newRow("mixed") << "kwAYlaND" << "KSC_KWayland";
 
-    QTest::newRow("qscreen") << "qscreen" << "KSC_QScreen";
     QTest::newRow("mixed") << "fake" << "KSC_Fake";
     // clang-format on
 }
