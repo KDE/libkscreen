@@ -7,3 +7,6 @@ Dependencies:
     'frameworks/extra-cmake-modules': '@latest-kf6'
     'libraries/plasma-wayland-protocols': '@latest-kf6'
     'third-party/wayland': '@latest'
+
+Options:
+ require-passing-tests-on: ['@all']
