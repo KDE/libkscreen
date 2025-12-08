@@ -29,7 +29,11 @@
 #define GCM_DESCRIPTOR_ALPHANUMERIC_DATA_STRING 0xfe
 #define GCM_DESCRIPTOR_COLOR_POINT 0xfb
 
+#ifdef Q_OS_FREEBSD
+#define PNP_IDS "/usr/local/share/hwdata/pnp.ids"
+#else
 #define PNP_IDS "/usr/share/hwdata/pnp.ids"
+#endif
 
 using namespace KScreen;
 
