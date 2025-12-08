@@ -145,7 +145,6 @@ void TestInProcess::testBackendCaching()
     KScreen::BackendManager::instance()->shutdownBackend();
 
     if (m_backendServiceInstalled) {
-        // qputenv("KSCREEN_BACKEND", "QScreen");
         qputenv("KSCREEN_BACKEND_INPROCESS", "0");
         BackendManager::instance()->setMethod(BackendManager::OutOfProcess);
         QCOMPARE(BackendManager::instance()->method(), BackendManager::OutOfProcess);
