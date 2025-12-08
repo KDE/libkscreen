@@ -121,9 +121,7 @@ QFileInfo BackendManager::preferredBackend(const QString &backend)
      * - env var KSCREEN_BACKEND is considered
      * - if platform is X11, the XRandR backend is picked
      * - if platform is wayland, KWayland backend is picked
-     * - if neither is the case, QScreen backend is picked
-     * - the QScreen backend is also used as fallback
-     *
+     * - empty QFileInfo otherwise
      */
     QString backendFilter;
     const auto env_kscreen_backend = QString::fromUtf8(qgetenv("KSCREEN_BACKEND"));
@@ -136,8 +134,6 @@ QFileInfo BackendManager::preferredBackend(const QString &backend)
             backendFilter = QStringLiteral("XRandR");
         } else if (QGuiApplication::platformName().startsWith(QLatin1String("wayland"))) {
             backendFilter = QStringLiteral("KWayland");
-        } else {
-            backendFilter = QStringLiteral("QScreen");
         }
     }
     QFileInfo fallback;
@@ -146,9 +142,6 @@ QFileInfo BackendManager::preferredBackend(const QString &backend)
         // Here's the part where we do the match case-insensitive
         if (f.baseName().toLower() == QStringLiteral("ksc_%1").arg(backendFilter.toLower())) {
             return f;
-        }
-        if (f.baseName() == QLatin1String("KSC_QScreen")) {
-            fallback = f;
         }
     }
     //     qCWarning(KSCREEN) << "No preferred backend found. KSCREEN_BACKEND is set to " << env_kscreen_backend;
