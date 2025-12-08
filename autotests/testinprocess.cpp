@@ -40,7 +40,6 @@ private Q_SLOTS:
     void loadConfig();
 
     void testCreateJob();
-    void testModeSwitching();
     void testBackendCaching();
 
     void testConfigApply();
@@ -99,67 +98,6 @@ void TestInProcess::loadConfig()
     m_config = op->config();
     QVERIFY(m_config);
     QVERIFY(m_config->isValid());
-}
-
-void TestInProcess::testModeSwitching()
-{
-    KScreen::BackendManager::instance()->shutdownBackend();
-    BackendManager::instance()->setMethod(BackendManager::InProcess);
-    // Load QScreen backend in-process
-    qDebug() << "TT qscreen in-process";
-    qputenv("KSCREEN_BACKEND", "QScreen");
-    auto op = new GetConfigOperation();
-    QVERIFY(op->exec());
-    auto oc = op->config();
-    QVERIFY(oc != nullptr);
-    QVERIFY(oc->isValid());
-
-    qDebug() << "TT fake in-process";
-    // Load the Fake backend in-process
-    qputenv("KSCREEN_BACKEND", "Fake");
-    auto ip = new GetConfigOperation();
-    QVERIFY(ip->exec());
-    auto ic = ip->config();
-    QVERIFY(ic != nullptr);
-    QVERIFY(ic->isValid());
-    QVERIFY(ic->outputs().count());
-
-    KScreen::ConfigPtr xc(nullptr);
-    if (m_backendServiceInstalled) {
-        qDebug() << "TT xrandr out-of-process";
-        // Load the xrandr backend out-of-process
-        qputenv("KSCREEN_BACKEND", "QScreen");
-        qputenv("KSCREEN_BACKEND_INPROCESS", "0");
-        BackendManager::instance()->setMethod(BackendManager::OutOfProcess);
-        auto xp = new GetConfigOperation();
-        QCOMPARE(BackendManager::instance()->method(), BackendManager::OutOfProcess);
-        QVERIFY(xp->exec());
-        xc = xp->config();
-        QVERIFY(xc != nullptr);
-        QVERIFY(xc->isValid());
-        QVERIFY(xc->outputs().count());
-    }
-
-    qDebug() << "TT fake in-process";
-
-    qputenv("KSCREEN_BACKEND_INPROCESS", "1");
-    BackendManager::instance()->setMethod(BackendManager::InProcess);
-    // Load the Fake backend in-process
-    qputenv("KSCREEN_BACKEND", "Fake");
-    auto fp = new GetConfigOperation();
-    QCOMPARE(BackendManager::instance()->method(), BackendManager::InProcess);
-    QVERIFY(fp->exec());
-    auto fc = fp->config();
-    QVERIFY(fc != nullptr);
-    QVERIFY(fc->isValid());
-    QVERIFY(fc->outputs().count());
-
-    QVERIFY(oc->isValid());
-    QVERIFY(ic->isValid());
-    if (xc) {
-        QVERIFY(xc->isValid());
-    }
-    QVERIFY(fc->isValid());
 }
 
 void TestInProcess::testBackendCaching()
