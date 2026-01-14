@@ -16,7 +16,6 @@
 
 #include "tabletmodemanager_interface.h"
 
-#include <QElapsedTimer>
 #include <QGuiApplication>
 #include <QThread>
 #include <QTimer>
@@ -26,16 +25,13 @@
 
 #include <wayland-client-protocol.h>
 
-#include <chrono>
 #include <utility>
 
 using namespace KScreen;
-using namespace std::chrono_literals;
 
 WaylandConfig::WaylandConfig(QObject *parent)
     : QObject(parent)
     , m_outputManagement(std::make_unique<WaylandOutputManagement>(19))
-    , m_registryInitialized(false)
     , m_blockSignals(false)
     , m_kscreenConfig(new Config)
     , m_kscreenPendingConfig(nullptr)
@@ -128,24 +124,8 @@ void WaylandConfig::setupRegistry()
     static const wl_registry_listener registryListener{globalAdded, globalRemoved};
     wl_registry_add_listener(m_registry, &registryListener, this);
 
-    static const wl_callback_listener callbackListener{[](void *data, wl_callback *callback, uint32_t callbackData) {
-        Q_UNUSED(callback)
-        Q_UNUSED(callbackData)
-        auto self = static_cast<WaylandConfig *>(data);
-        self->m_registryInitialized = true;
-        self->checkInitialized();
-    }};
-    auto callback = wl_display_sync(waylandApp->display());
-    wl_callback_add_listener(callback, &callbackListener, this);
-    QElapsedTimer timer;
-    timer.start();
-    while (!m_initialized) {
-        if (timer.durationElapsed() >= 300ms) {
-            qCWarning(KSCREEN_WAYLAND) << "Connection to Wayland server timed out.";
-            break;
-        }
-        wl_display_roundtrip(display);
-    }
+    wl_display_roundtrip(display); // list output devices
+    wl_display_roundtrip(display); // get output device properties
 }
 
 void WaylandConfig::destroyRegistry()
@@ -209,7 +189,6 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
     connect(device, &WaylandOutputDevice::done, this, [this, device]() {
         if (m_initializingOutputs.removeOne(device)) {
             m_outputMap.insert(device->id(), device);
-            checkInitialized();
 
             if (m_initializingOutputs.isEmpty()) {
                 m_screen->setOutputs(m_outputMap.values());
@@ -250,24 +229,9 @@ void WaylandConfig::removeOutput(WaylandOutputDevice *output)
     }
 }
 
-bool WaylandConfig::isReady() const
+bool WaylandConfig::isValid() const
 {
-    // clang-format off
-    return !m_blockSignals
-            && m_registryInitialized
-            && m_initializingOutputs.isEmpty()
-            && m_outputMap.count() > 0
-            && m_outputManagement->isActive();
-    // clang-format on
-}
-
-void WaylandConfig::checkInitialized()
-{
-    if (!m_initialized && isReady()) {
-        m_initialized = true;
-        m_screen->setOutputs(m_outputMap.values());
-        Q_EMIT initialized();
-    }
+    return m_outputManagement->isActive();
 }
 
 KScreen::ConfigPtr WaylandConfig::currentConfig()
