@@ -25,19 +25,6 @@ class WaylandOutputDevice;
 class WaylandScreen;
 class WaylandOutputManagement;
 
-/**
- * @class WaylandConfig
- *
- * This class holds the basic skeleton of the configuration and takes care of
- * fetching the information from the Wayland server and synchronizing the
- * configuration out to the "clients" that receive the config from the backend.
- * We initialize a wayland connection, using a threaded event queue when
- * querying the wayland server for data.
- * Initially, the creation of a WaylandConfig blocks until all data has been
- * received, signalled by the initialized() signal. This means that the
- * wayland client has received information about all interfaces, and that all
- * outputs are completely initialized. From then on, we properly notifyUpdate().
- */
 class WaylandConfig : public QObject
 {
     Q_OBJECT
@@ -52,18 +39,16 @@ public:
     bool applyConfig(const KScreen::ConfigPtr &newConfig);
     WaylandOutputDevice *findOutputDevice(struct ::kde_output_device_v2 *outputdevice) const;
 
-    bool isReady() const;
+    bool isValid() const;
 
 Q_SIGNALS:
     void configChanged();
-    void initialized();
     void globalRemoved(uint32_t name);
     void configFailed(const QString &reason);
 
 private:
     void setupRegistry();
     void destroyRegistry();
-    void checkInitialized();
     void handleActiveChanged();
 
     void initKWinTabletMode();
@@ -87,7 +72,6 @@ private:
     QList<WaylandOutputDevice *> m_initializingOutputs;
     int m_lastOutputId = -1;
 
-    bool m_registryInitialized;
     bool m_blockSignals;
     KScreen::ConfigPtr m_kscreenConfig;
     KScreen::ConfigPtr m_kscreenPendingConfig;
@@ -95,7 +79,6 @@ private:
 
     bool m_tabletModeAvailable;
     bool m_tabletModeEngaged;
-    bool m_initialized = false;
 };
 
 }
