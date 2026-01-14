@@ -69,7 +69,7 @@ void WaylandConfig::initKWinTabletMode()
             return;
         }
         m_tabletModeEngaged = tabletMode;
-        if (!m_blockSignals && m_initializingOutputs.empty()) {
+        if (!m_blockSignals) {
             Q_EMIT configChanged();
         }
     });
@@ -78,7 +78,7 @@ void WaylandConfig::initKWinTabletMode()
             return;
         }
         m_tabletModeAvailable = available;
-        if (!m_blockSignals && m_initializingOutputs.empty()) {
+        if (!m_blockSignals) {
             Q_EMIT configChanged();
         }
     });
@@ -189,18 +189,11 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
     connect(device, &WaylandOutputDevice::done, this, [this, device]() {
         if (m_initializingOutputs.removeOne(device)) {
             m_outputMap.insert(device->id(), device);
+            m_screen->setOutputs(m_outputMap.values());
+        }
 
-            if (m_initializingOutputs.isEmpty()) {
-                m_screen->setOutputs(m_outputMap.values());
-            }
-            if (!m_blockSignals && m_initializingOutputs.isEmpty()) {
-                Q_EMIT configChanged();
-            }
-        } else {
-            // output got update must update current config
-            if (!m_blockSignals) {
-                Q_EMIT configChanged();
-            }
+        if (!m_blockSignals) {
+            Q_EMIT configChanged();
         }
     });
 
