@@ -50,6 +50,12 @@ WaylandConfig::WaylandConfig(QObject *parent)
 
 WaylandConfig::~WaylandConfig()
 {
+    qDeleteAll(m_initializingOutputs);
+    m_initializingOutputs.clear();
+
+    qDeleteAll(m_outputMap);
+    m_outputMap.clear();
+
     if (m_registry) {
         wl_registry_destroy(m_registry);
     }
