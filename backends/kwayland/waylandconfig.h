@@ -22,7 +22,6 @@ namespace KScreen
 {
 class Output;
 class WaylandOutputDevice;
-class WaylandScreen;
 class WaylandOutputManagement;
 
 class WaylandConfig : public QObject
@@ -75,7 +74,6 @@ private:
     bool m_blockSignals;
     KScreen::ConfigPtr m_kscreenConfig;
     KScreen::ConfigPtr m_kscreenPendingConfig;
-    WaylandScreen *m_screen;
 
     bool m_tabletModeAvailable;
     bool m_tabletModeEngaged;

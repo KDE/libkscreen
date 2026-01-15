@@ -12,7 +12,6 @@
 #include "waylandbackend.h"
 #include "waylandoutputdevice.h"
 #include "waylandoutputmanagement.h"
-#include "waylandscreen.h"
 
 #include "tabletmodemanager_interface.h"
 
@@ -35,7 +34,6 @@ WaylandConfig::WaylandConfig(QObject *parent)
     , m_blockSignals(false)
     , m_kscreenConfig(new Config)
     , m_kscreenPendingConfig(nullptr)
-    , m_screen(new WaylandScreen(this))
     , m_tabletModeAvailable(false)
     , m_tabletModeEngaged(false)
 {
@@ -133,9 +131,8 @@ void WaylandConfig::destroyRegistry()
     qDeleteAll(m_initializingOutputs);
     m_initializingOutputs.clear();
 
-    auto outputs = std::move(m_outputMap);
-    m_screen->setOutputs({});
-    qDeleteAll(outputs);
+    qDeleteAll(m_outputMap);
+    m_outputMap.clear();
 
     if (m_registry) {
         if (m_fixes) {
@@ -189,7 +186,6 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
     connect(device, &WaylandOutputDevice::done, this, [this, device]() {
         if (m_initializingOutputs.removeOne(device)) {
             m_outputMap.insert(device->id(), device);
-            m_screen->setOutputs(m_outputMap.values());
         }
 
         if (!m_blockSignals) {
@@ -214,7 +210,6 @@ void WaylandConfig::removeOutput(WaylandOutputDevice *output)
     const auto removedOutput = m_outputMap.take(output->id());
     Q_ASSERT(removedOutput == output);
     Q_UNUSED(removedOutput);
-    m_screen->setOutputs(m_outputMap.values());
     delete output;
 
     if (!m_blockSignals) {
@@ -227,17 +222,30 @@ bool WaylandConfig::isValid() const
     return m_outputManagement->isActive();
 }
 
+static QRect boundingRect(const QMap<int, WaylandOutputDevice *> &outputs)
+{
+    QRect r;
+    for (const auto *out : outputs) {
+        if (out->enabled()) {
+            r |= QRect(out->globalPosition(), out->pixelSize() / out->scale());
+        }
+    }
+    return r;
+}
+
 KScreen::ConfigPtr WaylandConfig::currentConfig()
 {
-    m_kscreenConfig->setScreen(m_screen->toKScreenScreen(m_kscreenConfig));
-
     const auto features = Config::Feature::Writable | Config::Feature::PerOutputScaling | Config::Feature::AutoRotation | Config::Feature::TabletMode
         | Config::Feature::PrimaryDisplay | Config::Feature::XwaylandScales | Config::Feature::SynchronousOutputChanges | Config::Feature::OutputReplication;
     m_kscreenConfig->setSupportedFeatures(features);
     m_kscreenConfig->setValid(m_outputManagement->isActive());
 
-    KScreen::ScreenPtr screen = m_kscreenConfig->screen();
-    m_screen->updateKScreenScreen(screen);
+    KScreen::ScreenPtr kscreenScreen(new KScreen::Screen);
+    kscreenScreen->setMaxSize(QSize(64000, 64000)); // 64000^2 should be enough for everyone.
+    kscreenScreen->setMinSize(QSize(0, 0));
+    kscreenScreen->setCurrentSize(boundingRect(m_outputMap).size());
+    kscreenScreen->setMaxActiveOutputsCount(m_outputMap.size());
+    m_kscreenConfig->setScreen(kscreenScreen);
 
     // Removing removed outputs
     const KScreen::OutputList outputs = m_kscreenConfig->outputs();
