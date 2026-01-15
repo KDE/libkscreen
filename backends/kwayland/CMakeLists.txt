@@ -5,7 +5,6 @@ set(wayland_SRCS
     waylandoutputdevice.cpp waylandoutputdevice.h
     waylandoutputmanagement.cpp waylandoutputmanagement.h
     waylandoutputdevicemode.cpp waylandoutputdevicemode.h
-    waylandscreen.cpp waylandscreen.h
     ../utils.cpp ../utils.h
 )
 qt_add_dbus_interface(wayland_SRCS org.kde.KWin.TabletModeManager.xml tabletmodemanager_interface)
