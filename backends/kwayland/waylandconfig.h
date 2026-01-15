@@ -64,12 +64,12 @@ private:
     // KWayland names
     QList<WaylandOutputDevice *> m_initializingOutputs;
 
-    bool m_blockSignals;
     KScreen::ConfigPtr m_kscreenConfig;
     KScreen::ConfigPtr m_kscreenPendingConfig;
 
-    bool m_tabletModeAvailable;
-    bool m_tabletModeEngaged;
+    bool m_blockSignals = false;
+    bool m_tabletModeAvailable = false;
+    bool m_tabletModeEngaged = false;
 };
 
 }

@@ -22,11 +22,7 @@ using namespace KScreen;
 WaylandConfig::WaylandConfig(QObject *parent)
     : QObject(parent)
     , m_outputManagement(std::make_unique<WaylandOutputManagement>(19))
-    , m_blockSignals(false)
     , m_kscreenConfig(new Config)
-    , m_kscreenPendingConfig(nullptr)
-    , m_tabletModeAvailable(false)
-    , m_tabletModeEngaged(false)
 {
     connect(m_outputManagement.get(), &WaylandOutputManagement::activeChanged, this, &WaylandConfig::handleActiveChanged);
     initKWinTabletMode();
