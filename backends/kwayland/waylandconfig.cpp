@@ -6,25 +6,16 @@
  *  SPDX-License-Identifier: LGPL-2.1-or-later
  */
 #include "waylandconfig.h"
-
+#include "config.h"
 #include "kscreen_kwayland_logging.h"
-
+#include "tabletmodemanager_interface.h"
 #include "waylandbackend.h"
 #include "waylandoutputdevice.h"
 #include "waylandoutputmanagement.h"
 
-#include "tabletmodemanager_interface.h"
-
 #include <QGuiApplication>
-#include <QThread>
-#include <QTimer>
-#include <configmonitor.h>
-#include <mode.h>
-#include <output.h>
 
 #include <wayland-client-protocol.h>
-
-#include <utility>
 
 using namespace KScreen;
 

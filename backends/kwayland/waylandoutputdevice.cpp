@@ -7,8 +7,6 @@
 #include "waylandoutputdevice.h"
 #include "waylandoutputmanagement.h"
 
-#include "kscreen_kwayland_logging.h"
-
 #include "../utils.h"
 
 #include <QGuiApplication>

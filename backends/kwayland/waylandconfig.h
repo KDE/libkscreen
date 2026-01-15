@@ -5,14 +5,9 @@
  */
 #pragma once
 
-#include "abstractbackend.h"
-#include "config.h"
+#include "types.h"
 
-#include <QDir>
-#include <QLoggingCategory>
-#include <QScreen>
-#include <QSize>
-#include <QSocketNotifier>
+#include <QObject>
 
 struct kde_output_device_v2;
 struct wl_registry;
@@ -20,7 +15,6 @@ struct wl_fixes;
 
 namespace KScreen
 {
-class Output;
 class WaylandOutputDevice;
 class WaylandOutputManagement;
 
@@ -69,7 +63,6 @@ private:
 
     // KWayland names
     QList<WaylandOutputDevice *> m_initializingOutputs;
-    int m_lastOutputId = -1;
 
     bool m_blockSignals;
     KScreen::ConfigPtr m_kscreenConfig;
