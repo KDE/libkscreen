@@ -159,13 +159,11 @@ void WaylandConfig::handleActiveChanged()
     }
 }
 
-int s_outputId = 0;
-
 void WaylandConfig::addOutput(quint32 name, quint32 version)
 {
     qCDebug(KSCREEN_WAYLAND) << "adding output" << name;
 
-    auto device = new WaylandOutputDevice(++s_outputId);
+    auto device = new WaylandOutputDevice();
     m_initializingOutputs << device;
 
     connect(this, &WaylandConfig::globalRemoved, device, [name, device, this](const uint32_t &interfaceName) {
