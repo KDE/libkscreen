@@ -13,14 +13,6 @@
 
 #include "kscreen_kwayland_logging.h"
 
-#include <configmonitor.h>
-#include <mode.h>
-#include <output.h>
-
-#include <QProcess>
-#include <QSettings>
-#include <QStandardPaths>
-
 using namespace KScreen;
 
 // This class scopes the connections to the internal config changes signals to the matching request
