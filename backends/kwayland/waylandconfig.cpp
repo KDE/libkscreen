@@ -96,6 +96,7 @@ void WaylandConfig::setupRegistry()
     m_registry = wl_display_get_registry(display);
 
     auto globalAdded = [](void *data, wl_registry *registry, uint32_t name, const char *interface, uint32_t version) {
+        Q_UNUSED(registry)
         auto self = static_cast<WaylandConfig *>(data);
         if (qstrcmp(interface, kde_output_device_v2_interface.name) == 0) {
             self->addOutput(name, std::min(20u, version));
