@@ -20,10 +20,16 @@
 
 using namespace KScreen;
 
-WaylandOutputDevice::WaylandOutputDevice(int id)
+static int nextId()
+{
+    static int id = 0;
+    return id++;
+}
+
+WaylandOutputDevice::WaylandOutputDevice()
     : QObject()
     , kde_output_device_v2()
-    , m_id(id)
+    , m_id(nextId())
 {
 }
 

@@ -26,7 +26,7 @@ class WaylandOutputDevice : public QObject, public QtWayland::kde_output_device_
     Q_OBJECT
 
 public:
-    WaylandOutputDevice(int id);
+    WaylandOutputDevice();
 
     ~WaylandOutputDevice();
 
