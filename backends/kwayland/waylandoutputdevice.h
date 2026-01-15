@@ -26,13 +26,22 @@ class WaylandOutputDevice : public QObject, public QtWayland::kde_output_device_
     Q_OBJECT
 
 public:
-    WaylandOutputDevice();
+    WaylandOutputDevice(struct ::wl_registry *registry, uint32_t globalId, int version);
 
     ~WaylandOutputDevice();
 
+    /**
+     * wl_global id for this output device. Global ids may be reused.
+     */
+    uint32_t globalId() const;
+
+    /**
+     * Internal unique output device id, it has meaning only to KScreen.
+     */
+    int id() const;
+
     QByteArray edid() const;
     bool enabled() const;
-    int id() const;
     QString name() const;
     QString model() const;
     QString manufacturer() const;
@@ -116,6 +125,7 @@ private:
     WaylandOutputDeviceMode *m_mode;
     QList<WaylandOutputDeviceMode *> m_modes;
 
+    uint32_t m_globalId;
     int m_id;
     QPoint m_pos;
     QSize m_physicalSize;

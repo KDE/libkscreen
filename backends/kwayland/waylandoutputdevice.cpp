@@ -24,9 +24,9 @@ static int nextId()
     return id++;
 }
 
-WaylandOutputDevice::WaylandOutputDevice()
-    : QObject()
-    , kde_output_device_v2()
+WaylandOutputDevice::WaylandOutputDevice(struct ::wl_registry *registry, uint32_t globalId, int version)
+    : kde_output_device_v2(registry, globalId, version)
+    , m_globalId(globalId)
     , m_id(nextId())
 {
 }
@@ -622,6 +622,11 @@ void WaylandOutputDevice::kde_output_device_v2_priority(uint32_t priority)
 void WaylandOutputDevice::kde_output_device_v2_auto_brightness(uint32_t enabled)
 {
     m_autoBrightness = enabled;
+}
+
+uint32_t WaylandOutputDevice::globalId() const
+{
+    return m_globalId;
 }
 
 QByteArray WaylandOutputDevice::edid() const
