@@ -40,7 +40,7 @@ find_package(WaylandScanner)
 find_package(PlasmaWaylandProtocols 1.20 CONFIG)
 set_package_properties(PlasmaWaylandProtocols PROPERTIES TYPE REQUIRED)
 
-find_package(Wayland 1.15 COMPONENTS Client)
+find_package(Wayland 1.24 COMPONENTS Client)
 set_package_properties(Wayland PROPERTIES
                        TYPE REQUIRED
                       )

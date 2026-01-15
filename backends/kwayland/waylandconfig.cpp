@@ -50,14 +50,8 @@ WaylandConfig::WaylandConfig(QObject *parent)
 
 WaylandConfig::~WaylandConfig()
 {
-    qDeleteAll(m_initializingOutputs);
-    m_initializingOutputs.clear();
-
-    qDeleteAll(m_outputMap);
-    m_outputMap.clear();
-
     if (m_registry) {
-        wl_registry_destroy(m_registry);
+        destroyRegistry();
     }
 }
 
@@ -118,8 +112,10 @@ void WaylandConfig::setupRegistry()
 
     auto globalAdded = [](void *data, wl_registry *registry, uint32_t name, const char *interface, uint32_t version) {
         auto self = static_cast<WaylandConfig *>(data);
-        if (qstrcmp(interface, WaylandOutputDevice::interface()->name) == 0) {
+        if (qstrcmp(interface, kde_output_device_v2_interface.name) == 0) {
             self->addOutput(name, std::min(20u, version));
+        } else if (qstrcmp(interface, wl_fixes_interface.name) == 0) {
+            self->m_fixes = static_cast<wl_fixes *>(wl_registry_bind(registry, name, &wl_fixes_interface, 1));
         }
     };
 
@@ -152,6 +148,29 @@ void WaylandConfig::setupRegistry()
     }
 }
 
+void WaylandConfig::destroyRegistry()
+{
+    qDeleteAll(m_initializingOutputs);
+    m_initializingOutputs.clear();
+
+    auto outputs = std::move(m_outputMap);
+    m_screen->setOutputs({});
+    qDeleteAll(outputs);
+
+    if (m_registry) {
+        if (m_fixes) {
+            wl_fixes_destroy_registry(m_fixes, m_registry);
+        }
+        wl_registry_destroy(m_registry);
+        m_registry = nullptr;
+    }
+
+    if (m_fixes) {
+        wl_fixes_destroy(m_fixes);
+        m_fixes = nullptr;
+    }
+}
+
 void WaylandConfig::handleActiveChanged()
 {
     if (m_outputManagement->isActive()) {
@@ -164,14 +183,8 @@ void WaylandConfig::handleActiveChanged()
     if (!m_registry) {
         return;
     }
-    qDeleteAll(m_initializingOutputs);
-    m_initializingOutputs.clear();
-    auto outputs = std::move(m_outputMap);
-    m_screen->setOutputs({});
-    qDeleteAll(outputs);
 
-    wl_registry_destroy(m_registry);
-    m_registry = nullptr;
+    destroyRegistry();
 
     if (!m_blockSignals) {
         Q_EMIT configChanged();
