@@ -36,7 +36,6 @@ public:
 
 Q_SIGNALS:
     void configChanged();
-    void globalRemoved(uint32_t name);
     void configFailed(const QString &reason);
 
 private:
@@ -47,7 +46,7 @@ private:
     void initKWinTabletMode();
 
     void addOutput(quint32 name, quint32 version);
-    void removeOutput(WaylandOutputDevice *output);
+    void removeOutput(quint32 name);
 
     void blockSignals();
     void unblockSignals();

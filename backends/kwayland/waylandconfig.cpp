@@ -104,7 +104,7 @@ void WaylandConfig::setupRegistry()
     auto globalRemoved = [](void *data, wl_registry *registry, uint32_t name) {
         Q_UNUSED(registry)
         auto self = static_cast<WaylandConfig *>(data);
-        Q_EMIT self->globalRemoved(name);
+        self->removeOutput(name);
     };
 
     static const wl_registry_listener registryListener{globalAdded, globalRemoved};
@@ -160,15 +160,10 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
 {
     qCDebug(KSCREEN_WAYLAND) << "adding output" << name;
 
-    auto device = new WaylandOutputDevice();
+    auto device = new WaylandOutputDevice(m_registry, name, version);
     m_initializingOutputs << device;
 
-    connect(this, &WaylandConfig::globalRemoved, device, [name, device, this](const uint32_t &interfaceName) {
-        if (name == interfaceName) {
-            removeOutput(device);
-        }
-    });
-
+    // The done signal will be sent later after returning to the event loop.
     connect(device, &WaylandOutputDevice::done, this, [this, device]() {
         if (m_initializingOutputs.removeOne(device)) {
             m_outputMap.insert(device->id(), device);
@@ -178,28 +173,33 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
             Q_EMIT configChanged();
         }
     });
-
-    device->init(m_registry, name, version);
 }
 
-void WaylandConfig::removeOutput(WaylandOutputDevice *output)
+void WaylandConfig::removeOutput(quint32 name)
 {
-    qCDebug(KSCREEN_WAYLAND) << "removing output" << output->name();
-
-    if (m_initializingOutputs.removeOne(output)) {
-        // output was not yet fully initialized, just remove here and return
-        delete output;
-        return;
+    for (qsizetype i = 0; i < m_initializingOutputs.size(); ++i) {
+        WaylandOutputDevice *outputDevice = m_initializingOutputs[i];
+        if (outputDevice->globalId() == name) {
+            qCDebug(KSCREEN_WAYLAND) << "removing output" << name;
+            m_initializingOutputs.removeAt(i);
+            delete outputDevice;
+            return;
+        }
     }
 
-    // remove the output from output mapping
-    const auto removedOutput = m_outputMap.take(output->id());
-    Q_ASSERT(removedOutput == output);
-    Q_UNUSED(removedOutput);
-    delete output;
+    for (auto it = m_outputMap.begin(); it != m_outputMap.end(); ++it) {
+        WaylandOutputDevice *outputDevice = *it;
+        if (outputDevice->globalId() == name) {
+            qCDebug(KSCREEN_WAYLAND) << "removing output" << name;
+            m_outputMap.erase(it);
+            delete outputDevice;
 
-    if (!m_blockSignals) {
-        Q_EMIT configChanged();
+            if (!m_blockSignals) {
+                Q_EMIT configChanged();
+            }
+
+            return;
+        }
     }
 }
 
