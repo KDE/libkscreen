@@ -16,6 +16,7 @@
 
 struct kde_output_device_v2;
 struct wl_registry;
+struct wl_fixes;
 
 namespace KScreen
 {
@@ -61,6 +62,7 @@ Q_SIGNALS:
 
 private:
     void setupRegistry();
+    void destroyRegistry();
     void checkInitialized();
     void handleActiveChanged();
 
@@ -74,6 +76,7 @@ private:
     void tryPendingConfig();
 
     wl_registry *m_registry = nullptr;
+    wl_fixes *m_fixes = nullptr;
 
     std::unique_ptr<WaylandOutputManagement> m_outputManagement;
 
