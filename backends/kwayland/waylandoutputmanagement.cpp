@@ -27,10 +27,10 @@ WaylandOutputManagement::~WaylandOutputManagement()
     }
 }
 
-WaylandOutputConfiguration *WaylandOutputManagement::createConfiguration()
+std::unique_ptr<WaylandOutputConfiguration> WaylandOutputManagement::createConfiguration()
 {
     if (isActive()) {
-        return new WaylandOutputConfiguration(create_configuration());
+        return std::make_unique<WaylandOutputConfiguration>(create_configuration());
     } else {
         return nullptr;
     }

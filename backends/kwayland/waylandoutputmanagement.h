@@ -43,6 +43,6 @@ public:
     explicit WaylandOutputManagement(int version);
     ~WaylandOutputManagement() override;
 
-    WaylandOutputConfiguration *createConfiguration();
+    std::unique_ptr<WaylandOutputConfiguration> createConfiguration();
 };
 }

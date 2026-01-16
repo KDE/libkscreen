@@ -22,7 +22,7 @@ using namespace KScreen;
 WaylandConfig::WaylandConfig(QObject *parent)
     : QObject(parent)
     , m_outputManagement(std::make_unique<WaylandOutputManagement>(19))
-    , m_kscreenConfig(new Config)
+    , m_config(new Config)
 {
     connect(m_outputManagement.get(), &WaylandOutputManagement::activeChanged, this, &WaylandConfig::handleActiveChanged);
     initKWinTabletMode();
@@ -54,7 +54,7 @@ void WaylandConfig::initKWinTabletMode()
             return;
         }
         m_tabletModeEngaged = tabletMode;
-        if (!m_blockSignals) {
+        if (!m_currentOperation) {
             Q_EMIT configChanged();
         }
     });
@@ -63,22 +63,10 @@ void WaylandConfig::initKWinTabletMode()
             return;
         }
         m_tabletModeAvailable = available;
-        if (!m_blockSignals) {
+        if (!m_currentOperation) {
             Q_EMIT configChanged();
         }
     });
-}
-
-void WaylandConfig::blockSignals()
-{
-    Q_ASSERT(m_blockSignals == false);
-    m_blockSignals = true;
-}
-
-void WaylandConfig::unblockSignals()
-{
-    Q_ASSERT(m_blockSignals == true);
-    m_blockSignals = false;
 }
 
 void WaylandConfig::setupRegistry()
@@ -151,7 +139,7 @@ void WaylandConfig::handleActiveChanged()
 
     destroyRegistry();
 
-    if (!m_blockSignals) {
+    if (!m_currentOperation) {
         Q_EMIT configChanged();
     }
 }
@@ -169,7 +157,7 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
             m_outputMap.insert(device->id(), device);
         }
 
-        if (!m_blockSignals) {
+        if (!m_currentOperation) {
             Q_EMIT configChanged();
         }
     });
@@ -194,7 +182,7 @@ void WaylandConfig::removeOutput(quint32 name)
             m_outputMap.erase(it);
             delete outputDevice;
 
-            if (!m_blockSignals) {
+            if (!m_currentOperation) {
                 Q_EMIT configChanged();
             }
 
@@ -223,21 +211,21 @@ KScreen::ConfigPtr WaylandConfig::currentConfig()
 {
     const auto features = Config::Feature::Writable | Config::Feature::PerOutputScaling | Config::Feature::AutoRotation | Config::Feature::TabletMode
         | Config::Feature::PrimaryDisplay | Config::Feature::XwaylandScales | Config::Feature::SynchronousOutputChanges | Config::Feature::OutputReplication;
-    m_kscreenConfig->setSupportedFeatures(features);
-    m_kscreenConfig->setValid(m_outputManagement->isActive());
+    m_config->setSupportedFeatures(features);
+    m_config->setValid(m_outputManagement->isActive());
 
     KScreen::ScreenPtr kscreenScreen(new KScreen::Screen);
     kscreenScreen->setMaxSize(QSize(64000, 64000)); // 64000^2 should be enough for everyone.
     kscreenScreen->setMinSize(QSize(0, 0));
     kscreenScreen->setCurrentSize(boundingRect(m_outputMap).size());
     kscreenScreen->setMaxActiveOutputsCount(m_outputMap.size());
-    m_kscreenConfig->setScreen(kscreenScreen);
+    m_config->setScreen(kscreenScreen);
 
     // Removing removed outputs
-    const KScreen::OutputList outputs = m_kscreenConfig->outputs();
+    const KScreen::OutputList outputs = m_config->outputs();
     for (const auto &output : outputs) {
         if (!m_outputMap.contains(output->id())) {
-            m_kscreenConfig->removeOutput(output->id());
+            m_config->removeOutput(output->id());
         }
     }
 
@@ -245,21 +233,21 @@ KScreen::ConfigPtr WaylandConfig::currentConfig()
     QMap<OutputPtr, uint32_t> priorities;
     for (const auto &output : m_outputMap) {
         KScreen::OutputPtr kscreenOutput;
-        if (m_kscreenConfig->outputs().contains(output->id())) {
-            kscreenOutput = m_kscreenConfig->outputs()[output->id()];
+        if (m_config->outputs().contains(output->id())) {
+            kscreenOutput = m_config->outputs()[output->id()];
             output->updateKScreenOutput(kscreenOutput, m_outputMap);
         } else {
             kscreenOutput = output->toKScreenOutput(m_outputMap);
-            m_kscreenConfig->addOutput(kscreenOutput);
+            m_config->addOutput(kscreenOutput);
         }
         priorities[kscreenOutput] = output->index();
     }
-    m_kscreenConfig->setOutputPriorities(priorities);
+    m_config->setOutputPriorities(priorities);
 
-    m_kscreenConfig->setTabletModeAvailable(m_tabletModeAvailable);
-    m_kscreenConfig->setTabletModeEngaged(m_tabletModeEngaged);
+    m_config->setTabletModeAvailable(m_tabletModeAvailable);
+    m_config->setTabletModeEngaged(m_tabletModeEngaged);
 
-    return m_kscreenConfig;
+    return m_config;
 }
 
 QMap<int, WaylandOutputDevice *> WaylandConfig::outputMap() const
@@ -269,11 +257,9 @@ QMap<int, WaylandOutputDevice *> WaylandConfig::outputMap() const
 
 void WaylandConfig::tryPendingConfig()
 {
-    if (!m_kscreenPendingConfig) {
-        return;
+    if (m_pendingOperation) {
+        apply(std::move(m_pendingOperation));
     }
-    applyConfig(m_kscreenPendingConfig);
-    m_kscreenPendingConfig = nullptr;
 }
 
 WaylandOutputDevice *WaylandConfig::findOutputDevice(struct ::kde_output_device_v2 *outputdevice) const
@@ -286,59 +272,68 @@ WaylandOutputDevice *WaylandConfig::findOutputDevice(struct ::kde_output_device_
     return nullptr;
 }
 
-bool WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
+QFuture<SetConfigResult> WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)
 {
-    for (const auto &output : newConfig->outputs()) {
+    auto operation = std::make_unique<WaylandConfigApplyOperation>();
+    operation->config = newConfig;
+    operation->promise.start();
+
+    return apply(std::move(operation));
+}
+
+QFuture<SetConfigResult> WaylandConfig::apply(std::unique_ptr<WaylandConfigApplyOperation> &&operation)
+{
+    for (const auto &output : operation->config->outputs()) {
         if (!m_outputMap.contains(output->id())) {
             qCWarning(KSCREEN_WAYLAND) << "Cannot find output with id" << output->id();
-            return false;
+            return QtFuture::makeReadyFuture<SetConfigResult>(std::unexpected(QStringLiteral("Unknown output id: %1").arg(output->id())));
         }
     }
 
-    newConfig->adjustPriorities(); // never trust input
-    if (m_blockSignals) {
+    operation->config->adjustPriorities(); // never trust input
+
+    if (m_currentOperation) {
         // Last apply still pending, remember new changes and apply afterwards
-        m_kscreenPendingConfig = newConfig;
-        return true;
+        m_pendingOperation = std::move(operation);
+        return m_pendingOperation->promise.future();
     }
 
     // Create a new configuration object
-    auto wlConfig = m_outputManagement->createConfiguration();
-    if (!wlConfig) {
-        return false;
+    operation->request = m_outputManagement->createConfiguration();
+    if (!operation->request) {
+        return QtFuture::makeReadyFuture<SetConfigResult>(std::unexpected(QStringLiteral("Failed to create kde_output_configuration_v2")));
     }
-    bool changed = false;
 
-    for (const auto &output : newConfig->outputs()) {
-        changed |= m_outputMap[output->id()]->setWlConfig(m_outputManagement.get(), wlConfig, output, m_outputMap);
+    bool changed = false;
+    for (const auto &output : operation->config->outputs()) {
+        changed |= m_outputMap[output->id()]->setWlConfig(m_outputManagement.get(), operation->request.get(), output, m_outputMap);
     }
 
     if (!changed) {
-        delete wlConfig;
-        return false;
+        return QtFuture::makeReadyFuture(SetConfigResult());
     }
 
     // We now block changes in order to compress events while the compositor is doing its thing
     // once it's done or failed, we'll trigger configChanged() only once, and not per individual
     // property change.
-    connect(wlConfig, &WaylandOutputConfiguration::applied, this, [this, wlConfig] {
-        wlConfig->deleteLater();
-        unblockSignals();
+    connect(operation->request.get(), &WaylandOutputConfiguration::applied, this, [this] {
+        m_currentOperation->promise.addResult(SetConfigResult());
+        m_currentOperation->promise.finish();
+        m_currentOperation.reset();
         Q_EMIT configChanged();
         tryPendingConfig();
     });
-    connect(wlConfig, &WaylandOutputConfiguration::failed, this, [this, wlConfig](const QString &errorMessage) {
-        wlConfig->deleteLater();
-        unblockSignals();
-        Q_EMIT configFailed(errorMessage);
+    connect(operation->request.get(), &WaylandOutputConfiguration::failed, this, [this](const QString &errorMessage) {
+        m_currentOperation->promise.addResult(std::unexpected(errorMessage));
+        m_currentOperation->promise.finish();
+        m_currentOperation.reset();
         Q_EMIT configChanged();
         tryPendingConfig();
     });
 
-    // Now block signals and ask the compositor to apply the changes.
-    blockSignals();
-    wlConfig->apply();
-    return true;
+    m_currentOperation = std::move(operation);
+    m_currentOperation->request->apply();
+    return m_currentOperation->promise.future();
 }
 
 #include "moc_waylandconfig.cpp"

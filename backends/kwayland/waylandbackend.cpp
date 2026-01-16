@@ -15,38 +15,6 @@
 
 using namespace KScreen;
 
-// This class scopes the connections to the internal config changes signals to the matching request
-// TODO it would be better if WaylandConfig::applyConfig handled the QFuture itself.
-class SetConfigJob : public QObject
-{
-    Q_OBJECT
-public:
-    explicit SetConfigJob(QObject *parent = nullptr)
-        : QObject(parent)
-    {
-        m_pendingResult.start();
-    }
-    void fail(const QString &error)
-    {
-        deleteLater();
-        m_pendingResult.addResult(std::unexpected(error));
-        m_pendingResult.finish();
-    }
-    void finish()
-    {
-        deleteLater();
-        m_pendingResult.addResult(SetConfigResult());
-        m_pendingResult.finish();
-    }
-    QFuture<SetConfigResult> future()
-    {
-        return m_pendingResult.future();
-    }
-
-private:
-    QPromise<SetConfigResult> m_pendingResult;
-};
-
 WaylandBackend::WaylandBackend()
     : KScreen::AbstractBackend()
     , m_internalConfig(new WaylandConfig(this))
@@ -79,14 +47,7 @@ QFuture<SetConfigResult> WaylandBackend::setConfig(const KScreen::ConfigPtr &new
         return QtFuture::makeReadyFuture<SetConfigResult>(std::unexpected(QStringLiteral("config is nullptr!")));
     }
 
-    SetConfigJob *job = new SetConfigJob(this);
-    connect(m_internalConfig, &WaylandConfig::configChanged, job, &SetConfigJob::finish);
-    connect(m_internalConfig, &WaylandConfig::configFailed, job, &SetConfigJob::fail);
-    if (!m_internalConfig->applyConfig(newconfig)) {
-        // nothing changed
-        job->finish();
-    }
-    return job->future();
+    return m_internalConfig->applyConfig(newconfig);
 }
 
 QByteArray WaylandBackend::edid(int outputId) const

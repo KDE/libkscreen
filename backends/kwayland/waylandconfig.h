@@ -5,8 +5,9 @@
  */
 #pragma once
 
-#include "types.h"
+#include "abstractbackend.h"
 
+#include <QFuture>
 #include <QObject>
 
 struct kde_output_device_v2;
@@ -15,8 +16,15 @@ struct wl_fixes;
 
 namespace KScreen
 {
+class WaylandOutputConfiguration;
 class WaylandOutputDevice;
 class WaylandOutputManagement;
+
+struct WaylandConfigApplyOperation {
+    KScreen::ConfigPtr config;
+    std::unique_ptr<WaylandOutputConfiguration> request;
+    QPromise<SetConfigResult> promise;
+};
 
 class WaylandConfig : public QObject
 {
@@ -29,14 +37,13 @@ public:
     KScreen::ConfigPtr currentConfig();
     QMap<int, WaylandOutputDevice *> outputMap() const;
 
-    bool applyConfig(const KScreen::ConfigPtr &newConfig);
+    QFuture<SetConfigResult> applyConfig(const KScreen::ConfigPtr &newConfig);
     WaylandOutputDevice *findOutputDevice(struct ::kde_output_device_v2 *outputdevice) const;
 
     bool isValid() const;
 
 Q_SIGNALS:
     void configChanged();
-    void configFailed(const QString &reason);
 
 private:
     void setupRegistry();
@@ -48,8 +55,7 @@ private:
     void addOutput(quint32 name, quint32 version);
     void removeOutput(quint32 name);
 
-    void blockSignals();
-    void unblockSignals();
+    QFuture<SetConfigResult> apply(std::unique_ptr<WaylandConfigApplyOperation> &&operation);
     void tryPendingConfig();
 
     wl_registry *m_registry = nullptr;
@@ -63,10 +69,10 @@ private:
     // KWayland names
     QList<WaylandOutputDevice *> m_initializingOutputs;
 
-    KScreen::ConfigPtr m_kscreenConfig;
-    KScreen::ConfigPtr m_kscreenPendingConfig;
+    KScreen::ConfigPtr m_config;
+    std::unique_ptr<WaylandConfigApplyOperation> m_currentOperation;
+    std::unique_ptr<WaylandConfigApplyOperation> m_pendingOperation;
 
-    bool m_blockSignals = false;
     bool m_tabletModeAvailable = false;
     bool m_tabletModeEngaged = false;
 };
