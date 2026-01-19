@@ -11,6 +11,8 @@
 
 #include "../utils.h"
 
+#include <QGuiApplication>
+
 #include <mode.h>
 #include <output.h>
 
@@ -31,7 +33,9 @@ WaylandOutputDevice::~WaylandOutputDevice()
 {
     qDeleteAll(m_modes);
 
-    kde_output_device_v2_destroy(object());
+    if (qGuiApp) {
+        kde_output_device_v2_destroy(object());
+    }
 }
 
 void WaylandOutputDevice::kde_output_device_v2_geometry(int32_t x,

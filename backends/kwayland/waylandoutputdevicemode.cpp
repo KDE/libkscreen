@@ -5,6 +5,8 @@
  */
 #include "waylandoutputdevicemode.h"
 
+#include <QGuiApplication>
+
 using namespace KScreen;
 
 static QString nextId()
@@ -21,7 +23,9 @@ WaylandOutputDeviceMode::WaylandOutputDeviceMode(struct ::kde_output_device_mode
 
 WaylandOutputDeviceMode::~WaylandOutputDeviceMode()
 {
-    kde_output_device_mode_v2_destroy(object());
+    if (qGuiApp) {
+        kde_output_device_mode_v2_destroy(object());
+    }
 }
 
 void WaylandOutputDeviceMode::kde_output_device_mode_v2_size(int32_t width, int32_t height)
