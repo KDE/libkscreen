@@ -6,6 +6,7 @@
  */
 #include "waylandoutputmanagement.h"
 #include <QDebug>
+#include <QGuiApplication>
 
 namespace KScreen
 {
@@ -22,7 +23,7 @@ WaylandOutputManagement::WaylandOutputManagement(int version)
 
 WaylandOutputManagement::~WaylandOutputManagement()
 {
-    if (isActive()) {
+    if (qGuiApp && isActive()) {
         kde_output_management_v2_destroy(object());
     }
 }
