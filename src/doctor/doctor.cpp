@@ -552,6 +552,7 @@ void Doctor::parseOutputArgs()
                     }
                     modes.erase(modes.begin() + index);
                     output->setCustomModes(modes);
+                    m_changed = true;
                 } else if (ops.count() >= 4 && subcmd == "autoBrightness") {
                     if (ops[3] == "enable") {
                         output->setAutomaticBrightness(true);
