@@ -170,7 +170,6 @@ void KScreen::WaylandOutputDevice::updateKScreenModes(OutputPtr &output)
 
 void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output, const QMap<int, WaylandOutputDevice *> &outputMap)
 {
-    // Initialize primary output
     output->setId(m_id);
     output->setEnabled(enabled());
     output->setConnected(true);
@@ -242,6 +241,7 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output, const QMap<int,
         });
     }
     output->setCustomModes(m_customModes);
+    output->setPriority(m_priority);
 }
 
 QString WaylandOutputDevice::modeId() const
@@ -313,7 +313,7 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputManagement *management,
         wlConfig->set_rgb_range(object(), static_cast<uint32_t>(output->rgbRange()));
         changed = true;
     }
-    if (output->priority() != m_index) {
+    if (output->priority() != m_priority) {
         changed = true;
     }
     // always send all outputs
@@ -432,11 +432,6 @@ QDebug operator<<(QDebug dbg, const WaylandOutputDevice *output)
 {
     dbg << "WaylandOutput(Id:" << output->id() << ", Name:" << QString(output->manufacturer() + QLatin1Char(' ') + output->model()) << ")";
     return dbg;
-}
-
-uint32_t WaylandOutputDevice::index() const
-{
-    return m_index;
 }
 
 void WaylandOutputDevice::kde_output_device_v2_done()
@@ -616,7 +611,7 @@ void WaylandOutputDevice::kde_output_device_v2_sharpness(uint32_t sharpness)
 
 void WaylandOutputDevice::kde_output_device_v2_priority(uint32_t priority)
 {
-    m_index = priority;
+    m_priority = priority;
 }
 
 void WaylandOutputDevice::kde_output_device_v2_auto_brightness(uint32_t enabled)

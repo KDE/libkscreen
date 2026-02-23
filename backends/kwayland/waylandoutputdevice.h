@@ -49,7 +49,6 @@ public:
     void updateKScreenOutput(OutputPtr &output, const QMap<int, WaylandOutputDevice *> &outputMap);
     void updateKScreenModes(OutputPtr &output);
 
-    uint32_t index() const;
     bool setWlConfig(WaylandOutputManagement *management,
                      WaylandOutputConfiguration *wlConfig,
                      const KScreen::OutputPtr &output,
@@ -134,7 +133,7 @@ private:
     uint32_t m_overscan;
     uint32_t m_vrr_policy;
     uint32_t m_rgbRange;
-    uint32_t m_index;
+    uint32_t m_priority;
     bool m_hdrEnabled = false;
     uint32_t m_sdrBrightness = 200;
     bool m_wideColorGamutEnabled = false;
