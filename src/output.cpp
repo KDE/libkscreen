@@ -1231,7 +1231,10 @@ void Output::apply(const OutputPtr &other)
     if (other->d->edid) {
         d->edid.reset(other->d->edid->clone());
     }
-
+    if (d->sizeMm != other->d->sizeMm) {
+        setSizeMm(other->d->sizeMm);
+    }
+    
     blockSignals(keepBlocked);
 
     while (!changes.isEmpty()) {
