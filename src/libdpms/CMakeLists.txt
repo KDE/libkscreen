@@ -8,11 +8,8 @@ target_link_libraries(KF6ScreenDpms PUBLIC Qt::Gui
                                             Qt::GuiPrivate Qt::WaylandClient Wayland::Client
 )
 
-if (Qt6_VERSION VERSION_GREATER_EQUAL "6.8.0")
-    set(private_code_option  "PRIVATE_CODE")
-endif()
 qt6_generate_wayland_protocol_client_sources(KF6ScreenDpms
-    ${private_code_option}
+    PRIVATE_CODE
     FILES
         ${PLASMA_WAYLAND_PROTOCOLS_DIR}/dpms.xml
 )

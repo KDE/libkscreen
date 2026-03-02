@@ -20,14 +20,11 @@ ecm_qt_declare_logging_category(wayland_SRCS
 
 add_library(KSC_KWayland MODULE)
 
-if (Qt6_VERSION VERSION_GREATER_EQUAL "6.8.0")
-    set(private_code_option  "PRIVATE_CODE")
-endif()
 qt6_generate_wayland_protocol_client_sources(KSC_KWayland
+    PRIVATE_CODE
     FILES
         ${PLASMA_WAYLAND_PROTOCOLS_DIR}/kde-output-device-v2.xml
         ${PLASMA_WAYLAND_PROTOCOLS_DIR}/kde-output-management-v2.xml
-    ${private_code_option}
 )
 
 target_sources(KSC_KWayland PRIVATE ${wayland_SRCS})
