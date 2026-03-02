@@ -564,6 +564,18 @@ void Doctor::parseOutputArgs()
                         return;
                     }
                     m_changed = true;
+                } else if (ops.count() == 4 && subcmd == "autoRotatePolicy") {
+                    if (ops[3] == "never") {
+                        setAutoRotatePolicy(output, KScreen::Output::AutoRotatePolicy::Never);
+                    } else if (ops[3] == "inTabletMode") {
+                        setAutoRotatePolicy(output, KScreen::Output::AutoRotatePolicy::InTabletMode);
+                    } else if (ops[3] == "always") {
+                        setAutoRotatePolicy(output, KScreen::Output::AutoRotatePolicy::Always);
+                    } else {
+                        qCWarning(KSCREEN_DOCTOR) << "Invalid input: Only 'never', 'inTabletMode', and 'always' are allowed";
+                        qApp->exit(9);
+                        return;
+                    }
                 } else {
                     cerr << "Unable to parse arguments: " << op << Qt::endl;
                     qApp->exit(2);
@@ -846,6 +858,21 @@ void Doctor::showOutputs() const
         } else {
             cout << cr << "unsupported" << endl;
         }
+        cout << yellow << "\tAuto Rotate Policy: ";
+        if (output->capabilities() & Output::Capability::AutoRotation) {
+            switch (output->autoRotatePolicy()) {
+            case Output::AutoRotatePolicy::Never:
+                cout << cr << "never" << endl;
+                break;
+            case Output::AutoRotatePolicy::InTabletMode:
+                cout << cr << "inTabletMode" << endl;
+                break;
+            case Output::AutoRotatePolicy::Always:
+                cout << cr << "always" << endl;
+            }
+        } else {
+            cout << cr << "incapable" << endl;
+        }
     }
 }
 
@@ -951,6 +978,12 @@ void Doctor::setSdrBrightness(OutputPtr output, uint32_t brightness)
 void Doctor::setWcgEnabled(OutputPtr output, bool enable)
 {
     output->setWcgEnabled(enable);
+    m_changed = true;
+}
+
+void Doctor::setAutoRotatePolicy(OutputPtr output, KScreen::Output::AutoRotatePolicy policy)
+{
+    output->setAutoRotatePolicy(policy);
     m_changed = true;
 }
 

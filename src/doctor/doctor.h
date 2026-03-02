@@ -49,6 +49,7 @@ public:
     void setHdrEnabled(OutputPtr output, bool enable);
     void setSdrBrightness(OutputPtr output, uint32_t brightness);
     void setWcgEnabled(OutputPtr output, bool enable);
+    void setAutoRotatePolicy(OutputPtr output, KScreen::Output::AutoRotatePolicy policy);
 
 Q_SIGNALS:
     void outputsChanged();
