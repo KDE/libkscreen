@@ -25,13 +25,12 @@
 
 #include <wayland-client-protocol.h>
 
-#include <utility>
-
 using namespace KScreen;
 
 WaylandConfig::WaylandConfig(QObject *parent)
     : QObject(parent)
     , m_outputManagement(std::make_unique<WaylandOutputManagement>(19))
+    , m_outputRegistry(std::make_unique<WaylandOutputDeviceRegistry>())
     , m_blockSignals(false)
     , m_kscreenConfig(new Config)
     , m_kscreenPendingConfig(nullptr)
@@ -40,15 +39,20 @@ WaylandConfig::WaylandConfig(QObject *parent)
     , m_tabletModeEngaged(false)
 {
     connect(m_outputManagement.get(), &WaylandOutputManagement::activeChanged, this, &WaylandConfig::handleActiveChanged);
+    connect(m_outputRegistry.get(), &WaylandOutputDeviceRegistry::outputAdded, this, &WaylandConfig::addOutput);
+    connect(m_outputRegistry.get(), &WaylandOutputDeviceRegistry::outputRemoved, this, &WaylandConfig::removeOutput);
+
     initKWinTabletMode();
-    setupRegistry();
+
+    if (auto waylandApp = qGuiApp->nativeInterface<QNativeInterface::QWaylandApplication>()) {
+        auto display = waylandApp->display();
+        wl_display_roundtrip(display); // list output devices
+        wl_display_roundtrip(display); // get output device properties
+    }
 }
 
 WaylandConfig::~WaylandConfig()
 {
-    if (m_registry) {
-        destroyRegistry();
-    }
 }
 
 void WaylandConfig::initKWinTabletMode()
@@ -96,99 +100,29 @@ void WaylandConfig::unblockSignals()
     m_blockSignals = false;
 }
 
-void WaylandConfig::setupRegistry()
-{
-    auto waylandApp = qGuiApp->nativeInterface<QNativeInterface::QWaylandApplication>();
-    if (!waylandApp) {
-        return;
-    }
-
-    auto display = waylandApp->display();
-    m_registry = wl_display_get_registry(display);
-
-    auto globalAdded = [](void *data, wl_registry *registry, uint32_t name, const char *interface, uint32_t version) {
-        auto self = static_cast<WaylandConfig *>(data);
-        if (qstrcmp(interface, kde_output_device_v2_interface.name) == 0) {
-            self->addOutput(name, std::min(20u, version));
-        } else if (qstrcmp(interface, wl_fixes_interface.name) == 0) {
-            self->m_fixes = static_cast<wl_fixes *>(wl_registry_bind(registry, name, &wl_fixes_interface, 1));
-        }
-    };
-
-    auto globalRemoved = [](void *data, wl_registry *registry, uint32_t name) {
-        Q_UNUSED(registry)
-        auto self = static_cast<WaylandConfig *>(data);
-        Q_EMIT self->globalRemoved(name);
-    };
-
-    static const wl_registry_listener registryListener{globalAdded, globalRemoved};
-    wl_registry_add_listener(m_registry, &registryListener, this);
-
-    wl_display_roundtrip(display); // list output devices
-    wl_display_roundtrip(display); // get output device properties
-}
-
-void WaylandConfig::destroyRegistry()
-{
-    qDeleteAll(m_initializingOutputs);
-    m_initializingOutputs.clear();
-
-    auto outputs = std::move(m_outputMap);
-    m_screen->setOutputs({});
-    qDeleteAll(outputs);
-
-    if (m_registry) {
-        if (m_fixes) {
-            wl_fixes_destroy_registry(m_fixes, m_registry);
-        }
-        wl_registry_destroy(m_registry);
-        m_registry = nullptr;
-    }
-
-    if (m_fixes) {
-        wl_fixes_destroy(m_fixes);
-        m_fixes = nullptr;
-    }
-}
-
 void WaylandConfig::handleActiveChanged()
 {
     if (m_outputManagement->isActive()) {
-        if (!m_registry) {
-            setupRegistry();
-        }
-        return;
-    }
-    // the compositor went away, clean up all the Wayland resources
-    if (!m_registry) {
         return;
     }
 
-    destroyRegistry();
+    // the compositor went away, clean up all the resources
+    m_initializingOutputs.clear();
+    m_screen->setOutputs({});
 
     if (!m_blockSignals) {
         Q_EMIT configChanged();
     }
 }
 
-int s_outputId = 0;
-
-void WaylandConfig::addOutput(quint32 name, quint32 version)
+void WaylandConfig::addOutput(WaylandOutputDevice *output)
 {
-    qCDebug(KSCREEN_WAYLAND) << "adding output" << name;
+    qCDebug(KSCREEN_WAYLAND) << "adding output" << output;
 
-    auto device = new WaylandOutputDevice(++s_outputId);
-    m_initializingOutputs << device;
-
-    connect(this, &WaylandConfig::globalRemoved, device, [name, device, this](const uint32_t &interfaceName) {
-        if (name == interfaceName) {
-            removeOutput(device);
-        }
-    });
-
-    connect(device, &WaylandOutputDevice::done, this, [this, device]() {
-        if (m_initializingOutputs.removeOne(device)) {
-            m_outputMap.insert(device->id(), device);
+    m_initializingOutputs << output;
+    connect(output, &WaylandOutputDevice::done, this, [this, output]() {
+        if (m_initializingOutputs.removeOne(output)) {
+            m_outputMap.insert(output->id(), output);
             m_screen->setOutputs(m_outputMap.values());
         }
 
@@ -196,8 +130,6 @@ void WaylandConfig::addOutput(quint32 name, quint32 version)
             Q_EMIT configChanged();
         }
     });
-
-    device->init(m_registry, name, version);
 }
 
 void WaylandConfig::removeOutput(WaylandOutputDevice *output)
@@ -205,17 +137,13 @@ void WaylandConfig::removeOutput(WaylandOutputDevice *output)
     qCDebug(KSCREEN_WAYLAND) << "removing output" << output->name();
 
     if (m_initializingOutputs.removeOne(output)) {
-        // output was not yet fully initialized, just remove here and return
-        delete output;
         return;
     }
 
-    // remove the output from output mapping
     const auto removedOutput = m_outputMap.take(output->id());
     Q_ASSERT(removedOutput == output);
     Q_UNUSED(removedOutput);
     m_screen->setOutputs(m_outputMap.values());
-    delete output;
 
     if (!m_blockSignals) {
         Q_EMIT configChanged();
@@ -224,7 +152,7 @@ void WaylandConfig::removeOutput(WaylandOutputDevice *output)
 
 bool WaylandConfig::isValid() const
 {
-    return m_outputManagement->isActive();
+    return m_outputManagement->isActive() && m_outputRegistry->isActive();
 }
 
 KScreen::ConfigPtr WaylandConfig::currentConfig()
@@ -274,16 +202,6 @@ void WaylandConfig::tryPendingConfig()
     }
     applyConfig(m_kscreenPendingConfig);
     m_kscreenPendingConfig = nullptr;
-}
-
-WaylandOutputDevice *WaylandConfig::findOutputDevice(struct ::kde_output_device_v2 *outputdevice) const
-{
-    for (WaylandOutputDevice *device : m_outputMap) {
-        if (device->object() == outputdevice) {
-            return device;
-        }
-    }
-    return nullptr;
 }
 
 bool WaylandConfig::applyConfig(const KScreen::ConfigPtr &newConfig)

@@ -22,10 +22,49 @@
 
 using namespace KScreen;
 
-WaylandOutputDevice::WaylandOutputDevice(int id)
-    : QObject()
-    , kde_output_device_v2()
-    , m_id(id)
+WaylandOutputDeviceRegistry::WaylandOutputDeviceRegistry()
+    : QWaylandClientExtensionTemplate<WaylandOutputDeviceRegistry>(21)
+{
+    initialize();
+}
+
+WaylandOutputDeviceRegistry::~WaylandOutputDeviceRegistry()
+{
+    if (qGuiApp && isActive()) {
+        stop();
+
+        // The WaylandConfig lives until the whole application goes down, so we don't bother
+        // waiting until the finished event arrives and destroy the proxy object immediately.
+        kde_output_device_registry_v2_destroy(object());
+    }
+}
+
+void WaylandOutputDeviceRegistry::kde_output_device_registry_v2_output(struct ::kde_output_device_v2 *output)
+{
+    auto outputDevice = m_outputDevices.emplace_back(std::make_unique<WaylandOutputDevice>(output)).get();
+    Q_EMIT outputAdded(outputDevice);
+
+    connect(outputDevice, &WaylandOutputDevice::removed, this, [this, outputDevice]() {
+        Q_EMIT outputRemoved(outputDevice);
+
+        const auto it = std::ranges::find_if(m_outputDevices, [outputDevice](const auto &candidate) {
+            return candidate.get() == outputDevice;
+        });
+        if (it != m_outputDevices.end()) {
+            m_outputDevices.erase(it);
+        }
+    });
+}
+
+static int nextOutputId()
+{
+    static int id = 1;
+    return id++;
+}
+
+WaylandOutputDevice::WaylandOutputDevice(::kde_output_device_v2 *outputDevice)
+    : kde_output_device_v2(outputDevice)
+    , m_id(nextOutputId())
 {
 }
 
@@ -34,7 +73,7 @@ WaylandOutputDevice::~WaylandOutputDevice()
     qDeleteAll(m_modes);
 
     if (qGuiApp) {
-        kde_output_device_v2_destroy(object());
+        release();
     }
 }
 
@@ -617,6 +656,11 @@ void WaylandOutputDevice::kde_output_device_v2_priority(uint32_t priority)
 void WaylandOutputDevice::kde_output_device_v2_auto_brightness(uint32_t enabled)
 {
     m_autoBrightness = enabled;
+}
+
+void WaylandOutputDevice::kde_output_device_v2_removed()
+{
+    Q_EMIT removed();
 }
 
 QByteArray WaylandOutputDevice::edid() const

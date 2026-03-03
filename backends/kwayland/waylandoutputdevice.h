@@ -15,19 +15,39 @@
 
 #include <QPoint>
 #include <QSize>
+#include <QWaylandClientExtension>
 
 namespace KScreen
 {
 class WaylandOutputConfiguration;
+class WaylandOutputDevice;
 class WaylandOutputManagement;
+
+class WaylandOutputDeviceRegistry : public QWaylandClientExtensionTemplate<WaylandOutputDeviceRegistry>, public QtWayland::kde_output_device_registry_v2
+{
+    Q_OBJECT
+
+public:
+    WaylandOutputDeviceRegistry();
+    ~WaylandOutputDeviceRegistry() override;
+
+Q_SIGNALS:
+    void outputAdded(WaylandOutputDevice *outputDevice);
+    void outputRemoved(WaylandOutputDevice *outputDevice);
+
+protected:
+    void kde_output_device_registry_v2_output(struct ::kde_output_device_v2 *output) override;
+
+private:
+    std::vector<std::unique_ptr<WaylandOutputDevice>> m_outputDevices;
+};
 
 class WaylandOutputDevice : public QObject, public QtWayland::kde_output_device_v2
 {
     Q_OBJECT
 
 public:
-    WaylandOutputDevice(int id);
-
+    explicit WaylandOutputDevice(::kde_output_device_v2 *outputDevice);
     ~WaylandOutputDevice();
 
     QByteArray edid() const;
@@ -62,6 +82,7 @@ public:
 
 Q_SIGNALS:
     void done();
+    void removed();
 
 protected:
     void kde_output_device_v2_geometry(int32_t x,
@@ -107,6 +128,7 @@ protected:
     void kde_output_device_v2_sharpness(uint32_t sharpness) override;
     void kde_output_device_v2_priority(uint32_t priority) override;
     void kde_output_device_v2_auto_brightness(uint32_t enabled) override;
+    void kde_output_device_v2_removed() override;
 
 private:
     QString modeName(const WaylandOutputDeviceMode *m) const;

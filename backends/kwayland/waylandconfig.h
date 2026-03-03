@@ -14,15 +14,12 @@
 #include <QSize>
 #include <QSocketNotifier>
 
-struct kde_output_device_v2;
-struct wl_registry;
-struct wl_fixes;
-
 namespace KScreen
 {
 class Output;
 class WaylandOutputDevice;
 class WaylandScreen;
+class WaylandOutputDeviceRegistry;
 class WaylandOutputManagement;
 
 class WaylandConfig : public QObject
@@ -37,7 +34,6 @@ public:
     QMap<int, WaylandOutputDevice *> outputMap() const;
 
     bool applyConfig(const KScreen::ConfigPtr &newConfig);
-    WaylandOutputDevice *findOutputDevice(struct ::kde_output_device_v2 *outputdevice) const;
 
     bool isValid() const;
 
@@ -47,23 +43,19 @@ Q_SIGNALS:
     void configFailed(const QString &reason);
 
 private:
-    void setupRegistry();
-    void destroyRegistry();
     void handleActiveChanged();
 
     void initKWinTabletMode();
 
-    void addOutput(quint32 name, quint32 version);
+    void addOutput(WaylandOutputDevice *output);
     void removeOutput(WaylandOutputDevice *output);
 
     void blockSignals();
     void unblockSignals();
     void tryPendingConfig();
 
-    wl_registry *m_registry = nullptr;
-    wl_fixes *m_fixes = nullptr;
-
     std::unique_ptr<WaylandOutputManagement> m_outputManagement;
+    std::unique_ptr<WaylandOutputDeviceRegistry> m_outputRegistry;
 
     // KWayland names as keys
     QMap<int, WaylandOutputDevice *> m_outputMap;
