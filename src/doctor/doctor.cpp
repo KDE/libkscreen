@@ -10,6 +10,8 @@
 
 #include <QCollator>
 #include <QCoreApplication>
+#include <QDBusConnection>
+#include <QDBusMessage>
 #include <QDateTime>
 #include <QFile>
 #include <QGuiApplication>
@@ -210,7 +212,29 @@ void Doctor::parseOutputArgs()
         if (ops.count() > 2) {
             bool ok;
             if (ops[0] == QLatin1String("output")) {
-                OutputPtr output = findOutput(ops[1]);
+                QString outputQuery = ops[1];
+
+                // handle "activeOutput" as an ID to operate on the current active display
+                if (outputQuery == QLatin1String("activeOutput")) {
+                    QDBusMessage message = QDBusMessage::createMethodCall(QStringLiteral("org.kde.KWin"),
+                                                                          QStringLiteral("/KWin"),
+                                                                          QStringLiteral("org.kde.KWin"),
+                                                                          QStringLiteral("activeOutputName"));
+
+                    auto reply = QDBusConnection::sessionBus().call(message);
+                    if (reply.type() == QDBusMessage::ErrorMessage) {
+                        qCWarning(KSCREEN_DOCTOR) << "DBus error from KWin:" << reply.errorName() << reply.errorMessage();
+                        return;
+                    }
+                    auto args = reply.arguments();
+                    if (args.isEmpty()) {
+                        qCWarning(KSCREEN_DOCTOR) << "activeOutputName returned no arguments";
+                        return;
+                    }
+                    outputQuery = args.first().toString();
+                }
+
+                OutputPtr output = findOutput(outputQuery);
                 if (!output) {
                     qApp->exit(3);
                     return;
