@@ -56,7 +56,7 @@ int main(int argc, char **argv)
         "\n   Set SDR brightness (possible values: 100-1000)\n"
         "   $ kscreen-doctor output.HDMI-2.sdr-brightness.300\n"
         "\n   Toggle HDR and wide color gamut for the current active display\n"
-        "   $ kscreen-doctor output.activeOutput.hdr.toggle output.activeOutput.wcg.toggle\n"
+        "   $ kscreen-doctor output.activeOutput.hdrAndWcg.toggle\n"
         "\n   Set brightness on non HDR screens (possible values: 0-100)\n"
         "   $ kscreen-doctor output.HDMI-2.brightness.10\n"
         "\n   Set wide color gamut mode (possible values: enable, disable)\n"

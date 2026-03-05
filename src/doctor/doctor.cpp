@@ -391,6 +391,24 @@ void Doctor::parseOutputArgs()
                         qApp->exit(9);
                         return;
                     }
+                } else if (ops.count() == 4 && subcmd == "hdrAndWcg") {
+                    const QString _enable = ops[3].toLower();
+                    if (_enable == "enable") {
+                        setHdrEnabled(output, true);
+                        setWcgEnabled(output, true);
+                    } else if (_enable == "disable") {
+                        setHdrEnabled(output, false);
+                        setWcgEnabled(output, false);
+                    } else if (_enable == "toggle") {
+                        // HDR and Wcg couple should be in the same state, so we base the Wcg value on HDR's value
+                        bool isHdrEnabled = output->isHdrEnabled();
+                        setHdrEnabled(output, !isHdrEnabled);
+                        setWcgEnabled(output, !isHdrEnabled);
+                    } else {
+                        qCWarning(KSCREEN_DOCTOR) << "Wrong input: Only allowed values for hdrAndWcg are \"enable\", \"disable\" and \"toggle\"";
+                        qApp->exit(9);
+                        return;
+                    }
                 } else if (ops.count() >= 4 && subcmd == "iccprofile") {
                     QString profilePath = ops[3];
                     for (uint32_t i = 4; i < ops.size(); i++) {
