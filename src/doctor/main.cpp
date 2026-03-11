@@ -107,9 +107,6 @@ int main(int argc, char **argv)
     QCommandLineOption dpms = QCommandLineOption(QStringList() << QStringLiteral("d") << QStringLiteral("dpms"),
                                                  QStringLiteral("Display power management (wayland only)"),
                                                  QStringLiteral("off"));
-    QCommandLineOption dpmsExcluded = QCommandLineOption({QStringLiteral("dpms-excluded")},
-                                                         QStringLiteral("Do not apply the dpms change to the output with said model names"),
-                                                         QStringLiteral("connector"));
 
     QCommandLineParser parser;
     parser.setApplicationDescription(desc);
@@ -118,7 +115,6 @@ int main(int argc, char **argv)
     parser.addOption(json);
     parser.addOption(outputs);
     parser.addOption(dpms);
-    parser.addOption(dpmsExcluded);
     parser.process(app);
 
     if (!parser.positionalArguments().isEmpty()) {
