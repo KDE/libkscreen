@@ -202,7 +202,6 @@ _arguments -C \
     '(-j --json)'{-j,--json}'[Show configuration in JSON format]' \
     '(-o --outputs)'{-o,--outputs}'[Show outputs]' \
     '(DPMS)'{-d=,--dpms=}'[(Wayland only) Display power management]:status:(on off)' \
-    '--dpms-excluded=[Do not apply the dpms change to the output with said model names]:output:_kscreen-doctor-outputs' \
     '(-l --log)'{-l=,--log=}'[Write a comment to the log file]:comment' \
     '*: :->settings' && ret=0
 

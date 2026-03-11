@@ -93,13 +93,6 @@ void Doctor::start(QCommandLineParser *parser)
 
         m_dpmsClient = new Dpms(this);
         auto screens = qGuiApp->screens();
-        if (m_parser->isSet(QStringLiteral("dpms-excluded"))) {
-            const auto excludedConnectors = m_parser->values(QStringLiteral("dpms-excluded"));
-            auto it = std::remove_if(screens.begin(), screens.end(), [&excludedConnectors](QScreen *screen) {
-                return excludedConnectors.contains(screen->name());
-            });
-            screens.erase(it, screens.end());
-        }
 
         connect(m_dpmsClient, &Dpms::hasPendingChangesChanged, qGuiApp, [](bool hasChanges) {
             if (!hasChanges) {
