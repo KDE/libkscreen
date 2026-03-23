@@ -134,7 +134,7 @@ void SetConfigOperation::start()
 
 void SetConfigOperationPrivate::normalizeOutputPositions()
 {
-    if (!config) {
+    if (!config || (config->supportedFeatures() & Config::Feature::PerOutputScaling)) {
         return;
     }
     int offsetX = INT_MAX;
