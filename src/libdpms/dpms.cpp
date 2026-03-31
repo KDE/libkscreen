@@ -18,7 +18,8 @@ KScreen::Dpms::Dpms(QObject *parent)
     } else if (QGuiApplication::platformName().startsWith(QLatin1String("wayland"), Qt::CaseInsensitive)) {
         m_helper.reset(new WaylandDpmsHelper);
     } else {
-        qCWarning(KSCREEN_DPMS) << "dpms unsupported on this system";
+        qCWarning(KSCREEN_DPMS) << "Platform is not Wayland or X11, this doesn't make sense. Platform name is" << QGuiApplication::platformName();
+        Q_ASSERT(false);
         return;
     }
 
