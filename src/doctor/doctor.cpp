@@ -415,11 +415,13 @@ void Doctor::parseOutputArgs()
                         profilePath += "." + ops[i];
                     }
                     output->setIccProfilePath(profilePath);
-                    if (profilePath.isEmpty()) {
-                        output->setColorProfileSource(Output::ColorProfileSource::sRGB);
-                    } else {
-                        output->setColorProfileSource(Output::ColorProfileSource::ICC);
+                    m_changed = true;
+                } else if (ops.count() >= 4 && subcmd == "hdrIccProfile") {
+                    QString profilePath = ops[3];
+                    for (uint32_t i = 4; i < ops.size(); i++) {
+                        profilePath += "." + ops[i];
                     }
+                    output->setHdrIccProfilePath(profilePath);
                     m_changed = true;
                 } else if (ops.count() >= 4 && subcmd == "sdrGamut") {
                     const uint32_t wideness = ops[3].toUInt();
@@ -807,6 +809,16 @@ void Doctor::showOutputs() const
         if (output->capabilities() & Output::Capability::IccProfile) {
             if (!output->iccProfilePath().isEmpty()) {
                 cout << cr << output->iccProfilePath() << endl;
+            } else {
+                cout << cr << "none" << endl;
+            }
+        } else {
+            cout << cr << "incapable" << endl;
+        }
+        cout << yellow << "\tHDR ICC profile: ";
+        if (output->capabilities() & Output::Capability::HdrIccProfile) {
+            if (!output->hdrIccProfilePath().isEmpty()) {
+                cout << cr << output->hdrIccProfilePath() << endl;
             } else {
                 cout << cr << "none" << endl;
             }

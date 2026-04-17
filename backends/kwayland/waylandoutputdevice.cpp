@@ -23,7 +23,7 @@
 using namespace KScreen;
 
 WaylandOutputDeviceRegistry::WaylandOutputDeviceRegistry()
-    : QWaylandClientExtensionTemplate<WaylandOutputDeviceRegistry>(21)
+    : QWaylandClientExtensionTemplate<WaylandOutputDeviceRegistry>(22)
 {
     initialize();
 }
@@ -265,6 +265,8 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output, const QMap<int,
     output->setEdrPolicy(static_cast<Output::EdrPolicy>(m_edrPolicy));
     output->setSharpness(m_sharpness / 10'000.0);
     output->setAutomaticBrightness(m_autoBrightness);
+    output->setHdrIccProfilePath(m_hdrIccProfilePath);
+    output->setHdrColorProfileSource(Output::ColorProfileSource(m_hdrColorProfileSource));
 
     updateKScreenModes(output);
 
@@ -450,6 +452,15 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputManagement *management,
     }
     if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_AUTO_BRIGHTNESS_SINCE_VERSION && m_autoBrightness != output->automaticBrightness()) {
         wlConfig->set_auto_brightness(object(), output->automaticBrightness() ? 1 : 0);
+        changed = true;
+    }
+    if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_HDR_ICC_PROFILE_PATH_SINCE_VERSION && m_hdrIccProfilePath != output->hdrIccProfilePath()) {
+        wlConfig->set_hdr_icc_profile_path(object(), output->hdrIccProfilePath());
+        changed = true;
+    }
+    if (version >= KDE_OUTPUT_CONFIGURATION_V2_SET_HDR_COLOR_PROFILE_SOURCE_SINCE_VERSION
+        && m_hdrColorProfileSource != uint32_t(output->hdrColorProfileSource())) {
+        wlConfig->set_hdr_color_profile_source(object(), uint32_t(output->hdrColorProfileSource()));
         changed = true;
     }
 
@@ -661,6 +672,16 @@ void WaylandOutputDevice::kde_output_device_v2_auto_brightness(uint32_t enabled)
 void WaylandOutputDevice::kde_output_device_v2_removed()
 {
     Q_EMIT removed();
+}
+
+void WaylandOutputDevice::kde_output_device_v2_hdr_icc_profile_path(const QString &profile_path)
+{
+    m_hdrIccProfilePath = profile_path;
+}
+
+void WaylandOutputDevice::kde_output_device_v2_hdr_color_profile_source(uint32_t source)
+{
+    m_hdrColorProfileSource = source;
 }
 
 QByteArray WaylandOutputDevice::edid() const
