@@ -29,7 +29,7 @@ using namespace KScreen;
 
 WaylandConfig::WaylandConfig(QObject *parent)
     : QObject(parent)
-    , m_outputManagement(std::make_unique<WaylandOutputManagement>(19))
+    , m_outputManagement(std::make_unique<WaylandOutputManagement>(20))
     , m_outputRegistry(std::make_unique<WaylandOutputDeviceRegistry>())
     , m_blockSignals(false)
     , m_kscreenConfig(new Config)

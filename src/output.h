@@ -130,6 +130,7 @@ public:
         SharpnessControl = 1 << 12,
         CustomModes = 1 << 13,
         AutomaticBrightness = 1 << 14,
+        HdrIccProfile = 1 << 15,
     };
     Q_ENUM(Capability)
     Q_DECLARE_FLAGS(Capabilities, Capability)
@@ -544,6 +545,9 @@ public:
      */
     void setIccProfilePath(const QString &path);
 
+    QString hdrIccProfilePath() const;
+    void setHdrIccProfilePath(const QString &path);
+
     double sdrGamutWideness() const;
     void setSdrGamutWideness(double value);
 
@@ -567,6 +571,9 @@ public:
 
     ColorProfileSource colorProfileSource() const;
     void setColorProfileSource(ColorProfileSource source);
+
+    ColorProfileSource hdrColorProfileSource() const;
+    void setHdrColorProfileSource(ColorProfileSource source);
 
     double brightness() const;
     void setBrightness(double brightness);
@@ -643,6 +650,7 @@ Q_SIGNALS:
     void maxAverageBrightnessOverrideChanged();
     void minBrightnessOverrideChanged();
     void colorProfileSourceChanged();
+    void hdrColorProfileSourceChanged();
     void brightnessChanged();
     void vendorChanged();
     void modelChanged();
@@ -655,6 +663,7 @@ Q_SIGNALS:
     void sharpnessChanged();
     void customModesChanged();
     void automaticBrightnessChanged();
+    void hdrIccProfilePathChanged();
 
     /** The mode list changed.
      *

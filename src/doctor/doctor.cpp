@@ -415,11 +415,13 @@ void Doctor::parseOutputArgs()
                         profilePath += "." + ops[i];
                     }
                     output->setIccProfilePath(profilePath);
-                    if (profilePath.isEmpty()) {
-                        output->setColorProfileSource(Output::ColorProfileSource::sRGB);
-                    } else {
-                        output->setColorProfileSource(Output::ColorProfileSource::ICC);
+                    m_changed = true;
+                } else if (ops.count() >= 4 && subcmd == "hdrIccProfile") {
+                    QString profilePath = ops[3];
+                    for (uint32_t i = 4; i < ops.size(); i++) {
+                        profilePath += "." + ops[i];
                     }
+                    output->setHdrIccProfilePath(profilePath);
                     m_changed = true;
                 } else if (ops.count() >= 4 && subcmd == "sdrGamut") {
                     const uint32_t wideness = ops[3].toUInt();
@@ -473,6 +475,17 @@ void Doctor::parseOutputArgs()
                         output->setColorProfileSource(Output::ColorProfileSource::EDID);
                     } else {
                         qCWarning(KSCREEN_DOCTOR) << "Wrong input: only allowed values for colorProfileSource are \"sRGB\", \"ICC\" and \"EDID\"";
+                        qApp->exit(9);
+                        return;
+                    }
+                    m_changed = true;
+                } else if (ops.count() >= 4 && subcmd == "hdrColorProfileSource") {
+                    if (ops[3] == "ICC") {
+                        output->setHdrColorProfileSource(Output::ColorProfileSource::ICC);
+                    } else if (ops[3] == "EDID") {
+                        output->setHdrColorProfileSource(Output::ColorProfileSource::EDID);
+                    } else {
+                        qCWarning(KSCREEN_DOCTOR) << "Wrong input: only allowed values for hdrColorProfileSource are \"ICC\" and \"EDID\"";
                         qApp->exit(9);
                         return;
                     }
@@ -787,6 +800,32 @@ void Doctor::showOutputs() const
                     cout << yellow << ", overridden with: " << cr << (*used) / 10'000.0 << " nits";
                 }
                 cout << endl;
+
+                cout << yellow << "\t\tHDR color profile source: ";
+                if (output->capabilities() & Output::Capability::HdrIccProfile) {
+                    cout << cr;
+                    switch (output->hdrColorProfileSource()) {
+                    case Output::ColorProfileSource::sRGB:
+                        cout << "sRGB";
+                        break;
+                    case Output::ColorProfileSource::ICC:
+                        cout << "ICC";
+                        break;
+                    case Output::ColorProfileSource::EDID:
+                        cout << "EDID";
+                        break;
+                    }
+                    cout << endl;
+
+                    cout << yellow << "\t\tHDR ICC profile: ";
+                    if (!output->hdrIccProfilePath().isEmpty()) {
+                        cout << cr << output->hdrIccProfilePath() << endl;
+                    } else {
+                        cout << cr << "none" << endl;
+                    }
+                } else {
+                    cout << cr << "incapable" << endl;
+                }
             } else {
                 cout << cr << "disabled" << endl;
             }
