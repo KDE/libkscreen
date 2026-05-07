@@ -16,7 +16,6 @@
 #include "../src/getconfigoperation.h"
 #include "../src/output.h"
 #include "../src/setconfigoperation.h"
-#include <QSignalSpy>
 
 #include "fakebackendinterface.h"
 
