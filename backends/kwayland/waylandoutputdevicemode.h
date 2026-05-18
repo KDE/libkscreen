@@ -27,6 +27,7 @@ public:
     QSize size() const;
     bool preferred() const;
     ModeInfo::Flags flags() const;
+    std::optional<Cvt> cvt() const;
 
     static WaylandOutputDeviceMode *get(struct ::kde_output_device_mode_v2 *object);
 
@@ -39,6 +40,7 @@ protected:
     void kde_output_device_mode_v2_preferred() override;
     void kde_output_device_mode_v2_removed() override;
     void kde_output_device_mode_v2_flags(uint32_t flags) override;
+    void kde_output_device_mode_v2_cvt(uint32_t dot_clock, uint32_t hdisplay, uint32_t hsync_start, uint32_t hsync_end, uint32_t htotal, uint32_t hskew, uint32_t vdisplay, uint32_t vsync_start, uint32_t vsync_end, uint32_t vtotal, uint32_t vscan, uint32_t flags) override;
 
 private:
     QString m_id;
@@ -46,6 +48,7 @@ private:
     QSize m_size;
     bool m_preferred = false;
     ModeInfo::Flags m_flags;
+    std::optional<Cvt> m_cvt;
 };
 
 }

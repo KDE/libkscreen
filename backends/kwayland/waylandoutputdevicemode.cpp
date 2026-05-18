@@ -58,6 +58,24 @@ void WaylandOutputDeviceMode::kde_output_device_mode_v2_flags(uint32_t flags)
     }
 }
 
+void WaylandOutputDeviceMode::kde_output_device_mode_v2_cvt(uint32_t dot_clock, uint32_t hdisplay, uint32_t hsync_start, uint32_t hsync_end, uint32_t htotal, uint32_t hskew, uint32_t vdisplay, uint32_t vsync_start, uint32_t vsync_end, uint32_t vtotal, uint32_t vscan, uint32_t flags)
+{
+    m_cvt = Cvt {
+        .clock = dot_clock,
+        .hdisplay = uint16_t(hdisplay),
+        .hsyncStart = uint16_t(hsync_start),
+        .hsyncEnd = uint16_t(hsync_end),
+        .htotal = uint16_t(htotal),
+        .hskew = uint16_t(hskew),
+        .vdisplay = uint16_t(vdisplay),
+        .vsyncStart = uint16_t(vsync_start),
+        .vsyncEnd = uint16_t(vsync_end),
+        .vtotal = uint16_t(vtotal),
+        .vscan = uint16_t(vscan),
+        .flags = flags,
+    };
+}
+
 QString WaylandOutputDeviceMode::id() const
 {
     return m_id;
@@ -81,6 +99,11 @@ bool WaylandOutputDeviceMode::preferred() const
 ModeInfo::Flags WaylandOutputDeviceMode::flags() const
 {
     return m_flags;
+}
+
+std::optional<Cvt> WaylandOutputDeviceMode::cvt() const
+{
+    return m_cvt;
 }
 
 WaylandOutputDeviceMode *WaylandOutputDeviceMode::get(struct ::kde_output_device_mode_v2 *object)

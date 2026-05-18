@@ -21,6 +21,7 @@ public:
         , name(other.name)
         , size(other.size)
         , rate(other.rate)
+        , cvt(other.cvt)
     {
     }
 
@@ -28,6 +29,7 @@ public:
     QString name;
     QSize size;
     float rate;
+    std::optional<Cvt> cvt;
 };
 
 Mode::Mode()
@@ -116,9 +118,25 @@ void Mode::setRefreshRate(float refresh)
     Q_EMIT modeChanged();
 }
 
+std::optional<Cvt> Mode::cvt() const
+{
+    return d->cvt;
+}
+
+void Mode::setCvt(const Cvt &cvt)
+{
+    if (d->cvt != cvt) {
+        return;
+    }
+
+    d->cvt = cvt;
+
+    Q_EMIT modeChanged();
+}
+
 bool Mode::operator==(const Mode &other) const
 {
-    return d->size == other.d->size && d->rate == other.d->rate;
+    return d->size == other.d->size && d->rate == other.d->rate && d->cvt == other.d->cvt;
 }
 
 QDebug operator<<(QDebug dbg, const KScreen::ModePtr &mode)
