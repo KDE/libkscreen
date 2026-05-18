@@ -17,6 +17,28 @@
 
 namespace KScreen
 {
+
+struct KSCREEN_EXPORT Cvt
+{
+    bool operator==(const Cvt &other) const = default;
+
+    uint32_t clock;
+
+    uint16_t hdisplay;
+    uint16_t hsyncStart;
+    uint16_t hsyncEnd;
+    uint16_t htotal;
+    uint16_t hskew;
+
+    uint16_t vdisplay;
+    uint16_t vsyncStart;
+    uint16_t vsyncEnd;
+    uint16_t vtotal;
+    uint16_t vscan;
+
+    uint32_t flags;
+};
+
 class KSCREEN_EXPORT Mode : public QObject
 {
     Q_OBJECT
@@ -42,6 +64,9 @@ public:
 
     float refreshRate() const;
     void setRefreshRate(float refresh);
+
+    std::optional<Cvt> cvt() const;
+    void setCvt(const Cvt &cvt);
 
     bool operator==(const Mode &other) const;
 

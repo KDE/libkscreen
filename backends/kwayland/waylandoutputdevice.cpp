@@ -23,7 +23,7 @@
 using namespace KScreen;
 
 WaylandOutputDeviceRegistry::WaylandOutputDeviceRegistry()
-    : QWaylandClientExtensionTemplate<WaylandOutputDeviceRegistry>(23)
+    : QWaylandClientExtensionTemplate<WaylandOutputDeviceRegistry>(24)
 {
     initialize();
 }
@@ -191,6 +191,10 @@ void KScreen::WaylandOutputDevice::updateKScreenModes(OutputPtr &output)
         mode->setSize(wlMode->size());
         mode->setName(modeName(wlMode));
 
+        if (const auto cvt = wlMode->cvt()) {
+            mode->setCvt(*cvt);
+        }
+
         if (m_mode == wlMode) {
             currentModeId = wlMode->id();
         }
@@ -280,6 +284,7 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output, const QMap<int,
             .size = mode->size(),
             .refreshRate = mode->refreshRate(),
             .flags = mode->flags(),
+            .cvt = mode->cvt(),
         });
     }
     output->setCustomModes(m_customModes);
@@ -442,6 +447,25 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputManagement *management,
         auto list = management->create_mode_list();
         const auto modes = output->customModes();
         for (const auto &mode : modes) {
+            if (const auto &cvt = mode.cvt) {
+                if (kde_mode_list_v2_get_version(list) >= KDE_MODE_LIST_V2_ADD_CVT_SINCE_VERSION) {
+                    kde_mode_list_v2_add_cvt(list,
+                                             cvt->clock,
+                                             cvt->hdisplay,
+                                             cvt->hsyncStart,
+                                             cvt->hsyncEnd,
+                                             cvt->htotal,
+                                             cvt->hskew,
+                                             cvt->vdisplay,
+                                             cvt->vsyncStart,
+                                             cvt->vsyncEnd,
+                                             cvt->vtotal,
+                                             cvt->vscan,
+                                             cvt->flags);
+                    continue;
+                }
+            }
+
             kde_mode_list_v2_set_resolution(list, mode.size.width(), mode.size.height());
             kde_mode_list_v2_set_refresh_rate(list, std::round(mode.refreshRate * 1000));
             kde_mode_list_v2_set_reduced_blanking(list, mode.flags & ModeInfo::Flag::ReducedBlanking ? 1 : 0);

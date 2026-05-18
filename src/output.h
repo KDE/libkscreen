@@ -7,8 +7,7 @@
 
 #pragma once
 
-#include "kscreen_export.h"
-#include "types.h"
+#include "mode.h"
 
 #include <QDebug>
 #include <QMetaType>
@@ -37,6 +36,7 @@ public:
     QSize size;
     float refreshRate = 60.0;
     Flags flags;
+    std::optional<Cvt> cvt;
 
     bool operator==(const ModeInfo &other) const = default;
 };
