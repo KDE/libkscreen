@@ -1,42 +1,45 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: trunk-kf 5\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
 "Language: lt\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Qt-Contexts: true\n"
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : n%10>=2 && (n%100<10 || n"
 "%100>=20) ? 1 : n%10==0 || (n%100>10 && n%100<20) ? 2 : 3);\n"
+"X-Qt-Contexts: true\n"
+"X-Generator: Poedit 3.8\n"
 
 #: getconfigoperation.cpp:62
 msgctxt "KScreen::GetConfigOperationPrivate|"
 msgid "Failed to prepare backend"
-msgstr ""
+msgstr "Nepavyko paruošti vidinės pusės"
 
 #: getconfigoperation.cpp:87
 msgctxt "KScreen::GetConfigOperationPrivate|"
 msgid "Failed to deserialize backend response"
-msgstr ""
+msgstr "Nepavyko išnuoseklinti vidinės pusės atsako"
 
 #: getconfigoperation.cpp:99
 msgctxt "KScreen::GetConfigOperationPrivate|"
 msgid "Backend invalidated"
-msgstr ""
+msgstr "Vidinė pusė padaryta negaliojančia"
 
 #: setconfigoperation.cpp:59
 msgctxt "KScreen::SetConfigOperationPrivate|"
 msgid "Failed to prepare backend"
-msgstr ""
+msgstr "Nepavyko paruošti vidinės pusės"
 
 #: setconfigoperation.cpp:66
 msgctxt "KScreen::SetConfigOperationPrivate|"
 msgid "Failed to serialize request"
-msgstr ""
+msgstr "Nepavyko nuoseklinti užklausos"
 
 #: setconfigoperation.cpp:90
 msgctxt "KScreen::SetConfigOperationPrivate|"
 msgid "Failed to deserialize backend response"
-msgstr ""
+msgstr "Nepavyko išnuoseklinti vidinės pusės atsako"
