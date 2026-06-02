@@ -1,0 +1,43 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: Abduqadir Abliz <sahranbay@gmail.com>\n"
+"Language-Team: \n"
+"Language: ug\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Qt-Contexts: true\n"
+"X-Generator: Poedit 3.9\n"
+
+#: getconfigoperation.cpp:62
+msgctxt "KScreen::GetConfigOperationPrivate|"
+msgid "Failed to prepare backend"
+msgstr "ئارقا ئۇچ پىروگراممىسىنى تەييارلىيالمىدى"
+
+#: getconfigoperation.cpp:87
+msgctxt "KScreen::GetConfigOperationPrivate|"
+msgid "Failed to deserialize backend response"
+msgstr ""
+
+#: getconfigoperation.cpp:99
+msgctxt "KScreen::GetConfigOperationPrivate|"
+msgid "Backend invalidated"
+msgstr ""
+
+#: setconfigoperation.cpp:59
+msgctxt "KScreen::SetConfigOperationPrivate|"
+msgid "Failed to prepare backend"
+msgstr "ئارقا ئۇچ پىروگراممىسىنى تەييارلىيالمىدى"
+
+#: setconfigoperation.cpp:66
+msgctxt "KScreen::SetConfigOperationPrivate|"
+msgid "Failed to serialize request"
+msgstr ""
+
+#: setconfigoperation.cpp:90
+msgctxt "KScreen::SetConfigOperationPrivate|"
+msgid "Failed to deserialize backend response"
+msgstr ""
