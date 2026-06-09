@@ -115,26 +115,12 @@ BackendManager::~BackendManager()
 
 QFileInfo BackendManager::preferredBackend(const QString &backend)
 {
-    /** this is the logic to pick a backend, in order of priority
-     *
-     * - backend argument is used if not empty
-     * - env var KSCREEN_BACKEND is considered
-     * - if platform is X11, the XRandR backend is picked
-     * - if platform is wayland, KWayland backend is picked
-     * - empty QFileInfo otherwise
-     */
     QString backendFilter;
     const auto env_kscreen_backend = QString::fromUtf8(qgetenv("KSCREEN_BACKEND"));
-    if (!backend.isEmpty()) {
-        backendFilter = backend;
-    } else if (!env_kscreen_backend.isEmpty()) {
+    if (!env_kscreen_backend.isEmpty()) {
         backendFilter = env_kscreen_backend;
     } else {
-        if (QX11Info::isPlatformX11()) {
-            backendFilter = QStringLiteral("XRandR");
-        } else if (QGuiApplication::platformName().startsWith(QLatin1String("wayland"))) {
-            backendFilter = QStringLiteral("KWayland");
-        }
+        backendFilter = QStringLiteral("KWayland");
     }
     QFileInfo fallback;
     const auto backends = listBackends();

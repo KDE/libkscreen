@@ -47,7 +47,6 @@ private Q_SLOTS:
 
 private:
     ConfigPtr m_config;
-    bool m_backendServiceInstalled = false;
 };
 
 TestInProcess::TestInProcess(QObject *parent)
@@ -58,24 +57,11 @@ TestInProcess::TestInProcess(QObject *parent)
 
 void TestInProcess::initTestCase()
 {
-    m_backendServiceInstalled = true;
-
-    const QString kscreenServiceName = QStringLiteral("org.kde.KScreen");
-    QDBusConnectionInterface *bus = QDBusConnection::sessionBus().interface();
-    if (!bus->isServiceRegistered(kscreenServiceName)) {
-        auto reply = bus->startService(kscreenServiceName);
-        if (!reply.isValid()) {
-            qDebug() << "D-Bus service org.kde.KScreen could not be started, skipping out-of-process tests";
-            m_backendServiceInstalled = false;
-        }
-    }
 }
 
 void TestInProcess::init()
 {
     qputenv("KSCREEN_LOGGING", "false");
-    // Make sure we do everything in-process
-    qputenv("KSCREEN_BACKEND_INPROCESS", "1");
     // Use Fake backend with one of the json configs
     qputenv("KSCREEN_BACKEND", "Fake");
 
@@ -143,41 +129,6 @@ void TestInProcess::testBackendCaching()
     }
     // Check if all our configs are still valid after the backend is gone
     KScreen::BackendManager::instance()->shutdownBackend();
-
-    if (m_backendServiceInstalled) {
-        qputenv("KSCREEN_BACKEND_INPROCESS", "0");
-        BackendManager::instance()->setMethod(BackendManager::OutOfProcess);
-        QCOMPARE(BackendManager::instance()->method(), BackendManager::OutOfProcess);
-        int t_x_cold;
-
-        {
-            t.start();
-            auto xp = new GetConfigOperation();
-            xp->exec();
-            t_x_cold = t.nsecsElapsed();
-            auto xc = xp->config();
-            QVERIFY(xc != nullptr);
-        }
-        t.start();
-        auto xp = new GetConfigOperation();
-        xp->exec();
-        int t_x_warm = t.nsecsElapsed();
-        auto xc = xp->config();
-        QVERIFY(xc != nullptr);
-
-        // Make sure in-process is faster
-        QVERIFY(t_cold > t_warm);
-        QVERIFY(t_x_cold > t_x_warm);
-        QVERIFY(t_x_cold > t_cold);
-        return;
-        qDebug() << "ip  speedup for cached access:" << (qreal)((qreal)t_cold / (qreal)t_warm);
-        qDebug() << "oop speedup for cached access:" << (qreal)((qreal)t_x_cold / (qreal)t_x_warm);
-        qDebug() << "out-of vs. in-process speedup:" << (qreal)((qreal)t_x_warm / (qreal)t_warm);
-        qDebug() << "cold oop:   " << ((qreal)t_x_cold / 1000000);
-        qDebug() << "cached oop: " << ((qreal)t_x_warm / 1000000);
-        qDebug() << "cold in process:   " << ((qreal)t_cold / 1000000);
-        qDebug() << "cached in process: " << ((qreal)t_warm / 1000000);
-    }
 }
 
 void TestInProcess::testCreateJob()
@@ -189,17 +140,6 @@ void TestInProcess::testCreateJob()
         auto _op = qobject_cast<GetConfigOperation *>(op);
         QVERIFY(_op != nullptr);
         QCOMPARE(BackendManager::instance()->method(), BackendManager::InProcess);
-        QVERIFY(op->exec());
-        auto cc = op->config();
-        QVERIFY(cc != nullptr);
-        QVERIFY(cc->isValid());
-    }
-    if (m_backendServiceInstalled) {
-        BackendManager::instance()->setMethod(BackendManager::OutOfProcess);
-        auto op = new GetConfigOperation();
-        auto _op = qobject_cast<GetConfigOperation *>(op);
-        QVERIFY(_op != nullptr);
-        QCOMPARE(BackendManager::instance()->method(), BackendManager::OutOfProcess);
         QVERIFY(op->exec());
         auto cc = op->config();
         QVERIFY(cc != nullptr);
