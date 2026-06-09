@@ -37,11 +37,6 @@ class KSCREEN_EXPORT BackendManager : public QObject
     Q_OBJECT
 
 public:
-    enum Method {
-        InProcess,
-        OutOfProcess,
-    };
-
     static BackendManager *instance();
     ~BackendManager() override;
 
@@ -102,23 +97,7 @@ public:
 
     KScreen::AbstractBackend *loadBackendInProcess(const QString &name);
 
-    BackendManager::Method method() const;
-    void setMethod(BackendManager::Method m);
-
-    // For out-of-process operation
-    void requestBackend();
     void shutdownBackend();
-
-Q_SIGNALS:
-    void backendReady(OrgKdeKscreenBackendInterface *backend);
-
-private Q_SLOTS:
-    void emitBackendReady();
-
-    void startBackend(const QString &backend = QString(), const QVariantMap &arguments = QVariantMap());
-    void onBackendRequestDone(QDBusPendingCallWatcher *watcher);
-
-    void backendServiceUnregistered(const QString &serviceName);
 
 private:
     friend class SetInProcessOperation;
@@ -129,18 +108,6 @@ private:
     explicit BackendManager();
     static BackendManager *sInstance;
 
-    void initMethod();
-
-    // For out-of-process operation
-    void invalidateInterface();
-    void backendServiceReady();
-
-    static const int sMaxCrashCount;
-    OrgKdeKscreenBackendInterface *mInterface;
-    int mCrashCount;
-
-    QString mBackendService;
-    QDBusServiceWatcher mServiceWatcher;
     KScreen::ConfigPtr mConfig;
     QVariantMap mBackendArguments;
     QTimer mResetCrashCountTimer;
@@ -151,8 +118,6 @@ private:
     // For in-process operation
     QPluginLoader *mLoader;
     KScreen::AbstractBackend *mInProcessBackend;
-
-    Method mMethod;
 };
 
 }

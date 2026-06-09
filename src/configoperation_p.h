@@ -23,10 +23,6 @@ public:
     explicit ConfigOperationPrivate(ConfigOperation *qq);
     ~ConfigOperationPrivate() override;
 
-    // For out-of-process
-    void requestBackend();
-    virtual void backendReady(org::kde::kscreen::Backend *backend);
-
     // For in-process
     KScreen::AbstractBackend *loadBackend();
 

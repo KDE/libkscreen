@@ -77,7 +77,6 @@ void TestInProcess::cleanup()
 void TestInProcess::loadConfig()
 {
     qputenv("KSCREEN_BACKEND_INPROCESS", "1");
-    BackendManager::instance()->setMethod(BackendManager::InProcess);
 
     auto *op = new GetConfigOperation();
     QVERIFY(op->exec());
@@ -91,8 +90,6 @@ void TestInProcess::testBackendCaching()
     KScreen::BackendManager::instance()->shutdownBackend();
     qputenv("KSCREEN_BACKEND", "Fake");
     QElapsedTimer t;
-    BackendManager::instance()->setMethod(BackendManager::InProcess);
-    QCOMPARE(BackendManager::instance()->method(), BackendManager::InProcess);
     int t_cold;
     int t_warm;
 
@@ -108,7 +105,6 @@ void TestInProcess::testBackendCaching()
     }
     {
         // KScreen::BackendManager::instance()->shutdownBackend();
-        QCOMPARE(BackendManager::instance()->method(), BackendManager::InProcess);
         t.start();
         auto cp = new GetConfigOperation();
         cp->exec();
@@ -120,7 +116,6 @@ void TestInProcess::testBackendCaching()
     }
     {
         auto cp = new GetConfigOperation();
-        QCOMPARE(BackendManager::instance()->method(), BackendManager::InProcess);
         cp->exec();
         auto cc = cp->config();
         QVERIFY(cc != nullptr);
@@ -135,25 +130,21 @@ void TestInProcess::testCreateJob()
 {
     KScreen::BackendManager::instance()->shutdownBackend();
     {
-        BackendManager::instance()->setMethod(BackendManager::InProcess);
         auto op = new GetConfigOperation();
         auto _op = qobject_cast<GetConfigOperation *>(op);
         QVERIFY(_op != nullptr);
-        QCOMPARE(BackendManager::instance()->method(), BackendManager::InProcess);
         QVERIFY(op->exec());
         auto cc = op->config();
         QVERIFY(cc != nullptr);
         QVERIFY(cc->isValid());
     }
     KScreen::BackendManager::instance()->shutdownBackend();
-    BackendManager::instance()->setMethod(BackendManager::InProcess);
 }
 
 void TestInProcess::testConfigApply()
 {
     qputenv("KSCREEN_BACKEND", "Fake");
     KScreen::BackendManager::instance()->shutdownBackend();
-    BackendManager::instance()->setMethod(BackendManager::InProcess);
     auto op = new GetConfigOperation();
     op->exec();
     auto config = op->config();
@@ -179,7 +170,6 @@ void TestInProcess::testConfigMonitor()
     qputenv("KSCREEN_BACKEND", "Fake");
 
     KScreen::BackendManager::instance()->shutdownBackend();
-    BackendManager::instance()->setMethod(BackendManager::InProcess);
     auto op = new GetConfigOperation();
     op->exec();
     auto config = op->config();
