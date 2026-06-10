@@ -10,10 +10,6 @@ set(fake_SRCS
     parser.h
 )
 
-qt_add_dbus_adaptor(fake_SRCS ${CMAKE_SOURCE_DIR}/interfaces/org.kde.KScreen.FakeBackend.xml
-                     fake.h Fake
-)
-
 add_library(KSC_Fake MODULE ${fake_SRCS})
 
 set_target_properties(KSC_Fake PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/kf6/kscreen")

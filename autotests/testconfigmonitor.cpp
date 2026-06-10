@@ -17,8 +17,6 @@
 #include "../src/output.h"
 #include "../src/setconfigoperation.h"
 
-#include "fakebackendinterface.h"
-
 class TestConfigMonitor : public QObject
 {
     Q_OBJECT

@@ -21,8 +21,6 @@
 
 #include <QDBusConnection>
 
-#include "fakebackendadaptor.h"
-
 using namespace KScreen;
 
 Q_LOGGING_CATEGORY(KSCREEN_FAKE, "kscreen.fake")
@@ -58,8 +56,6 @@ void Fake::init(const QVariantMap &arguments)
 
 void Fake::delayedInit()
 {
-    new FakeBackendAdaptor(this);
-    QDBusConnection::sessionBus().registerObject(QStringLiteral("/fake"), this);
 }
 
 Fake::~Fake()
