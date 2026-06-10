@@ -42,9 +42,7 @@ BackendManager *BackendManager::instance()
 }
 
 BackendManager::BackendManager()
-    : mShuttingDown(false)
-    , mRequestsCounter(0)
-    , mLoader(nullptr)
+    : mLoader(nullptr)
     , mInProcessBackend(nullptr)
 {
     Log::instance();

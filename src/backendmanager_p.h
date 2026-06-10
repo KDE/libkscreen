@@ -110,10 +110,6 @@ private:
 
     KScreen::ConfigPtr mConfig;
     QVariantMap mBackendArguments;
-    QTimer mResetCrashCountTimer;
-    bool mShuttingDown;
-    int mRequestsCounter;
-    QEventLoop mShutdownLoop;
 
     // For in-process operation
     QPluginLoader *mLoader;
