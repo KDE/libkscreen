@@ -32,7 +32,6 @@ public:
     OutputPtr findOutput(const QString &query);
     KScreen::ModePtr findMode(OutputPtr output, const QString &query);
 
-    void showBackends() const;
     void showOutputs() const;
     void showJson() const;
 

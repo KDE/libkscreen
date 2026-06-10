@@ -73,9 +73,6 @@ Doctor::~Doctor()
 void Doctor::start(QCommandLineParser *parser)
 {
     m_parser = parser;
-    if (m_parser->isSet(QStringLiteral("info"))) {
-        showBackends();
-    }
     if (parser->isSet(QStringLiteral("json")) || parser->isSet(QStringLiteral("outputs")) || !m_outputArgs.isEmpty()) {
         KScreen::GetConfigOperation *op = new KScreen::GetConfigOperation();
         connect(op, &KScreen::GetConfigOperation::finished, this, [this](KScreen::ConfigOperation *op) {
@@ -148,31 +145,6 @@ void Doctor::start(QCommandLineParser *parser)
     }
     // We need to kick the event loop, otherwise .quit() hangs
     QTimer::singleShot(0, qApp->quit);
-}
-
-void Doctor::showBackends() const
-{
-    cout << "Environment: " << Qt::endl;
-    auto env_kscreen_backend = qEnvironmentVariable("KSCREEN_BACKEND", QStringLiteral("[not set]"));
-    cout << "  * KSCREEN_BACKEND           : " << env_kscreen_backend << Qt::endl;
-    auto env_kscreen_backend_inprocess = qEnvironmentVariable("KSCREEN_BACKEND_INPROCESS", QStringLiteral("[not set]"));
-    cout << "  * KSCREEN_BACKEND_INPROCESS : " << env_kscreen_backend_inprocess << Qt::endl;
-    auto env_kscreen_logging = qEnvironmentVariable("KSCREEN_LOGGING", QStringLiteral("[not set]"));
-    cout << "  * KSCREEN_LOGGING           : " << env_kscreen_logging << Qt::endl;
-
-    cout << "Logging to                : " << (Log::instance()->enabled() ? Log::instance()->logFile() : QStringLiteral("[logging disabled]")) << Qt::endl;
-    const auto backends = BackendManager::instance()->listBackends();
-    auto preferred = BackendManager::instance()->preferredBackend();
-    cout << "Preferred KScreen backend : " << green << preferred.fileName() << cr << Qt::endl;
-    cout << "Available KScreen backends:" << Qt::endl;
-    for (const QFileInfo &f : backends) {
-        auto c = blue;
-        if (preferred == f) {
-            c = green;
-        }
-        cout << "  * " << c << f.fileName() << cr << ": " << f.absoluteFilePath() << Qt::endl;
-    }
-    cout << Qt::endl;
 }
 
 void Doctor::setOptionList(const QStringList &outputArgs)

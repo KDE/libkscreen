@@ -101,8 +101,6 @@ int main(int argc, char **argv)
 
     KScreen::Doctor server;
 
-    QCommandLineOption info =
-        QCommandLineOption(QStringList() << QStringLiteral("i") << QStringLiteral("info"), QStringLiteral("Show runtime information: backends, logging, etc."));
     QCommandLineOption outputs = QCommandLineOption(QStringList() << QStringLiteral("o") << QStringLiteral("outputs"), QStringLiteral("Show outputs"));
     QCommandLineOption json =
         QCommandLineOption(QStringList() << QStringLiteral("j") << QStringLiteral("json"), QStringLiteral("Show configuration in JSON format"));
@@ -120,7 +118,6 @@ int main(int argc, char **argv)
     parser.setApplicationDescription(desc);
     parser.addPositionalArgument(QStringLiteral("config"), syntax, QStringLiteral("[output.<name>.<setting> output.<name>.setting [...]]"));
     parser.addHelpOption();
-    parser.addOption(info);
     parser.addOption(json);
     parser.addOption(outputs);
     parser.addOption(dpms);

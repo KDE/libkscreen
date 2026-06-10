@@ -198,7 +198,6 @@ _kscreen-doctor-priorities() {
 _arguments -C \
     '(-h --help)'{-h,--help}'[Displays help on commandline options]' \
     '--help-all[Displays help including Qt specific options]' \
-    '(-i --info)'{-i,--info}'[Show runtime information: backends, logging, etc]' \
     '(-j --json)'{-j,--json}'[Show configuration in JSON format]' \
     '(-o --outputs)'{-o,--outputs}'[Show outputs]' \
     '(DPMS)'{-d=,--dpms=}'[(Wayland only) Display power management]:status:(on off)' \
