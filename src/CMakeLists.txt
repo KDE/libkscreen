@@ -13,6 +13,29 @@ set(libkscreen_SRCS
     output.cpp
     edid.cpp
     mode.cpp
+
+    ../backends/kwayland/waylandbackend.cpp ../backends/kwayland/waylandbackend.h
+    ../backends/kwayland/waylandconfig.cpp ../backends/kwayland/waylandconfig.h
+    ../backends/kwayland/waylandoutputdevice.cpp ../backends/kwayland/waylandoutputdevice.h
+    ../backends/kwayland/waylandoutputmanagement.cpp ../backends/kwayland/waylandoutputmanagement.h
+    ../backends/kwayland/waylandoutputdevicemode.cpp ../backends/kwayland/waylandoutputdevicemode.h
+    ../backends/kwayland/waylandscreen.cpp ../backends/kwayland/waylandscreen.h
+    ../backends/utils.cpp ../backends/utils.h
+
+    ../backends/fake/fake.cpp
+    ../backends/fake/parser.cpp
+    ../backends/fake/fake.h
+    ../backends/fake/parser.h
+)
+
+qt_add_dbus_interface(libkscreen_SRCS ../backends/kwayland/org.kde.KWin.TabletModeManager.xml tabletmodemanager_interface)
+
+ecm_qt_declare_logging_category(libkscreen_SRCS
+                                HEADER kscreen_kwayland_logging.h
+                                IDENTIFIER KSCREEN_WAYLAND
+                                CATEGORY_NAME kscreen.kwayland
+				DESCRIPTION "kscreen wayland"
+				EXPORT KSCREEN
 )
 
 ecm_qt_declare_logging_category(libkscreen_SRCS
@@ -37,6 +60,15 @@ generate_export_header(KF6Screen BASE_NAME KScreen)
 
 ecm_create_qm_loader(KF6Screen libkscreen6_qt)
 
+qt6_generate_wayland_protocol_client_sources(KF6Screen
+    PRIVATE_CODE
+    FILES
+        ${PLASMA_WAYLAND_PROTOCOLS_DIR}/kde-output-device-v2.xml
+        ${PLASMA_WAYLAND_PROTOCOLS_DIR}/kde-output-management-v2.xml
+)
+
+target_sources(KF6Screen PRIVATE ${wayland_SRCS})
+
 target_link_libraries(KF6Screen
     PUBLIC
     Qt::Core
@@ -44,6 +76,8 @@ target_link_libraries(KF6Screen
     PRIVATE
     Qt::DBus
     Qt::GuiPrivate # for QX11Info
+    Qt::WaylandClient
+    Wayland::Client
 )
 
 set_target_properties(KF6Screen PROPERTIES

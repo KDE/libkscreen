@@ -18,7 +18,6 @@ class WaylandConfig;
 class WaylandBackend : public KScreen::AbstractBackend
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.kf6.kscreen.backends.kwayland")
 
 public:
     explicit WaylandBackend();

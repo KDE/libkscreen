@@ -39,28 +39,6 @@ public:
     KScreen::ConfigPtr config() const;
     void setConfig(KScreen::ConfigPtr c);
 
-    /** Choose which backend to use
-     *
-     * This method uses a couple of heuristics to pick the backend to be loaded:
-     * - If the @p backend argument is specified and not empty it's used to filter the
-     *   available backend list
-     * - If specified, the KSCREEN_BACKEND env var is considered (case insensitive)
-     * - Otherwise, the wayland backend is picked when the runtime platform is Wayland
-     *   (we assume kwin in this case
-     * - Otherwise, if the runtime platform is X11, the XRandR backend is picked
-     * - Otherwise, an empty QFileInfo is returned
-     *
-     * @return the backend plugin to load
-     * @since 5.7
-     */
-    static QFileInfo preferredBackend(const QString &backend = QString());
-
-    /** List installed backends
-     * @return a list of installed backend plugins
-     * @since 5.7
-     */
-    static QFileInfoList listBackends();
-
     /** Set arguments map which a backend may use on initialization.
      *
      * Calling this method after a backend has been initialized will have no effect.
@@ -80,18 +58,7 @@ public:
      */
     QVariantMap getBackendArgs();
 
-    /** Encapsulates the plugin loading logic.
-     *
-     * @param loader a pointer to the QPluginLoader, the caller is
-     * responsible for its memory management.
-     * @param name name of the backend plugin
-     * @param arguments arguments, used for unit tests
-     * @return a pointer to the backend loaded from the plugin
-     * @since 5.6
-     */
-    static KScreen::AbstractBackend *loadBackendPlugin(QPluginLoader *loader, const QString &name, const QVariantMap &arguments);
-
-    KScreen::AbstractBackend *loadBackendInProcess(const QString &name);
+    KScreen::AbstractBackend *loadBackendInProcess();
 
     void shutdownBackend();
 
@@ -107,8 +74,6 @@ private:
     KScreen::ConfigPtr mConfig;
     QVariantMap mBackendArguments;
 
-    // For in-process operation
-    QPluginLoader *mLoader;
     KScreen::AbstractBackend *mInProcessBackend;
 };
 

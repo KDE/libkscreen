@@ -71,7 +71,6 @@ ecm_set_disabled_deprecation_versions(QT 5.15.0
 )
 
 add_subdirectory(src)
-add_subdirectory(backends)
 if(BUILD_TESTING)
    add_subdirectory(autotests)
    add_subdirectory(tests)
