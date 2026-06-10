@@ -11,7 +11,6 @@
 #include "abstractbackend.h"
 #include "backendinterface.h"
 #include "configmonitor.h"
-#include "configserializer_p.h"
 #include "getconfigoperation.h"
 #include "kscreen_debug.h"
 

@@ -8,7 +8,6 @@
 #include "abstractbackend.h"
 #include "backendinterface.h"
 #include "backendmanager_p.h"
-#include "configserializer_p.h"
 #include "getconfigoperation.h"
 #include "kscreen_debug.h"
 #include "output.h"

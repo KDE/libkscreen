@@ -8,7 +8,6 @@ set(libkscreen_SRCS
     getconfigoperation.cpp getconfigoperation.h
     setconfigoperation.cpp setconfigoperation.h
     configmonitor.cpp configmonitor.h
-    configserializer.cpp
     screen.cpp
     output.cpp
     edid.cpp

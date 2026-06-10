@@ -46,15 +46,6 @@ const static QString blue = QStringLiteral("\033[01;34m");
 const static QString bold = QStringLiteral("\033[01;39m");
 const static QString cr = QStringLiteral("\033[0;0m");
 
-namespace KScreen
-{
-namespace ConfigSerializer
-{
-// Exported private symbol in configserializer_p.h in KScreen
-extern QJsonObject serializeConfig(const KScreen::ConfigPtr &config);
-}
-}
-
 using namespace KScreen;
 
 Doctor::Doctor(QObject *parent)
