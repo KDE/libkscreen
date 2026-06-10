@@ -11,7 +11,6 @@
 #include "config.h"
 #include "configoperation_p.h"
 #include "configserializer_p.h"
-#include "log.h"
 #include "output.h"
 
 using namespace KScreen;

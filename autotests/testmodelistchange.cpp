@@ -90,7 +90,6 @@ KScreen::ModeList TestModeListChange::createModeList()
 
 void TestModeListChange::initTestCase()
 {
-    qputenv("KSCREEN_LOGGING", "false");
     qputenv("KSCREEN_BACKEND", "Fake");
 }
 

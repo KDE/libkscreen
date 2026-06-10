@@ -110,9 +110,6 @@ int main(int argc, char **argv)
     QCommandLineOption dpmsExcluded = QCommandLineOption({QStringLiteral("dpms-excluded")},
                                                          QStringLiteral("Do not apply the dpms change to the output with said model names"),
                                                          QStringLiteral("connector"));
-    QCommandLineOption log = QCommandLineOption(QStringList() << QStringLiteral("l") << QStringLiteral("log"),
-                                                QStringLiteral("Write a comment to the log file"),
-                                                QStringLiteral("comment"));
 
     QCommandLineParser parser;
     parser.setApplicationDescription(desc);
@@ -121,7 +118,6 @@ int main(int argc, char **argv)
     parser.addOption(json);
     parser.addOption(outputs);
     parser.addOption(dpms);
-    parser.addOption(log);
     parser.addOption(dpmsExcluded);
     parser.process(app);
 

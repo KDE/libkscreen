@@ -61,7 +61,6 @@ void TestInProcess::initTestCase()
 
 void TestInProcess::init()
 {
-    qputenv("KSCREEN_LOGGING", "false");
     // Use Fake backend with one of the json configs
     qputenv("KSCREEN_BACKEND", "Fake");
 

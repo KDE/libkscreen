@@ -31,7 +31,6 @@
 #include "../config.h"
 #include "../configoperation.h"
 #include "../getconfigoperation.h"
-#include "../log.h"
 #include "../output.h"
 #include "../setconfigoperation.h"
 
@@ -135,14 +134,6 @@ void Doctor::start(QCommandLineParser *parser)
         return;
     }
 
-    if (m_parser->isSet(QStringLiteral("log"))) {
-        const QString logmsg = m_parser->value(QStringLiteral("log"));
-        if (!Log::instance()->enabled()) {
-            qCWarning(KSCREEN_DOCTOR) << "Logging is disabled, unset KSCREEN_LOGGING in your environment.";
-        } else {
-            Log::log(logmsg);
-        }
-    }
     // We need to kick the event loop, otherwise .quit() hangs
     QTimer::singleShot(0, qApp->quit);
 }

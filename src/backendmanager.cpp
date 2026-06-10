@@ -14,7 +14,6 @@
 #include "configserializer_p.h"
 #include "getconfigoperation.h"
 #include "kscreen_debug.h"
-#include "log.h"
 
 #include <QDBusConnection>
 #include <QDBusConnectionInterface>
@@ -45,7 +44,6 @@ BackendManager::BackendManager()
     : mLoader(nullptr)
     , mInProcessBackend(nullptr)
 {
-    Log::instance();
 }
 
 BackendManager::~BackendManager()
