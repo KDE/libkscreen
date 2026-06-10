@@ -10,7 +10,6 @@
 #include <QObject>
 
 #include "abstractbackend.h"
-#include "backendinterface.h"
 #include "configoperation.h"
 
 namespace KScreen

@@ -6,7 +6,6 @@
  */
 
 #include "getconfigoperation.h"
-#include "backendinterface.h"
 #include "backendmanager_p.h"
 #include "config.h"
 #include "configoperation_p.h"
@@ -32,7 +31,6 @@ public:
 
     // For out-of-process
     int pendingEDIDs;
-    QPointer<org::kde::kscreen::Backend> mBackend;
 
 private:
     Q_DECLARE_PUBLIC(GetConfigOperation)

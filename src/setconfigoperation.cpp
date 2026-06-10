@@ -15,8 +15,8 @@
 #include "kscreen_debug.h"
 #include "output.h"
 
-#include <QDBusPendingCall>
-#include <QDBusPendingCallWatcher>
+#include <QDir>
+#include <QFutureWatcher>
 #include <ranges>
 
 using namespace KScreen;

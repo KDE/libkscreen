@@ -9,17 +9,12 @@
 #include "backendmanager_p.h"
 
 #include "abstractbackend.h"
-#include "backendinterface.h"
 #include "configmonitor.h"
 #include "configserializer_p.h"
 #include "getconfigoperation.h"
 #include "kscreen_debug.h"
 
-#include <QDBusConnection>
-#include <QDBusConnectionInterface>
-#include <QDBusPendingCall>
-#include <QDBusPendingCallWatcher>
-#include <QDBusPendingReply>
+#include <QDir>
 #include <QGuiApplication>
 #include <QStandardPaths>
 #include <QThread>

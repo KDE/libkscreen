@@ -14,7 +14,6 @@
 
 #pragma once
 
-#include <QDBusServiceWatcher>
 #include <QEventLoop>
 #include <QFileInfoList>
 #include <QObject>
@@ -24,9 +23,6 @@
 
 #include "kscreen_export.h"
 #include "types.h"
-
-class QDBusPendingCallWatcher;
-class OrgKdeKscreenBackendInterface;
 
 namespace KScreen
 {

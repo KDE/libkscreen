@@ -6,14 +6,11 @@
 
 #include "configmonitor.h"
 #include "abstractbackend.h"
-#include "backendinterface.h"
 #include "backendmanager_p.h"
 #include "configserializer_p.h"
 #include "getconfigoperation.h"
 #include "kscreen_debug.h"
 #include "output.h"
-
-#include <QDBusPendingCallWatcher>
 
 using namespace KScreen;
 
@@ -29,7 +26,6 @@ public:
 
     QList<QWeakPointer<KScreen::Config>> watchedConfigs;
 
-    QPointer<org::kde::kscreen::Backend> mBackend;
     bool mFirstBackend;
 
     QMap<KScreen::ConfigPtr, QList<int>> mPendingEDIDRequests;
