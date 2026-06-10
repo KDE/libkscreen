@@ -22,31 +22,3 @@ kscreen_add_test(testinprocess)
 kscreen_add_test(testlog)
 kscreen_add_test(testmodelistchange)
 kscreen_add_test(testedid)
-
-# FIXME KWaylandServer is not a thing in KF6
-if (NOT TARGET KF6::WaylandServer)
-    message(WARNING "Skipping KF6::WaylandServer based unit tests!")
-    return()
-endif()
-
-set(KSCREEN_WAYLAND_LIBS
-    KF6::WaylandServer KF6::WaylandClient
-)
-
-# For WaylandConfigReader and TestServer
-set(KSCREEN_WAYLAND_SRCS
-    ${CMAKE_SOURCE_DIR}/tests/kwayland/waylandconfigreader.cpp
-    ${CMAKE_SOURCE_DIR}/tests/kwayland/waylandtestserver.cpp
-)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../backends/kwayland)
-
-kscreen_add_test(testkwaylandbackend)
-kscreen_add_test(testkwaylandconfig)
-
-set(KSCREEN_WAYLAND_LIBS "")
-set(KSCREEN_WAYLAND_SRCS "")
-
-
-if (ENABLE_XRANDR_TESTS)
-    kscreen_add_test(testxrandr)
-endif()
