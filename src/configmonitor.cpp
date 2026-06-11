@@ -7,10 +7,8 @@
 #include "configmonitor.h"
 #include "abstractbackend.h"
 #include "backendmanager_p.h"
-#include "configserializer_p.h"
-#include "getconfigoperation.h"
+#include "config.h"
 #include "kscreen_debug.h"
-#include "output.h"
 
 using namespace KScreen;
 

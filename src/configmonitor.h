@@ -9,8 +9,8 @@
 #include <QObject>
 #include <QPointer>
 
-#include "config.h"
 #include "kscreen_export.h"
+#include "types.h"
 
 namespace KScreen
 {

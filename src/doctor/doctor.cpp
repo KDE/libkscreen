@@ -22,6 +22,7 @@
 #include <QRect>
 #include <QScreen>
 #include <QStandardPaths>
+#include <QTimer>
 
 #include <print>
 #include <ranges>

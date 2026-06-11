@@ -10,6 +10,7 @@
 #include "backendmanager_p.h"
 #include "kscreen_debug.h"
 #include "mode.h"
+#include "screen.h"
 
 #include <QCryptographicHash>
 #include <QDebug>

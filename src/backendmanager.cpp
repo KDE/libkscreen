@@ -12,17 +12,6 @@
 #include "../backends/kwayland/waylandbackend.h"
 #include "abstractbackend.h"
 #include "configmonitor.h"
-#include "configserializer_p.h"
-#include "getconfigoperation.h"
-#include "kscreen_debug.h"
-
-#include <QDir>
-#include <QGuiApplication>
-#include <QStandardPaths>
-#include <QThread>
-#include <QtGui/private/qtx11extras_p.h>
-
-#include <memory>
 
 using namespace KScreen;
 

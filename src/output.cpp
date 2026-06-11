@@ -7,7 +7,6 @@
 
 #include "output.h"
 #include "edid.h"
-#include "kscreen_debug.h"
 #include "mode.h"
 
 #include <QCryptographicHash>

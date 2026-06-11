@@ -11,7 +11,6 @@
 #include "backendmanager_p.h"
 #include "config.h"
 #include "configoperation_p.h"
-#include "configserializer_p.h"
 #include "kscreen_debug.h"
 #include "output.h"
 

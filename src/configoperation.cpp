@@ -13,6 +13,8 @@
 
 #include "kscreen_debug.h"
 
+#include <QEventLoop>
+
 using namespace KScreen;
 
 ConfigOperationPrivate::ConfigOperationPrivate(ConfigOperation *qq)

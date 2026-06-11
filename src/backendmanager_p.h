@@ -14,12 +14,7 @@
 
 #pragma once
 
-#include <QEventLoop>
-#include <QFileInfoList>
 #include <QObject>
-#include <QPluginLoader>
-#include <QProcess>
-#include <QTimer>
 
 #include "kscreen_export.h"
 #include "types.h"
