@@ -29,7 +29,6 @@ class SetConfigOperationPrivate : public ConfigOperationPrivate
 public:
     explicit SetConfigOperationPrivate(const KScreen::ConfigPtr &config, ConfigOperation *qq);
 
-    void normalizeOutputPositions();
     void fixPriorities();
 
     KScreen::ConfigPtr config;
@@ -64,7 +63,6 @@ ConfigPtr SetConfigOperation::config() const
 void SetConfigOperation::start()
 {
     Q_D(SetConfigOperation);
-    d->normalizeOutputPositions();
     d->fixPriorities();
     auto backend = d->loadBackend();
     QFutureWatcher<SetConfigResult> *watcher = new QFutureWatcher<SetConfigResult>(this);
@@ -79,36 +77,6 @@ void SetConfigOperation::start()
 
     QFuture<SetConfigResult> pendingResult = backend->setConfig(d->config);
     watcher->setFuture(pendingResult);
-}
-
-void SetConfigOperationPrivate::normalizeOutputPositions()
-{
-    if (!config || (config->supportedFeatures() & Config::Feature::PerOutputScaling)) {
-        return;
-    }
-    int offsetX = INT_MAX;
-    int offsetY = INT_MAX;
-    const auto outputs = config->outputs();
-    for (const KScreen::OutputPtr &output : outputs) {
-        if (!output->isPositionable()) {
-            continue;
-        }
-        offsetX = qMin(output->pos().x(), offsetX);
-        offsetY = qMin(output->pos().y(), offsetY);
-    }
-
-    if (!offsetX && !offsetY) {
-        return;
-    }
-    qCDebug(KSCREEN) << "Correcting output positions by:" << QPoint(offsetX, offsetY);
-    for (const KScreen::OutputPtr &output : outputs) {
-        if (!output->isConnected() || !output->isEnabled()) {
-            continue;
-        }
-        QPoint newPos = QPoint(output->pos().x() - offsetX, output->pos().y() - offsetY);
-        qCDebug(KSCREEN) << "Moved output from" << output->pos() << "to" << newPos;
-        output->setPos(newPos);
-    }
 }
 
 void SetConfigOperationPrivate::fixPriorities()
