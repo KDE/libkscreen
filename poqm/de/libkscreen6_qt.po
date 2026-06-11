@@ -14,34 +14,28 @@ msgstr ""
 "X-Generator: Lokalize 22.12.3\n"
 "X-Qt-Contexts: true\n"
 
-#: getconfigoperation.cpp:62
-msgctxt "KScreen::GetConfigOperationPrivate|"
-msgid "Failed to prepare backend"
-msgstr "Vorbereitung des Hintergrundprogramms ist fehlgeschlagen"
+#~ msgctxt "KScreen::GetConfigOperationPrivate|"
+#~ msgid "Failed to prepare backend"
+#~ msgstr "Vorbereitung des Hintergrundprogramms ist fehlgeschlagen"
 
-#: getconfigoperation.cpp:87
-msgctxt "KScreen::GetConfigOperationPrivate|"
-msgid "Failed to deserialize backend response"
-msgstr ""
-"Deserialisierung der Antwort des Hintergrundprogramms ist fehlgeschlagen"
+#~ msgctxt "KScreen::GetConfigOperationPrivate|"
+#~ msgid "Failed to deserialize backend response"
+#~ msgstr ""
+#~ "Deserialisierung der Antwort des Hintergrundprogramms ist fehlgeschlagen"
 
-#: getconfigoperation.cpp:99
-msgctxt "KScreen::GetConfigOperationPrivate|"
-msgid "Backend invalidated"
-msgstr "Hintergrundprogramm ungültig gemacht"
+#~ msgctxt "KScreen::GetConfigOperationPrivate|"
+#~ msgid "Backend invalidated"
+#~ msgstr "Hintergrundprogramm ungültig gemacht"
 
-#: setconfigoperation.cpp:59
-msgctxt "KScreen::SetConfigOperationPrivate|"
-msgid "Failed to prepare backend"
-msgstr "Vorbereitung des Hintergrundprogramms ist fehlgeschlagen"
+#~ msgctxt "KScreen::SetConfigOperationPrivate|"
+#~ msgid "Failed to prepare backend"
+#~ msgstr "Vorbereitung des Hintergrundprogramms ist fehlgeschlagen"
 
-#: setconfigoperation.cpp:66
-msgctxt "KScreen::SetConfigOperationPrivate|"
-msgid "Failed to serialize request"
-msgstr "Serialisierung der Anfrage ist fehlgeschlagen"
+#~ msgctxt "KScreen::SetConfigOperationPrivate|"
+#~ msgid "Failed to serialize request"
+#~ msgstr "Serialisierung der Anfrage ist fehlgeschlagen"
 
-#: setconfigoperation.cpp:90
-msgctxt "KScreen::SetConfigOperationPrivate|"
-msgid "Failed to deserialize backend response"
-msgstr ""
-"Deserialisierung der Antwort des Hintergrundprogramms ist fehlgeschlagen"
+#~ msgctxt "KScreen::SetConfigOperationPrivate|"
+#~ msgid "Failed to deserialize backend response"
+#~ msgstr ""
+#~ "Deserialisierung der Antwort des Hintergrundprogramms ist fehlgeschlagen"

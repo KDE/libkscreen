@@ -13,32 +13,26 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Lokalize 21.12.1\n"
 
-#: getconfigoperation.cpp:62
-msgctxt "KScreen::GetConfigOperationPrivate|"
-msgid "Failed to prepare backend"
-msgstr "Il falleva a preparar retroadministration"
+#~ msgctxt "KScreen::GetConfigOperationPrivate|"
+#~ msgid "Failed to prepare backend"
+#~ msgstr "Il falleva a preparar retroadministration"
 
-#: getconfigoperation.cpp:87
-msgctxt "KScreen::GetConfigOperationPrivate|"
-msgid "Failed to deserialize backend response"
-msgstr "Il falleva a deserializar le responsa de retroadministration"
+#~ msgctxt "KScreen::GetConfigOperationPrivate|"
+#~ msgid "Failed to deserialize backend response"
+#~ msgstr "Il falleva a deserializar le responsa de retroadministration"
 
-#: getconfigoperation.cpp:99
-msgctxt "KScreen::GetConfigOperationPrivate|"
-msgid "Backend invalidated"
-msgstr "Retroadministration invalidate "
+#~ msgctxt "KScreen::GetConfigOperationPrivate|"
+#~ msgid "Backend invalidated"
+#~ msgstr "Retroadministration invalidate "
 
-#: setconfigoperation.cpp:59
-msgctxt "KScreen::SetConfigOperationPrivate|"
-msgid "Failed to prepare backend"
-msgstr "Il falleva a preparar retroadministration"
+#~ msgctxt "KScreen::SetConfigOperationPrivate|"
+#~ msgid "Failed to prepare backend"
+#~ msgstr "Il falleva a preparar retroadministration"
 
-#: setconfigoperation.cpp:66
-msgctxt "KScreen::SetConfigOperationPrivate|"
-msgid "Failed to serialize request"
-msgstr "Falleva a serializar requesta"
+#~ msgctxt "KScreen::SetConfigOperationPrivate|"
+#~ msgid "Failed to serialize request"
+#~ msgstr "Falleva a serializar requesta"
 
-#: setconfigoperation.cpp:90
-msgctxt "KScreen::SetConfigOperationPrivate|"
-msgid "Failed to deserialize backend response"
-msgstr "Il falleva a deserializar le responsa de retroadministration"
+#~ msgctxt "KScreen::SetConfigOperationPrivate|"
+#~ msgid "Failed to deserialize backend response"
+#~ msgstr "Il falleva a deserializar le responsa de retroadministration"

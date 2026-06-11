@@ -14,32 +14,26 @@ msgstr ""
 "X-Qt-Contexts: true\n"
 "X-Generator: Poedit 3.8\n"
 
-#: getconfigoperation.cpp:62
-msgctxt "KScreen::GetConfigOperationPrivate|"
-msgid "Failed to prepare backend"
-msgstr "Nepavyko paruošti vidinės pusės"
+#~ msgctxt "KScreen::GetConfigOperationPrivate|"
+#~ msgid "Failed to prepare backend"
+#~ msgstr "Nepavyko paruošti vidinės pusės"
 
-#: getconfigoperation.cpp:87
-msgctxt "KScreen::GetConfigOperationPrivate|"
-msgid "Failed to deserialize backend response"
-msgstr "Nepavyko išnuoseklinti vidinės pusės atsako"
+#~ msgctxt "KScreen::GetConfigOperationPrivate|"
+#~ msgid "Failed to deserialize backend response"
+#~ msgstr "Nepavyko išnuoseklinti vidinės pusės atsako"
 
-#: getconfigoperation.cpp:99
-msgctxt "KScreen::GetConfigOperationPrivate|"
-msgid "Backend invalidated"
-msgstr "Vidinė pusė padaryta negaliojančia"
+#~ msgctxt "KScreen::GetConfigOperationPrivate|"
+#~ msgid "Backend invalidated"
+#~ msgstr "Vidinė pusė padaryta negaliojančia"
 
-#: setconfigoperation.cpp:59
-msgctxt "KScreen::SetConfigOperationPrivate|"
-msgid "Failed to prepare backend"
-msgstr "Nepavyko paruošti vidinės pusės"
+#~ msgctxt "KScreen::SetConfigOperationPrivate|"
+#~ msgid "Failed to prepare backend"
+#~ msgstr "Nepavyko paruošti vidinės pusės"
 
-#: setconfigoperation.cpp:66
-msgctxt "KScreen::SetConfigOperationPrivate|"
-msgid "Failed to serialize request"
-msgstr "Nepavyko nuoseklinti užklausos"
+#~ msgctxt "KScreen::SetConfigOperationPrivate|"
+#~ msgid "Failed to serialize request"
+#~ msgstr "Nepavyko nuoseklinti užklausos"
 
-#: setconfigoperation.cpp:90
-msgctxt "KScreen::SetConfigOperationPrivate|"
-msgid "Failed to deserialize backend response"
-msgstr "Nepavyko išnuoseklinti vidinės pusės atsako"
+#~ msgctxt "KScreen::SetConfigOperationPrivate|"
+#~ msgid "Failed to deserialize backend response"
+#~ msgstr "Nepavyko išnuoseklinti vidinės pusės atsako"

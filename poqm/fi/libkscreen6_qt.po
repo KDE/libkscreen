@@ -12,32 +12,26 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Qt-Contexts: true\n"
 
-#: getconfigoperation.cpp:62
-msgctxt "KScreen::GetConfigOperationPrivate|"
-msgid "Failed to prepare backend"
-msgstr "Taustajärjestelmän valmistelu epäonnistui"
+#~ msgctxt "KScreen::GetConfigOperationPrivate|"
+#~ msgid "Failed to prepare backend"
+#~ msgstr "Taustajärjestelmän valmistelu epäonnistui"
 
-#: getconfigoperation.cpp:87
-msgctxt "KScreen::GetConfigOperationPrivate|"
-msgid "Failed to deserialize backend response"
-msgstr "Taustajärjestelmän vastauksen serialisoinnin purku epäonnistui"
+#~ msgctxt "KScreen::GetConfigOperationPrivate|"
+#~ msgid "Failed to deserialize backend response"
+#~ msgstr "Taustajärjestelmän vastauksen serialisoinnin purku epäonnistui"
 
-#: getconfigoperation.cpp:99
-msgctxt "KScreen::GetConfigOperationPrivate|"
-msgid "Backend invalidated"
-msgstr "Taustajärjestelmä on mitätöity"
+#~ msgctxt "KScreen::GetConfigOperationPrivate|"
+#~ msgid "Backend invalidated"
+#~ msgstr "Taustajärjestelmä on mitätöity"
 
-#: setconfigoperation.cpp:59
-msgctxt "KScreen::SetConfigOperationPrivate|"
-msgid "Failed to prepare backend"
-msgstr "Taustajärjestelmän valmistelu epäonnistui"
+#~ msgctxt "KScreen::SetConfigOperationPrivate|"
+#~ msgid "Failed to prepare backend"
+#~ msgstr "Taustajärjestelmän valmistelu epäonnistui"
 
-#: setconfigoperation.cpp:66
-msgctxt "KScreen::SetConfigOperationPrivate|"
-msgid "Failed to serialize request"
-msgstr "Vastauksen serialisointi epäonnistui"
+#~ msgctxt "KScreen::SetConfigOperationPrivate|"
+#~ msgid "Failed to serialize request"
+#~ msgstr "Vastauksen serialisointi epäonnistui"
 
-#: setconfigoperation.cpp:90
-msgctxt "KScreen::SetConfigOperationPrivate|"
-msgid "Failed to deserialize backend response"
-msgstr "Taustajärjestelmän vastauksen serialisoinnin purku epäonnistui"
+#~ msgctxt "KScreen::SetConfigOperationPrivate|"
+#~ msgid "Failed to deserialize backend response"
+#~ msgstr "Taustajärjestelmän vastauksen serialisoinnin purku epäonnistui"

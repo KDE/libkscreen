@@ -14,32 +14,26 @@ msgstr ""
 "Plural-Forms: Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Lokalize 23.08.3\n"
 
-#: getconfigoperation.cpp:62
-msgctxt "KScreen::GetConfigOperationPrivate|"
-msgid "Failed to prepare backend"
-msgstr "Mistókst að undirbúa bakenda"
+#~ msgctxt "KScreen::GetConfigOperationPrivate|"
+#~ msgid "Failed to prepare backend"
+#~ msgstr "Mistókst að undirbúa bakenda"
 
-#: getconfigoperation.cpp:87
-msgctxt "KScreen::GetConfigOperationPrivate|"
-msgid "Failed to deserialize backend response"
-msgstr "Mistókst að afraðbinda bakendasvar"
+#~ msgctxt "KScreen::GetConfigOperationPrivate|"
+#~ msgid "Failed to deserialize backend response"
+#~ msgstr "Mistókst að afraðbinda bakendasvar"
 
-#: getconfigoperation.cpp:99
-msgctxt "KScreen::GetConfigOperationPrivate|"
-msgid "Backend invalidated"
-msgstr "Bakendi óstarfhæfur"
+#~ msgctxt "KScreen::GetConfigOperationPrivate|"
+#~ msgid "Backend invalidated"
+#~ msgstr "Bakendi óstarfhæfur"
 
-#: setconfigoperation.cpp:59
-msgctxt "KScreen::SetConfigOperationPrivate|"
-msgid "Failed to prepare backend"
-msgstr "Mistókst að undirbúa bakenda"
+#~ msgctxt "KScreen::SetConfigOperationPrivate|"
+#~ msgid "Failed to prepare backend"
+#~ msgstr "Mistókst að undirbúa bakenda"
 
-#: setconfigoperation.cpp:66
-msgctxt "KScreen::SetConfigOperationPrivate|"
-msgid "Failed to serialize request"
-msgstr "Mistókst að raðbinda beiðni"
+#~ msgctxt "KScreen::SetConfigOperationPrivate|"
+#~ msgid "Failed to serialize request"
+#~ msgstr "Mistókst að raðbinda beiðni"
 
-#: setconfigoperation.cpp:90
-msgctxt "KScreen::SetConfigOperationPrivate|"
-msgid "Failed to deserialize backend response"
-msgstr "Mistókst að afraðbinda bakendasvar"
+#~ msgctxt "KScreen::SetConfigOperationPrivate|"
+#~ msgid "Failed to deserialize backend response"
+#~ msgstr "Mistókst að afraðbinda bakendasvar"

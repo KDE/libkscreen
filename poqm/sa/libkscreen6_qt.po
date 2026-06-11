@@ -13,32 +13,26 @@ msgstr ""
 "X-Generator: Poedit 3.3.2\n"
 "Plural-Forms: nplurals=2; plural=(n>1);\n"
 
-#: getconfigoperation.cpp:62
-msgctxt "KScreen::GetConfigOperationPrivate|"
-msgid "Failed to prepare backend"
-msgstr "पृष्ठभागस्य सज्जीकरणे असफलः"
+#~ msgctxt "KScreen::GetConfigOperationPrivate|"
+#~ msgid "Failed to prepare backend"
+#~ msgstr "पृष्ठभागस्य सज्जीकरणे असफलः"
 
-#: getconfigoperation.cpp:87
-msgctxt "KScreen::GetConfigOperationPrivate|"
-msgid "Failed to deserialize backend response"
-msgstr "पृष्ठभागप्रतिसादं विक्रमितुं असफलम्"
+#~ msgctxt "KScreen::GetConfigOperationPrivate|"
+#~ msgid "Failed to deserialize backend response"
+#~ msgstr "पृष्ठभागप्रतिसादं विक्रमितुं असफलम्"
 
-#: getconfigoperation.cpp:99
-msgctxt "KScreen::GetConfigOperationPrivate|"
-msgid "Backend invalidated"
-msgstr "पृष्ठभागः अमान्यः अभवत्"
+#~ msgctxt "KScreen::GetConfigOperationPrivate|"
+#~ msgid "Backend invalidated"
+#~ msgstr "पृष्ठभागः अमान्यः अभवत्"
 
-#: setconfigoperation.cpp:59
-msgctxt "KScreen::SetConfigOperationPrivate|"
-msgid "Failed to prepare backend"
-msgstr "पृष्ठभागस्य सज्जीकरणे असफलः"
+#~ msgctxt "KScreen::SetConfigOperationPrivate|"
+#~ msgid "Failed to prepare backend"
+#~ msgstr "पृष्ठभागस्य सज्जीकरणे असफलः"
 
-#: setconfigoperation.cpp:66
-msgctxt "KScreen::SetConfigOperationPrivate|"
-msgid "Failed to serialize request"
-msgstr "अनुरोधं क्रमबद्धं कर्तुं विफलम्"
+#~ msgctxt "KScreen::SetConfigOperationPrivate|"
+#~ msgid "Failed to serialize request"
+#~ msgstr "अनुरोधं क्रमबद्धं कर्तुं विफलम्"
 
-#: setconfigoperation.cpp:90
-msgctxt "KScreen::SetConfigOperationPrivate|"
-msgid "Failed to deserialize backend response"
-msgstr "पृष्ठभागप्रतिसादं विक्रमितुं असफलम्"
+#~ msgctxt "KScreen::SetConfigOperationPrivate|"
+#~ msgid "Failed to deserialize backend response"
+#~ msgstr "पृष्ठभागप्रतिसादं विक्रमितुं असफलम्"
