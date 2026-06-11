@@ -81,7 +81,7 @@ void SetConfigOperation::start()
 
 void SetConfigOperationPrivate::fixPriorities()
 {
-    if (!config || !(config->supportedFeatures() & Config::Feature::PrimaryDisplay)) {
+    if (!config) {
         return;
     }
     // Here we make sure that among enabled outputs, each

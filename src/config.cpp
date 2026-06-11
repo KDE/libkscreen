@@ -29,7 +29,6 @@ public:
     Private(Config *parent)
         : QObject(parent)
         , valid(true)
-        , supportedFeatures(Config::Feature::None)
         , tabletModeAvailable(false)
         , tabletModeEngaged(false)
         , q(parent)
@@ -69,7 +68,6 @@ public:
     bool valid;
     ScreenPtr screen;
     OutputList outputs;
-    Features supportedFeatures;
     bool tabletModeAvailable;
     bool tabletModeEngaged;
 
@@ -193,7 +191,6 @@ ConfigPtr Config::clone() const
 {
     ConfigPtr newConfig(new Config());
     newConfig->d->screen = d->screen->clone();
-    newConfig->setSupportedFeatures(supportedFeatures());
     newConfig->setTabletModeAvailable(tabletModeAvailable());
     newConfig->setTabletModeEngaged(tabletModeEngaged());
     for (const OutputPtr &ourOutput : std::as_const(d->outputs)) {
@@ -234,16 +231,6 @@ void Config::setScreen(const ScreenPtr &screen)
 OutputPtr Config::output(int outputId) const
 {
     return d->outputs.value(outputId);
-}
-
-Config::Features Config::supportedFeatures() const
-{
-    return d->supportedFeatures;
-}
-
-void Config::setSupportedFeatures(const Config::Features &features)
-{
-    d->supportedFeatures = features;
 }
 
 bool Config::tabletModeAvailable() const
@@ -460,10 +447,8 @@ QSizeF Config::logicalSizeForOutput(const KScreen::Output &output) const
     if (!size.isValid()) {
         return QSizeF();
     }
-    // ignore scale where scaling is not per-output
-    if (supportedFeatures().testFlag(Feature::PerOutputScaling)) {
-        size = size / output.scale();
-    }
+
+    size = size / output.scale();
 
     // We can't use output.size(), because it does not reflect the actual rotation() set by caller.
     // It is only updated when we get update from KScreen, but not when user changes mode or

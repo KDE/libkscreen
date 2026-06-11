@@ -31,7 +31,6 @@ private Q_SLOTS:
     void multiOutput();
     void clonesOutput();
     void configCanBeApplied();
-    void supportedFeatures();
     void testInvalidMode();
     void cleanupTestCase();
 };
@@ -64,9 +63,7 @@ void testScreenConfig::cleanupTestCase()
 void testScreenConfig::singleOutput()
 {
     // json file for the fake backend
-    KScreen::BackendManager::instance()->setBackendArgs(
-        {{QStringLiteral("TEST_DATA"), TEST_DATA "singleoutput.json"},
-         {QStringLiteral("SUPPORTED_FEATURES"), QVariant::fromValue(KScreen::Config::Feature::PerOutputScaling)}});
+    KScreen::BackendManager::instance()->setBackendArgs({{QStringLiteral("TEST_DATA"), TEST_DATA "singleoutput.json"}});
 
     //     QVERIFY2(kscreen, KScreen::errorString().toLatin1());
 
@@ -120,9 +117,7 @@ void testScreenConfig::singleOutputWithoutPreferred()
 
 void testScreenConfig::multiOutput()
 {
-    KScreen::BackendManager::instance()->setBackendArgs(
-        {{QStringLiteral("TEST_DATA"), TEST_DATA "multipleoutput.json"},
-         {QStringLiteral("SUPPORTED_FEATURES"), QVariant::fromValue(KScreen::Config::Feature::PerOutputScaling)}});
+    KScreen::BackendManager::instance()->setBackendArgs({{QStringLiteral("TEST_DATA"), TEST_DATA "multipleoutput.json"}});
 
     const ConfigPtr config = getConfig();
     QVERIFY(!config.isNull());
@@ -225,34 +220,6 @@ void testScreenConfig::configCanBeApplied()
 
     const ConfigPtr nulllConfig;
     QVERIFY(!Config::canBeApplied(nulllConfig));
-}
-
-void testScreenConfig::supportedFeatures()
-{
-    ConfigPtr config = getConfig();
-
-    QVERIFY(config->supportedFeatures().testFlag(KScreen::Config::Feature::None));
-    QVERIFY(!config->supportedFeatures().testFlag(KScreen::Config::Feature::Writable));
-    QVERIFY(!config->supportedFeatures().testFlag(KScreen::Config::Feature::PrimaryDisplay));
-    QVERIFY(!config->supportedFeatures().testFlag(KScreen::Config::Feature::PerOutputScaling));
-
-    config->setSupportedFeatures(KScreen::Config::Feature::Writable | KScreen::Config::Feature::PrimaryDisplay);
-    QVERIFY(config->supportedFeatures().testFlag(KScreen::Config::Feature::Writable));
-    QVERIFY(config->supportedFeatures().testFlag(KScreen::Config::Feature::PrimaryDisplay));
-
-    config->setSupportedFeatures(KScreen::Config::Feature::None);
-    QVERIFY(config->supportedFeatures().testFlag(KScreen::Config::Feature::None));
-
-    config->setSupportedFeatures(KScreen::Config::Feature::PerOutputScaling | KScreen::Config::Feature::Writable);
-    QVERIFY(!config->supportedFeatures().testFlag(KScreen::Config::Feature::None));
-    QVERIFY(config->supportedFeatures().testFlag(KScreen::Config::Feature::Writable));
-    QVERIFY(config->supportedFeatures().testFlag(KScreen::Config::Feature::PerOutputScaling));
-
-    config->setSupportedFeatures(KScreen::Config::Feature::PerOutputScaling | KScreen::Config::Feature::Writable | KScreen::Config::Feature::PrimaryDisplay);
-    QVERIFY(!config->supportedFeatures().testFlag(KScreen::Config::Feature::None));
-    QVERIFY(config->supportedFeatures().testFlag(KScreen::Config::Feature::Writable));
-    QVERIFY(config->supportedFeatures().testFlag(KScreen::Config::Feature::PrimaryDisplay));
-    QVERIFY(config->supportedFeatures().testFlag(KScreen::Config::Feature::PerOutputScaling));
 }
 
 void testScreenConfig::testInvalidMode()
