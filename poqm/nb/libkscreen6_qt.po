@@ -16,27 +16,3 @@ msgstr ""
 "X-Accelerator-Marker: &\n"
 "X-Text-Markup: qtrich\n"
 "X-Qt-Contexts: true\n"
-
-#~ msgctxt "KScreen::GetConfigOperationPrivate|"
-#~ msgid "Failed to prepare backend"
-#~ msgstr "Klarte ikke gjøre klar motor"
-
-#~ msgctxt "KScreen::GetConfigOperationPrivate|"
-#~ msgid "Failed to deserialize backend response"
-#~ msgstr "Klarte ikke avseralisere fra motor"
-
-#~ msgctxt "KScreen::GetConfigOperationPrivate|"
-#~ msgid "Backend invalidated"
-#~ msgstr "Motor er gjort ugyldig"
-
-#~ msgctxt "KScreen::SetConfigOperationPrivate|"
-#~ msgid "Failed to prepare backend"
-#~ msgstr "Klarte ikke gjøre klar motor"
-
-#~ msgctxt "KScreen::SetConfigOperationPrivate|"
-#~ msgid "Failed to serialize request"
-#~ msgstr "Klarte ikke serialisere forespørselen"
-
-#~ msgctxt "KScreen::SetConfigOperationPrivate|"
-#~ msgid "Failed to deserialize backend response"
-#~ msgstr "Klarte ikke avserialisere svar fra motor"
