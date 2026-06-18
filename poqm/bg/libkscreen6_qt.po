@@ -12,27 +12,3 @@ msgstr ""
 "X-Qt-Contexts: true\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Lokalize 23.04.3\n"
-
-#~ msgctxt "KScreen::GetConfigOperationPrivate|"
-#~ msgid "Failed to prepare backend"
-#~ msgstr "Неуспешна подготовка на бекенда "
-
-#~ msgctxt "KScreen::GetConfigOperationPrivate|"
-#~ msgid "Failed to deserialize backend response"
-#~ msgstr "Неуспешна десериализация на отговора на бекенда"
-
-#~ msgctxt "KScreen::GetConfigOperationPrivate|"
-#~ msgid "Backend invalidated"
-#~ msgstr "Бекендът е невалидиран"
-
-#~ msgctxt "KScreen::SetConfigOperationPrivate|"
-#~ msgid "Failed to prepare backend"
-#~ msgstr "Неуспешна подготовка на бекенда "
-
-#~ msgctxt "KScreen::SetConfigOperationPrivate|"
-#~ msgid "Failed to serialize request"
-#~ msgstr "Неуспешна сериализация на заявката"
-
-#~ msgctxt "KScreen::SetConfigOperationPrivate|"
-#~ msgid "Failed to deserialize backend response"
-#~ msgstr "Неуспешна десериализация на отговора на бекенда"
