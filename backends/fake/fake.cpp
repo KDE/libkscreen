@@ -54,16 +54,6 @@ Fake::~Fake()
 {
 }
 
-QString Fake::name() const
-{
-    return QStringLiteral("Fake");
-}
-
-QString Fake::serviceName() const
-{
-    return QStringLiteral("org.kde.KScreen.Backend.Fake");
-}
-
 ConfigPtr Fake::config() const
 {
     if (mConfig.isNull()) {

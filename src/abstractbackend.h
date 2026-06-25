@@ -45,20 +45,6 @@ public:
     virtual void init(const QVariantMap &arguments);
 
     /**
-     * Returns a user-friendly name of the backend.
-     */
-    virtual QString name() const = 0;
-
-    /**
-     * Returns the name of the DBus service that should be used for this backend.
-     *
-     * Each backend must have an unique service name (usually something like
-     * org.kde.KScreen.Backend.%backendName%) to allow multiple different backends
-     * running concurrently.
-     */
-    virtual QString serviceName() const = 0;
-
-    /**
      * Returns a new Config object, holding Screen, Output objects, etc.
      *
      * @return Config object for the system.

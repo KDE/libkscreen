@@ -23,8 +23,6 @@ public:
     explicit WaylandBackend();
     ~WaylandBackend() override = default;
 
-    QString name() const override;
-    QString serviceName() const override;
     KScreen::ConfigPtr config() const override;
     QFuture<SetConfigResult> setConfig(const KScreen::ConfigPtr &config) override;
     bool isValid() const override;

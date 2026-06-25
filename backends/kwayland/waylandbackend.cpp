@@ -65,16 +65,6 @@ WaylandBackend::WaylandBackend()
     });
 }
 
-QString WaylandBackend::name() const
-{
-    return QStringLiteral("kwayland");
-}
-
-QString WaylandBackend::serviceName() const
-{
-    return QStringLiteral("org.kde.KScreen.Backend.KWayland");
-}
-
 ConfigPtr WaylandBackend::config() const
 {
     // Note: This should ONLY be called from GetConfigOperation!

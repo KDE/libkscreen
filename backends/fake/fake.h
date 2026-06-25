@@ -22,8 +22,6 @@ public:
 
     void init(const QVariantMap &arguments) override;
 
-    QString name() const override;
-    QString serviceName() const override;
     KScreen::ConfigPtr config() const override;
     QFuture<KScreen::SetConfigResult> setConfig(const KScreen::ConfigPtr &config) override;
     QByteArray edid(int outputId) const override;
