@@ -96,10 +96,5 @@ QByteArray WaylandBackend::edid(int outputId) const
     return output->edid();
 }
 
-bool WaylandBackend::isValid() const
-{
-    return m_internalConfig->isValid();
-}
-
 #include "moc_waylandbackend.cpp"
 #include "waylandbackend.moc"

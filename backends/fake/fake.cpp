@@ -68,11 +68,6 @@ QFuture<SetConfigResult> Fake::setConfig(const ConfigPtr &config)
     return QtFuture::makeReadyFuture<SetConfigResult>(SetConfigResult());
 }
 
-bool Fake::isValid() const
-{
-    return true;
-}
-
 QByteArray Fake::edid(int outputId) const
 {
     Q_UNUSED(outputId);

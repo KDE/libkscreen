@@ -150,11 +150,6 @@ void WaylandConfig::removeOutput(WaylandOutputDevice *output)
     }
 }
 
-bool WaylandConfig::isValid() const
-{
-    return m_outputManagement->isActive() && m_outputRegistry->isActive();
-}
-
 KScreen::ConfigPtr WaylandConfig::currentConfig()
 {
     m_kscreenConfig->setScreen(m_screen->toKScreenScreen(m_kscreenConfig));

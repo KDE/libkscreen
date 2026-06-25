@@ -35,8 +35,6 @@ public:
 
     bool applyConfig(const KScreen::ConfigPtr &newConfig);
 
-    bool isValid() const;
-
 Q_SIGNALS:
     void configChanged();
     void globalRemoved(uint32_t name);

@@ -25,7 +25,6 @@ public:
 
     KScreen::ConfigPtr config() const override;
     QFuture<SetConfigResult> setConfig(const KScreen::ConfigPtr &config) override;
-    bool isValid() const override;
     QByteArray edid(int outputId) const override;
 
 private:

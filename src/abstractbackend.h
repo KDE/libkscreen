@@ -61,14 +61,6 @@ public:
     virtual QFuture<SetConfigResult> setConfig(const KScreen::ConfigPtr &config) = 0;
 
     /**
-     * Returns whether the backend is in valid state.
-     *
-     * Backends should use this to tell BackendLauncher whether they are capable
-     * of operating on the current platform.
-     */
-    virtual bool isValid() const = 0;
-
-    /**
      * Returns encoded EDID data for given output
      *
      * Default implementation does nothing and returns null QByteArray. Backends
