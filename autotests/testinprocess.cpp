@@ -5,7 +5,6 @@
  */
 
 #include <QCoreApplication>
-#include <QDBusConnectionInterface>
 #include <QElapsedTimer>
 #include <QLoggingCategory>
 #include <QObject>

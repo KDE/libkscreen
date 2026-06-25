@@ -7,7 +7,6 @@
 #include "fake.h"
 #include "parser.h"
 
-#include "edid.h"
 #include <output.h>
 
 #include <stdlib.h>
@@ -18,8 +17,6 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-
-#include <QDBusConnection>
 
 using namespace KScreen;
 

@@ -12,7 +12,6 @@
 #include "output.h"
 #include "screen.h"
 
-#include <QDBusArgument>
 #include <QFile>
 #include <QJsonDocument>
 #include <QRect>
