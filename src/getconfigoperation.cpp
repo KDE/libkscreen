@@ -25,11 +25,7 @@ public:
 public:
     GetConfigOperation::Options options;
     ConfigPtr config;
-    // For in-process
     void loadEdid(KScreen::AbstractBackend *backend);
-
-    // For out-of-process
-    int pendingEDIDs;
 
 private:
     Q_DECLARE_PUBLIC(GetConfigOperation)

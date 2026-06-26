@@ -22,7 +22,6 @@ public:
     explicit ConfigOperationPrivate(ConfigOperation *qq);
     ~ConfigOperationPrivate() override;
 
-    // For in-process
     KScreen::AbstractBackend *loadBackend();
 
 public Q_SLOTS:
