@@ -24,17 +24,12 @@ public:
 
     QList<QWeakPointer<KScreen::Config>> watchedConfigs;
 
-    bool mFirstBackend;
-
-    QMap<KScreen::ConfigPtr, QList<int>> mPendingEDIDRequests;
-
 private:
     ConfigMonitor *q;
 };
 
 ConfigMonitor::Private::Private(ConfigMonitor *q)
     : QObject(q)
-    , mFirstBackend(true)
     , q(q)
 {
 }

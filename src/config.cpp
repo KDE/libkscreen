@@ -199,20 +199,6 @@ ConfigPtr Config::clone() const
     return newConfig;
 }
 
-QString Config::connectedOutputsHash() const
-{
-    QStringList hashedOutputs;
-
-    const auto outputs = connectedOutputs();
-    hashedOutputs.reserve(outputs.count());
-    for (const OutputPtr &output : outputs) {
-        hashedOutputs << output->hash();
-    }
-    std::sort(hashedOutputs.begin(), hashedOutputs.end());
-    const auto hash = QCryptographicHash::hash(hashedOutputs.join(QString()).toLatin1(), QCryptographicHash::Md5);
-    return QString::fromLatin1(hash.toHex());
-}
-
 OutputPtr Config::primaryOutput() const
 {
     return d->findPrimaryOutput();
@@ -429,16 +415,6 @@ void Config::apply(const ConfigPtr &other)
     setValid(other->isValid());
 
     Q_EMIT prioritiesChanged();
-}
-
-QRect Config::outputGeometryForOutput(const KScreen::Output &output) const
-{
-    QSize size = logicalSizeForOutputInt(output);
-    if (!size.isValid()) {
-        return QRect();
-    }
-
-    return QRect(output.pos(), size);
 }
 
 QSizeF Config::logicalSizeForOutput(const KScreen::Output &output) const
