@@ -125,7 +125,7 @@ std::optional<Cvt> Mode::cvt() const
 
 void Mode::setCvt(const Cvt &cvt)
 {
-    if (d->cvt != cvt) {
+    if (d->cvt == cvt) {
         return;
     }
 
