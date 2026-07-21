@@ -20,14 +20,14 @@ KScreen::Output::Type Utils::guessOutputType(const QString &type, const QString 
 
     if (type.contains(QLatin1String("VGA"))) {
         return KScreen::Output::VGA;
-    } else if (type.contains(QLatin1String("DVI"))) {
-        return KScreen::Output::DVI;
     } else if (type.contains(QLatin1String("DVI-I"))) {
         return KScreen::Output::DVII;
     } else if (type.contains(QLatin1String("DVI-A"))) {
         return KScreen::Output::DVIA;
     } else if (type.contains(QLatin1String("DVI-D"))) {
         return KScreen::Output::DVID;
+    } else if (type.contains(QLatin1String("DVI"))) {
+        return KScreen::Output::DVI;
     } else if (type.contains(QLatin1String("HDMI"))) {
         return KScreen::Output::HDMI;
     } else if (type.contains(QLatin1String("Panel"))) {

@@ -136,20 +136,18 @@ OutputPtr Parser::outputFromJson(QMap<QString, QVariant> map)
         output->setType(Output::Panel);
     } else if (type.contains("VGA")) {
         output->setType(Output::VGA);
-    } else if (type.contains("DVI")) {
-        output->setType(Output::DVI);
     } else if (type.contains("DVI-I")) {
         output->setType(Output::DVII);
     } else if (type.contains("DVI-A")) {
         output->setType(Output::DVIA);
     } else if (type.contains("DVI-D")) {
         output->setType(Output::DVID);
+    } else if (type.contains("DVI")) {
+        output->setType(Output::DVI);
     } else if (type.contains("HDMI") || type.contains("6")) {
         output->setType(Output::HDMI);
     } else if (type.contains("Panel")) {
         output->setType(Output::Panel);
-    } else if (type.contains("TV")) {
-        output->setType(Output::TV);
     } else if (type.contains("TV-Composite")) {
         output->setType(Output::TVComposite);
     } else if (type.contains("TV-SVideo")) {
@@ -160,6 +158,8 @@ OutputPtr Parser::outputFromJson(QMap<QString, QVariant> map)
         output->setType(Output::TVSCART);
     } else if (type.contains("TV-C4")) {
         output->setType(Output::TVC4);
+    } else if (type.contains("TV")) {
+        output->setType(Output::TV);
     } else if (type.contains("DisplayPort") || type.contains("14")) {
         output->setType(Output::DisplayPort);
     } else if (type.contains("Unknown")) {
