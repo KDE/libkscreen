@@ -1057,7 +1057,7 @@ void Output::setEdrPolicy(EdrPolicy policy)
 {
     if (d->edrPolicy != policy) {
         d->edrPolicy = policy;
-        Q_EMIT edrPolicy();
+        Q_EMIT edrPolicyChanged();
     }
 }
 
