@@ -98,8 +98,6 @@ QJsonObject ConfigSerializer::serializeOutput(const OutputPtr &output)
     }
     if (output->capabilities() & Output::Capability::HighDynamicRange) {
         obj[QLatin1String("hdr")] = output->isHdrEnabled();
-    }
-    if (output->capabilities() & Output::Capability::HighDynamicRange) {
         obj[QLatin1String("sdr-brightness")] = static_cast<int>(output->sdrBrightness());
     }
     if (output->capabilities() & Output::Capability::WideColorGamut) {
