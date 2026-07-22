@@ -67,8 +67,6 @@ qt6_generate_wayland_protocol_client_sources(KF6Screen
         ${PLASMA_WAYLAND_PROTOCOLS_DIR}/kde-output-management-v2.xml
 )
 
-target_sources(KF6Screen PRIVATE ${wayland_SRCS})
-
 target_link_libraries(KF6Screen
     PUBLIC
     Qt::Core

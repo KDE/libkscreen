@@ -4,9 +4,9 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}/tests/kwayla
 
 macro(KSCREEN_ADD_TEST)
     foreach(_testname ${ARGN})
-        set(test_SRCS ${_testname}.cpp ${KSCREEN_WAYLAND_SRCS})
+        set(test_SRCS ${_testname}.cpp)
         add_executable(${_testname} ${test_SRCS})
-        target_link_libraries(${_testname} Qt::Core Qt::Gui Qt::Test KF6::Screen ${KSCREEN_WAYLAND_LIBS})
+        target_link_libraries(${_testname} Qt::Core Qt::Gui Qt::Test KF6::Screen)
         add_test(NAME kscreen-${_testname}
                  COMMAND dbus-launch $<TARGET_FILE:${_testname}>
         )
