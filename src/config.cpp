@@ -352,12 +352,7 @@ void Config::adjustPriorities(std::optional<OutputPtr> keep)
 {
     // we need specifically tree-based QMap for this
     QMap<uint32_t, QList<OutputPtr>> multimap;
-    uint32_t maxPriority = 0;
     bool found = false;
-
-    for (const OutputPtr &output : d->outputs) {
-        maxPriority = std::max(maxPriority, output->priority());
-    }
 
     for (const OutputPtr &output : d->outputs) {
         if (keep.has_value() && keep.value() == output) {
