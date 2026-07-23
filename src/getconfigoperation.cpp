@@ -61,9 +61,9 @@ void GetConfigOperation::start()
     if (!backend) {
         return; // loadBackend() already set error and called emitResult() for us
     }
-        d->config = backend->config()->clone();
-        d->loadEdid(backend);
-        emitResult();
+    d->config = backend->config()->clone();
+    d->loadEdid(backend);
+    emitResult();
 }
 
 void GetConfigOperationPrivate::loadEdid(KScreen::AbstractBackend *backend)
