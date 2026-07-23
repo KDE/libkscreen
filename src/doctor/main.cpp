@@ -75,6 +75,8 @@ int main(int argc, char **argv)
         "   $ kscreen-doctor --dpms on\n"
         "   Add a custom mode: (arguments: width,height,refresh rate in mHz,blanking 'reduced' or 'full')\n"
         "   $ kscreen-doctor output.1.addCustomMode.1920.1080.75000.full\n"
+        "   Add an even more custom mode (arguments: cvt modeline, without the mode name)\n"
+        "   $ kscreen-doctor output.1.addCustomMode.\"712.75  3840 4160 4576 5312  2160 2163 2168 2237 -hsync +vsync\"\n"
         "   Remove a custom mode: (arguments: index in the custom mode list)\n"
         "   $ kscreen-doctor output.1.removeCustomMode.0");
     /*

@@ -47,6 +47,16 @@ const static QString blue = QStringLiteral("\033[01;34m");
 const static QString bold = QStringLiteral("\033[01;39m");
 const static QString cr = QStringLiteral("\033[0;0m");
 
+// copied from drm_mode.h.
+// There's more flags, but libxcvt doesn't support
+// them, so we probably don't need them either
+#define DRM_MODE_FLAG_PHSYNC (1 << 0)
+#define DRM_MODE_FLAG_NHSYNC (1 << 1)
+#define DRM_MODE_FLAG_PVSYNC (1 << 2)
+#define DRM_MODE_FLAG_NVSYNC (1 << 3)
+#define DRM_MODE_FLAG_INTERLACE (1 << 4)
+#define DRM_MODE_FLAG_DBLSCAN (1 << 5)
+
 namespace KScreen
 {
 namespace ConfigSerializer
@@ -159,6 +169,21 @@ OutputPtr Doctor::findOutput(const QString &query)
         cerr << "Output with id " << id << " not found." << Qt::endl;
         return OutputPtr();
     }
+}
+
+static uint32_t refreshRateFromMode(const Cvt &mode)
+{
+    uint64_t refreshRate = (mode.clock * 1000000LL / mode.htotal + mode.vtotal / 2) / mode.vtotal;
+    if (mode.flags & DRM_MODE_FLAG_INTERLACE) {
+        refreshRate *= 2;
+    }
+    if (mode.flags & DRM_MODE_FLAG_DBLSCAN) {
+        refreshRate /= 2;
+    }
+    if (mode.vscan > 1) {
+        refreshRate /= mode.vscan;
+    }
+    return refreshRate;
 }
 
 void Doctor::parseOutputArgs()
@@ -534,6 +559,95 @@ void Doctor::parseOutputArgs()
                         return;
                     }
                     output->setSharpness(sharpness / 100.0);
+                    m_changed = true;
+                } else if (ops.count() >= 4 && ops.count() <= 5 && subcmd == "addCustomMode") {
+                    // NOTE that the cvt modeline has a "." in it for the clock
+                    const QString modeline = ops.count() == 5 ? ops[3] + '.' + ops[4] : ops[3];
+                    const QStringList parts = modeline.split(' ') | std::views::transform([](const QString &string) {
+                                                  return string.trimmed();
+                                              })
+                        | std::views::filter([](const QString &string) {
+                                                  return !string.isEmpty();
+                                              })
+                        | std::ranges::to<QList>();
+
+                    if (parts.size() < 9) {
+                        qCWarning(KSCREEN_DOCTOR) << "Not enough arguments for a complete modeline:" << ops[3];
+                        qApp->exit(9);
+                        return;
+                    }
+
+                    const auto failure = [](const QString &failedArgument) {
+                        qCWarning(KSCREEN_DOCTOR) << "Failed to parse argument" << failedArgument;
+                        qApp->exit(9);
+                    };
+
+                    bool ok = false;
+                    Cvt cvt{};
+                    cvt.clock = std::round(parts[0].toDouble(&ok) * 1000);
+                    if (!ok) {
+                        return failure(parts[0]);
+                    }
+                    cvt.hdisplay = parts[1].toUInt(&ok);
+                    if (!ok) {
+                        return failure(parts[1]);
+                    }
+                    cvt.hsyncStart = parts[2].toUInt(&ok);
+                    if (!ok) {
+                        return failure(parts[2]);
+                    }
+                    cvt.hsyncEnd = parts[3].toUInt(&ok);
+                    if (!ok) {
+                        return failure(parts[3]);
+                    }
+                    cvt.htotal = parts[4].toUInt(&ok);
+                    if (!ok) {
+                        return failure(parts[4]);
+                    }
+                    cvt.hskew = 0;
+
+                    cvt.vdisplay = parts[5].toUInt(&ok);
+                    if (!ok) {
+                        return failure(parts[5]);
+                    }
+                    cvt.vsyncStart = parts[6].toUInt(&ok);
+                    if (!ok) {
+                        return failure(parts[6]);
+                    }
+                    cvt.vsyncEnd = parts[7].toUInt(&ok);
+                    if (!ok) {
+                        return failure(parts[7]);
+                    }
+                    cvt.vtotal = parts[8].toUInt(&ok);
+                    if (!ok) {
+                        return failure(parts[8]);
+                    }
+                    cvt.vscan = 1;
+
+                    cvt.flags = 0;
+                    for (int i = 9; i < parts.size(); i++) {
+                        if (parts[i] == "+hsync") {
+                            cvt.flags |= DRM_MODE_FLAG_PHSYNC;
+                        } else if (parts[i] == "-hsync") {
+                            cvt.flags |= DRM_MODE_FLAG_NHSYNC;
+                        } else if (parts[i] == "+vsync") {
+                            cvt.flags |= DRM_MODE_FLAG_PVSYNC;
+                        } else if (parts[i] == "-vsync") {
+                            cvt.flags |= DRM_MODE_FLAG_NVSYNC;
+                        } else if (parts[i] == "interplace") {
+                            cvt.flags |= DRM_MODE_FLAG_INTERLACE;
+                        } else {
+                            return failure(parts[i]);
+                        }
+                    }
+                    auto modes = output->customModes();
+                    modes.push_back(ModeInfo{
+                        .size = QSize(cvt.hdisplay, cvt.vdisplay),
+                        .refreshRate = refreshRateFromMode(cvt) / 1000.0f,
+                        .flags = ModeInfo::Flag::Custom,
+                        .cvt = cvt,
+                    });
+                    output->setCustomModes(modes);
                     m_changed = true;
                 } else if (ops.count() >= 6 && subcmd == "addCustomMode") {
                     auto modes = output->customModes();
