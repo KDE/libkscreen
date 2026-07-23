@@ -244,7 +244,7 @@ void Doctor::parseOutputArgs()
                     if (ops.count() == 5) {
                         const QString dbl = ops[3] + QStringLiteral(".") + ops[4];
                         scale = dbl.toDouble(&ok);
-                    };
+                    }
                     // set scale
                     if (!ok || qFuzzyCompare(scale, 0.0)) {
                         qCWarning(KSCREEN_DOCTOR) << "Could not set scale " << scale << " to output " << output_id;
