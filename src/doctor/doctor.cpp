@@ -719,6 +719,7 @@ void Doctor::showOutputs() const
                 break;
             case Output::VrrPolicy::Always:
                 cout << cr << "Always" << endl;
+                break;
             }
         } else {
             cout << cr << "incapable" << endl;
@@ -734,6 +735,7 @@ void Doctor::showOutputs() const
                 break;
             case Output::RgbRange::Limited:
                 cout << cr << "Limited" << endl;
+                break;
             }
         } else {
             cout << cr << "unknown" << endl;
@@ -917,6 +919,7 @@ void Doctor::showOutputs() const
                 break;
             case Output::AutoRotatePolicy::Always:
                 cout << cr << "always" << endl;
+                break;
             }
         } else {
             cout << cr << "incapable" << endl;
