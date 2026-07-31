@@ -65,6 +65,9 @@ void SetConfigOperation::start()
     Q_D(SetConfigOperation);
     d->fixPriorities();
     auto backend = d->loadBackend();
+    if (!backend) {
+        return; // loadBackend() already set error and called emitResult() for us
+    }
     QFutureWatcher<SetConfigResult> *watcher = new QFutureWatcher<SetConfigResult>(this);
     connect(watcher, &QFutureWatcher<SetConfigResult>::finished, this, [this, watcher]() {
         watcher->deleteLater();
