@@ -230,9 +230,11 @@ void Doctor::parseOutputArgs()
                         qApp->exit(5);
                         return;
                     }
-                    int x = _pos[0].toInt(&ok);
-                    int y = _pos[1].toInt(&ok);
-                    if (!ok) {
+                    bool okX = false;
+                    bool okY = false;
+                    int x = _pos[0].toInt(&okX);
+                    int y = _pos[1].toInt(&okY);
+                    if (!okX || !okY) {
                         cerr << "Unable to parse position: " << ops[3] << Qt::endl;
                         qApp->exit(5);
                         return;
