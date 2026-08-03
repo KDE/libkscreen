@@ -12,6 +12,7 @@
 #include <QGuiApplication>
 #include <QList>
 #include <QPointer>
+#include <QScopeGuard>
 #include <QScreen>
 #include <QWaylandClientExtensionTemplate>
 #include <qpa/qplatformscreen_p.h>
@@ -149,6 +150,9 @@ void WaylandDpmsHelper::trigger(KScreen::Dpms::Mode mode, const QList<QScreen *>
     }
 
     setHasPendingChanges(true);
+    const auto _ = qScopeGuard([this]() {
+        setHasPendingChanges(false);
+    });
 
     auto level = Dpms::mode_On;
     switch (mode) {
@@ -186,7 +190,6 @@ void WaylandDpmsHelper::trigger(KScreen::Dpms::Mode mode, const QList<QScreen *>
             dpms->set(level);
         }
     }
-    setHasPendingChanges(false);
 }
 
 #include "moc_waylanddpmshelper_p.cpp"
