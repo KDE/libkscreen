@@ -1,3 +1,4 @@
+# SPDX-FileCopyrightText: 2026 Libor Filípek <libor.filipek@gmail.com>
 # Vit Pelcak <vit@pelcak.org>, 2023.
 msgid ""
 msgstr ""
@@ -10,7 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Lokalize 22.12.2\n"
+"X-Generator: Lokalize 26.04.3\n"
 "X-Qt-Contexts: true\n"
 
 #~ msgctxt "KScreen::GetConfigOperationPrivate|"
