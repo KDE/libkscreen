@@ -132,6 +132,7 @@ public:
         AutomaticBrightness = 1 << 14,
         HdrIccProfile = 1 << 15,
         AbmLevel = 1 << 16,
+        Disable = 1 << 17,
     };
     Q_ENUM(Capability)
     Q_DECLARE_FLAGS(Capabilities, Capability)

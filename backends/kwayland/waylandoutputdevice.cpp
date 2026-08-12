@@ -23,7 +23,7 @@
 using namespace KScreen;
 
 WaylandOutputDeviceRegistry::WaylandOutputDeviceRegistry()
-    : QWaylandClientExtensionTemplate<WaylandOutputDeviceRegistry>(24)
+    : QWaylandClientExtensionTemplate<WaylandOutputDeviceRegistry>(25)
 {
     initialize();
 }
@@ -214,6 +214,7 @@ void KScreen::WaylandOutputDevice::updateKScreenModes(OutputPtr &output)
 void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output, const QMap<int, WaylandOutputDevice *> &outputMap)
 {
     output->setId(m_id);
+    output->setCapabilities(static_cast<Output::Capabilities>(static_cast<uint32_t>(m_capabilities)));
     output->setEnabled(enabled());
     output->setConnected(true);
     output->setName(name());
@@ -230,7 +231,6 @@ void WaylandOutputDevice::updateKScreenOutput(OutputPtr &output, const QMap<int,
     output->setSize(output->isHorizontal() ? currentSize : currentSize.transposed());
     output->setScale(m_factor);
     output->setType(Utils::guessOutputType(m_outputName, m_outputName));
-    output->setCapabilities(static_cast<Output::Capabilities>(static_cast<uint32_t>(m_capabilities)));
     output->setOverscan(m_overscan);
     output->setVrrPolicy(static_cast<Output::VrrPolicy>(m_vrr_policy));
     output->setRgbRange(static_cast<Output::RgbRange>(m_rgbRange));
@@ -314,7 +314,7 @@ bool WaylandOutputDevice::setWlConfig(WaylandOutputManagement *management,
     bool changed = false;
 
     // enabled?
-    if (enabled() != output->isEnabled()) {
+    if ((output->capabilities() & Output::Capability::Disable) && enabled() != output->isEnabled()) {
         changed = true;
         wlConfig->enable(object(), output->isEnabled());
     }

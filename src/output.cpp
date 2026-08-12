@@ -571,11 +571,14 @@ void Output::setConnected(bool connected)
 
 bool Output::isEnabled() const
 {
-    return d->enabled;
+    return !(d->capabilities & Capability::Disable) || d->enabled;
 }
 
 void Output::setEnabled(bool enabled)
 {
+    if (!(d->capabilities & Capability::Disable)) {
+        return;
+    }
     if (d->enabled == enabled) {
         return;
     }
@@ -1154,10 +1157,7 @@ void Output::apply(const OutputPtr &other)
         changes << &Output::isConnectedChanged;
         setConnected(other->d->connected);
     }
-    if (d->enabled != other->d->enabled) {
-        changes << &Output::isEnabledChanged;
-        setEnabled(other->d->enabled);
-    }
+    const bool enabledChanged = isEnabled() != other->isEnabled();
     if (d->priority != other->d->priority) {
         changes << &Output::priorityChanged;
         setPriority(other->d->priority);
@@ -1185,6 +1185,12 @@ void Output::apply(const OutputPtr &other)
     if (d->capabilities != other->d->capabilities) {
         changes << &Output::capabilitiesChanged;
         setCapabilities(other->d->capabilities);
+    }
+    if (d->enabled != other->d->enabled) {
+        setEnabled(other->d->enabled);
+    }
+    if (enabledChanged) {
+        changes << &Output::isEnabledChanged;
     }
     if (d->vrrPolicy != other->d->vrrPolicy) {
         changes << &Output::vrrPolicyChanged;

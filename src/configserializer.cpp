@@ -74,7 +74,9 @@ QJsonObject ConfigSerializer::serializeOutput(const OutputPtr &output)
     obj[QLatin1String("preferredModes")] = serializeList(output->preferredModes());
     obj[QLatin1String("connected")] = output->isConnected();
     obj[QLatin1String("followPreferredMode")] = output->followPreferredMode();
-    obj[QLatin1String("enabled")] = output->isEnabled();
+    if (output->capabilities() & Output::Capability::Disable) {
+        obj[QLatin1String("enabled")] = output->isEnabled();
+    }
     obj[QLatin1String("priority")] = static_cast<int>(output->priority());
     obj[QLatin1String("clones")] = serializeList(output->clones());
     // obj[QLatin1String("edid")] = output->edid()->raw();

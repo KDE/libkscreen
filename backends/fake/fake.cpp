@@ -140,6 +140,7 @@ void Fake::addOutput(int outputId, const QString &name)
     KScreen::OutputPtr output(new KScreen::Output);
     output->setId(outputId);
     output->setName(name);
+    output->setCapabilities(KScreen::Output::Capability::Disable);
     mConfig->addOutput(output);
     Q_EMIT configChanged(mConfig);
 }

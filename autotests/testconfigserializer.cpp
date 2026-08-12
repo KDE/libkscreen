@@ -127,6 +127,7 @@ private Q_SLOTS:
 
         KScreen::OutputPtr output(new KScreen::Output);
         output->setId(60);
+        output->setCapabilities(KScreen::Output::Capability::Disable);
         output->setName(QStringLiteral("LVDS-0"));
         output->setType(KScreen::Output::Panel);
         output->setIcon(QString());

@@ -103,6 +103,7 @@ OutputPtr Parser::outputFromJson(QMap<QString, QVariant> map)
 {
     OutputPtr output(new Output);
     output->setId(map[QStringLiteral("id")].toInt());
+    output->setCapabilities(Output::Capability::Disable);
 
     QStringList preferredModes;
     const QVariantList prefModes = map[QStringLiteral("preferredModes")].toList();

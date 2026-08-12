@@ -662,9 +662,13 @@ void Doctor::showOutputs() const
     for (const auto &output : m_config->outputs()) {
         const auto endl = '\n';
         cout << green << "Output: " << cr << output->id() << " " << output->name() << " " << output->uuid() << endl;
-        cout << "\t" << (output->isEnabled() ? green + QStringLiteral("enabled") : red + QStringLiteral("disabled")) << cr << endl;
+        if (output->capabilities() & Output::Capability::Disable) {
+            cout << "\t" << (output->isEnabled() ? green + QStringLiteral("enabled") : red + QStringLiteral("disabled")) << cr << endl;
+        } else {
+            cout << "\t" << yellow << "disable unsupported" << cr << endl;
+        }
         cout << "\t" << (output->isConnected() ? green + QStringLiteral("connected") : red + QStringLiteral("disconnected")) << cr << endl;
-        cout << "\t" << (output->isEnabled() ? green : red) + QStringLiteral("priority ") << output->priority() << cr << endl;
+        cout << "\t" << green + QStringLiteral("priority ") << output->priority() << cr << endl;
         auto _type = typeString[output->type()];
         cout << "\t" << yellow << (_type.isEmpty() ? QStringLiteral("UnmappedOutputType") : _type) << cr << endl;
         cout << "\t" << yellow << "replication source:" << cr << output->replicationSource() << endl;
@@ -944,6 +948,10 @@ void Doctor::showJson() const
 
 void Doctor::setEnabled(OutputPtr output, bool enable)
 {
+    if (!(output->capabilities() & Output::Capability::Disable)) {
+        qCWarning(KSCREEN_DOCTOR) << "Output" << output->id() << "does not support disabling";
+        return;
+    }
     cout << (enable ? "Enabling " : "Disabling ") << "output " << output->id() << Qt::endl;
     output->setEnabled(enable);
     m_changed = true;
