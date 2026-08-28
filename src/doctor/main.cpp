@@ -76,7 +76,10 @@ int main(int argc, char **argv)
         "   Add a custom mode: (arguments: width,height,refresh rate in mHz,blanking 'reduced' or 'full')\n"
         "   $ kscreen-doctor output.1.addCustomMode.1920.1080.75000.full\n"
         "   Remove a custom mode: (arguments: index in the custom mode list)\n"
-        "   $ kscreen-doctor output.1.removeCustomMode.0");
+        "   $ kscreen-doctor output.1.removeCustomMode.0\n"
+        "\n   Set an output to mirror another output (possible values: another output's name, or none)\n"
+        "   $ kscreen-doctor output.HDMI-2.mirror.eDP-1\n"
+        "   $ kscreen-doctor output.HDMI-2.mirror.none");
     /*
         "\nError codes:\n"
         "   2 : general parse error\n"
