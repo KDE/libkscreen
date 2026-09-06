@@ -5,7 +5,7 @@ Dependencies:
  - 'on': ['@all']
    'require':
     'frameworks/extra-cmake-modules': 'Frameworks/6.24'
-    'libraries/plasma-wayland-protocols': 'v1.20.0'
+    'libraries/plasma-wayland-protocols': 'stable/1.20'
     'third-party/wayland': '@latest'
 
 Options:
