@@ -45,7 +45,7 @@ set_package_properties(Wayland PROPERTIES
 
 # xrandr backend
 
-find_package(XCB COMPONENTS XCB RANDR DPMS)
+find_package(XCB COMPONENTS XCB DPMS)
 set_package_properties(XCB PROPERTIES
                        TYPE OPTIONAL
                        PURPOSE "Required for building XRandR backends"
