@@ -43,13 +43,7 @@ set_package_properties(Wayland PROPERTIES
                        TYPE REQUIRED
                       )
 
-# xrandr backend
-
-find_package(XCB COMPONENTS XCB DPMS)
-set_package_properties(XCB PROPERTIES
-                       TYPE OPTIONAL
-                       PURPOSE "Required for building XRandR backends"
-)
+find_package(XCB REQUIRED COMPONENTS XCB DPMS)
 
 option(BUILD_QCH "Build API documentation in QCH format (for e.g. Qt Assistant, Qt Creator & KDevelop)" OFF)
 add_feature_info(QCH ${BUILD_QCH} "API documentation in QCH format (for e.g. Qt Assistant, Qt Creator & KDevelop)")
