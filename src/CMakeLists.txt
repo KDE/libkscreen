@@ -73,7 +73,6 @@ target_link_libraries(KF6Screen
     Qt::Gui
     PRIVATE
     Qt::DBus
-    Qt::GuiPrivate # for QX11Info
     Qt::WaylandClient
     Wayland::Client
 )

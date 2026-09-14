@@ -43,8 +43,6 @@ set_package_properties(Wayland PROPERTIES
                        TYPE REQUIRED
                       )
 
-find_package(XCB REQUIRED COMPONENTS XCB DPMS)
-
 option(BUILD_QCH "Build API documentation in QCH format (for e.g. Qt Assistant, Qt Creator & KDevelop)" OFF)
 add_feature_info(QCH ${BUILD_QCH} "API documentation in QCH format (for e.g. Qt Assistant, Qt Creator & KDevelop)")
 
