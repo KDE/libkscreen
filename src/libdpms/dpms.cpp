@@ -5,20 +5,16 @@
 #include "dpms.h"
 #include "kscreendpms_debug.h"
 #include "waylanddpmshelper_p.h"
-#include "xcbdpmshelper_p.h"
 
 #include <QGuiApplication>
-#include <QtGui/private/qtx11extras_p.h>
 
 KScreen::Dpms::Dpms(QObject *parent)
     : QObject(parent)
 {
-    if (QX11Info::isPlatformX11()) {
-        m_helper.reset(new XcbDpmsHelper);
-    } else if (QGuiApplication::platformName().startsWith(QLatin1String("wayland"), Qt::CaseInsensitive)) {
+    if (QGuiApplication::platformName().startsWith(QLatin1String("wayland"), Qt::CaseInsensitive)) {
         m_helper.reset(new WaylandDpmsHelper);
     } else {
-        qCWarning(KSCREEN_DPMS) << "Platform is not Wayland or X11, this doesn't make sense. Platform name is" << QGuiApplication::platformName();
+        qCWarning(KSCREEN_DPMS) << "Platform is not Wayland, this doesn't make sense. Platform name is" << QGuiApplication::platformName();
         Q_ASSERT(false);
         return;
     }
