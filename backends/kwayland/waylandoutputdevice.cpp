@@ -23,7 +23,7 @@
 using namespace KScreen;
 
 WaylandOutputDeviceRegistry::WaylandOutputDeviceRegistry()
-    : QWaylandClientExtensionTemplate<WaylandOutputDeviceRegistry>(25)
+    : QWaylandClientExtensionTemplate<WaylandOutputDeviceRegistry>(26)
 {
     initialize();
 }
