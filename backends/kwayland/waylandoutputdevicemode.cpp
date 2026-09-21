@@ -24,7 +24,11 @@ WaylandOutputDeviceMode::WaylandOutputDeviceMode(struct ::kde_output_device_mode
 WaylandOutputDeviceMode::~WaylandOutputDeviceMode()
 {
     if (qGuiApp) {
-        kde_output_device_mode_v2_destroy(object());
+        if (version() >= KDE_OUTPUT_DEVICE_MODE_V2_RELEASE_SINCE_VERSION) {
+            release();
+        } else {
+            kde_output_device_mode_v2_destroy(object());
+        }
     }
 }
 
