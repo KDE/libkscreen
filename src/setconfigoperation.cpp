@@ -68,8 +68,6 @@ void SetConfigOperation::start()
     if (!backend) {
         return; // loadBackend() already set error and called emitResult() for us
     }
-    qWarning() << "start";
-
     QFutureWatcher<SetConfigResult> *watcher = new QFutureWatcher<SetConfigResult>(this);
     connect(watcher, &QFutureWatcher<SetConfigResult>::finished, this, [this, watcher]() {
         watcher->deleteLater();
@@ -77,13 +75,11 @@ void SetConfigOperation::start()
         if (!result.has_value()) {
             setError(result.error());
         }
-        qWarning() << "emit";
         emitResult();
     });
 
     QFuture<SetConfigResult> pendingResult = backend->setConfig(d->config);
     watcher->setFuture(pendingResult);
-    qWarning() << "d";
 }
 
 void SetConfigOperationPrivate::fixPriorities()
