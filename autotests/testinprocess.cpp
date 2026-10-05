@@ -185,9 +185,11 @@ void TestInProcess::testConfigMonitor()
     ConfigMonitor::instance()->addConfig(config);
 
     auto setop = new SetConfigOperation(config);
+    QSignalSpy finishedSpy(setop, &SetConfigOperation::finished);
     QVERIFY(!setop->hasError());
     // do not cal setop->exec(), this must not block as the signalspy already blocks
     QVERIFY(monitorSpy.wait(500));
+    QVERIFY(finishedSpy.wait(500));
 }
 
 QTEST_GUILESS_MAIN(TestInProcess)
