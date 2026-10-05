@@ -184,10 +184,16 @@ void TestInProcess::testConfigMonitor()
     qDebug() << "MOnitorspy connencted.";
     ConfigMonitor::instance()->addConfig(config);
 
+    qWarning() << "aaaa";
+
     auto setop = new SetConfigOperation(config);
     QVERIFY(!setop->hasError());
     // do not cal setop->exec(), this must not block as the signalspy already blocks
     QVERIFY(monitorSpy.wait(500));
+    qWarning() << "done";
+
+    QSignalSpy s(setop, &SetConfigOperation::finished);
+    QVERIFY(s.wait(500));
 }
 
 QTEST_GUILESS_MAIN(TestInProcess)
