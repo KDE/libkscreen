@@ -35,7 +35,7 @@ find_package(Qt6GuiPrivate ${QT_MIN_VERSION} REQUIRED NO_MODULE)
 
 find_package(WaylandScanner)
 
-find_package(PlasmaWaylandProtocols 1.21 CONFIG)
+find_package(PlasmaWaylandProtocols 1.23 CONFIG)
 set_package_properties(PlasmaWaylandProtocols PROPERTIES TYPE REQUIRED)
 
 find_package(Wayland 1.24 COMPONENTS Client)
