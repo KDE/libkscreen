@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <QEventLoopLocker>
 #include <QObject>
 
 #include "abstractbackend.h"
@@ -30,6 +31,7 @@ public Q_SLOTS:
 private:
     QString error;
     bool isExec;
+    QEventLoopLocker eventLoopLocker;
 
 protected:
     ConfigOperation *const q_ptr;
